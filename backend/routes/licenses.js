@@ -180,28 +180,6 @@ router.route('/:id')
     })
 
     .put((req, res) => {
-        var licenseName = req.body.licenseName
-        var licenseVersion = req.body.licenseVersion
-        var dateCreated = req.body.dateCreated
-        var lastEdited = req.body.lastEdited
-        var URL = req.body.URL
-        var comment = req.body.comment
-        var licenseType = req.body.licenseType
-
-        var query = "INSERT INTO licenses (licenseName, licenseVersion, dateCreated, lastEdited, URL, comment, licenseType) VALUES" +
-            "(?, ?, ?, ?, ?, ?, ?)"
-        var parameters = [licenseName, licenseVersion, dateCreated, lastEdited, URL, comment, licenseType]
-
-        req.db.run(query, parameters, (error) => {
-            if (error) {
-                console.log(error.message)
-                res.status(500)
-                res.end()
-            } else {
-                res.status(201)
-                res.send("success")
-            }
-        })
 
     })
 
