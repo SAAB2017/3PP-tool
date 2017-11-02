@@ -1,54 +1,28 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>id</th>
-          <th>component</th>
-          <th>version</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="item in items">
-          <td>{{ item.id }}</td>
-          <td>{{ item.component }}</td>
-          <td>{{ item.version }}</td>
-        </tr>
-      </tbody>
-    </table>
-    <router-view/>
+    <navbar></navbar>
+    <sidebar></sidebar>
+    <main-content></main-content>
   </div>
 </template>
 
 <script>
-  import axios from 'axios'
+  import Navbar from './components/layout/Navbar'
+  import Sidebar from './components/layout/Sidebar'
+  import MainContent from './components/layout/Content'
+
   export default {
     name: 'app',
-    data () {
-      return {
-        items: [],
-        errors: []
-      }
+    components: {
+      Sidebar,
+      Navbar,
+      MainContent
     },
-    created () {
-      axios.get(this.$baseAPI + 'components')
-        .then(response => {
-          this.items = response.data
-        }).catch(e => {
-          this.errors.push(e)
-        })
-    }
   }
 </script>
 
 <style>
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  margin: 10px;
 }
 </style>
