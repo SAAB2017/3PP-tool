@@ -8,6 +8,7 @@ var db = new sqlite3.Database('backend/sqlite.db')
 var components = require('./routes/components')
 var products = require('./routes/products')
 var projects = require('./routes/projects')
+var licenses = require('./routes/licenses')
 
 var api = express()
 
@@ -22,6 +23,7 @@ api.use((req, res, next) => {
 api.use('/components', components)
 api.use('/products', products)
 api.use('/projects', projects)
+api.use('/licenses', licenses)
 
 api.listen(3000)
 
