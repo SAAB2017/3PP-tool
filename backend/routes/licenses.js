@@ -29,7 +29,7 @@ router.route('/')
         if (req.body.get) {
             var query = "SELECT * FROM licenses WHERE "
             var parameters = []
-            
+
             var licensName = req.body.licensName
             var licenseVersion = req.body.licenseVersion
             var dateCreated = req.body.dateCreated
@@ -38,46 +38,46 @@ router.route('/')
 
             var first = false
             if (licensName != null) {
-                if(!first){
+                if (!first) {
                     first = true
                     query += "licenseName = ? "
-                } else{
+                } else {
                     query += "AND licenseName = ?"
                 }
                 parameters.push(licensName)
             }
             if (licenseVersion != null) {
-                if(!first){
+                if (!first) {
                     first = true
                     query += "licenseVersion = ? "
-                } else{
+                } else {
                     query += "AND licenseVersion = ? "
                 }
                 parameters.push(licenseVersion)
             }
             if (dateCreated != null) {
-                if(!first){
+                if (!first) {
                     first = true
                     query += "dateCreated = ? "
-                } else{
+                } else {
                     query += "AND dateCreated = ? "
                 }
                 parameters.push(dateCreated)
             }
             if (lastEdited != null) {
-                if(!first){
+                if (!first) {
                     first = true
                     query += "lastEdited = ? "
-                } else{
+                } else {
                     query += "AND lastEdited = ? "
                 }
                 parameters.push(lastEdited)
             }
             if (licensType != null) {
-                if(!first){
+                if (!first) {
                     first = true
                     query += "licenseType = ? "
-                } else{
+                } else {
                     query += "AND licenseType = ? "
                 }
                 parameters.push(licensType)
@@ -131,8 +131,47 @@ router.route('/')
 // ----------------------------------------------------------------------------
 router.route('/:id')
 
+    //In order to get a specific license or a specific group of licenses based on search parameters then
+    //this method must be called with an identifier constructed as following:
+    //Example search identifier: "licenseName=Test License1-licenseType=License type1
+    //Between each parameter proveded there must be a '-' other than that, the order of provided
+    //parameters makes no difference. 
     .get((req, res) => {
-       
+
+        var query = "SELECT * FROM licenses WHERE "
+        var parameters = []
+        var values = []
+        var valuesText = []
+
+        var inputString = req.params.id.split("-")
+        //Get search parameters from input 
+        for (var i = 0; i < inputString.length; i++) {
+            var tempHolder = inputString[i].split("=")
+            valuesText.push(tempHolder[0])
+            values.push(tempHolder[1])
+        }
+
+        //Construct remaining SQL query based on search parameters
+        var first = false
+        for (var i = 0; i < valuesText.length; i++) {
+            if (values[i] != null) {
+                if (!first) {
+                    first = true
+                    query += "" + valuesText[i] + " = ? "
+                } else {
+                    query += "AND " + valuesText[i] + " = ? "
+                }
+                parameters.push(values[i])
+            }
+        }
+
+        req.db.all(query, parameters, (err, rows) => {
+            if (err) {
+                //If there's an error then provide the different attributes that could have caused it. 
+                res.send("Input: " + inputString + ", query: " + query + ", values: " + values + ", valuesText: " + valuesText)
+            } else
+                res.json(rows)
+        })
     })
 
     .post((req, res) => {
