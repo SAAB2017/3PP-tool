@@ -45,7 +45,7 @@ router.route('/')
                     res.send("success")
                 }
             })
-        }else{
+        } else {
             res.status(500)
             res.send("ERROR: licenseName or licenseVersion wasn't provided.")
         }
@@ -110,6 +110,12 @@ router.route('/:id')
         res.send("Method not allowed")
     })
 
+    //In order to insert a new license then
+    //this method must be called with an identifier constructed as following 
+    //(licenseName and licensVersion must be provided, everything else is optional):
+    //Example license identifier: "licenseName=license-licenseVersion=1.0
+    //Between each parameter proveded there must be a '-' but, other than that, the order of provided
+    //parameters makes no difference. 
     .put((req, res) => {
         var query = "INSERT INTO licenses ( "
         var parameters = []
