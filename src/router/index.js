@@ -6,6 +6,8 @@ import Component from '@/views/Component'
 
 import ProductsHome from '@/views/ProductsHome'
 
+import ProjectsHome from '@/views/ProjectsHome'
+
 Vue.use(Router)
 
 export default new Router({
@@ -30,6 +32,11 @@ export default new Router({
       path: '/products',
       name: 'Products',
       component: ProductsHome
+    },
+    {
+      path: '/projects',
+      name: 'Projects',
+      component: ProjectsHome
     }
   ]
 })
