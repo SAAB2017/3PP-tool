@@ -2,12 +2,12 @@
   <div class="component-list">
     <div class="field">
       <p class="control">
-        <input v-model="product" class="input" type="text" placeholder="Name">
+        <input v-model="project" class="input" type="text" placeholder="Name">
       </p>
     </div>
     <div class="field">
       <p class="control">
-        <input v-model="productVersion" class="input" type="text" placeholder="Version">
+        <input v-model="projectVersion" class="input" type="text" placeholder="Version">
       </p>
     </div>
     <div class="vertical-menu" style="max-height: 200px; height: auto">
@@ -15,15 +15,15 @@
         <thead>
         <tr>
           <td></td>
-          <th>Component</th>
+          <th>Project</th>
           <th>Version</th>
         </tr>
         </thead>
         <tbody>
         <tr>
-          <!-- TODO Add for-loop for components -->
-          <td style="text-align: center"><input class="checkbox" type="checkbox" id="cComponentName"/></td>
-          <td>Some Component</td>
+          <!-- TODO Add for-loop for products -->
+          <td style="text-align: center"><input class="checkbox" type="checkbox" id="cProductName"/></td>
+          <td>Some Product</td>
           <td>1.0</td>
         </tr>
         </tbody>
@@ -31,12 +31,12 @@
     </div>
     <div class="field" style="padding-top: 15px">
       <p class="control">
-        <input v-model="searchComponent" class="input" type="text" placeholder="Search License">
+        <input v-model="searchProduct" class="input" type="text" placeholder="Search Product">
       </p>
     </div>
     <div style="padding-top: 15px">
       <p class="control">
-        <a @click="addProduct" class="button is-primary">Add Product</a>
+        <a @click="addProject" class="button is-primary">Add Project</a>
       </p>
     </div>
   </div>
@@ -47,44 +47,44 @@
   export default {
     data() {
       return {
-        components: [],
-        product: null,
-        productVersion: null
+        products: [],
+        project: null,
+        projectVersion: null
       }
     },
 
     mounted() {
-      axios.get(this.$baseAPI + 'components')
+      axios.get(this.$baseAPI + 'products')
         .then(response => {
-          this.components = response.data
+          this.products = response.data
         })
     },
 
     methods: {
 
-      addProducts() {
+      addProjects() {
         let data = {
-          product: this.product,
-          version: this.productVersion
-          // TODO put components for add.
+          project: this.project,
+          version: this.projectVersion
+          // TODO put products for add.
         }
 
-        axios.post(this.$baseAPI + 'products', data)
+        axios.post(this.$baseAPI + 'projects', data)
           .then(response => {
             if (response.data === "success") {
-              this.product = null
-              this.productVersion = null
+              this.project = null
+              this.projectVersion = null
 
-              axios.get(this.$baseAPI + 'products')
+              axios.get(this.$baseAPI + 'projects')
                 .then(response => {
-                  this.product = response.data
+                  this.project = response.data
                 })
             }
           })
       },
       // TODO Could be deleted? Or does it update the page after insert?
       displayComponent(component) {
-        this.$router.push({ name: "Product", params: { id: component.id } })
+        this.$router.push({ name: "Project", params: { id: component.id } })
       }
     }
   }

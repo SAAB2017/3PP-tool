@@ -14,19 +14,6 @@
       </tr>
       </tbody>
     </table>
-    <div class="field">
-      <p class="control">
-        <input v-model="project" class="input" type="text" placeholder="Name">
-      </p>
-
-      <p class="control">
-        <input v-model="projectVersion" class="input" type="text" placeholder="Version">
-      </p>
-
-      <p class="control">
-        <a @click="addproject" class="button is-primary">Add project</a>
-      </p>
-    </div>
   </div>
 </template>
 
@@ -49,6 +36,7 @@
     },
 
     methods: {
+      /* TODO should be able to delete this
       addproject() {
         var data = {
           project: this.project,
@@ -67,7 +55,7 @@
                 })
             }
           })
-      }
+      } */
     }
   }
 </script>
