@@ -1,20 +1,43 @@
 <template>
   <div class="component-list">
-    <div class="vertical-menu" style="height: 500px">
-      <table class="table is-bordered">
+    <div class="field">
+      <p class="control">
+        <input v-model="component" class="input" type="text" placeholder="Name">
+      </p>
+    </div>
+    <div class="field">
+      <p class="control">
+        <input v-model="componentVersion" class="input" type="text" placeholder="Version">
+      </p>
+    </div>
+    <div class="vertical-menu" style="max-height: 200px; height: auto">
+      <table>
         <thead>
         <tr>
-          <th>Components</th>
-          <th width=1%>Version</th>
+          <td></td>
+          <th>License</th>
+          <th>Version</th>
         </tr>
         </thead>
         <tbody>
-        <tr v-for="component in components" @click="displayComponent(component)">
-          <td>{{ component.component }}</td>
-          <td>{{ component.version }}</td>
+        <tr>
+          <!-- TODO Add for-loop for licenses -->
+          <td style="text-align: center"><input class="checkbox" type="checkbox" id="cLicenseName"/></td>
+          <td>Some License</td>
+          <td>1.0</td>
         </tr>
         </tbody>
       </table>
+    </div>
+    <div class="field" style="padding-top: 15px">
+      <p class="control">
+        <input v-model="searchComponent" class="input" type="text" placeholder="Search License">
+      </p>
+    </div>
+    <div style="padding-top: 15px">
+      <p class="control">
+        <a @click="addComponent" class="button is-primary">Add component</a>
+      </p>
     </div>
   </div>
 </template>
@@ -24,25 +47,26 @@
   export default {
     data() {
       return {
-        components: [],
+        licenses: [],
         component: null,
         componentVersion: null
       }
     },
 
     mounted() {
-      axios.get(this.$baseAPI + 'components')
+      axios.get(this.$baseAPI + 'licenses')
         .then(response => {
-          this.components = response.data
+          this.licenses = response.data
         })
     },
 
     methods: {
-      /* TODO Should be able to delete this
+
       addComponent() {
         let data = {
           component: this.component,
           version: this.componentVersion
+          // TODO put licenses for add.
         }
 
         axios.post(this.$baseAPI + 'components', data)
@@ -58,9 +82,10 @@
             }
           })
       },
+      // TODO Could be deleted? Or does it update the page after insert?
       displayComponent(component) {
         this.$router.push({ name: "Component", params: { id: component.id } })
-      } */
+      }
     }
   }
 </script>
