@@ -4,6 +4,8 @@ import Overview from '@/views/Overview'
 import ComponentsHome from '@/views/ComponentsHome'
 import Component from '@/views/Component'
 
+import ProductsHome from '@/views/ProductsHome'
+
 Vue.use(Router)
 
 export default new Router({
@@ -23,6 +25,11 @@ export default new Router({
       path:'/components/:id(\\d+)',
       name: 'Component',
       component: Component
+    },
+    {
+      path: '/products',
+      name: 'Products',
+      component: ProductsHome
     }
   ]
 })
