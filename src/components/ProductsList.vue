@@ -14,20 +14,6 @@
       </tr>
       </tbody>
     </table>
-    <div class="field">
-      <p class="control">
-        <input v-model="product" class="input" type="text" placeholder="Name">
-      </p>
-    </div>
-    <div class="field">
-      <p class="control">
-        <input v-model="productVersion" class="input" type="text" placeholder="Version">
-      </p>
-
-      <p class="control">
-        <a @click="addproduct" class="button is-primary">Add product</a>
-      </p>
-    </div>
   </div>
 </template>
 
@@ -51,6 +37,7 @@
     },
 
     methods: {
+      /* TODO should be able to delete this
       addproduct() {
         var data = {
           product: this.product,
@@ -69,7 +56,7 @@
                 })
             }
           })
-      }
+      } */
     }
   }
 </script>
