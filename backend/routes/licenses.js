@@ -22,32 +22,36 @@ router.route('/')
     // Input parameters must be (order does not matter):
     // licenseName, licenseVersion, dateCreated, lastEdited, URL, comment, licenseType
     .put((req, res) => {
-
         var licenseName = req.body.licenseName
         var licenseVersion = req.body.licenseVersion
-        var dateCreated = req.body.dateCreated
-        var lastEdited = req.body.lastEdited
-        var URL = req.body.URL
-        var comment = req.body.comment
-        var licenseType = req.body.licenseType
+        if (licenseName != null && licenseVersion != null) {
+            var dateCreated = req.body.dateCreated
+            var lastEdited = req.body.lastEdited
+            var URL = req.body.URL
+            var comment = req.body.comment
+            var licenseType = req.body.licenseType
 
-        var query = "INSERT INTO licenses (licenseName, licenseVersion, dateCreated, lastEdited, URL, comment, licenseType) VALUES" +
-            "(?, ?, ?, ?, ?, ?, ?)"
-        var parameters = [licenseName, licenseVersion, dateCreated, lastEdited, URL, comment, licenseType]
+            var query = "INSERT INTO licenses (licenseName, licenseVersion, dateCreated, lastEdited, URL, comment, licenseType) VALUES" +
+                "(?, ?, ?, ?, ?, ?, ?)"
+            var parameters = [licenseName, licenseVersion, dateCreated, lastEdited, URL, comment, licenseType]
 
-        req.db.run(query, parameters, (error) => {
-            if (error) {
-                console.log(error.message)
-                res.status(500)
-                res.end()
-            } else {
-                res.status(201)
-                res.send("success")
-            }
-        })
+            req.db.run(query, parameters, (error) => {
+                if (error) {
+                    console.log(error.message)
+                    res.status(500)
+                    res.send(error.message)
+                } else {
+                    res.status(201)
+                    res.send("success")
+                }
+            })
+        }else{
+            res.status(500)
+            res.send("ERROR: licenseName or licenseVersion wasn't provided.")
+        }
     })
 
-    
+
     .delete((req, res) => {
         res.status(405)
         res.send("Method not allowed")
@@ -95,7 +99,7 @@ router.route('/:id')
         req.db.all(query, parameters, (err, rows) => {
             if (err) {
                 //If there's an error then provide the different attributes that could have caused it. 
-                res.send("ERROR! Input: " + inputString + ", query: " + query + ", values: " + values + ", valuesText: " + valuesText)
+                res.send("ERROR! error message:" + err.message + " Input: " + inputString + ", query: " + query + ", values: " + values + ", valuesText: " + valuesText)
             } else
                 res.json(rows)
         })
@@ -107,8 +111,67 @@ router.route('/:id')
     })
 
     .put((req, res) => {
-        res.status(405)
-        res.send("Method not allowed")
+        var query = "INSERT INTO licenses ( "
+        var parameters = []
+        var values = []
+        var valuesText = []
+
+        var inputString = req.params.id.split("-")
+        //Get input parameters from the input 
+        for (var i = 0; i < inputString.length; i++) {
+            var tempHolder = inputString[i].split("=")
+            valuesText.push(tempHolder[0])
+            values.push(tempHolder[1])
+        }
+
+        var correctInputName = false
+        var correctInputVersion = false
+        //Make sure that there is licenseName and licenseVersion provided
+        for (var i = 0; i < valuesText.length; i++) {
+            if (valuesText[i] == 'licenseName') {
+                correctInputName = true
+            } else if (valuesText[i] == 'licenseVersion') {
+                correctInputVersion = true
+            }
+        }
+
+        if (correctInputName && correctInputVersion) {
+            //Construct remaining SQL query based on input parameters
+            for (var j = 0; j < 2; j++) {
+                for (var i = 0; i < valuesText.length; i++) {
+                    if (values[i] != null) {
+                        if (i == (valuesText.length - 1)) {
+                            if (j == 0) {
+                                query += "" + valuesText[i] + " "
+                                parameters.push(values[i])
+                            } else query += "? "
+                        } else {
+                            if (j == 0) {
+                                query += "" + valuesText[i] + ", "
+                                parameters.push(values[i])
+                            } else query += "?, "
+                        }
+                    }
+                }
+                if (j == 0) {
+                    query += ") VALUES ("
+                } else query += ")"
+            }
+
+            req.db.run(query, parameters, (error) => {
+                if (error) {
+                    console.log(error.message)
+                    res.status(500)
+                    res.send(error.message)
+                } else {
+                    res.status(201)
+                    res.send("success")
+                }
+            })
+        } else {
+            res.status(500)
+            res.send("ERROR: licenseName or licenseVersion wasn't provided.")
+        }
     })
 
     .delete((req, res) => {
