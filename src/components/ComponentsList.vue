@@ -10,8 +10,8 @@
         </thead>
         <tbody>
         <tr v-for="component in components" @click="displayComponent(component)">
-          <td>{{ component.component }}</td>
-          <td>{{ component.version }}</td>
+          <td>{{ component.componentName }}</td>
+          <td>{{ component.componentVersion }}</td>
         </tr>
         </tbody>
       </table>
