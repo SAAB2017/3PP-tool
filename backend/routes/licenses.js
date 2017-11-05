@@ -158,6 +158,18 @@ router.route('/:id')
         }
 
         if (correctInputName && correctInputVersion) {
+
+            var licenseID = 1
+            //Get the id of the to be created license
+            var queryGetID = "SELECT MAX(id) AS 'id' FROM licenses"
+            req.db.get(queryGetID, [], (error, row) => {
+              if (error) {
+                //If there's an error then provide the error message and the different attributes that could have caused it. 
+                res.send("ERROR! error message:" + error.message + " Input: " + inputString + ", query: " + queryGetID + ", values: " + values + ", valuesText: " + valuesText)
+              } else
+              licenseID += row.id
+            })
+
             //Construct remaining SQL query based on input parameters
             for (var j = 0; j < 2; j++) {
                 for (var i = 0; i < valuesText.length; i++) {
@@ -186,23 +198,6 @@ router.route('/:id')
                     res.status(500)
                     res.send(error.message)
                 }
-            })
-
-
-            var licenseID
-            //Get the id of the newly created license
-            query = "SELECT id FROM licenses WHERE licenseName = ? AND licenseVersion = ? "
-            parameters = [null, null]
-            for( var i = 0; i < valuesText.length; i++){
-                if(valuesText[i] == 'licenseName') parameters[0] = values[i]
-                else if(valuesText[i] == 'licenseVersion') parameters[1] = values[i]
-            }
-            req.db.get(query, parameters, (err, row) => {
-                if (err) {
-                    //If there's an error then provide the error message and the different attributes that could have caused it. 
-                    res.send("ERROR! error message:" + err.message + " Input: " + inputString + ", query: " + query + ", values: " + values + ", valuesText: " + valuesText)
-                } else
-                    licenseID = row
             })
 
             //Log the creation of the license

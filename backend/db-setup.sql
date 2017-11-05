@@ -30,29 +30,29 @@ CREATE TABLE "products"
     FOREIGN KEY (componentID) REFERENCES components(id) ON DELETE CASCADE
     );
 CREATE TABLE "projects"
-    (id INTEGER, projectName TEXT, projectVersion TEXT, productID INTEGER NOT NULL,
+    (id INTEGER, projectName TEXT NOT NULL, projectVersion TEXT NOT NULL, productID INTEGER NOT NULL,
     dateCreated DATE, lastEdited DATETIME, comment TEXT, approved BIT, approvedBy TEXT, UNIQUE(projectName, projectVersion, productID) ON CONFLICT ABORT,
     PRIMARY KEY (id),
     FOREIGN KEY (productID) REFERENCES products(id) ON DELETE CASCADE
     );
 CREATE TABLE "licenseLog"
-    (licenseID INTEGER, dateLogged DATE, note TEXT NOT NULL,
-    PRIMARY KEY (licenseID),
+    (id INTEGER, licenseID INTEGER NOT NULL, dateLogged DATE, note TEXT NOT NULL,
+    PRIMARY KEY (id),
     FOREIGN KEY (licenseID) REFERENCES licenses(id) ON DELETE CASCADE
     );
 CREATE TABLE "componentLog"
-    (componentID INTEGER, dateLogged DATE, note TEXT NOT NULL,
-    PRIMARY KEY (componentID),
+    (id INTEGER, componentID INTEGER NOT NULL, dateLogged DATE, note TEXT NOT NULL,
+    PRIMARY KEY (id),
     FOREIGN KEY (componentID) REFERENCES components(id) ON DELETE CASCADE
     );
 CREATE TABLE "productLog"
-    (productID INTEGER, dateLogged DATE, note TEXT NOT NULL,
-    PRIMARY KEY (productID),
+    (id INTEGER, productID INTEGER NOT NULL, dateLogged DATE, note TEXT NOT NULL,
+    PRIMARY KEY (id),
     FOREIGN KEY (productID) REFERENCES products(id) ON DELETE CASCADE
     );
 CREATE TABLE "projectLog"
-    (projectID INTEGER, dateLogged DATE, note TEXT NOT NULL,
-    PRIMARY KEY (projectID),
+    (id INTEGER, projectID INTEGER NOT NULL, dateLogged DATE, note TEXT NOT NULL,
+    PRIMARY KEY (id),
     FOREIGN KEY (projectID) REFERENCES projects(id) ON DELETE CASCADE
     );
 
@@ -89,18 +89,20 @@ INSERT INTO projects
 
 /* License Log */
 INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES
-    (1, 0, "License created");
+    (1, 0, "License created."),
+	(2, 0, "License created."),
+	(3, 0, "License created."),
+	(4, 0, "License created.");
 
 /* Component Log */
 INSERT INTO componentLog (componentID, dateLogged, note) VALUES
-    (1, 0, "Component created");
+    (1, 0, "Component created."),
+	(1, 0, "License added.");
 
 /* Product Log */
 INSERT INTO productLog (productID, dateLogged, note) VALUES
-    (1, 0, "Product created");
+    (1, 0, "Product created.");
 
 /* Project Log */
 INSERT INTO projectLog (projectID, dateLogged, note) VALUES
-    (1, 0, "Project created");
-	
-select * from projects
+    (1, 0, "Project created.");

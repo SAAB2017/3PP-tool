@@ -65,10 +65,9 @@ router.route('/:id')
   //(componentName, componentVersion and licenseID must be provided, everything else is optional)
   //Example component identifier: "componentName=component&componentVersion=1.0&licenseID=2"
   //Between each parameter proveded there must be a '&' but, other than that, the order of provided
-  //parameters makes no difference. 
+  //parameters makes no difference.
   .put((req, res) => {
-    var query = "INSERT INTO components ( "
-    var parameters = []
+    var parametersInsert = []
     var values = []
     var valuesText = []
 
@@ -80,83 +79,142 @@ router.route('/:id')
       values.push(tempHolder[1])
     }
 
-    var correctInputComponentName = false
-    var correctInputComponentVersion = false
-    var correctInputLicenseID = false
+    var correctInputComponentName = null
+    var correctInputComponentVersion = null
+    var correctInputLicenseID = null
     //Make sure that there is a componentName, componentVersion and licenseID provided
     for (var i = 0; i < valuesText.length; i++) {
       if (valuesText[i] == 'componentName') {
-        correctInputComponentName = true
+        correctInputComponentName = values[i]
       } else if (valuesText[i] == 'componentVersion') {
-        correctInputComponentVersion = true
+        correctInputComponentVersion = values[i]
       } else if (valuesText[i] == 'licenseID') {
-        correctInputLicenseID = true
+        correctInputLicenseID = values[i]
       }
     }
 
-    if (correctInputComponentName && correctInputComponentVersion && correctInputLicenseID) {
-      //Construct remaining SQL query based on input parameters
-      for (var j = 0; j < 2; j++) {
-        for (var i = 0; i < valuesText.length; i++) {
-          if (values[i] != null) {
-            if (i == (valuesText.length - 1)) {
-              if (j == 0) {
-                query += "" + valuesText[i] + " "
-                parameters.push(values[i])
-              } else query += "? "
-            } else {
-              if (j == 0) {
-                query += "" + valuesText[i] + ", "
-                parameters.push(values[i])
-              } else query += "?, "
-            }
-          }
-        }
-        if (j == 0) {
-          query += ") VALUES ("
-        } else query += ")"
-      }
+    if (correctInputComponentName != null && correctInputComponentVersion != null && correctInputLicenseID != null) {
 
-
-      req.db.run(query, parameters, (error) => {
+      //Check if the component already exists. If it exists already then store it's values so they can be inserted along licenseID into a new row.
+      var currentRow = null
+      var queryExists = "SELECT * FROM components WHERE componentName = ? AND componentVersion = ?"
+      var parametersExists = [correctInputComponentName, correctInputComponentVersion]
+      req.db.get(queryExists, parametersExists, (error, row) => {
         if (error) {
-          console.log(error.message)
-          res.status(500)
-          res.send(error.message)
-        } else {
-          res.status(201)
-          res.send("success")
-        }
-      })
-
-      var componentID
-      //Get the id of the newly created component
-      query = "SELECT id FROM components WHERE componentName = ? AND componentVersion = ? "
-      parameters = [null, null]
-      for (var i = 0; i < valuesText.length; i++) {
-        if (valuesText[i] == 'componentName') parameters[0] = values[i]
-        else if (valuesText[i] == 'componentVersion') parameters[1] = values[i]
-      }
-      req.db.get(query, parameters, (err, row) => {
-        if (err) {
           //If there's an error then provide the error message and the different attributes that could have caused it. 
-          res.send("ERROR! error message:" + err.message + " Input: " + inputString + ", query: " + query + ", values: " + values + ", valuesText: " + valuesText)
-        } else
-          componentID = row
-      })
-
-      //Log the creation of the license
-      parameters = [componentID, new Date().toDateString(), "Component created."]
-      query = "INSERT INTO componentLog (componentID, dateLogged, note) VALUES (?, ?, ?)"
-
-      req.db.run(query, parameters, (error) => {
-        if (error) {
-          console.log(error.message)
-          res.status(500)
-          res.send(error.message)
+          res.send("ERROR! error message:" + error.message + " Input: " + inputString + ", query: " + queryGetID + ", values: " + values + ", valuesText: " + valuesText)
         } else {
-          res.status(201)
-          res.send("success")
+          currentRow = row
+
+          if (currentRow != null) {
+            values = [currentRow.componentName, currentRow.componentVersion, correctInputLicenseID, currentRow.dateCreated, currentRow.lastEdited, currentRow.comment, currentRow.approved, currentRow.approvedBy]
+            valuesText = ['componentName', 'componentVersion', 'licenseID', 'dateCreated', 'lastEdited', 'comment', 'approved', 'approvedBy']
+
+            var queryInsert = "INSERT INTO components ( "
+            //Construct remaining SQL query based on input parametersInsert
+            for (var j = 0; j < 2; j++) {
+              for (var i = 0; i < valuesText.length; i++) {
+                if (values[i] != null) {
+                  if (i == (0)) {
+                    if (j == 0) {
+                      queryInsert += " " + valuesText[i] + " "
+                      parametersInsert.push(values[i])
+                    } else queryInsert += " ? "
+                  } else {
+                    if (j == 0) {
+                      queryInsert += ", " + valuesText[i] + ""
+                      parametersInsert.push(values[i])
+                    } else queryInsert += ", ? "
+                  }
+                }
+              }
+              if (j == 0) {
+                queryInsert += ") VALUES ("
+              } else queryInsert += ");"
+            }
+
+            //console.log("1currentRow: " + currentRow + ", query: " + queryInsert + ", values: " + parametersInsert)
+            req.db.run(queryInsert, parametersInsert, (error) => {
+              if (error) {
+                console.log("1: " + error.message)
+                res.status(500)
+                res.send("ERROR! error message:" + error.message + " Input: " + inputString + ", query: " + queryInsert + ", values: " + values + ", valuesText: " + valuesText)
+              }
+            })
+
+            //Log the creation of the components
+            var parametersLog = [currentRow.id, new Date().toDateString(), "Component created."]
+            var queryLog = "INSERT INTO componentLog (componentID, dateLogged, note) VALUES (?, ?, ?);"
+            //console.log("currentRow: " + currentRow + ", query: " + queryLog + "" + queryLog + ", values: " + parametersLog)
+            req.db.run((queryLog), parametersLog, (error) => {
+              if (error) {
+                console.log(error.message)
+                res.status(500)
+                res.send(error.message)
+              } else {
+                res.status(201)
+                res.send("Success")
+              }
+            })
+
+          } else {
+
+            var componentID = 1
+            //Get the id of the to be created component
+            var queryGetID = "SELECT MAX(id) AS 'id' FROM components"
+            req.db.get(queryGetID, [], (error, rowID) => {
+              if (error) {
+                //If there's an error then provide the error message and the different attributes that could have caused it. 
+                res.send("ERROR! error message:" + error.message + " Input: " + inputString + ", query: " + queryGetID + ", values: " + values + ", valuesText: " + valuesText)
+              } else
+                componentID += rowID.id
+              var queryInsert = "INSERT INTO components ( "
+              //Construct remaining SQL query based on input parametersInsert
+              for (var j = 0; j < 2; j++) {
+                for (var i = 0; i < valuesText.length; i++) {
+                  if (values[i] != null) {
+                    if (i == (valuesText.length - 1)) {
+                      if (j == 0) {
+                        queryInsert += "" + valuesText[i] + " "
+                        parametersInsert.push(values[i])
+                      } else queryInsert += "? "
+                    } else {
+                      if (j == 0) {
+                        queryInsert += "" + valuesText[i] + ", "
+                        parametersInsert.push(values[i])
+                      } else queryInsert += "?, "
+                    }
+                  }
+                }
+                if (j == 0) {
+                  queryInsert += ") VALUES ("
+                } else queryInsert += ");"
+              }
+
+              req.db.run(queryInsert, parametersInsert, (error) => {
+                if (error) {
+                  console.log("1: " + error.message)
+                  res.status(500)
+                  res.send("ERROR! error message:" + error.message + " Input: " + inputString + ", query: " + queryInsert + ", values: " + values + ", valuesText: " + valuesText)
+                }
+              })
+
+              //Log the creation of the components
+              var parametersLog = [componentID, new Date().toDateString(), "Component created."]
+              var queryLog = "INSERT INTO componentLog (componentID, dateLogged, note) VALUES (?, ?, ?);"
+              //console.log("currentRow: " + currentRow + ", query: " + queryInsert + "" + queryLog + ", values: " + parametersLog)
+              req.db.run((queryLog), parametersLog, (error) => {
+                if (error) {
+                  console.log(error.message)
+                  res.status(500)
+                  res.send(error.message)
+                } else {
+                  res.status(201)
+                  res.send("Success")
+                }
+              })
+            })
+          }
         }
       })
 
