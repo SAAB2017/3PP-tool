@@ -2,10 +2,10 @@
   <div class="section components">
     <h1>Components</h1>
     <div class="columns">
-      <div class="column is-3">
+      <div class="column is-4">
         <components-list></components-list>
       </div>
-      <div class="column is-3">
+      <div class="column is-4">
         <components-add></components-add>
       </div>
     </div>

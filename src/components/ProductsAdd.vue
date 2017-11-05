@@ -20,23 +20,33 @@
         </tr>
         </thead>
         <tbody>
-        <tr>
-          <!-- TODO Add for-loop for components -->
-          <td style="text-align: center"><input class="checkbox" type="checkbox" id="cComponentName"/></td>
-          <td>Some Component</td>
-          <td>1.0</td>
+        <tr v-for="component in components">
+          <td style="text-align: center"><input class="checkbox" type="checkbox" id="cComponentID"/></td>
+          <td>{{ component.componentName }}</td>
+          <td>{{ component.componentVersion }}</td>
         </tr>
         </tbody>
       </table>
     </div>
-    <div class="field" style="padding-top: 15px">
-      <p class="control">
-        <input v-model="searchComponent" class="input" type="text" placeholder="Search License">
-      </p>
+    <div class="field has-addons" style="padding-top: 15px">
+      <div class="control">
+        <input v-model="searchComponents" class="input" type="text" placeholder="Find a component">
+      </div>
+      <div class="control">
+        <a @click="searchComponent" class="button is-primary">Search</a>
+      </div>
     </div>
+
+    <div class="field">
+      <div class="control">
+        <textarea v-model="productComment" class="textarea" placeholder="Comment for product"></textarea>
+      </div>
+    </div>
+
+
     <div style="padding-top: 15px">
       <p class="control">
-        <a @click="addProduct" class="button is-primary">Add Product</a>
+        <a @click="addProduct" class="button is-primary">Add product</a>
       </p>
     </div>
   </div>
@@ -49,7 +59,8 @@
       return {
         components: [],
         product: null,
-        productVersion: null
+        productVersion: null,
+        productComment: null
       }
     },
 
@@ -62,10 +73,11 @@
 
     methods: {
 
-      addProducts() {
+      addProduct() {
         let data = {
-          product: this.product,
-          version: this.productVersion
+          productName: this.product,
+          productVersion: this.productVersion,
+          comment: this.productComment
           // TODO put components for add.
         }
 
@@ -74,6 +86,7 @@
             if (response.data === "success") {
               this.product = null
               this.productVersion = null
+              this.productComment = null
 
               axios.get(this.$baseAPI + 'products')
                 .then(response => {
@@ -81,6 +94,10 @@
                 })
             }
           })
+      },
+
+      searchComponent(){
+        // TODO Implement method
       },
       // TODO Could be deleted? Or does it update the page after insert?
       displayComponent(component) {

@@ -20,20 +20,30 @@
         </tr>
         </thead>
         <tbody>
-        <tr>
-          <!-- TODO Add for-loop for licenses -->
-          <td style="text-align: center"><input class="checkbox" type="checkbox" id="cLicenseName"/></td>
-          <td>Some License</td>
-          <td>1.0</td>
+        <tr v-for="license in licenses">
+          <td style="text-align: center"><input class="checkbox" type="checkbox" id="cLicenseID"/></td>
+          <td>{{ license.licenseName }}</td>
+          <td>{{ license.licenseVersion }}</td>
         </tr>
         </tbody>
       </table>
     </div>
-    <div class="field" style="padding-top: 15px">
-      <p class="control">
-        <input v-model="searchComponent" class="input" type="text" placeholder="Search License">
-      </p>
+    <div class="field has-addons" style="padding-top: 15px">
+      <div class="control">
+        <input v-model="searchLicenses" class="input" type="text" placeholder="Find a license">
+      </div>
+      <div class="control">
+        <a @click="searchLicense" class="button is-primary">Search</a>
+      </div>
     </div>
+
+    <div class="field">
+      <div class="control">
+        <textarea v-model="componentComment" class="textarea" placeholder="Comment for component"></textarea>
+      </div>
+    </div>
+
+
     <div style="padding-top: 15px">
       <p class="control">
         <a @click="addComponent" class="button is-primary">Add component</a>
@@ -49,7 +59,8 @@
       return {
         licenses: [],
         component: null,
-        componentVersion: null
+        componentVersion: null,
+        componentComment: null
       }
     },
 
@@ -64,8 +75,9 @@
 
       addComponent() {
         let data = {
-          component: this.component,
-          version: this.componentVersion
+          componentName: this.component,
+          componentVersion: this.componentVersion,
+          comment: this.componentComment
           // TODO put licenses for add.
         }
 
@@ -74,6 +86,7 @@
             if (response.data === "success") {
               this.component = null
               this.componentVersion = null
+              this.componentComment = null
 
               axios.get(this.$baseAPI + 'components')
                 .then(response => {
@@ -81,6 +94,10 @@
                 })
             }
           })
+      },
+
+      searchLicense() {
+        // TODO Implement method
       },
       // TODO Could be deleted? Or does it update the page after insert?
       displayComponent(component) {

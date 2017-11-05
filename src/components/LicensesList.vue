@@ -1,19 +1,19 @@
 <template>
-  <div class="component-list">
+  <div class="licenses-list">
     <div class="vertical-menu" style="max-height: 400px">
       <table class="table is-bordered">
         <thead>
         <tr>
-          <th>Components</th>
+          <th>Licenses</th>
           <th width=1%>Version</th>
           <th>Created</th>
         </tr>
         </thead>
         <tbody>
-        <tr v-for="component in components" @click="displayComponent(component)">
-          <td>{{ component.componentName }}</td>
-          <td>{{ component.componentVersion }}</td>
-          <td>{{ component.dateCreated }}</td>
+        <tr v-for="license in licenses" @click="displayComponent(license)">
+          <td>{{ license.licenseName }}</td>
+          <td>{{ license.licenseVersion }}</td>
+          <td>{{ license.dateCreated }}</td>
         </tr>
         </tbody>
       </table>
@@ -21,10 +21,10 @@
 
     <div class="field has-addons" style="padding-top: 15px">
       <div class="control">
-        <input v-model="searchComponents" class="input" type="text" placeholder="Find a component">
+        <input v-model="searchLicenses" class="input" type="text" placeholder="Find a license">
       </div>
       <div class="control">
-        <a @click="searchComponent" class="button is-primary">Search</a>
+        <a @click="searchLicense" class="button is-primary">Search</a>
       </div>
     </div>
   </div>
@@ -36,27 +36,27 @@
   export default {
     data() {
       return {
-        components: [],
-        component: null,
-        componentVersion: null
+        licenses: [],
+        license: null,
+        licenseVersion: null
       }
     },
 
     mounted() {
-      axios.get(this.$baseAPI + 'components')
+      axios.get(this.$baseAPI + 'licenses')
         .then(response => {
-          this.components = response.data
+          this.licenses = response.data
         })
     },
 
     methods: {
 
-      searchComponent(){
+      searchLicense(){
         // TODO Implement method
       },
 
-      displayComponent(component) {
-        this.$router.push({ name: "Component", params: { id: component.id } })
+      displayComponent(license) {
+        this.$router.push({ name: "License", params: { id: license.id } })
       }
       /* TODO Should be able to delete this
       addComponent() {
@@ -77,14 +77,13 @@
                 })
             }
           })
-      }, */
-
+      } */
     }
   }
 </script>
 
 <style scoped>
-  .component-list {
+  .licenses-list {
     margin-bottom: 20px;
   }
 

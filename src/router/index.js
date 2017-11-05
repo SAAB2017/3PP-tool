@@ -1,6 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Overview from '@/views/Overview'
+
+import LicensesHome from '@/views/LicensesHome'
+
 import ComponentsHome from '@/views/ComponentsHome'
 import Component from '@/views/Component'
 
@@ -19,12 +22,17 @@ export default new Router({
     component: Overview
     },
     {
+      path: '/licenses',
+      name: 'Licenses',
+      component: LicensesHome
+    },
+    {
       path: '/components',
       name: 'Components',
       component: ComponentsHome,
     },
     {
-      path:'/components/:id(\\d+)',
+      path: '/components/:id(\\d+)',
       name: 'Component',
       component: Component
     },

@@ -20,23 +20,33 @@
         </tr>
         </thead>
         <tbody>
-        <tr>
-          <!-- TODO Add for-loop for products -->
-          <td style="text-align: center"><input class="checkbox" type="checkbox" id="cProductName"/></td>
-          <td>Some Product</td>
-          <td>1.0</td>
+        <tr v-for="product in products">
+          <td style="text-align: center"><input class="checkbox" type="checkbox" id="cProductID"/></td>
+          <td>{{ product.productName }}</td>
+          <td>{{ product.productVersion }}</td>
         </tr>
         </tbody>
       </table>
     </div>
-    <div class="field" style="padding-top: 15px">
-      <p class="control">
-        <input v-model="searchProduct" class="input" type="text" placeholder="Search Product">
-      </p>
+    <div class="field has-addons" style="padding-top: 15px">
+      <div class="control">
+        <input v-model="searchProducts" class="input" type="text" placeholder="Find a product">
+      </div>
+      <div class="control">
+        <a @click="searchProduct" class="button is-primary">Search</a>
+      </div>
     </div>
+
+    <div class="field">
+      <div class="control">
+        <textarea v-model="projectComment" class="textarea" placeholder="Comment for project"></textarea>
+      </div>
+    </div>
+
+
     <div style="padding-top: 15px">
       <p class="control">
-        <a @click="addProject" class="button is-primary">Add Project</a>
+        <a @click="addProject" class="button is-primary">Add project</a>
       </p>
     </div>
   </div>
@@ -49,7 +59,8 @@
       return {
         products: [],
         project: null,
-        projectVersion: null
+        projectVersion: null,
+        projectComment: null
       }
     },
 
@@ -62,10 +73,11 @@
 
     methods: {
 
-      addProjects() {
+      addProject() {
         let data = {
-          project: this.project,
-          version: this.projectVersion
+          projectName: this.project,
+          projectVersion: this.projectVersion,
+          comment: this.componentVersion
           // TODO put products for add.
         }
 
@@ -74,6 +86,7 @@
             if (response.data === "success") {
               this.project = null
               this.projectVersion = null
+              this.projectComment = null
 
               axios.get(this.$baseAPI + 'projects')
                 .then(response => {
@@ -81,6 +94,10 @@
                 })
             }
           })
+      },
+
+      searchProduct(){
+        // TODO implement method
       },
       // TODO Could be deleted? Or does it update the page after insert?
       displayComponent(component) {

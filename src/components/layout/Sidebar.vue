@@ -1,6 +1,8 @@
 <template>
   <div class="menu">
     <sidebar-item :label="dashboard"></sidebar-item>
+    <!-- Lagt till licens -->
+    <sidebar-item :label="licenses"></sidebar-item>
     <sidebar-item :label="components"></sidebar-item>
     <sidebar-item :label="products"></sidebar-item>
     <sidebar-item :label="projects"></sidebar-item>
@@ -23,6 +25,14 @@
           items: [{
             name: "Overview",
             link: "/"
+          }]
+        },
+
+        licenses: {
+          name: "Licenses",
+          items: [{
+            name: "List licenses",
+            link: "/licenses"
           }]
         },
 

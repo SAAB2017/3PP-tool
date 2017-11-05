@@ -1,19 +1,32 @@
 <template>
   <div class="products-list">
-    <table class="table is-bordered">
-      <thead>
-      <tr>
-        <th>Products</th>
-        <th width=1%>Version</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr v-for="product in products">
-        <td>{{ product.productName }}</td>
-        <td>{{ product.productVersion }}</td>
-      </tr>
-      </tbody>
-    </table>
+    <div class="vertical-menu" style="max-height: 400px">
+      <table class="table is-bordered">
+        <thead>
+        <tr>
+          <th>Products</th>
+          <th width=1%>Version</th>
+          <th>Created</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="product in products" @click="displayComponent(product)">
+          <td>{{ product.productName }}</td>
+          <td>{{ product.productVersion }}</td>
+          <td>{{ product.dateCreated }}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="field has-addons" style="padding-top: 15px">
+      <div class="control">
+        <input v-model="searchProducts" class="input" type="text" placeholder="Find a product">
+      </div>
+      <div class="control">
+        <a @click="searchProduct" class="button is-primary">Search</a>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -37,6 +50,14 @@
     },
 
     methods: {
+
+      searchProduct(){
+        // TODO Implement method
+      },
+
+      displayComponent(product) {
+        this.$router.push({ name: "Product", params: { id: product.id } })
+      }
       /* TODO should be able to delete this
       addproduct() {
         var data = {
@@ -63,6 +84,14 @@
 
 <style scoped>
   .products-list {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
+  }
+
+  tbody>tr:hover {
+    cursor: pointer;
+  }
+  .vertical-menu {
+    width: 100%;
+    overflow-y: auto;
   }
 </style>
