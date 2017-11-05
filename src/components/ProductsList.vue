@@ -9,8 +9,8 @@
       </thead>
       <tbody>
       <tr v-for="product in products">
-        <td>{{ product.product }}</td>
-        <td>{{ product.version }}</td>
+        <td>{{ product.productName }}</td>
+        <td>{{ product.productVersion }}</td>
       </tr>
       </tbody>
     </table>
