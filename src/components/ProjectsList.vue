@@ -9,8 +9,8 @@
       </thead>
       <tbody>
       <tr v-for="project in projects">
-        <td>{{ project.project }}</td>
-        <td>{{ project.version }}</td>
+        <td>{{ project.projectName}}</td>
+        <td>{{ project.projectVersion }}</td>
       </tr>
       </tbody>
     </table>
