@@ -8,14 +8,14 @@
           <div class="field is-horizontal">
             <label class="field-label label is-normal">Name</label>
             <div class="control">
-              <input v-model="component.component" class="input" type="text">
+              <input v-model="component.componentName" class="input" type="text">
             </div>
           </div>
 
           <div class="field is-horizontal">
             <label class="field-label label is-normal">Version</label>
             <div class="control">
-              <input v-model="component.version" class="input" type="text">
+              <input v-model="component.componentVersion" class="input" type="text">
             </div>
           </div>
 
