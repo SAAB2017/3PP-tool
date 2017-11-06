@@ -32,7 +32,11 @@
           name: "Licenses",
           items: [{
             name: "List licenses",
-            link: "/licenses"
+            link: "/licenses",
+            children: [{
+              name: 'Add',
+              link: '/licenses/add'
+            }]
           }]
         },
 
@@ -42,8 +46,8 @@
             name: 'List components',
             link: '/components',
             children: [{
-              name: 'Approved',
-              link: '/components/approved'
+              name: 'Add',
+              link: '/components/add'
             },
               {
                 name: 'Pending',
@@ -58,8 +62,8 @@
             name: 'List products',
             link: '/products',
             children: [{
-              name: 'Approved',
-              link: '/products/approved'
+              name: 'Add',
+              link: '/products/add'
             },
               {
                 name: 'Pending',
@@ -74,8 +78,8 @@
             name: 'List projects',
             link: '/projects',
             children: [{
-              name: 'Approved',
-              link: '/projects/approved'
+              name: 'Add',
+              link: '/projects/add'
             },
               {
                 name: 'Pending',
