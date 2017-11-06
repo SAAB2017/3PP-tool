@@ -46,12 +46,62 @@ router.route('/')
 // ----------------------------------------------------------------------------
 router.route('/:id')
 
+  // In order to get a specific component or a specific group of components based on
+  // search parameters; this method must be called with an identifier constructed as follows:
+  // Example search identifier: "componentName=Test Components"
+  // Between each provided parameter there must be an '&' character. Aside from that
+  // the order of provided parameters makes no difference.
+  // -------------------------------
+  // To enable partial word searches simply provide another parameter called 'smartSearch'
+  // Example: 'smartSearch&componentName=Test'
+  // -------------------------------
   .get((req, res) => {
-    var query = "SELECT * FROM components WHERE id = ?"
-    var id = req.params.id
 
-    req.db.get(query, [id], (err, row) => {
-      res.json(row)
+    var query = "SELECT * FROM components WHERE "
+    var parameters = []
+    var values = []
+    var valuesText = []
+
+    var inputString = req.params.id.split("&")
+
+    // Check if smartSearch.
+    var smartSearch = false
+    for(var i = 0; i < inputString.length; i++) {
+      if(inputString[i] == 'smartSearch') smartSearch = true
+    }
+
+    // Get search parameters from input.
+    for (var i = 0; i < inputString.length; i++) {
+      if(inputString[i] != 'smartSearch'){
+        var tempHolder = inputString[i].split("=")
+        valuesText.push(tempHolder[0])
+        if(smartSearch) values.push('%' + tempHolder[1] + '%')
+        else values.push(tempHolder[1])
+      }
+    }
+
+    // Construct remaining SQL query based on search parameters.
+    var first = false
+    for (var i = 0; i < valuesText.length; i++) {
+      if (values[i] != null) {
+        if (!first) {
+          first = true
+          if(smartSearch) query += "" + valuesText[i] + " LIKE ? "
+          else query += "" + valuesText[i] + " = ? "
+        } else {
+          if(smartSearch) query += "AND " + valuesText[i] + " LIKE ? "
+          else query += "AND " + valuesText[i] + " = ? "
+        }
+        parameters.push(values[i])
+      }
+    }
+
+    req.db.all(query, parameters, (err, rows) => {
+      if (err) {
+        // If there's an error then provide the error message and the different attributes that could have caused it.
+        res.send("ERROR! error message:" + err.message + " Input: " + inputString + ", query: " + query + ", values: " + values + ", valuesText: " + valuesText)
+      } else
+        res.json(rows)
     })
   })
 
@@ -72,7 +122,7 @@ router.route('/:id')
     var valuesText = []
 
     var inputString = req.params.id.split("&")
-    //Get input parameters from the input 
+    //Get input parameters from the input
     for (var i = 0; i < inputString.length; i++) {
       var tempHolder = inputString[i].split("=")
       valuesText.push(tempHolder[0])
@@ -101,7 +151,7 @@ router.route('/:id')
       var parametersExists = [correctInputComponentName, correctInputComponentVersion]
       req.db.get(queryExists, parametersExists, (error, row) => {
         if (error) {
-          //If there's an error then provide the error message and the different attributes that could have caused it. 
+          //If there's an error then provide the error message and the different attributes that could have caused it.
           res.send("ERROR! error message:" + error.message + " Input: " + inputString + ", query: " + queryGetID + ", values: " + values + ", valuesText: " + valuesText)
         } else {
           currentRow = row
@@ -164,7 +214,7 @@ router.route('/:id')
             var queryGetID = "SELECT MAX(id) AS 'id' FROM components"
             req.db.get(queryGetID, [], (error, rowID) => {
               if (error) {
-                //If there's an error then provide the error message and the different attributes that could have caused it. 
+                //If there's an error then provide the error message and the different attributes that could have caused it.
                 res.send("ERROR! error message:" + error.message + " Input: " + inputString + ", query: " + queryGetID + ", values: " + values + ", valuesText: " + valuesText)
               } else
                 componentID += rowID.id
