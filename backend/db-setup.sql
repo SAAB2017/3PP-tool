@@ -37,6 +37,8 @@ CREATE TABLE "licensesInComponents" (
     id INTEGER,
     licenseID INTEGER NOT NULL,
     componentID INTEGER NOT NULL,
+    approved BIT,
+    approvedBy TEXT,
     UNIQUE(licenseID, componentID) ON CONFLICT ABORT,
     PRIMARY KEY (id),
     FOREIGN KEY (licenseID) REFERENCES licenses(id) ON DELETE CASCADE,
@@ -50,10 +52,7 @@ CREATE TABLE "components" (
     dateCreated DATE,
     lastEdited DATETIME,
     comment TEXT,
-    approved INTEGER,
-    approvedBy TEXT,
-    UNIQUE(componentName,
-    componentVersion) ON CONFLICT ABORT
+    UNIQUE(componentName, componentVersion) ON CONFLICT ABORT
     PRIMARY KEY (id)
     );
 
@@ -61,6 +60,8 @@ CREATE TABLE "componentsInProducts" (
     id INTEGER,
     componentID INTEGER NOT NULL,
     productID INTEGER NOT NULL,
+    approved BIT,
+    approvedBy TEXT,
     UNIQUE(componentID, productID) ON CONFLICT ABORT,
     PRIMARY KEY (id),
     FOREIGN KEY (componentID) REFERENCES components(id) ON DELETE CASCADE,
@@ -74,8 +75,6 @@ CREATE TABLE "products" (
     dateCreated DATE,
     lastEdited DATETIME,
     comment TEXT,
-    approved BIT,
-    approvedBy TEXT,
     UNIQUE(productName, productVersion) ON CONFLICT ABORT,
     PRIMARY KEY (id)
     );
@@ -84,6 +83,8 @@ CREATE TABLE "productsInProjects" (
     id INTEGER,
     productID INTEGER NOT NULL,
     projectID INTEGER NOT NULL,
+    approved BIT,
+    approvedBy TEXT,
     UNIQUE(productID, projectID) ON CONFLICT ABORT,
     PRIMARY KEY (id),
     FOREIGN KEY (productID) REFERENCES products(id) ON DELETE CASCADE,
@@ -97,8 +98,6 @@ CREATE TABLE "projects" (
     dateCreated DATE,
     lastEdited DATETIME,
     comment TEXT,
-    approved BIT,
-    approvedBy TEXT,
     UNIQUE(projectName, projectVersion) ON CONFLICT ABORT,
     PRIMARY KEY (id)
     );
@@ -153,20 +152,20 @@ INSERT INTO licenses (licenseName, licenseVersion, dateCreated, lastEdited, URL,
 
 /* Components */
 INSERT INTO components
-    (componentName, componentVersion, dateCreated, lastEdited, comment, approved, approvedBy) VALUES
-    ("Test Components", "1.0", 0, 0, "component comment", 1, "component approved by");
+    (componentName, componentVersion, dateCreated, lastEdited, comment) VALUES
+    ("Test Components", "1.0", 0, 0, "component comment");
 
 /* Products */
 INSERT INTO products
     (productName, productVersion,
-    dateCreated, lastEdited, comment, approved, approvedBy) VALUES
-    ("Test Products", "1.0", 0, 0, "product comment", 1, "product approved by");
+    dateCreated, lastEdited, comment) VALUES
+    ("Test Products", "1.0", 0, 0, "product comment");
 
 /* Projects */
 INSERT INTO projects
     (projectName, projectVersion,
-    dateCreated, lastEdited, comment, approved, approvedBy) VALUES
-    ("Test Projects", "1.0", 0, 0, "project comment", 1, "project approved by");
+    dateCreated, lastEdited, comment) VALUES
+    ("Test Projects", "1.0", 0, 0, "project comment");
 
 /* License Log */
 INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES
