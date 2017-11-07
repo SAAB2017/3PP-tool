@@ -1,4 +1,3 @@
-/* Drop tables */
 DROP TABLE IF EXISTS projectLog;
 DROP TABLE IF EXISTS projects;
 DROP TABLE IF EXISTS productLog;
@@ -10,31 +9,27 @@ DROP TABLE IF EXISTS licenses;
 DROP TABLE IF EXISTS Accounts;
 
 /* Create tables */
-CREATE TABLE "Accounts"
-	(accountID TEXT PRIMARY KEY UNIQUE, password TEXT NOT NULL, name TEXT, email TEXT);
+CREATE TABLE "Accounts" (accountID TEXT PRIMARY KEY UNIQUE, password TEXT NOT NULL, name TEXT, email TEXT);
+
 CREATE TABLE "licenses"
     (id INTEGER, licenseName TEXT NOT NULL, licenseVersion TEXT NOT NULL, dateCreated DATE, lastEdited DATETIME, URL TEXT,
-    comment TEXT, licenseType TEXT, UNIQUE(licenseName, licenseVersion) ON CONFLICT ABORT
-    PRIMARY KEY (id)
-    );
-CREATE TABLE "components"
-    (id INTEGER, componentName TEXT NOT NULL, componentVersion TEXT NOT NULL, licenseID INTEGER NOT NULL,
-	dateCreated DATE, lastEdited DATETIME, comment TEXT, approved INTEGER, approvedBy TEXT, UNIQUE(componentName, componentVersion, licenseID) ON CONFLICT ABORT
+    comment TEXT, licenseType TEXT, UNIQUE(licenseName, licenseVersion) ON CONFLICT ABORT, PRIMARY KEY (id));
+
+CREATE TABLE "components" (id INTEGER, componentName TEXT NOT NULL, componentVersion TEXT NOT NULL, licenseID INTEGER NOT NULL,
+	dateCreated DATE, lastEdited DATETIME, comment TEXT, approved boolean, approvedBy TEXT, UNIQUE(componentName, componentVersion, licenseID) ON CONFLICT ABORT,
     PRIMARY KEY (id),
-    FOREIGN KEY (licenseID) REFERENCES licenses(id) ON DELETE CASCADE
-    );
+    FOREIGN KEY (licenseID) REFERENCES licenses(id) ON DELETE CASCADE);
+
 CREATE TABLE "products"
     (id INTEGER, productName TEXT NOT NULL, productVersion TEXT NOT NULL, componentID INTEGER NOT NULL,
-    dateCreated DATE, lastEdited DATETIME, comment TEXT, approved BIT, approvedBy TEXT, UNIQUE(productName, productVersion, componentID) ON CONFLICT ABORT,
+    dateCreated DATE, lastEdited DATETIME, comment TEXT, approved boolean, approvedBy TEXT, UNIQUE(productName, productVersion, componentID) ON CONFLICT ABORT,
     PRIMARY KEY (id),
-    FOREIGN KEY (componentID) REFERENCES components(id) ON DELETE CASCADE
-    );
+    FOREIGN KEY (componentID) REFERENCES components(id) ON DELETE CASCADE);
 CREATE TABLE "projects"
     (id INTEGER, projectName TEXT NOT NULL, projectVersion TEXT NOT NULL, productID INTEGER NOT NULL,
-    dateCreated DATE, lastEdited DATETIME, comment TEXT, approved BIT, approvedBy TEXT, UNIQUE(projectName, projectVersion, productID) ON CONFLICT ABORT,
+    dateCreated DATE, lastEdited DATETIME, comment TEXT, approved boolean, approvedBy TEXT, UNIQUE(projectName, projectVersion, productID) ON CONFLICT ABORT,
     PRIMARY KEY (id),
-    FOREIGN KEY (productID) REFERENCES products(id) ON DELETE CASCADE
-    );
+    FOREIGN KEY (productID) REFERENCES products(id) ON DELETE CASCADE);
 CREATE TABLE "licenseLog"
     (id INTEGER, licenseID INTEGER NOT NULL, dateLogged DATE, note TEXT NOT NULL,
     PRIMARY KEY (id),
@@ -73,19 +68,24 @@ INSERT INTO components
     (componentName, componentVersion, licenseID, dateCreated, lastEdited, comment,
     approved, approvedBy) VALUES
     ("Test Components", "1.0", 1, 0, 0, "component comment", 1, "component approved by"),
-	("Test Components", "1.0", 3, 0, 0, "component comment", 1, "component approved by");
-	
+	  ("Machine Gun", "1.0", 2, 0, 0, "component comment", 1, "component approved by");
+
+INSERT INTO projects
+    (projectName, projectVersion, productID,
+    dateCreated, lastEdited, comment, approved, approvedBy) VALUES
+    ("Doom Guns: BFG", "1.0", 1, 0, 0, "Blasts holes into mofos.", 0, null),
+    ("Doom Guns: BFG", "1.0", 2, 0, 0, "Blasts holes into mofos.", 0, null),
+    ("Test Projects", "1.0", 1, 0, 0, "project comment", 1, "project approved by");
+
 /* Products */
 INSERT INTO products
     (productName, productVersion, componentID,
     dateCreated, lastEdited, comment, approved, approvedBy) VALUES
-    ("Test Products", "1.0", 1, 0, 0, "product comment", 1, "product approved by");
+    ("Test Products", "1.0", 1, 0, 0, "product comment", 1, "product approved by"),
+    ("Test P", "1.0", 2, 0, 0, "product comment", 1, "product approved by");
 
 /* Projects */
-INSERT INTO projects
-    (projectName, projectVersion, productID,
-    dateCreated, lastEdited, comment, approved, approvedBy) VALUES
-    ("Test Projects", "1.0", 1, 0, 0, "project comment", 1, "project approved by");
+/* Projects */
 
 /* License Log */
 INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES
