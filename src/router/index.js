@@ -29,77 +29,77 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'Overview',
+      name: 'home',
       component: Overview
     },
     {
       path: '/licenses',
-      name: 'Licenses',
+      name: 'licenses',
       component: LicensesHome
     },
     {
       path: '/licenses/:id(\\d+)',
-      name: 'License',
+      name: 'license',
       component: License
     },
     {
       path: '/licenses/add',
-      name: 'Add License',
+      name: 'add_License',
       component: AddLicense
     },
     {
       path: '/components',
-      name: 'Components',
+      name: 'components',
       component: ComponentsHome,
     },
     {
       path: '/components/:id(\\d+)',
-      name: 'Component',
+      name: 'component',
       component: Component
     },
     {
       path: '/components/add',
-      name: 'Add Component',
+      name: 'add_Component',
       component: AddComponent
     },
     {
       path: '/products',
-      name: 'Products',
+      name: 'products',
       component: ProductsHome
     },
     {
       path: '/products/:id(\\d+)',
-      name: 'Product',
+      name: 'product',
       component: Product
     },
     {
       path: '/products/add',
-      name: 'Add Product',
+      name: 'add_product',
       component: AddProduct
     },
     {
       path: '/projects',
-      name: 'Projects',
+      name: 'projects',
       component: ProjectsHome
     },
     {
       path: '/projects/:id(\\d+)',
-      name: 'Project',
+      name: 'project',
       component: Project
     },
     {
       path: '/projects/add',
-      name: 'Add Project',
+      name: 'add_project',
       component: AddProject
     },
     {
       path: '/projects/pending',
-      name: 'Projects pending',
+      name: 'projects_pending',
       component: ProjectsPending
     },
     {
       path: '/projects/pending/:id(\\d+)',
-      name: 'Sign Project',
+      name: 'sign_project',
       component: SignProject
     }
 
