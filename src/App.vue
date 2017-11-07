@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <navbar></navbar>
-    <sidebar></sidebar>
+    <!--sidebar></sidebar-->
     <main-content></main-content>
   </div>
 </template>
@@ -14,7 +14,7 @@
   export default {
     name: 'app',
     components: {
-      Sidebar,
+      // Sidebar,
       Navbar,
       MainContent
     },

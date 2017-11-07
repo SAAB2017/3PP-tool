@@ -1,9 +1,11 @@
 <template>
   <div class="section">
-    <h1>Add Component</h1>
     <div class="columns">
-      <div class="component">
-        <components-add></components-add>
+      <div class="column is-one-quarter is-offset-one-third">
+        <h1>Add Component</h1>
+        <div class="component">
+          <components-add></components-add>
+        </div>
       </div>
     </div>
   </div>
