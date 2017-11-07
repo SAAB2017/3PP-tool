@@ -9,11 +9,12 @@ import AddLicense from '@/views/AddLicense'
 import ComponentsHome from '@/views/ComponentsHome'
 import Component from '@/views/Component'
 import AddComponent from '@/views/AddComponent'
-
+import ComponentsPending from '@/views/ComponentsPending'
 
 import ProductsHome from '@/views/ProductsHome'
 import Product from '@/views/Product'
 import AddProduct from '@/views/AddProduct'
+import ProductsPending from '@/views/ProductsPending'
 
 import ProjectsHome from '@/views/ProjectsHome'
 import Project from '@/views/Project'
@@ -29,77 +30,87 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'Overview',
+      name: 'home',
       component: Overview
     },
     {
       path: '/licenses',
-      name: 'Licenses',
+      name: 'licenses',
       component: LicensesHome
     },
     {
       path: '/licenses/:id(\\d+)',
-      name: 'License',
+      name: 'licenses_id',
       component: License
     },
     {
       path: '/licenses/add',
-      name: 'Add License',
+      name: 'licenses_add',
       component: AddLicense
     },
     {
       path: '/components',
-      name: 'Components',
+      name: 'components',
       component: ComponentsHome,
     },
     {
       path: '/components/:id(\\d+)',
-      name: 'Component',
+      name: 'components_id',
       component: Component
     },
     {
       path: '/components/add',
-      name: 'Add Component',
+      name: 'components_add',
       component: AddComponent
     },
     {
+      path: '/components/pending',
+      name: 'components_pending',
+      component: ComponentsPending
+    },
+    {
       path: '/products',
-      name: 'Products',
+      name: 'products',
       component: ProductsHome
     },
     {
       path: '/products/:id(\\d+)',
-      name: 'Product',
+      name: 'products_id',
       component: Product
     },
     {
       path: '/products/add',
-      name: 'Add Product',
+      name: 'products_add',
       component: AddProduct
     },
     {
+      path: '/products/pending',
+      name: 'products_pending',
+      component: ProductsPending
+    },
+    {
       path: '/projects',
-      name: 'Projects',
+      name: 'projects',
       component: ProjectsHome
     },
     {
       path: '/projects/:id(\\d+)',
-      name: 'Project',
+      name: 'projects_id',
       component: Project
     },
     {
       path: '/projects/add',
-      name: 'Add Project',
+      name: 'projects_add',
       component: AddProject
     },
     {
       path: '/projects/pending',
-      name: 'Projects pending',
+      name: 'projects_pending',
       component: ProjectsPending
     },
     {
       path: '/projects/pending/:id(\\d+)',
-      name: 'Sign Project',
+      name: 'projects_pending_id',
       component: SignProject
     }
 
