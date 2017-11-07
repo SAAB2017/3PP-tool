@@ -62,63 +62,85 @@ router.route('/')
 // ----------------------------------------------------------------------------
 router.route('/:id')
 
-    //In order to get a specific license or a specific group of licenses based on search parameters then
-    //this method must be called with an identifier constructed as following:
-    //Example search identifier: "licenseName=Test License1&licenseType=License type1"
-    //Between each parameter proveded there must be a '&' other than that, the order of provided
-    //parameters makes no difference. 
-    //-------------------------------
-    //To enable partial word searches simply provide another parameter called 'smartSearch'
-    // Example: 'smartSearch&licenseName=Test&licenseType=type'
-    //-------------------------------
+// In order to search; send in a JSON object with the applicable parameters.
     .get((req, res) => {
 
-        var query = "SELECT * FROM licenses WHERE "
-        var parameters = []
-        var values = []
-        var valuesText = []
+      var input = JSON.parse(req.params.id)
+      var parametersText = Object.keys(input)
+      var parameters = []
 
-        var inputString = req.params.id.split("&")
+      var query = "SELECT * FROM licenses WHERE "
 
-        //Check if smartSearch
-        var smartSearch = false
-        for(var i = 0; i < inputString.length; i++){
-            if(inputString[i] == 'smartSearch') smartSearch = true
+      var first = false;
+
+      for (var i = 0; i < parametersText.length; i++) {
+        if (!first) {
+          first = true;
+          query += parametersText[i] + " = ?"
+        } else {
+          query += " AND " + parametersText[i] + " = ?"
         }
+        parameters.push(input[parametersText[i]])
+      }
 
-        //Get search parameters from input 
-        for (var i = 0; i < inputString.length; i++) {
-            if(inputString[i] != 'smartSearch'){
-                var tempHolder = inputString[i].split("=")
-                valuesText.push(tempHolder[0])
-                if(smartSearch) values.push('%' + tempHolder[1] + '%')
-                else values.push(tempHolder[1])
-            }
-        }
+      req.db.all(query, parameters, (err, rows) => {
+        if (err) {
+          // If there's an error then provide the error message and the different attributes that could have caused it.
+          res.send("ERROR! error message:" + err.message + " Input: " + inputString + ", query: " + query + ", values: " + values + ", valuesText: " + valuesText)
+        } else
+          res.json(rows)
+      })
 
-        //Construct remaining SQL query based on search parameters
-        var first = false
-        for (var i = 0; i < valuesText.length; i++) {
-            if (values[i] != null) {
-                if (!first) {
-                    first = true
-                    if(smartSearch) query += "" + valuesText[i] + " LIKE ? "
-                    else query += "" + valuesText[i] + " = ? "
-                } else {
-                    if(smartSearch) query += "AND " + valuesText[i] + " LIKE ? "
-                    else query += "AND " + valuesText[i] + " = ? "
-                }
-                parameters.push(values[i])
-            }
-        }
+      /*
 
-        req.db.all(query, parameters, (err, rows) => {
-            if (err) {
-                //If there's an error then provide the error message and the different attributes that could have caused it. 
-                res.send("ERROR! error message:" + err.message + " Input: " + inputString + ", query: " + query + ", values: " + values + ", valuesText: " + valuesText)
-            } else
-                res.json(rows)
-        })
+      var query = "SELECT * FROM licenses WHERE "
+      var parameters = []
+      var values = []
+      var valuesText = []
+
+      var inputString = req.params.id.split("&")
+
+      //Check if smartSearch
+      var smartSearch = false
+      for(var i = 0; i < inputString.length; i++){
+          if(inputString[i] == 'smartSearch') smartSearch = true
+      }
+
+      //Get search parameters from input
+      for (var i = 0; i < inputString.length; i++) {
+          if(inputString[i] != 'smartSearch'){
+              var tempHolder = inputString[i].split("=")
+              valuesText.push(tempHolder[0])
+              if(smartSearch) values.push('%' + tempHolder[1] + '%')
+              else values.push(tempHolder[1])
+          }
+      }
+
+      //Construct remaining SQL query based on search parameters
+      var first = false
+      for (var i = 0; i < valuesText.length; i++) {
+          if (values[i] != null) {
+              if (!first) {
+                  first = true
+                  if(smartSearch) query += "" + valuesText[i] + " LIKE ? "
+                  else query += "" + valuesText[i] + " = ? "
+              } else {
+                  if(smartSearch) query += "AND " + valuesText[i] + " LIKE ? "
+                  else query += "AND " + valuesText[i] + " = ? "
+              }
+              parameters.push(values[i])
+          }
+      }
+
+      req.db.all(query, parameters, (err, rows) => {
+          if (err) {
+              //If there's an error then provide the error message and the different attributes that could have caused it.
+              res.send("ERROR! error message:" + err.message + " Input: " + inputString + ", query: " + query + ", values: " + values + ", valuesText: " + valuesText)
+          } else
+              res.json(rows)
+      })
+
+      */
     })
 
     .post((req, res) => {
@@ -131,7 +153,7 @@ router.route('/:id')
     //(licenseName and licensVersion must be provided, everything else is optional)
     //Example license identifier: "licenseName=license&licenseVersion=1.0
     //Between each parameter proveded there must be a '&' but, other than that, the order of provided
-    //parameters makes no difference. 
+    //parameters makes no difference.
     .put((req, res) => {
         var query = "INSERT INTO licenses ( "
         var parameters = []
@@ -139,7 +161,7 @@ router.route('/:id')
         var valuesText = []
 
         var inputString = req.params.id.split("&")
-        //Get input parameters from the input 
+        //Get input parameters from the input
         for (var i = 0; i < inputString.length; i++) {
             var tempHolder = inputString[i].split("=")
             valuesText.push(tempHolder[0])
@@ -164,7 +186,7 @@ router.route('/:id')
             var queryGetID = "SELECT MAX(id) AS 'id' FROM licenses"
             req.db.get(queryGetID, [], (error, row) => {
               if (error) {
-                //If there's an error then provide the error message and the different attributes that could have caused it. 
+                //If there's an error then provide the error message and the different attributes that could have caused it.
                 res.send("ERROR! error message:" + error.message + " Input: " + inputString + ", query: " + queryGetID + ", values: " + values + ", valuesText: " + valuesText)
               } else
               licenseID += row.id
