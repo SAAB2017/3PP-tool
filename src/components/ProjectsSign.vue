@@ -43,7 +43,7 @@
     },
 
     mounted() {
-      axios.get(this.$baseAPI + 'projects')
+      axios.get(this.$baseAPI + 'projects/pending')
         .then(response => {
           this.projects = response.data
         })
@@ -56,28 +56,8 @@
       },
 
       displayProject(project) {
-        this.$router.push({ name: "Project", params: { id: project.id } })
+        this.$router.push({ name: "Sign Project", params: { id: project.id } })
       }
-      /* TODO should be able to delete this
-      addproject() {
-        var data = {
-          project: this.project,
-          version: this.projectVersion
-        }
-
-        axios.post(this.$baseAPI + 'projects', data)
-          .then(response => {
-            if (response.data === "success") {
-              this.project = null
-              this.projectVersion = null
-
-              axios.get(this.$baseAPI + 'projects')
-                .then(response => {
-                  this.projects = response.data
-                })
-            }
-          })
-      } */
     }
   }
 </script>

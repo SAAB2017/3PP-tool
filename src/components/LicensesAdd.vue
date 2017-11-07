@@ -81,7 +81,7 @@
           })
       },
       // TODO Could be deleted? Or does it update the page after insert?
-      displayComponent(component) {
+      displayProject(component) {
         this.$router.push({ name: "License", params: { id: component.id } })
       }
     }
