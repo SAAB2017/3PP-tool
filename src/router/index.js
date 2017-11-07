@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Overview from '@/views/Overview'
 
 import LicensesHome from '@/views/LicensesHome'
+import License from '@/views/License'
 import AddLicense from '@/views/AddLicense'
 
 import ComponentsHome from '@/views/ComponentsHome'
@@ -32,6 +33,11 @@ export default new Router({
       path: '/licenses',
       name: 'Licenses',
       component: LicensesHome
+    },
+    {
+      path: '/licenses/:id(\\d+)',
+      name: 'License',
+      component: License
     },
     {
       path: '/licenses/add',
