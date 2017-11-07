@@ -1,6 +1,6 @@
 <template>
   <div class="products-list">
-    <div class="vertical-menu" style="max-height: 400px">
+    <div class="vertical-menu" style="max-height: 400px; min-width: 310px">
       <table class="table is-bordered">
         <thead>
         <tr>

@@ -1,6 +1,8 @@
 <template>
   <section class="content">
-    <router-view></router-view>
+    <div class="container is-fluid">
+      <router-view></router-view>
+    </div>
   </section>
 </template>
 

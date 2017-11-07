@@ -1,9 +1,13 @@
 <template>
   <div class="section">
-    <h1>Add License</h1>
     <div class="columns">
-      <div class="component">
-        <licenses-add></licenses-add>
+      <div class="column is-one-quarter is-offset-one-third">
+        <h1>Add License</h1>
+        <div class="columns">
+          <div class="component">
+            <licenses-add></licenses-add>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -19,6 +19,9 @@ import ProjectsHome from '@/views/ProjectsHome'
 import Project from '@/views/Project'
 import AddProject from '@/views/AddProject'
 
+import SignProject from '@/views/SignProject'
+import ProjectsPending from '@/views/ProjectsPending'
+
 Vue.use(Router)
 
 export default new Router({
@@ -88,6 +91,17 @@ export default new Router({
       path: '/projects/add',
       name: 'Add Project',
       component: AddProject
+    },
+    {
+      path: '/projects/pending',
+      name: 'Projects pending',
+      component: ProjectsPending
+    },
+    {
+      path: '/projects/pending/:id(\\d+)',
+      name: 'Sign Project',
+      component: SignProject
     }
+
   ]
 })

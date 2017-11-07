@@ -1,6 +1,6 @@
 <template>
   <div class="projects-list">
-    <div class="vertical-menu" style="max-height: 400px; min-width: 310px">
+    <div class="vertical-menu" style="max-height: 400px; max-width: 300px">
       <table class="table is-bordered">
         <thead>
         <tr>
@@ -12,8 +12,9 @@
         <tbody>
         <tr v-for="project in projects" @click="displayComponent(project)">
           <td>{{ project.projectName}}</td>
-          <td>{{ project.projectVersion }}</td>
+          <td>{{ project.productID }}</td>
           <td>{{ project.dateCreated }}</td>
+          <td>{{ project.projectVersion }}</td>
         </tr>
         </tbody>
       </table>
@@ -43,7 +44,7 @@
     },
 
     mounted() {
-      axios.get(this.$baseAPI + 'projects')
+      axios.get(this.$baseAPI + 'projects/pending')
         .then(response => {
           this.projects = response.data
         })
@@ -56,28 +57,8 @@
       },
 
       displayComponent(project) {
-        this.$router.push({ name: "Project", params: { id: project.id } })
+        this.$router.push({ name: "Sign Project", params: { id: project.id } })
       }
-      /* TODO should be able to delete this
-      addproject() {
-        var data = {
-          project: this.project,
-          version: this.projectVersion
-        }
-
-        axios.post(this.$baseAPI + 'projects', data)
-          .then(response => {
-            if (response.data === "success") {
-              this.project = null
-              this.projectVersion = null
-
-              axios.get(this.$baseAPI + 'projects')
-                .then(response => {
-                  this.projects = response.data
-                })
-            }
-          })
-      } */
     }
   }
 </script>
