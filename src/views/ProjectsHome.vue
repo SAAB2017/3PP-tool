@@ -1,8 +1,8 @@
 <template>
   <div class="section products">
-    <h1>Projects</h1>
     <div class="columns">
-      <div class="column is-4">
+      <div class="column is-one-quarter is-offset-one-third">
+        <h1>Projects</h1>
         <projects-list></projects-list>
       </div>
     </div>

@@ -1,6 +1,6 @@
 <template>
   <div class="projects-list">
-    <div class="vertical-menu" style="max-height: 400px">
+    <div class="vertical-menu" style="max-height: 400px; max-width: 300px">
       <table class="table is-bordered">
         <thead>
         <tr>
