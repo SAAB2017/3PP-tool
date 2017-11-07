@@ -44,7 +44,7 @@ export default new Router({
     },
     {
       path: '/licenses/add',
-      name: 'add_License',
+      name: 'add_license',
       component: AddLicense
     },
     {
@@ -59,7 +59,7 @@ export default new Router({
     },
     {
       path: '/components/add',
-      name: 'add_Component',
+      name: 'add_component',
       component: AddComponent
     },
     {
