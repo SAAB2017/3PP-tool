@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Overview from '@/views/Overview'
 
 import LicensesHome from '@/views/LicensesHome'
+import License from '@/views/License'
 import AddLicense from '@/views/AddLicense'
 
 import ComponentsHome from '@/views/ComponentsHome'
@@ -11,9 +12,11 @@ import AddComponent from '@/views/AddComponent'
 
 
 import ProductsHome from '@/views/ProductsHome'
+import Product from '@/views/Product'
 import AddProduct from '@/views/AddProduct'
 
 import ProjectsHome from '@/views/ProjectsHome'
+import Project from '@/views/Project'
 import AddProject from '@/views/AddProject'
 
 Vue.use(Router)
@@ -30,6 +33,11 @@ export default new Router({
       path: '/licenses',
       name: 'Licenses',
       component: LicensesHome
+    },
+    {
+      path: '/licenses/:id(\\d+)',
+      name: 'License',
+      component: License
     },
     {
       path: '/licenses/add',
@@ -57,6 +65,11 @@ export default new Router({
       component: ProductsHome
     },
     {
+      path: '/products/:id(\\d+)',
+      name: 'Product',
+      component: Product
+    },
+    {
       path: '/products/add',
       name: 'Add Product',
       component: AddProduct
@@ -65,6 +78,11 @@ export default new Router({
       path: '/projects',
       name: 'Projects',
       component: ProjectsHome
+    },
+    {
+      path: '/projects/:id(\\d+)',
+      name: 'Project',
+      component: Project
     },
     {
       path: '/projects/add',

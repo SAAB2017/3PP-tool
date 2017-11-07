@@ -1,7 +1,7 @@
 <template>
   <div class="section">
-        <div v-if="component" class="component">
-          <h1 class="has-text-left">Component {{ component.id }}</h1>
+        <div v-if="project" class="component">
+          <h1 class="has-text-left">Project {{ project.id }}</h1>
           <div class="columns">
             <div class="column is-12">
               <div class="columns">
@@ -11,7 +11,7 @@
                   <div class="field is-horizontal">
                     <label class="field-label label is-normal">Name</label>
                     <div class="control">
-                      <input v-if="component.componentName" v-model="component.componentName" class="input" type="text">
+                      <input v-if="project.projectName" v-model="project.projectName" class="input" type="text">
                       <input v-else class="input" type="text" v-model="testName">
                     </div>
                   </div>
@@ -19,7 +19,7 @@
                   <div class="field is-horizontal">
                     <label class="field-label label is-normal">Version</label>
                     <div class="control">
-                      <input v-if="component.componentVersion" v-model="component.componentVersion" class="input" type="text">
+                      <input v-if="project.projectVersion" v-model="project.projectVersion" class="input" type="text">
                       <input v-else v-model="testVersion" class="input" type="text" >
                     </div>
                   </div>
@@ -27,7 +27,7 @@
 
                   <div class="field is-grouped is-grouped-right">
                     <div class="control">
-                      <button @click="updateComponent()" class="button is-primary">Update</button>
+                      <button @click="updateProject()" class="button is-primary">Update</button>
                     </div>
                   </div>
                 </div>
@@ -37,14 +37,14 @@
                   <div class="field is-horizontal">
                     <label class="field-label label is-normal">Created</label><label style="color: transparent">h</label>
                     <div class="control">
-                      <input v-if="component.dateCreated" v-model="component.dateCreated" class="input" type="text"  disabled>
+                      <input v-if="project.dateCreated" v-model="project.dateCreated" class="input" type="text"  disabled>
                       <input v-else  v-model="testDate"class="input" type="text" disabled>
                     </div>
                   </div>
                   <div class="field is-horizontal">
                     <label class="field-label label is-normal">Approver</label>
                     <div class="control">
-                      <input v-if="component.approvedBy" v-model="component.approvedBy" class="input" type="text" disabled>
+                      <input v-if="project.approvedBy" v-model="project.approvedBy" class="input" type="text" disabled>
                       <input v-else v-model="testApproved" class="input" type="text" disabled>
                     </div>
                   </div>
@@ -54,7 +54,7 @@
                   <div class="field is-horizontal">
                     <label class="field-label label is-normal">Comment</label>
                     <div class="control" style="width: 100%">
-                      <textarea v-if="component.comment" class="textarea" v-model="component.comment"></textarea>
+                      <textarea v-if="project.comment" class="textarea" v-model="project.comment"></textarea>
                       <textarea v-else class="textarea" v-model="testComment"></textarea>
                     </div>
                   </div>
@@ -65,10 +65,11 @@
           </div>
           <div class="columns">
             <div class="column is-one-third">
+              <!-- TODO Fix for-loops -->
               <table class="table is-bordered">
                 <thead>
                 <tr>
-                  <th>Licenses in component</th>
+                  <th>Licenses in project</th>
                   <th width=1%>Version</th>
                 </tr>
                 </thead>
@@ -84,7 +85,7 @@
               <table class="table is-bordered">
                 <thead>
                 <tr>
-                  <th>Component in products</th>
+                  <th>Components in project</th>
                   <th width=1%>Version</th>
                 </tr>
                 </thead>
@@ -100,7 +101,7 @@
               <table class="table is-bordered">
                 <thead>
                 <tr>
-                  <th>Component in projects</th>
+                  <th>Products in project</th>
                   <th width=1%>Version</th>
                 </tr>
                 </thead>
@@ -118,8 +119,8 @@
         <div v-else>
           <div class="columns">
             <div class="column is-3">
-              <h1>Component not found</h1>
-              <p>No component with ID {{ id }}</p>
+              <h1>Project not found</h1>
+              <p>No project with ID {{ id }}</p>
             </div>
           </div>
         </div>
@@ -133,7 +134,7 @@
 
     data () {
       return {
-        component: {},
+        project: {},
         message: '',
         testName: 'Test name',
         testVersion: 'Test version',
@@ -144,39 +145,30 @@
     },
 
     mounted () {
-      axios.get(this.$baseAPI + 'components/' + this.$route.params.id)
+      axios.get(this.$baseAPI + 'projects/' + this.$route.params.id)
         .then(response => {
-          this.component = response.data
+          this.project = response.data
         })
     },
 
     methods: {
 
-      updateComponent () {
+      updateProject () {
         var data = {
-          id: this.component.id,
-          component: this.component.component,
-          version: this.component.version,
-          comment: this.component.comment
+          id: this.project.id,
+          component: this.project.component,
+          version: this.project.version,
+          comment: this.project.comment
         }
 
-        axios.put(this.$baseAPI + 'components/' + this.component.id, data)
+        axios.put(this.$baseAPI + 'projects/' + this.project.id, data)
           .then(response => {
             if (response.status === '201') {
-              axios.get(this.$baseAPI + 'components/' + this.component.id)
+              axios.get(this.$baseAPI + 'project/' + this.project.id)
                 .then(response => {
                   this.message = 'Update sucessful'
-                  this.component = response.data
+                  this.project = response.data
                 })
-            }
-          })
-      },
-
-      deleteComponent () {
-        axios.delete(this.$baseAPI + 'components/' + this.component.id)
-          .then(response => {
-            if (response.status === '200') {
-              this.$router.push({ name: 'Components' })
             }
           })
       }
