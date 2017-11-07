@@ -15,6 +15,7 @@ import Product from '@/views/Product'
 import AddProduct from '@/views/AddProduct'
 
 import ProjectsHome from '@/views/ProjectsHome'
+import Project from '@/views/Project'
 import AddProject from '@/views/AddProject'
 
 Vue.use(Router)
@@ -71,6 +72,11 @@ export default new Router({
       path: '/projects',
       name: 'Projects',
       component: ProjectsHome
+    },
+    {
+      path: '/projects/:id(\\d+)',
+      name: 'Project',
+      component: Project
     },
     {
       path: '/projects/add',
