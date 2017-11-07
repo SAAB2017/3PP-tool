@@ -9,11 +9,12 @@ import AddLicense from '@/views/AddLicense'
 import ComponentsHome from '@/views/ComponentsHome'
 import Component from '@/views/Component'
 import AddComponent from '@/views/AddComponent'
-
+import ComponentsPending from '@/views/ComponentsPending'
 
 import ProductsHome from '@/views/ProductsHome'
 import Product from '@/views/Product'
 import AddProduct from '@/views/AddProduct'
+import ProductsPending from '@/views/ProductsPending'
 
 import ProjectsHome from '@/views/ProjectsHome'
 import Project from '@/views/Project'
@@ -63,6 +64,11 @@ export default new Router({
       component: AddComponent
     },
     {
+      path: '/components/pending',
+      name: 'components_pending',
+      component: ComponentsPending
+    },
+    {
       path: '/products',
       name: 'products',
       component: ProductsHome
@@ -76,6 +82,11 @@ export default new Router({
       path: '/products/add',
       name: 'products_add',
       component: AddProduct
+    },
+    {
+      path: '/products/pending',
+      name: 'products_pending',
+      component: ProductsPending
     },
     {
       path: '/projects',
