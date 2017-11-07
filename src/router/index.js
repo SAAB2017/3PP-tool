@@ -39,12 +39,12 @@ export default new Router({
     },
     {
       path: '/licenses/:id(\\d+)',
-      name: 'license',
+      name: 'licenses_id',
       component: License
     },
     {
       path: '/licenses/add',
-      name: 'add_license',
+      name: 'licenses_add',
       component: AddLicense
     },
     {
@@ -54,12 +54,12 @@ export default new Router({
     },
     {
       path: '/components/:id(\\d+)',
-      name: 'component',
+      name: 'components_id',
       component: Component
     },
     {
       path: '/components/add',
-      name: 'add_component',
+      name: 'components_add',
       component: AddComponent
     },
     {
@@ -69,12 +69,12 @@ export default new Router({
     },
     {
       path: '/products/:id(\\d+)',
-      name: 'product',
+      name: 'products_id',
       component: Product
     },
     {
       path: '/products/add',
-      name: 'add_product',
+      name: 'products_add',
       component: AddProduct
     },
     {
@@ -84,12 +84,12 @@ export default new Router({
     },
     {
       path: '/projects/:id(\\d+)',
-      name: 'project',
+      name: 'projects_id',
       component: Project
     },
     {
       path: '/projects/add',
-      name: 'add_project',
+      name: 'projects_add',
       component: AddProject
     },
     {
@@ -99,7 +99,7 @@ export default new Router({
     },
     {
       path: '/projects/pending/:id(\\d+)',
-      name: 'sign_project',
+      name: 'projects_pending_id',
       component: SignProject
     }
 
