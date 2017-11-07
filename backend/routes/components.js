@@ -75,342 +75,279 @@ router.route('/:id')
         res.json(rows)
     })
 
-    /*
-
-    var query = "SELECT * FROM components WHERE "
-    var values = []
-    var valuesText = []
-
-    var inputString = req.params.id.split("&")
-
-    // Check if smartSearch.
-    var smartSearch = false
-    for (var i = 0; i < inputString.length; i++) {
-      if (inputString[i] == 'smartSearch') smartSearch = true
-    }
-
-    // Get search parameters from input.
-    for (var i = 0; i < inputString.length; i++) {
-      if (inputString[i] != 'smartSearch') {
-        var tempHolder = inputString[i].split("=")
-        valuesText.push(tempHolder[0])
-        if (smartSearch) values.push('%' + tempHolder[1] + '%')
-        else values.push(tempHolder[1])
-      }
-    }
-
-    // Construct remaining SQL query based on search parameters.
-    var first = false
-    for (var i = 0; i < valuesText.length; i++) {
-      if (values[i] != null) {
-        if (!first) {
-          first = true
-          if (smartSearch) query += "" + valuesText[i] + " LIKE ? "
-          else query += "" + valuesText[i] + " = ? "
-        } else {
-          if (smartSearch) query += "AND " + valuesText[i] + " LIKE ? "
-          else query += "AND " + valuesText[i] + " = ? "
-        }
-        parameters.push(values[i])
-      }
-    }
-
-    req.db.all(query, parameters, (err, rows) => {
-      if (err) {
-        // If there's an error then provide the error message and the different attributes that could have caused it.
-        res.send("ERROR! error message:" + err.message + " Input: " + inputString + ", query: " + query + ", values: " + values + ", valuesText: " + valuesText)
-      } else
-        res.json(rows)
-    })
-
-    */
   })
 
-  // In order to alter a specific component or a specific group of components based on
-  // certain parameters then this methis is to be used; this method must be called with an identifier constructed as follows:
-  // Example input identifier: "componentName=Test Components&licenseVersion=1.0&comment=Here's a new comment!"
-  // Between each provided parameter there must be an '&' character. Aside from that
-  // the order of provided parameters makes no difference.
+  //In order to change a component; send in a JSON object with the applicable parameters (componentName and componentVersion or id must be provided).
+  //In order to change the approval of a license attached to a component; send in a JSON object 
+  //with the applicable parameters (Ether componentName and componentVersion or id aswell as licenseID, approved and/or approvedBy must be provided).
   .post((req, res) => {
-    var values = []
-    var valuesText = []
+    let input = JSON.parse(req.params.id)
+    let inputParametersText = Object.keys(input)
 
-    var inputString = req.params.id.split("&")
-    //Get input parameters from the input.
-    for (var i = 0; i < inputString.length; i++) {
-      var tempHolder = inputString[i].split("=")
-      valuesText.push(tempHolder[0])
-      values.push(tempHolder[1])
+    let parametersText = []
+    let parameters = []
+
+    let correctInputComponentName = null
+    let correctInputComponentVersion = null
+    let correctInputId = null
+    let approved = [null, null]
+    let date = false
+    //Make sure that there is a componentName and componentVersion provided or an id provided. Also checks if dateCreated and lastEdited is provided aswell. 
+    //Also check if approved or approvedBy was provided.
+    for (let i = 0; i < inputParametersText.length; i++) {
+      if (inputParametersText[i] == 'componentName') {
+
+        correctInputComponentName = input[inputParametersText[i]]
+
+      } else if (inputParametersText[i] == 'componentVersion') {
+
+        correctInputComponentVersion = input[inputParametersText[i]]
+
+      } else if (inputParametersText[i] == 'id') {
+
+        correctInputId = input[inputParametersText[i]]
+
+      } else if (inputParametersText[i] == 'approved') {
+
+        approved[0] = input[inputParametersText[i]]
+
+      } else if (inputParametersText[i] == 'approvedBy') {
+
+        if(input[inputParametersText[i]] != '') approved[0] = 1
+        approved[1] = input[inputParametersText[i]]
+
+      } else if (inputParametersText[i] == 'lastEdited') {
+
+        parameters.push(input[inputParametersText[i]])
+        parametersText.push(inputParametersText[i])
+        parameters[i] = new Date().toDateString()
+        date = true
+
+      } else if (inputParametersText[i] != 'dateCreated' && inputParametersText[i] != 'licenseID') {
+
+        parameters.push(input[inputParametersText[i]])
+        parametersText.push(inputParametersText[i])
+
+      }
     }
-
-    var correctInputComponentName = null
-    var correctInputComponentVersion = null
-    var date = [null, false]
-    //Make sure that there is a componentName and componentVersion provided. Also checks if dateCreated and lastEdited is provided.
-    for (var i = 0; i < valuesText.length; i++) {
-      if (valuesText[i] == 'componentName') {
-        correctInputComponentName = values[i]
-      } else if (valuesText[i] == 'componentVersion') {
-        correctInputComponentVersion = values[i]
-      } else if (valuesText[i] == 'dateCreated') {
-        date[0] = i
-        values[date[0]] = new Date().toDateString()
-      } else if (valuesText[i] == 'lastEdited') {
-        values[i] = new Date().toDateString()
-        date[1] = true
+    
+    //logic for correct approve/approveBy
+    if (approved[0] != null) {
+      if (approved == 0 && approved[1] == null) {
+        approved[1] = ''
+      }else if(approved == 1 && approved[1] == null){
+        approved[0] = null
       }
     }
 
-    //If dateCreated was provided then remove it.
-    if (date[0] != null) {
-      var tempValuesArray = []
-      var tempValuesTextArray = []
-      for (var i = 0; i < valuesText.length; i++) {
-        if (i != date[0]) {
-          tempValuesTextArray.push(valuesText[i])
-          tempValuesArray.push(values[i])
+    //Insert approved and approvedBy if it passed the logic check
+    if(approved[0] != null && approved[1] != null){
+      parametersText.push('approved')
+      parameters.push(approved[0])
+      parametersText.push('approvedBy')
+      parameters.push(approved[1])
+    }
+
+    //If lastEdited wasn't provided then provide it
+    if (!date) {
+      parametersText.push('lastEdited')
+      parameters.push(new Date().toDateString())
+    }
+
+    //Make sure that there is either an id provided or a componentName and componentVersion provided
+    if ((correctInputComponentName != null && correctInputComponentVersion != null) || correctInputId != null) {
+      let query = "UPDATE components SET "
+
+      //Construct the remaining SQL query
+      let first = false;
+      for (let i = 0; i < parametersText.length; i++) {
+        if (!first) {
+          first = true
+          query += parametersText[i] + " = ?"
+        } else {
+          query += ", " + parametersText[i] + " = ?"
         }
       }
-      value = tempValuesArray
-      valuesText = tempValuesTextArray
-    }
 
-    //If lastEdited wasn't provided then provide it.
-    if (!date[1]) {
-      valuesText.push('lastEdited')
-      if (values.length < valuesText.length) values.push(new Date().toDateString())
-    }
-
-    //Make sure the necessary data is provided
-    if (correctInputComponentName != null && correctInputComponentVersion != null) {
-
-      var query = "UPDATE components SET "
-      var parameters = []
-      //Construct remaining SQL query based on input parameters.
-      var first = false;
-      for (var i = 0; i < valuesText.length; i++) {
-        if (values[i] != null && valuesText[i] != 'licenseID') {
-          if (!first) {
-            first = true
-            query += "" + valuesText[i] + " = ?"
-          } else {
-            query += ", " + valuesText[i] + " = ?"
-          }
-          parameters.push(values[i])
-        }
+      //Check if either componentName/componentVersion or id was provided and use them one find the row to alter
+      if (correctInputComponentName != null && correctInputComponentVersion != null) {
+        query += " WHERE componentName = ? AND componentVersion = ?;"
+        parameters.push(correctInputComponentName)
+        parameters.push(correctInputComponentVersion)
+      } else if (correctInputId != null) {
+        query += " WHERE id = ?;"
+        parameters.push(correctInputId)
       }
-      query += " WHERE componentName = ? AND componentVersion = ?;"
-      parameters.push(correctInputComponentName)
-      parameters.push(correctInputComponentVersion)
 
       req.db.run(query, parameters, (error) => {
         if (error) {
-          console.log("1: " + error.message)
+          console.log(error.message)
           res.status(500)
-          res.send("ERROR! error message:" + error.message + " Input: " + inputString + ", query: " + query + ", values: " + values + ", valuesText: " + valuesText)
+          res.send("ERROR! error message:" + error.message + ", query: " + query + ", parameters: " + parameters)
         } else {
           res.status(200)
-          res.send("Success!")
+          res.send("Success")
         }
       })
+    } else {
+      console.log("ERROR! Must insert either a correct id or a correct componentName and a correct componentVerison.")
+      res.status(500)
+      res.send("ERROR! Must insert either a correct id or a correct componentName and a correct componentVerison.")
     }
+
   })
 
-  //In order to add a new component then
-  //this method must be called with an identifier constructed as following:
-  //(componentName, componentVersion and licenseID must be provided, everything else is optional)
-  //Example component identifier: "componentName=component&componentVersion=1.0&licenseID=2"
-  //Between each parameter proveded there must be a '&' but, other than that, the order of provided
-  //parameters makes no difference.
+  //In order to add a new component; send in a JSON object with the applicable parameters (componentName and componentVersion must be provided).
+  //In order to add a new license to the component; send in a JSON object with the applicable parameters (componentName, componentVersion and licenseID must be provided).
   .put((req, res) => {
-    var parametersInsert = []
-    var values = []
-    var valuesText = []
+    let input = JSON.parse(req.params.id)
+    let parametersText = Object.keys(input)
+    let parameters = []
 
-    var inputString = req.params.id.split("&")
-    //Get input parameters from the input
-    for (var i = 0; i < inputString.length; i++) {
-      var tempHolder = inputString[i].split("=")
-      valuesText.push(tempHolder[0])
-      values.push(tempHolder[1])
-    }
-
-    var correctInputComponentName = null
-    var correctInputComponentVersion = null
-    var correctInputLicenseID = null
-    var date = [false, false]
-    //Make sure that there is a componentName, componentVersion and licenseID provided. Also checks if dateCreated and lastEdited is provided.
-    for (var i = 0; i < valuesText.length; i++) {
-      if (valuesText[i] == 'componentName') {
-        correctInputComponentName = values[i]
-      } else if (valuesText[i] == 'componentVersion') {
-        correctInputComponentVersion = values[i]
-      } else if (valuesText[i] == 'licenseID') {
-        correctInputLicenseID = values[i]
-      } else if (valuesText[i] == 'dateCreated') {
-        values[i] = new Date().toDateString()
+    let correctInputComponentName = null
+    let correctInputComponentVersion = null
+    let correctInputLicenseID = null
+    let date = [false, false]
+    //Make sure that there is a componentName and componentVersion provided. Also checks if dateCreated and lastEdited is provided.
+    for (let i = 0; i < parametersText.length; i++) {
+      parameters.push(input[parametersText[i]])
+      if (parametersText[i] == 'componentName') {
+        correctInputComponentName = parameters[i]
+      } else if (parametersText[i] == 'componentVersion') {
+        correctInputComponentVersion = parameters[i]
+      } else if (parametersText[i] == 'licenseID') {
+        correctInputLicenseID = parameters[i]
+      } else if (parametersText[i] == 'dateCreated') {
+        parameters[i] = new Date().toDateString()
         date[0] = true
-      } else if (valuesText[i] == 'lastEdited') {
-        values[i] = new Date().toDateString()
+      } else if (parametersText[i] == 'lastEdited') {
+        parameters[i] = new Date().toDateString()
         date[1] = true
       }
     }
     //If dateCreated wasn't provided then provide it
     if (!date[0]) {
-      valuesText.push('dateCreated')
-      values.push(new Date().toDateString())
+      parametersText.push('dateCreated')
+      parameters.push(new Date().toDateString())
     }
     //If lastEdited wasn't provided then provide it
     if (!date[1]) {
-      valuesText.push('lastEdited')
-      values.push(new Date().toDateString())
+      parametersText.push('lastEdited')
+      parameters.push(new Date().toDateString())
     }
 
-    //Make sure the necessary parameters are provided.
-    if (correctInputComponentName != null && correctInputComponentVersion != null && correctInputLicenseID != null) {
+    //Make sure the necessary parameters are provided to insert a new component.
+    if (correctInputComponentName != null && correctInputComponentVersion != null && correctInputLicenseID == null) {
 
-      //Check if the component already exists. If it exists already then store it's values so they can be inserted along licenseID into a new row.
-      var currentRow = null
-      var queryExists = "SELECT * FROM components WHERE componentName = ? AND componentVersion = ?"
-      var parametersExists = [correctInputComponentName, correctInputComponentVersion]
-      req.db.get(queryExists, parametersExists, (error, row) => {
+      let query = "INSERT INTO components ( "
+
+      //Construct the remaining SQL query
+      for (let j = 0; j < 2; j++) {
+        let first = false;
+        for (let i = 0; i < parametersText.length; i++) {
+          if (!first) {
+            first = true
+            if (j == 0) query += parametersText[i]
+            else query += "?"
+          } else {
+            if (j == 0) query += ", " + parametersText[i]
+            else query += ", ?"
+          }
+        }
+        if (j == 0) {
+          query += ") VALUES ("
+        } else query += ");"
+      }
+
+      req.db.run(query, parameters, (error) => {
         if (error) {
-          //If there's an error then provide the error message and the different attributes that could have caused it.
-          res.send("ERROR! error message:" + error.message + " Input: " + inputString + ", query: " + queryGetID + ", values: " + values + ", valuesText: " + valuesText)
+          console.log(error.message)
+          res.status(500)
+          res.send("ERROR! error message:" + error.message + ", query: " + query + ", parameters: " + parameters)
         } else {
-          currentRow = row
-
-          if (currentRow != null) { //Component exists. Relevant data need to be inserted along with the licenseID.
-            values = [currentRow.componentName, currentRow.componentVersion, correctInputLicenseID, new Date().toDateString(), new Date().toDateString(), currentRow.comment, currentRow.approved, currentRow.approvedBy]
-            valuesText = ['componentName', 'componentVersion', 'licenseID', 'dateCreated', 'lastEdited', 'comment', 'approved', 'approvedBy']
-
-            var queryInsert = "INSERT OR IGNORE INTO components ( "
-            //Construct remaining SQL query based on input parametersInsert
-            for (var j = 0; j < 2; j++) {
-              for (var i = 0; i < valuesText.length; i++) {
-                if (values[i] != null) {
-                  if (i == (0)) {
-                    if (j == 0) {
-                      queryInsert += " " + valuesText[i] + " "
-                      parametersInsert.push(values[i])
-                    } else queryInsert += " ? "
-                  } else {
-                    if (j == 0) {
-                      queryInsert += ", " + valuesText[i] + ""
-                      parametersInsert.push(values[i])
-                    } else queryInsert += ", ? "
-                  }
-                }
-              }
-              if (j == 0) {
-                queryInsert += ") VALUES ("
-              } else queryInsert += ");"
-            }
-
-            req.db.run(queryInsert, parametersInsert, (error) => {
-              if (error) {
-                console.log("1: " + error.message)
-                res.status(500)
-                res.send("ERROR! error message:" + error.message + " Input: " + inputString + ", query: " + queryInsert + ", values: " + values + ", valuesText: " + valuesText)
-              }
-            })
-
-          } else { //Component dosen't exist.
-
-            var componentID = 1
-            //Get the id of the to be created component.
-            var queryGetID = "SELECT MAX(id) AS 'id' FROM components"
-            req.db.get(queryGetID, [], (error, rowID) => {
-              if (error) {
-                //If there's an error then provide the error message and the different attributes that could have caused it.
-                res.send("ERROR! error message:" + error.message + " Input: " + inputString + ", query: " + queryGetID + ", values: " + values + ", valuesText: " + valuesText)
-              } else
-                componentID += rowID.id
-              var queryInsert = "INSERT OR IGNORE INTO components ( "
-              //Construct remaining SQL query based on input parametersInsert
-              for (var j = 0; j < 2; j++) {
-                for (var i = 0; i < valuesText.length; i++) {
-                  if (values[i] != null) {
-                    if (i == (valuesText.length - 1)) {
-                      if (j == 0) {
-                        queryInsert += "" + valuesText[i] + " "
-                        parametersInsert.push(values[i])
-                      } else queryInsert += "? "
-                    } else {
-                      if (j == 0) {
-                        queryInsert += "" + valuesText[i] + ", "
-                        parametersInsert.push(values[i])
-                      } else queryInsert += "?, "
-                    }
-                  }
-                }
-                if (j == 0) {
-                  queryInsert += ") VALUES ("
-                } else queryInsert += ");"
-              }
-
-              req.db.run(queryInsert, parametersInsert, (error) => {
+          var componentID = 1
+          //Get the id of the to be created component.
+          var queryGetID = "SELECT MAX(id) AS 'id' FROM components;"
+          req.db.get(queryGetID, [], (error, row) => {
+            if (error) {
+              //If there's an error then provide the error message and the different attributes that could have caused it.
+              res.send("ERROR! error message:" + error.message + ", query: " + query + ", parameters: " + parameters)
+            } else {
+              //Log the creation of the component
+              var parametersLog = [row.id, new Date().toDateString(), "Component created."]
+              var queryLog = "INSERT INTO componentLog (componentID, dateLogged, note) VALUES (?, ?, ?);"
+              req.db.run((queryLog), parametersLog, (error) => {
                 if (error) {
-                  console.log("1: " + error.message)
+                  console.log(error.message)
                   res.status(500)
-                  res.send("ERROR! error message:" + error.message + " Input: " + inputString + ", query: " + queryInsert + ", values: " + values + ", valuesText: " + valuesText)
+                  res.send(error.message)
+                } else {
+                  res.status(201)
+                  res.send("Success!")
                 }
               })
-            })
-          }
+            }
+          })
+        }
+      })
 
-          //Make sure a new componentLog isn't created if the component already existed
-          setTimeout(function () {
-            var query = "SELECT * FROM components WHERE componentName = ? AND componentVersion = ? and licenseID = ?;"
-            var parameters = [correctInputComponentName, correctInputComponentVersion, correctInputLicenseID]
-            req.db.get(query, parameters, (error, row) => {
+    } //Make sure the necessary parameters are provided to insert a new license into the component.
+    else if (correctInputComponentName != null && correctInputComponentVersion != null && correctInputLicenseID != null) {
+
+      //Get the id of the component.
+      var queryGetID = "SELECT id FROM components WHERE componentName = ? AND componentVersion = ?;"
+      req.db.get(queryGetID, [correctInputComponentName, correctInputComponentVersion], (error, row) => {
+        if (error) {
+          console.log(error.message)
+          res.status(500)
+          res.send(error.message)
+        } else {
+          if (row != null) {
+            //Insert the license as a license of the component
+            let query = "INSERT INTO licensesInComponents ( licenseID, componentID) VALUES (?, ?);"
+            parameters = [correctInputLicenseID, row.id]
+            req.db.run(query, parameters, (error) => {
               if (error) {
-                console.log("1: " + error.message)
+                console.log(error.message)
                 res.status(500)
-                res.send("ERROR! error message:" + error.message + " Input: " + inputString + ", query: " + queryInsert + ", values: " + values + ", valuesText: " + valuesText)
+                res.send(error.message)
               } else {
-                if (row != null) {
-                  query = "SELECT * FROM componentLog WHERE componentID = ? AND note = ?;"
-                  parameters = [row.id, "Component created."]
-                  req.db.get(query, parameters, (error, rowLog) => {
-                    if (error) {
-                      console.log(error.message)
-                      res.status(500)
-                      res.send(error.message)
-                    } else {
-                      if (rowLog == null) {
-                        //Log the creation of the component
-                        var parametersLog = [row.id, new Date().toDateString(), "Component created."]
-                        var queryLog = "INSERT INTO componentLog (componentID, dateLogged, note) VALUES (?, ?, ?);"
-                        req.db.run((queryLog), parametersLog, (error) => {
-                          if (error) {
-                            console.log(error.message)
-                            res.status(500)
-                            res.send(error.message)
-                          } else {
-                            res.status(201)
-                            res.send("Success!")
-                          }
-                        })
+                //Get the license
+                let queryGetLicense = "SELECT * FROM licenses WHERE id = ?;"
+                req.db.get(queryGetLicense, [correctInputLicenseID], (error, rowLicense) => {
+                  if (error) {
+                    console.log(error.message)
+                    res.status(500)
+                    res.send(error.message)
+                  } else {
+                    //Log the addition of the license
+                    var parametersLog = [row.id, new Date().toDateString(), "Added the license: " + rowLicense.licenseName + " v" + rowLicense.licenseVersion + "."]
+                    var queryLog = "INSERT INTO componentLog (componentID, dateLogged, note) VALUES (?, ?, ?);"
+                    req.db.run((queryLog), parametersLog, (error) => {
+                      if (error) {
+                        console.log(error.message)
+                        res.status(500)
+                        res.send(error.message)
                       } else {
-                        res.status(412)
-                        res.send("ERROR: Component already exists.")
+                        res.status(201)
+                        res.send("Success!")
                       }
-                    }
-                  })
-                } else {
-                  res.status(412)
-                  res.send("ERROR: Provided parameters are not either not unique or not valid. Please check provided parameters and try again.")
-                }
+                    })
+                  }
+                })
               }
             })
-          }, 100)
+          } else {
+            console.log("ERROR: Cannot add a license to a non existing component.")
+            res.status(500)
+            res.send("ERROR: Cannot add a license to a non existing component.")
+          }
         }
       })
 
     } else {
-      res.status(412)
-      res.send("ERROR: componentName, componentVersion, or licenseID wasn't provided.")
+      res.status(500)
+      res.send("ERROR: componentName or componentVersion wasn't provided.")
     }
   })
 
