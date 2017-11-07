@@ -11,6 +11,7 @@ import AddComponent from '@/views/AddComponent'
 
 
 import ProductsHome from '@/views/ProductsHome'
+import Product from '@/views/Product'
 import AddProduct from '@/views/AddProduct'
 
 import ProjectsHome from '@/views/ProjectsHome'
@@ -55,6 +56,11 @@ export default new Router({
       path: '/products',
       name: 'Products',
       component: ProductsHome
+    },
+    {
+      path: '/products/:id(\\d+)',
+      name: 'Product',
+      component: Product
     },
     {
       path: '/products/add',
