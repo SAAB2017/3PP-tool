@@ -46,19 +46,38 @@ router.route('/')
 // ----------------------------------------------------------------------------
 router.route('/:id')
 
-  // In order to get a specific component or a specific group of components based on
-  // search parameters; this method must be called with an identifier constructed as follows:
-  // Example search identifier: "componentName=Test Components"
-  // Between each provided parameter there must be an '&' character. Aside from that
-  // the order of provided parameters makes no difference.
-  // -------------------------------
-  // To enable partial word searches simply provide another parameter called 'smartSearch'
-  // Example: 'smartSearch&componentName=Test'
-  // -------------------------------
+  // In order to search; send in a JSON object with the applicable parameters.
   .get((req, res) => {
 
-    var query = "SELECT * FROM components WHERE "
+    var input = JSON.parse(req.params.id)
+    var parametersText = Object.keys(input)
     var parameters = []
+
+    var query = "SELECT * FROM components WHERE "
+
+    var first = false;
+
+    for (var i = 0; i < parametersText.length; i++) {
+      if (!first) {
+        first = true;
+        query += parametersText[i] + " = ?"
+      } else {
+        query += " AND " + parametersText[i] + " = ?"
+      }
+      parameters.push(input[parametersText[i]])
+    }
+
+    req.db.all(query, parameters, (err, rows) => {
+      if (err) {
+        // If there's an error then provide the error message and the different attributes that could have caused it.
+        res.send("ERROR! error message:" + err.message + " Input: " + inputString + ", query: " + query + ", values: " + values + ", valuesText: " + valuesText)
+      } else
+        res.json(rows)
+    })
+
+    /*
+
+    var query = "SELECT * FROM components WHERE "
     var values = []
     var valuesText = []
 
@@ -103,6 +122,8 @@ router.route('/:id')
       } else
         res.json(rows)
     })
+
+    */
   })
 
   // In order to alter a specific component or a specific group of components based on
@@ -162,7 +183,7 @@ router.route('/:id')
 
     //Make sure the necessary data is provided
     if (correctInputComponentName != null && correctInputComponentVersion != null) {
-      
+
       var query = "UPDATE components SET "
       var parameters = []
       //Construct remaining SQL query based on input parameters.
@@ -207,7 +228,7 @@ router.route('/:id')
     var valuesText = []
 
     var inputString = req.params.id.split("&")
-    //Get input parameters from the input 
+    //Get input parameters from the input
     for (var i = 0; i < inputString.length; i++) {
       var tempHolder = inputString[i].split("=")
       valuesText.push(tempHolder[0])
@@ -254,7 +275,7 @@ router.route('/:id')
       var parametersExists = [correctInputComponentName, correctInputComponentVersion]
       req.db.get(queryExists, parametersExists, (error, row) => {
         if (error) {
-          //If there's an error then provide the error message and the different attributes that could have caused it. 
+          //If there's an error then provide the error message and the different attributes that could have caused it.
           res.send("ERROR! error message:" + error.message + " Input: " + inputString + ", query: " + queryGetID + ", values: " + values + ", valuesText: " + valuesText)
         } else {
           currentRow = row
@@ -301,7 +322,7 @@ router.route('/:id')
             var queryGetID = "SELECT MAX(id) AS 'id' FROM components"
             req.db.get(queryGetID, [], (error, rowID) => {
               if (error) {
-                //If there's an error then provide the error message and the different attributes that could have caused it. 
+                //If there's an error then provide the error message and the different attributes that could have caused it.
                 res.send("ERROR! error message:" + error.message + " Input: " + inputString + ", query: " + queryGetID + ", values: " + values + ", valuesText: " + valuesText)
               } else
                 componentID += rowID.id
