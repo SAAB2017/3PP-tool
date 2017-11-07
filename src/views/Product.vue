@@ -54,8 +54,8 @@
                   <div class="field is-horizontal">
                     <label class="field-label label is-normal">Comment</label>
                     <div class="control" style="width: 100%">
-                      <textarea v-if="product.comment" class="textarea" v-model="product.comment" readonly></textarea>
-                      <textarea v-else class="textarea" v-model="testComment" readonly></textarea>
+                      <textarea v-if="product.comment" class="textarea" v-model="product.comment"></textarea>
+                      <textarea v-else class="textarea" v-model="testComment"></textarea>
                     </div>
                   </div>
                 </div>
@@ -157,7 +157,8 @@
         var data = {
           id: this.product.id,
           component: this.product.component,
-          version: this.product.version
+          version: this.product.version,
+          comment: this.product.comment
         }
 
         axios.put(this.$baseAPI + 'products/' + this.product.id, data)
