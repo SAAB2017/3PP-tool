@@ -100,7 +100,7 @@
         // TODO Implement method
       },
       // TODO Could be deleted? Or does it update the page after insert?
-      displayProject(component) {
+      displayComponent(component) {
         this.$router.push({ name: "Component", params: { id: component.id } })
       }
     }

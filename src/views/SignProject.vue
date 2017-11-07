@@ -56,23 +56,27 @@
     methods: {
 
       signProject () {
-        console.log(this.project.projectName)
-        var data = {
-          id: this.project.id,
-          approvedBy: this.project.approvedBy
+        if (this.project.approvedBy !== null || this.project.approvedBy) {
+          console.log(this.project.projectName)
+          let data = {
+            id: this.project.id,
+            approvedBy: this.project.approvedBy
+          }
+          axios.put(this.$baseAPI + 'projects/pending/' + this.project.id, data)
+            .then(response => {
+              if (response.status === '201') {
+                axios.get(this.$baseAPI + 'projects/pending/' + this.project.id)
+                  .then(response => {
+                    this.message = 'Project signed'
+                    this.project = response.data
+                  })
+              } else {
+                console.log("Error: Could not sign project")
+              }
+            })
+        } else {
+          this.message = "Invalid signature!"
         }
-        axios.put(this.$baseAPI + 'projects/pending/' + this.project.id, data)
-          .then(response => {
-            if (response.status === '201') {
-              axios.get(this.$baseAPI + 'projects/pending/' + this.project.id)
-                .then(response => {
-                  this.message = 'Project signed'
-                  this.project = response.data
-                })
-            } else {
-              console.log("Error: Could not sign project")
-            }
-          })
       }
     }
   }

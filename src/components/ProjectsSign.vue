@@ -10,10 +10,11 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="project in projects" @click="displayProject(project)">
+        <tr v-for="project in projects" @click="displayComponent(project)">
           <td>{{ project.projectName}}</td>
-          <td>{{ project.projectVersion }}</td>
+          <td>{{ project.productID }}</td>
           <td>{{ project.dateCreated }}</td>
+          <td>{{ project.projectVersion }}</td>
         </tr>
         </tbody>
       </table>
@@ -55,7 +56,7 @@
         // TODO Implement method
       },
 
-      displayProject(project) {
+      displayComponent(project) {
         this.$router.push({ name: "Sign Project", params: { id: project.id } })
       }
     }

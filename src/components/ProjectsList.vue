@@ -10,7 +10,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="project in projects" @click="displayProject(project)">
+        <tr v-for="project in projects" @click="displayComponent(project)">
           <td>{{ project.projectName}}</td>
           <td>{{ project.projectVersion }}</td>
           <td>{{ project.dateCreated }}</td>
@@ -55,7 +55,7 @@
         // TODO Implement method
       },
 
-      displayProject(project) {
+      displayComponent(project) {
         this.$router.push({ name: "Project", params: { id: project.id } })
       }
       /* TODO should be able to delete this

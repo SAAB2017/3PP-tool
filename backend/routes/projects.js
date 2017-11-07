@@ -134,7 +134,7 @@ router.route('/:id')
     var query = "SELECT * FROM projects WHERE id = ?"
     var id = req.params.id
 
-    req.db.get(query, [id], (err, row) => {
+    req.db.get(`SELECT * FROM projects WHERE id = ${req.params.id}"`, (err, row) => {
       res.json(row)
     })
   })
