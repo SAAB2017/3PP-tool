@@ -84,7 +84,7 @@
               <table class="table is-bordered">
                 <thead>
                 <tr>
-                  <th>Component in product</th>
+                  <th>Component in products</th>
                   <th width=1%>Version</th>
                 </tr>
                 </thead>
@@ -100,7 +100,7 @@
               <table class="table is-bordered">
                 <thead>
                 <tr>
-                  <th>Component in project</th>
+                  <th>Component in projects</th>
                   <th width=1%>Version</th>
                 </tr>
                 </thead>
