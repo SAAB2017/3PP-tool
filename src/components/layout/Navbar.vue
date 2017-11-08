@@ -14,60 +14,35 @@
 
     <div id="the-nav-bar" class="navbar-menu">
       <div class="navbar-start">
-        <a class="navbar-item" href="/">
-          Home
-        </a>
-
+        <router-link :to="{ name: 'home'}" class="navbar-item">Home</router-link>
         <div class="navbar-item has-dropdown is-hoverable">
-          <a class="navbar-link " href="/licenses">
-            Licences
-          </a>
+          <router-link :to="{ name: 'licenses'}" class="navbar-link">Licences</router-link>
           <div class="navbar-dropdown is-boxed">
-            <a class="navbar-item " href="/licenses/add">
-              Add License
-            </a>
+            <router-link :to="{ name: 'licenses_add'}" class="navbar-item">Add License</router-link>
           </div>
         </div>
 
         <div class="navbar-item has-dropdown is-hoverable">
-          <a class="navbar-link " href="/components">
-            Components
-          </a>
+          <router-link :to="{ name: 'components'}" class="navbar-link">Components</router-link>
           <div class="navbar-dropdown is-boxed">
-            <a class="navbar-item" href="/components/add">
-              Add component
-            </a>
-            <a class="navbar-item" href="/components/pending">
-              Approve component
-            </a>
+            <router-link :to="{ name: 'components_add'}" class="navbar-item">Add component</router-link>
+            <router-link :to="{ name: 'components_pending'}" class="navbar-item">Approve component</router-link>
           </div>
         </div>
 
         <div class="navbar-item has-dropdown is-hoverable">
-          <a class="navbar-link " href="/products">
-            Products
-          </a>
+          <router-link :to="{ name: 'products'}" class="navbar-link">Products</router-link>
           <div class="navbar-dropdown is-boxed">
-            <a class="navbar-item" href="/products/add">
-              Add product
-            </a>
-            <a class="navbar-item" href="/products/pending">
-              Approve product
-            </a>
+            <router-link :to="{ name: 'products_add'}" class="navbar-item">Add product</router-link>
+            <router-link :to="{ name: 'products_pending'}" class="navbar-item">Approve product</router-link>
           </div>
         </div>
 
         <div class="navbar-item has-dropdown is-hoverable">
-          <a class="navbar-link " href="/projects">
-            Projects
-          </a>
+          <router-link :to="{ name: 'projects'}" class="navbar-link">Projects</router-link>
           <div class="navbar-dropdown is-boxed">
-            <a class="navbar-item" href="/projects/add">
-              Add project
-            </a>
-            <a class="navbar-item" href="/projects/pending">
-              Approve project
-            </a>
+            <router-link :to="{ name: 'projects_add'}" class="navbar-item">Add project</router-link>
+            <router-link :to="{ name: 'projects_pending'}" class="navbar-item">Approve project</router-link>
           </div>
         </div>
       </div>
