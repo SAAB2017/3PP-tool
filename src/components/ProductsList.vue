@@ -56,7 +56,7 @@
       },
 
       displayComponent(product) {
-        this.$router.push({ name: "Product", params: { id: product.id } })
+        this.$router.push({ name: "products_id", params: { id: product.id } })
       }
       /* TODO should be able to delete this
       addproduct() {

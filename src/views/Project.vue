@@ -1,70 +1,70 @@
 <template>
   <div class="section">
         <div v-if="project" class="component">
-          <h1 class="has-text-left">Project {{ project.id }}</h1>
-          <div class="columns">
-            <div class="column is-12">
-              <div class="columns">
+          <div class="columns is-mobile is-centered">
+            <h1 class="has-text-left">Project {{ project.id }}</h1>
+          </div>
+
+          <div class="columns is-mobile is-centered is-multiline">
 
 
-                <div class="column is-3">
-                  <div class="field is-horizontal">
-                    <label class="field-label label is-normal">Name</label>
-                    <div class="control">
-                      <input v-if="project.projectName" v-model="project.projectName" class="input" type="text">
-                      <input v-else class="input" type="text" v-model="testName">
-                    </div>
-                  </div>
-
-                  <div class="field is-horizontal">
-                    <label class="field-label label is-normal">Version</label>
-                    <div class="control">
-                      <input v-if="project.projectVersion" v-model="project.projectVersion" class="input" type="text">
-                      <input v-else v-model="testVersion" class="input" type="text" >
-                    </div>
-                  </div>
-                  <p class="help is-success has-text-right">{{ message }}</p>
-
-                  <div class="field is-grouped is-grouped-right">
-                    <div class="control">
-                      <button @click="updateProject()" class="button is-primary">Update</button>
-                    </div>
-                  </div>
-                </div>
-
-
-                <div class="column is-3">
-                  <div class="field is-horizontal">
-                    <label class="field-label label is-normal">Created</label><label style="color: transparent">h</label>
-                    <div class="control">
-                      <input v-if="project.dateCreated" v-model="project.dateCreated" class="input" type="text"  disabled>
-                      <input v-else  v-model="testDate"class="input" type="text" disabled>
-                    </div>
-                  </div>
-                  <div class="field is-horizontal">
-                    <label class="field-label label is-normal">Approver</label>
-                    <div class="control">
-                      <input v-if="project.approvedBy" v-model="project.approvedBy" class="input" type="text" disabled>
-                      <input v-else v-model="testApproved" class="input" type="text" disabled>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="column">
-                  <div class="field is-horizontal">
-                    <label class="field-label label is-normal">Comment</label>
-                    <div class="control" style="width: 100%">
-                      <textarea v-if="project.comment" class="textarea" v-model="project.comment"></textarea>
-                      <textarea v-else class="textarea" v-model="testComment"></textarea>
-                    </div>
-                  </div>
+            <div class="column is-one-quarter-desktop is-one-third-tablet is-5-mobile">
+              <div class="field is-horizontal">
+                <label class="field-label label is-normal">Name</label>
+                <div class="control">
+                  <input v-if="project.projectName" v-model="project.projectName" class="input" type="text">
+                  <input v-else class="input" type="text" v-model="testName">
                 </div>
               </div>
 
+              <div class="field is-horizontal">
+                <label class="field-label label is-normal">Version</label>
+                <div class="control">
+                  <input v-if="project.projectVersion" v-model="project.projectVersion" class="input" type="text">
+                  <input v-else v-model="testVersion" class="input" type="text" >
+                </div>
+              </div>
+              <p class="help is-success has-text-right">{{ message }}</p>
+
+              <div class="field is-grouped is-grouped-right">
+                <div class="control">
+                  <button @click="updateProject()" class="button is-primary">Update</button>
+                </div>
+              </div>
+            </div>
+
+
+            <div class="column is-one-quarter-desktop is-one-third-tablet is-5-mobile">
+              <div class="field is-horizontal">
+                <label class="field-label label is-normal">Created</label>
+                <div class="control">
+                  <input v-if="project.dateCreated" v-model="project.dateCreated" class="input" type="text"  disabled>
+                  <input v-else  v-model="testDate"class="input" type="text" disabled>
+                </div>
+              </div>
+              <div class="field is-horizontal">
+                <label class="field-label label is-normal">Approver</label>
+                <div class="control">
+                  <input v-if="project.approvedBy" v-model="project.approvedBy" class="input" type="text" disabled>
+                  <input v-else v-model="testApproved" class="input" type="text" disabled>
+                </div>
+              </div>
+            </div>
+
+            <div class="column is-half-desktop is-two-thirds-tablet is-10-mobile">
+              <div class="field is-horizontal">
+                <label class="field-label label is-normal">Comment</label>
+                <div class="control" style="width: 100%">
+                  <textarea v-if="project.comment" class="textarea" v-model="project.comment"></textarea>
+                  <textarea v-else class="textarea" v-model="testComment"></textarea>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="columns">
-            <div class="column is-one-third">
+
+          <div class="columns is-mobile is-centered is-multiline">
+
+            <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
               <!-- TODO Fix for-loops -->
               <table class="table is-bordered">
                 <thead>
@@ -81,7 +81,8 @@
                 </tbody>
               </table>
             </div>
-            <div class="column is-one-third">
+
+            <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
               <table class="table is-bordered">
                 <thead>
                 <tr>
@@ -97,7 +98,8 @@
                 </tbody>
               </table>
             </div>
-            <div class="column is-one-third">
+
+            <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
               <table class="table is-bordered">
                 <thead>
                 <tr>

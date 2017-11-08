@@ -56,7 +56,7 @@
       },
 
       displayComponent(license) {
-        this.$router.push({ name: "License", params: { id: license.id } })
+        this.$router.push({ name: "licenses_id", params: { id: license.id } })
       }
       /* TODO Should be able to delete this
       addComponent() {

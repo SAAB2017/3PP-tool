@@ -1,7 +1,9 @@
 <template>
   <section class="section overview">
-    <h1>Overview</h1>
-    <div class="columns is-desktop">
+    <div class="columns is-mobile is-centered">
+      <h1 class="title">Overview</h1>
+    </div>
+    <div class="columns is-mobile is-centered is-multiline">
       <div class="column is-one-third-desktop is-two-thirds-mobile is-half-tablet">
         <components-list></components-list>
       </div>
