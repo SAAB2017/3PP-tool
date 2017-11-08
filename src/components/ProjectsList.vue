@@ -56,7 +56,7 @@
       },
 
       displayComponent(project) {
-        this.$router.push({ name: "Project", params: { id: project.id } })
+        this.$router.push({ name: "projects_id", params: { id: project.id } })
       }
       /* TODO should be able to delete this
       addproject() {
