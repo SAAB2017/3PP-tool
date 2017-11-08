@@ -1,9 +1,9 @@
 ## Välkommen till Projekt SAAB 2017
 
 ### Dokument
-- [CHANGELOG.md](https://github.com/SAAB2017/3PP-tool/edit/master/docs/CHANGELOG.md)
-- [CREATE_DB.md](https://github.com/SAAB2017/3PP-tool/edit/master/docs/CREATE_DB.md)
-- [LICENSE.md](https://github.com/SAAB2017/3PP-tool/edit/master/docs/LICENSE.md)
+- [CHANGELOG.md](https://github.com/SAAB2017/3PP-tool/blob/master/docs/CHANGELOG.md)
+- [CREATE_DB.md](https://github.com/SAAB2017/3PP-tool/blob/master/docs/CREATE_DB.md)
+- [LICENSE.md](https://github.com/SAAB2017/3PP-tool/blob/master/docs/LICENSE.md)
 
 ### Dokumenation för beroenden
 - [axios](https://github.com/axios/axios/blob/master/README.md)
