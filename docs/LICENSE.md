@@ -1,21 +1,9 @@
-MIT License
+MIT licens
 
-Copyright (c) 2017 Javier Poremski
+Upphovsrätt © 2017 SAAB
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Tillstånd beviljas härmed, utan kostnad, till alla som erhåller en kopia av denna programvara och tillhörande dokumentationsfiler ("programvaran"), att aktivt använda programvaran utan begränsningar, inklusive utan begränsning rätten att använda, kopiera, ändra, koppla, publicera, sprida, upplåta underlicens och/eller sälja kopior av programvaran, och tillåta personer som tillhandahålls programvaran att göra detta, underkastat följande villkor:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Ovanstående meddelande om upphovsrätt och detta meddelande om tillstånd ska inkluderas i alla kopior eller en väsentlig del av programvaran.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+PROGRAMVARAN TILLHANDAHÅLLS I "BEFINTLIGT SKICK", UTAN NÅGON SOM HELST GARANTI, UTTRYCKLIG ELLER UNDERFÖRSTÅDD, INKLUSIVE MEN INTE BEGRÄNSAT TILL GARANTIERNA FÖR SÄLJBARHET, LÄMPLIGHET FÖR ETT SÄRSKILT SYFTE OCH ICKE-ÖVERTRÄDELSE. INTE I NÅGOT FALL SKA UPPHOVSMÄNNEN ELLER UPPHOVSRÄTTSINNEHAVARNA VARA ANSVARIGA FÖR NÅGOT ANSPRÅK, SKADA ELLER ANNAT ANSVAR, VARE SIG I NÅGON AVTALSENLIG ÅTGÄRD, SKADA ELLER ANNAT SOM UPPSTÅTT FRÅN UTANFÖR ELLER I SAMBAND MED PROGRAMVARAN ELLER ANVÄNDNING ELLER ANDRA FÖREHAVANDEN I PROGRAMVARAN.
