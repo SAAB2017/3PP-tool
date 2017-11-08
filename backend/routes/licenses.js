@@ -32,7 +32,7 @@ router.route('/')
 // ----------------------------------------------------------------------------
 router.route('/:id')
 
-// In order to search; send in a JSON object with the applicable parameters.
+    // In order to search; send in a JSON object with the applicable parameters.
     .get((req, res) => {
 
       let input = JSON.parse(req.params.id)
@@ -112,9 +112,9 @@ router.route('/:id')
       let values = []
       let parametarizedQuery = ""
 
-      for (statement in input) {
-        query += statement + ","
-        values.push(input[statement])
+      for (key in input) {
+        query += key + ","
+        values.push(input[key])
         parametarizedQuery += "?,"
       }
 
