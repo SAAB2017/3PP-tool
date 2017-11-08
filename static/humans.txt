@@ -15,7 +15,7 @@
     Stakeholder: ............ Pierre
 
 /* SITE */
-    Last update: ............ YYYY-MM-DD
+    Last update: ............ 2017-11-08
     Doctype: ................ HTML5
     Environment: ............ Node.js
     Framework: .............. Vue.js
