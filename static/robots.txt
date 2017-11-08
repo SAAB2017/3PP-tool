@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /
+
+Sitemap: http://localhost:8080/static/sitemap.xml
