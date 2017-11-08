@@ -1,5 +1,5 @@
 ## Skapa en SQLite3-databas
-För att skapa en databasfil i WebStorm för följande:
+För att skapa en databasfil i WebStorm gör följande:
 1. Öppna terminalen i fliken _Terminal_.
 2. Skriv följande i terminalen:
 ```terminal
