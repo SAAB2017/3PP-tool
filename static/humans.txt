@@ -12,6 +12,7 @@
 /* THANKS */
     Course coordinator: ..... Kristin
     Course coordinator: ..... Lise
+    Stakeholder: ............ Mats
     Stakeholder: ............ Pierre
 
 /* SITE */
