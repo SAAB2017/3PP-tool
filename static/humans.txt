@@ -1,0 +1,24 @@
+/* TEAM */
+    Benjamin H. ............. github:
+    Carl M. ................. github:
+    Drazen M. ............... github:
+    Emil K. ................. github:
+    Javier P. ............... github:Poremski
+    Johannes S. ............. github:sunnanv
+    Markus S. ............... github:MarkusSkarhammar
+    Simon F. ................ github:theIDinside
+    Simon P. ................ github:
+
+/* THANKS */
+    Course coordinator: ..... Kristin
+    Course coordinator: ..... Lise
+    Stakeholder: ............ Pierre
+
+/* SITE */
+    Last update: ............ YYYY-MM-DD
+    Doctype: ................ HTML5
+    Environment: ............ Node.js
+    Framework: .............. Vue.js
+    Database: ............... SQLite3
+    IDE: .................... WebStorm
+    GitHub: ................. https://github.com/SAAB2017/3PP-tool
