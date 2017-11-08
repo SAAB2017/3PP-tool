@@ -109,12 +109,17 @@ router.route('/:id')
 
       } else if (inputParametersText[i] == 'approved') {
 
+        if (input[inputParametersText[i]] == 0 && approved[1] == null) {
+          approved[1] = ''
+        }
         approved[0] = input[inputParametersText[i]]
 
       } else if (inputParametersText[i] == 'approvedBy') {
 
-        if(input[inputParametersText[i]] != '') approved[0] = 1
-        approved[1] = input[inputParametersText[i]]
+        if (input[inputParametersText[i]] != '') {
+          approved[0] = 1
+          approved[1] = input[inputParametersText[i]]
+        }
 
       } else if (inputParametersText[i] == 'lastEdited') {
 
@@ -130,18 +135,18 @@ router.route('/:id')
 
       }
     }
-    
+
     //logic for correct approve/approveBy
     if (approved[0] != null) {
       if (approved == 0 && approved[1] == null) {
         approved[1] = ''
-      }else if(approved == 1 && approved[1] == null){
+      } else if (approved == 1 && approved[1] == null) {
         approved[0] = null
       }
     }
 
     //Insert approved and approvedBy if it passed the logic check
-    if(approved[0] != null && approved[1] != null){
+    if (approved[0] != null && approved[1] != null) {
       parametersText.push('approved')
       parameters.push(approved[0])
       parametersText.push('approvedBy')
@@ -156,37 +161,76 @@ router.route('/:id')
 
     //Make sure that there is either an id provided or a componentName and componentVersion provided
     if ((correctInputComponentName != null && correctInputComponentVersion != null) || correctInputId != null) {
-      let query = "UPDATE components SET "
 
-      //Construct the remaining SQL query
-      let first = false;
-      for (let i = 0; i < parametersText.length; i++) {
-        if (!first) {
-          first = true
-          query += parametersText[i] + " = ?"
-        } else {
-          query += ", " + parametersText[i] + " = ?"
-        }
-      }
-
-      //Check if either componentName/componentVersion or id was provided and use them one find the row to alter
+      let queryCheckApproved = "SELECT * FROM components"
+      let parametersCheckApproved = []
+      //Check if either componentName/componentVersion or id was provided and use them one find the row to check
       if (correctInputComponentName != null && correctInputComponentVersion != null) {
-        query += " WHERE componentName = ? AND componentVersion = ?;"
-        parameters.push(correctInputComponentName)
-        parameters.push(correctInputComponentVersion)
+        queryCheckApproved += " WHERE componentName = ? AND componentVersion = ?;"
+        parametersCheckApproved.push(correctInputComponentName)
+        parametersCheckApproved.push(correctInputComponentVersion)
       } else if (correctInputId != null) {
-        query += " WHERE id = ?;"
-        parameters.push(correctInputId)
+        queryCheckApproved += " WHERE id = ?;"
+        parametersCheckApproved.push(correctInputId)
       }
-
-      req.db.run(query, parameters, (error) => {
+      req.db.get(queryCheckApproved, parametersCheckApproved, (error, row) => {
         if (error) {
           console.log(error.message)
           res.status(500)
-          res.send("ERROR! error message:" + error.message + ", query: " + query + ", parameters: " + parameters)
+          res.send("ERROR! error message:" + error.message + ", query: " + queryCheckApproved + ", parameters: " + parametersCheckApproved)
         } else {
-          res.status(200)
-          res.send("Success")
+          //Make sure that row is not null and that an approved component can't be approved again by a diffrent person
+          if (row != null && (approved[0] == null && approved[1] == null) || ((row.approved == 1 && approved[0] == 0) || (row.approved != 1 && approved[1] != ''))) {
+            let query = "UPDATE components SET "
+
+            //Construct the remaining SQL query
+            let first = false;
+            for (let i = 0; i < parametersText.length; i++) {
+              if (!first) {
+                first = true
+                query += parametersText[i] + " = ?"
+              } else {
+                query += ", " + parametersText[i] + " = ?"
+              }
+            }
+
+            //Check if either componentName/componentVersion or id was provided and use them one find the row to alter
+            if (correctInputComponentName != null && correctInputComponentVersion != null) {
+              query += " WHERE componentName = ? AND componentVersion = ?;"
+              parameters.push(correctInputComponentName)
+              parameters.push(correctInputComponentVersion)
+            } else if (correctInputId != null) {
+              query += " WHERE id = ?;"
+              parameters.push(correctInputId)
+            }
+
+            req.db.run(query, parameters, (error) => {
+              if (error) {
+                console.log(error.message)
+                res.status(500)
+                res.send("ERROR! error message:" + error.message + ", query: " + query + ", parameters: " + parameters)
+              } else {
+                res.status(200)
+                res.send("Success")
+              }
+            })
+          }//Else throw an error
+          else {
+            let message
+            if (row != null) {
+              message = {
+                "errorType": "alreadySigned",
+                "byUser": "" + row.approvedBy
+                //"onTime": "1510062744"
+              }
+            } else {
+              message = {
+                "errorType": "componentDoesNotExist"
+              }
+            }
+            console.log(message)
+            res.status(500).send(message)
+          }
         }
       })
     } else {
