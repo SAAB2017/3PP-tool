@@ -10,6 +10,7 @@ import ComponentsHome from '@/views/ComponentsHome'
 import Component from '@/views/Component'
 import AddComponent from '@/views/AddComponent'
 import ComponentsPending from '@/views/ComponentsPending'
+import SignComponent from '@/views/SignComponent'
 
 import ProductsHome from '@/views/ProductsHome'
 import Product from '@/views/Product'
@@ -68,6 +69,11 @@ export default new Router({
       path: '/components/pending',
       name: 'components_pending',
       component: ComponentsPending
+    },
+    {
+      path: '/components/pending/:id(\\d+)',
+      name: 'components_pending_id',
+      component: SignComponent
     },
     {
       path: '/products',
