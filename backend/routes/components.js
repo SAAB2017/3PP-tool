@@ -68,10 +68,69 @@ router.route('/')
     }
   })
 
-  // TODO - implement
+  //In order to add a new component; send in a JSON object with the applicable parameters (componentName and componentVersion must be provided).
+  //In order to add a new license to the component; send in a JSON object with the applicable parameters (componentName, componentVersion and licenseID must be provided).
+  .put((req, res) => {
+    let parametersText = []
+    let parameters = []
 
+    let correctInputComponentName = req.body.componentName
+    let correctInputComponentVersion = req.body.componentVersion
+    let correctInputLicenseID = req.body.licenseID
+    let correctInputId = req.body.id
 
-  // TODO - implement
+    //Get the correct parameters
+    getInsertComponentParameters(req, parametersText, parameters, function (returnValue) {
+      parametersText = returnValue[0]
+      parameters = returnValue[1]
+    })
+
+    //Make sure the necessary parameters are provided to insert a new component.
+    if (correctInputComponentName != null && correctInputComponentVersion != null && correctInputLicenseID == null) {
+
+      insertNewComponent(req, res, parametersText, parameters)
+
+    } //Make sure the necessary parameters are provided to insert a new license into the component.
+    else if ((correctInputComponentName != null && correctInputComponentVersion != null) || correctInputId != null && correctInputLicenseID != null) {
+
+      //Get the component so that the id can be extracted
+      getComponent(req, res, correctInputComponentName, correctInputComponentVersion, correctInputId, function (component) {
+        if (component == null) {
+          message = {
+            "errorType": "componentDoesNotExist"
+          }
+          console.log(message)
+          res.status(500).send(message)
+        } else {
+
+          //Insert the provided license into the component
+          insertLicenseIntoComponent(req, res, correctInputLicenseID, component.id, function (returnValue) {
+            //Get the license that was inserted
+            getLicense(req, res, null, null, correctInputLicenseID, function (license) {
+              if (license == null) {
+                message = {
+                  "errorType": "licenseDoesNotExist"
+                }
+                console.log(message)
+                res.status(500).send(message)
+              } else {
+                //Create a log of the license added to the component
+                insertComponentLog(req, res, component.id, "Added license: " + license.licenseName + " v" + license.licenseVersion + ".",
+                  function (returnValue) {
+                    res.status(201)
+                    res.send("Success!")
+                  })
+              }
+            })
+          })
+        }
+      })
+    } else {
+      res.status(500)
+      res.send("ERROR: componentName or componentVersion wasn't provided.")
+    }
+  })
+
   .delete((req, res) => {
     res.status(501)
     res.send("Method not implemented")
@@ -114,76 +173,14 @@ router.route('/:id')
   })
 
   .post((req, res) => {
-    
+    res.status(501)
+    res.send("Method not allowed")
   })
 
-  //In order to add a new component; send in a JSON object with the applicable parameters (componentName and componentVersion must be provided).
-  //In order to add a new license to the component; send in a JSON object with the applicable parameters (componentName, componentVersion and licenseID must be provided).
+  
   .put((req, res) => {
-    let input = JSON.parse(req.params.id)
-    let parametersText = Object.keys(input)
-    let parameters = []
-
-    let correctInputComponentName = null
-    let correctInputComponentVersion = null
-    let correctInputLicenseID = null
-    let correctInputId = null
-
-    //Get the correct parameters
-    getInsertComponentParameters(input, parametersText, parameters, function (returnValue) {
-
-      correctInputComponentName = returnValue[0]
-      correctInputComponentVersion = returnValue[1]
-      correctInputId = returnValue[2]
-      correctInputLicenseID = returnValue[3]
-      parameters = returnValue[4]
-      parametersText = returnValue[5]
-    })
-
-    //Make sure the necessary parameters are provided to insert a new component.
-    if (correctInputComponentName != null && correctInputComponentVersion != null && correctInputLicenseID == null) {
-
-      insertNewComponent(req, res, parametersText, parameters)
-
-    } //Make sure the necessary parameters are provided to insert a new license into the component.
-    else if (correctInputComponentName != null && correctInputComponentVersion != null && correctInputLicenseID != null) {
-
-      //Get the component so that the id can be extracted
-      getComponent(req, res, correctInputComponentName, correctInputComponentVersion, correctInputId, function (component) {
-        if (component == null) {
-          message = {
-            "errorType": "componentDoesNotExist"
-          }
-          console.log(message)
-          res.status(500).send(message)
-        } else {
-
-          //Insert the provided license into the component
-          insertLicenseIntoComponent(req, res, correctInputLicenseID, component.id, function (returnValue) {
-            //Get the license that was inserted
-            getLicense(req, res, null, null, correctInputLicenseID, function (license) {
-              if (license == null) {
-                message = {
-                  "errorType": "licenseDoesNotExist"
-                }
-                console.log(message)
-                res.status(500).send(message)
-              } else {
-                //Create a log of the license added to the component
-                insertComponentLog(req, res, correctInputLicenseID, "Added license: " + license.licenseName + " v" + license.licenseVersion + ".",
-                  function (returnValue) {
-                    res.status(201)
-                    res.send("Success!")
-                  })
-              }
-            })
-          })
-        }
-      })
-    } else {
-      res.status(500)
-      res.send("ERROR: componentName or componentVersion wasn't provided.")
-    }
+    res.status(501)
+    res.send("Method not allowed")
   })
 
   .delete((req, res) => {
@@ -327,29 +324,42 @@ function getUpdateComponentParameters(req, parametersText, parameters, approved,
 }
 
 //Get parameters
-function getInsertComponentParameters(input, parametersText, parameters, callback) {
-  let correctInputComponentName = null
-  let correctInputComponentVersion = null
-  let correctInputId = null
-  let correctInputLicenseID = null
+function getInsertComponentParameters(req, parametersText, parameters, callback) {
   let date = [false, false]
-  //Make sure that there is a componentName and componentVersion provided. Also checks if dateCreated and lastEdited is provided.
-  for (let i = 0; i < parametersText.length; i++) {
-    parameters.push(input[parametersText[i]])
-    if (parametersText[i] == 'componentName') {
-      correctInputComponentName = parameters[i]
-    } else if (parametersText[i] == 'componentVersion') {
-      correctInputComponentVersion = parameters[i]
-    } else if (parametersText[i] == 'licenseID') {
-      correctInputLicenseID = parameters[i]
-    } else if (parametersText[i] == 'dateCreated') {
-      parameters[i] = new Date().toDateString()
-      date[0] = true
-    } else if (parametersText[i] == 'lastEdited') {
-      parameters[i] = new Date().toDateString()
-      date[1] = true
-    }
+
+  //Check if componentName was provided
+  if (req.body.hasOwnProperty('componentName')) {
+    parameters.push(req.body.componentName)
+    parametersText.push('componentName')
   }
+  //Check if componentVersion was provided
+  if (req.body.hasOwnProperty('componentVersion')) {
+    parameters.push(req.body.componentVersion)
+    parametersText.push('componentVersion')
+  }
+  //Check if dateCreated was provided
+  if (req.body.hasOwnProperty('dateCreated')) {
+    parameters.push(new Date().toDateString())
+    parametersText.push('dateCreated')
+    date[0] = true
+  } 
+  //Check if lastEdited was provided
+  if (req.body.hasOwnProperty('lastEdited')) {
+    parameters.push(new Date().toDateString())
+    parametersText.push('lastEdited')
+    date[1] = true
+  }
+  //Check if comment was provided
+  if (req.body.hasOwnProperty('comment')) {
+    parameters.push(req.body.comment)
+    parametersText.push('comment')
+  }
+  //Set approved/approvedBy as default values
+  parameters.push(0)
+  parametersText.push('approved')
+  parameters.push('')
+  parametersText.push('approvedBy')
+
   //If dateCreated wasn't provided then provide it
   if (!date[0]) {
     parametersText.push('dateCreated')
@@ -360,7 +370,7 @@ function getInsertComponentParameters(input, parametersText, parameters, callbac
     parametersText.push('lastEdited')
     parameters.push(new Date().toDateString())
   }
-  let obj = [correctInputComponentName, correctInputComponentVersion, correctInputId, correctInputLicenseID, parameters, parametersText]
+  let obj = [parametersText, parameters]
   callback(obj);
 }
 
