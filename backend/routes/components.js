@@ -12,24 +12,60 @@ router.route('/')
     })
   })
 
+  //In order to change a component; send in a JSON object with the applicable parameters (componentName and componentVersion or id must be provided).
+  //In order to change the approval of a license attached to a component; send in a JSON object 
+  //with the applicable parameters (Ether componentName and componentVersion or id aswell as licenseID, approved and/or approvedBy must be provided).
   .post((req, res) => {
-    var component = req.body.component
-    var version = req.body.version
 
-    var query = "INSERT INTO components (component, version) VALUES (?, ?)"
+    let parametersText = []
+    let parameters = []
+    let correctInputComponentName = req.body.componentName
+    let correctInputComponentVersion = req.body.componentVersion
+    let correctInputId = req.body.id
+    let approved = [req.approved, req.approvedBy]
 
-    var parameters = [component, version]
-
-    req.db.run(query, parameters, (error) => {
-      if (error) {
-        console.log(error.message)
-        res.status(500)
-        res.end()
-      } else {
-        res.status(201)
-        res.send("success")
-      }
+    getUpdateComponentParameters(req, parametersText, parameters, approved, function (returnValue) {
+      approved = returnValue[0]
+      parameters = returnValue[1]
+      parametersText = returnValue[2]
     })
+
+    //Make sure that there is either an id provided or a componentName and componentVersion provided
+    if ((correctInputComponentName != null && correctInputComponentVersion != null) || correctInputId != null) {
+
+      //Get the componentID if it exists
+      getComponent(req, res, correctInputComponentName, correctInputComponentVersion, correctInputId, function (returnValue) {
+        component = returnValue
+
+        //Make sure that row is not null and that an approved component can't be approved again by a diffrent person
+        if (component != null && ((approved[0] == null && approved[1] == null) || ((component.approved == 1 && approved[0] == 0) || (component.approved != 1 && approved[1] != '')))) {
+
+          //update the component
+          updateComponent(req, res, correctInputComponentName, correctInputComponentVersion, correctInputId, parametersText, parameters)
+
+        }//Else throw an error
+        else {
+          let message
+          if (component != null) {
+            message = {
+              "errorType": "alreadySigned",
+              "byUser": "" + component.approvedBy
+              //"onTime": "1510062744"
+            }
+          } else {
+            message = {
+              "errorType": "componentDoesNotExist"
+            }
+          }
+          console.log(message)
+          res.status(500).send(message)
+        }
+      })
+    } else {
+      console.log("ERROR! Must insert either a correct id or a correct componentName and a correct componentVerison.")
+      res.status(500)
+      res.send("ERROR! Must insert either a correct id or a correct componentName and a correct componentVerison.")
+    }
   })
 
   // TODO - implement
@@ -77,67 +113,8 @@ router.route('/:id')
 
   })
 
-  //In order to change a component; send in a JSON object with the applicable parameters (componentName and componentVersion or id must be provided).
-  //In order to change the approval of a license attached to a component; send in a JSON object 
-  //with the applicable parameters (Ether componentName and componentVersion or id aswell as licenseID, approved and/or approvedBy must be provided).
   .post((req, res) => {
-    let input = JSON.parse(req.params.id)
-    let inputParametersText = Object.keys(input)
-
-    let parametersText = []
-    let parameters = []
-    let correctInputComponentName = null
-    let correctInputComponentVersion = null
-    let correctInputId = null
-    let approved = [null, null]
-
-    getUpdateComponentParameters(input, inputParametersText, parametersText, parameters, function (returnValue) {
-      console.log(returnValue)
-      correctInputComponentName = returnValue[0]
-      correctInputComponentVersion = returnValue[1]
-      correctInputId = returnValue[2]
-      approved = returnValue[3]
-      parameters = returnValue[4]
-      parametersText = returnValue[5]
-    })
-
-    //Make sure that there is either an id provided or a componentName and componentVersion provided
-    if ((correctInputComponentName != null && correctInputComponentVersion != null) || correctInputId != null) {
-
-      //Get the componentID if it exists
-      getComponent(req, res, correctInputComponentName, correctInputComponentVersion, correctInputId, function (returnValue) {
-        component = returnValue
-
-        //Make sure that row is not null and that an approved component can't be approved again by a diffrent person
-        if (component != null && ((approved[0] == null && approved[1] == null) || ((component.approved == 1 && approved[0] == 0) || (component.approved != 1 && approved[1] != '')))) {
-
-          //update the component
-          updateComponent(req, res, correctInputComponentName, correctInputComponentVersion, correctInputId, parametersText, parameters)
-
-        }//Else throw an error
-        else {
-          let message
-          if (component != null) {
-            message = {
-              "errorType": "alreadySigned",
-              "byUser": "" + component.approvedBy
-              //"onTime": "1510062744"
-            }
-          } else {
-            message = {
-              "errorType": "componentDoesNotExist"
-            }
-          }
-          console.log(message)
-          res.status(500).send(message)
-        }
-      })
-    } else {
-      console.log("ERROR! Must insert either a correct id or a correct componentName and a correct componentVerison.")
-      res.status(500)
-      res.send("ERROR! Must insert either a correct id or a correct componentName and a correct componentVerison.")
-    }
-
+    
   })
 
   //In order to add a new component; send in a JSON object with the applicable parameters (componentName and componentVersion must be provided).
@@ -193,11 +170,11 @@ router.route('/:id')
                 res.status(500).send(message)
               } else {
                 //Create a log of the license added to the component
-                insertComponentLog(req, res, correctInputLicenseID, "Added license: " + license.licenseName + " v" + license.licenseVersion + ".", 
-                function(returnValue){
-                  res.status(201)
-                  res.send("Success!")
-                })
+                insertComponentLog(req, res, correctInputLicenseID, "Added license: " + license.licenseName + " v" + license.licenseVersion + ".",
+                  function (returnValue) {
+                    res.status(201)
+                    res.send("Success!")
+                  })
               }
             })
           })
@@ -284,55 +261,44 @@ function updateComponent(req, res, componentName, componentVersion, id, paramete
 }
 
 //Get parameters
-function getUpdateComponentParameters(input, inputParametersText, parametersText, parameters, callback) {
+function getUpdateComponentParameters(req, parametersText, parameters, approved, callback) {
   let correctInputComponentName = null
   let correctInputComponentVersion = null
   let correctInputId = null
-  let approved = [null, null]
   let date = false
-  //Make sure that there is a componentName and componentVersion provided or an id provided. Also checks if dateCreated and lastEdited is provided aswell. 
-  //Also check if approved or approvedBy was provided.
-  for (let i = 0; i < inputParametersText.length; i++) {
-    if (inputParametersText[i] == 'componentName') {
 
-      correctInputComponentName = input[inputParametersText[i]]
+  if (req.body.hasOwnProperty('approved')) {
 
-    } else if (inputParametersText[i] == 'componentVersion') {
-
-      correctInputComponentVersion = input[inputParametersText[i]]
-
-    } else if (inputParametersText[i] == 'id') {
-
-      correctInputId = input[inputParametersText[i]]
-
-    } else if (inputParametersText[i] == 'approved') {
-
-      if (input[inputParametersText[i]] == 0 && approved[1] == null) {
-        approved[1] = ''
-      }
-      approved[0] = input[inputParametersText[i]]
-
-    } else if (inputParametersText[i] == 'approvedBy') {
-
-      if (input[inputParametersText[i]] != '') {
-        approved[0] = 1
-        approved[1] = input[inputParametersText[i]]
-      }
-
-    } else if (inputParametersText[i] == 'lastEdited') {
-
-      parameters.push(input[inputParametersText[i]])
-      parametersText.push(inputParametersText[i])
-      parameters[i] = new Date().toDateString()
-      date = true
-
-    } else if (inputParametersText[i] != 'dateCreated' && inputParametersText[i] != 'licenseID') {
-
-      parameters.push(input[inputParametersText[i]])
-      parametersText.push(inputParametersText[i])
-
+    if (req.body.approved == 0 && approved[1] == null) {
+      approved[1] = ''
     }
+    approved[0] = req.body.approved
+
   }
+
+  if (req.body.hasOwnProperty('approvedBy')) {
+
+    if (req.body.approvedBy != '') {
+      approved[0] = 1
+      approved[1] = req.body.approvedBy
+    }
+
+  }
+
+  if (req.body.hasOwnProperty('lastEdited')) {
+
+    parameters.push(new Date().toDateString())
+    parametersText.push('lastEdited')
+    date = true
+  }
+
+  if (req.body.hasOwnProperty('comment')) {
+
+    parameters.push(req.body.comment)
+    parametersText.push('comment')
+
+  }
+  
 
   //logic for correct approve/approveBy
   if (approved[0] != null) {
@@ -356,7 +322,7 @@ function getUpdateComponentParameters(input, inputParametersText, parametersText
     parametersText.push('lastEdited')
     parameters.push(new Date().toDateString())
   }
-  let obj = [correctInputComponentName, correctInputComponentVersion, correctInputId, approved, parameters, parametersText]
+  let obj = [approved, parameters, parametersText]
   callback(obj);
 }
 
