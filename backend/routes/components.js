@@ -165,7 +165,7 @@ router.route('/:id')
     req.db.all(query, parameters, (err, rows) => {
       if (err) {
         // If there's an error then provide the error message and the different attributes that could have caused it.
-        res.send("ERROR! error message:" + err.message + " Input: " + inputString + ", query: " + query + ", values: " + values + ", valuesText: " + valuesText)
+        res.send("ERROR! error message:" + err.message + ", query: " + query + ", parameters: " + parameters)
       } else
         res.json(rows)
     })
