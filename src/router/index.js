@@ -15,6 +15,7 @@ import ProductsHome from '@/views/ProductsHome'
 import Product from '@/views/Product'
 import AddProduct from '@/views/AddProduct'
 import ProductsPending from '@/views/ProductsPending'
+import SignProduct from '@/views/SignProduct'
 
 import ProjectsHome from '@/views/ProjectsHome'
 import Project from '@/views/Project'
@@ -87,6 +88,11 @@ export default new Router({
       path: '/products/pending',
       name: 'products_pending',
       component: ProductsPending
+    },
+    {
+      path: '/products/pending/:id(\\d+)',
+      name: 'products_pending_id',
+      component: SignProduct
     },
     {
       path: '/projects',
