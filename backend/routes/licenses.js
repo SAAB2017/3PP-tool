@@ -7,60 +7,10 @@ var router = express.Router()
 router.route('/')
 
     .get((req, res) => {
-        req.db.all("SELECT * FROM licenses", (err, rows) => {
+
+      req.db.all("SELECT * FROM licenses", (err, rows) => {
             res.json(rows)
         })
-    })
-
-    .post((req, res) => {
-        res.status(405)
-        res.send("Method not allowed")
-    })
-
-    .put((req, res) => {
-      res.status(405)
-      res.send("Method not allowed")
-    })
-
-    .delete((req, res) => {
-        res.status(405)
-        res.send("Method not allowed")
-    })
-
-// ----------------------------------------------------------------------------
-//  Methods for /licenses/:id
-// ----------------------------------------------------------------------------
-router.route('/:id')
-
-    // In order to search; send in a JSON object with the applicable parameters.
-    .get((req, res) => {
-
-      let input = JSON.parse(req.params.id)
-      let parametersText = Object.keys(input)
-      let parameters = []
-
-      let query = "SELECT * FROM licenses WHERE "
-
-      let first = false;
-
-      for (let i = 0; i < parametersText.length; i++) {
-        if (!first) {
-          first = true;
-          query += parametersText[i] + " = ?"
-        } else {
-          query += " AND " + parametersText[i] + " = ?"
-        }
-        parameters.push(input[parametersText[i]])
-      }
-
-      req.db.all(query, parameters, (err, rows) => {
-        if (err) {
-          // If there's an error then provide the error message and the different attributes that could have caused it.
-          res.send("ERROR! error message:" + err.message + " Input: " + inputString + ", query: " + query + ", values: " + values + ", valuesText: " + valuesText)
-        } else
-          res.json(rows)
-      })
-
     })
 
     .post((req, res) => {
@@ -73,21 +23,9 @@ router.route('/:id')
     // parameters of which componentName and componentVersion must be provided.
     .put((req, res) => {
 
-      let input
-
-      // Simple check for parse errors.
-      try {
-        input = JSON.parse(req.params.id)
-      } catch (e) {
-        res.status(500)
-        res.send("JSON.parse try/catch statement failed")
-
-        return
-      }
-
       // Check if licenseName and licenseVersion exist within input.
       // If they do not; send an error message and return.
-      if (!input.hasOwnProperty("licenseName") || !input.hasOwnProperty("licenseVersion")) {
+      if (!req.body.hasOwnProperty("licenseName") || !req.body.hasOwnProperty("licenseVersion")) {
         res.status(500)
         res.send("ERROR: licenseName or licenseVersion wasn't provided.")
 
@@ -102,7 +40,7 @@ router.route('/:id')
       req.db.get(queryGetID, [], (error, row) => {
         if (error) {
           // If there's an error then provide the error message and the different attributes that could have caused it.
-          res.send("ERROR! error message:" + error.message + " Input: " + inputString + ", query: " + queryGetID + ", values: " + values + ", valuesText: " + valuesText)
+          res.send("ERROR! error message:" + error.message + ", query: " + queryGetID)
         } else
           licenseID += row.id
       })
@@ -112,9 +50,9 @@ router.route('/:id')
       let values = []
       let parametarizedQuery = ""
 
-      for (key in input) {
+      for (key in req.body) {
         query += key + ","
-        values.push(input[key])
+        values.push(req.body[key])
         parametarizedQuery += "?,"
       }
 
@@ -151,6 +89,50 @@ router.route('/:id')
           })
         }
       })
+    })
+
+    .delete((req, res) => {
+        res.status(405)
+        res.send("Method not allowed")
+    })
+
+// ----------------------------------------------------------------------------
+//  Methods for /licenses/:id
+// ----------------------------------------------------------------------------
+router.route('/:id')
+
+    // In order to search; send in a JSON object with the applicable parameters.
+    .get((req, res) => {
+      
+      let query = "SELECT * FROM licenses WHERE "
+      let values = []
+
+      for (key in req.body) {
+        query += key + " = ? AND "
+        values.push(req.body[key])
+      }
+
+      // Remove trailing AND.
+      query = query.slice(0, -5)
+
+      req.db.all(query, values, (err, rows) => {
+        if (err) {
+          // If there's an error then provide the error message and the different attributes that could have caused it.
+          res.send("ERROR! error message:" + err.message + ", query: " + query)
+        } else
+          res.json(rows)
+      })
+
+    })
+
+    .post((req, res) => {
+        res.status(405)
+        res.send("Method not allowed")
+    })
+
+    .put((req, res) => {
+      res.status(405)
+      res.send("Method not allowed")
     })
 
     .delete((req, res) => {
