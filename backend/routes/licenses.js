@@ -65,11 +65,9 @@ router.route('/')
       // Send the license to the database.
       req.db.run(query, values, (error) => {
         if (error) {
-
           console.log(error.message)
           res.status(500)
           res.send(error.message)
-
         } else {
 
           // Log the creation of the license.
@@ -134,9 +132,7 @@ router.route('/:id')
           res.send("ERROR! error message:" + err.message + ", query: " + query)
         } else
           res.json(rows)
-        console.warn(rows)
       })
-
     })
 
     .post((req, res) => {
