@@ -7,15 +7,14 @@ var router = express.Router()
 router.route('/')
 
     .get((req, res) => {
-
       req.db.all("SELECT * FROM licenses", (err, rows) => {
             res.json(rows)
         })
     })
 
     .post((req, res) => {
-        res.status(405)
-        res.send("Method not allowed")
+      res.status(405)
+      res.send("Method not allowed")
     })
 
     // Add a license.
@@ -101,15 +100,29 @@ router.route('/')
 // ----------------------------------------------------------------------------
 router.route('/:id')
 
+    // Search for a license, or license attribute.
     // In order to search; send in a JSON object with the applicable parameters.
     .get((req, res) => {
-      
+
+      let input
+
+      // Simple check for parse errors.
+      try {
+        input = JSON.parse(req.params.id)
+      } catch (e) {
+        res.status(500)
+        res.send("JSON.parse try/catch statement failed")
+        console.warn(e)
+        return
+      }
+
+      // Construct SQL query based on input parameters.
       let query = "SELECT * FROM licenses WHERE "
       let values = []
 
-      for (key in req.body) {
+      for (key in input) {
         query += key + " = ? AND "
-        values.push(req.body[key])
+        values.push(input[key])
       }
 
       // Remove trailing AND.
@@ -121,12 +134,14 @@ router.route('/:id')
           res.send("ERROR! error message:" + err.message + ", query: " + query)
         } else
           res.json(rows)
+        console.warn(rows)
       })
 
     })
 
     .post((req, res) => {
-        res.status(405)
+
+      res.status(405)
         res.send("Method not allowed")
     })
 
