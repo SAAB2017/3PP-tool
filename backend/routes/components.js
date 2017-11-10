@@ -117,8 +117,7 @@ router.route('/')
                 //Create a log of the license added to the component
                 insertComponentLog(req, res, component.id, "Added license: " + license.licenseName + " v" + license.licenseVersion + ".",
                   function (returnValue) {
-                    res.status(201)
-                    res.send("Success!")
+                    updateComponent(req, res, null, null, component.id, ['approved', 'approvedBy'], ['0', '']);
                   })
               }
             })
@@ -143,32 +142,36 @@ router.route('/:id')
 
   // In order to search; send in a JSON object with the applicable parameters.
   .get((req, res) => {
+    let input = JSON.parse(req.params.id)
+    let parametersText = Object.keys(input)
+    let parameters = []
 
-    var input = JSON.parse(req.params.id)
-    var parametersText = Object.keys(input)
-    var parameters = []
+    if ((input.licenseName == null && input.licenseVersion == null) && input.licenseID == null) {
 
-    var query = "SELECT * FROM components WHERE "
+      getComponentFromParameters(req, res, input, parametersText, parameters)
 
-    var first = false;
-
-    for (var i = 0; i < parametersText.length; i++) {
-      if (!first) {
-        first = true;
-        query += parametersText[i] + " = ?"
-      } else {
-        query += " AND " + parametersText[i] + " = ?"
+    } else if((input.licenseName != null && input.licenseVersion != null) || input.licenseID != null){
+      //Check if licenseName and licenseVersion are provided but no licenseID
+      if (input.licenseName != null && input.licenseVersion != null) {
+        getLicense(req, res, input.licenseName, input.licenseVersion, null, function (license) {
+          if(license != null){
+            //Get components with licenseID
+            getComponentFromLicense(req, res, license.id)
+          }else{
+            message = {
+              "errorType": "licenseDoesNotExist"
+            }
+            console.log(message)
+            res.status(500).send(message)
+          }
+        })
+      }//Else licenseId is provided
+      else{
+        //Get components with licenseID
+        getComponentFromLicense(req, res, input.licenseID)
       }
-      parameters.push(input[parametersText[i]])
-    }
 
-    req.db.all(query, parameters, (err, rows) => {
-      if (err) {
-        // If there's an error then provide the error message and the different attributes that could have caused it.
-        res.send("ERROR! error message:" + err.message + ", query: " + query + ", parameters: " + parameters)
-      } else
-        res.json(rows)
-    })
+    }
 
   })
 
@@ -177,7 +180,7 @@ router.route('/:id')
     res.send("Method not allowed")
   })
 
-  
+
   .put((req, res) => {
     res.status(501)
     res.send("Method not allowed")
@@ -217,6 +220,47 @@ function getComponent(req, res, componentName, componentVersion, id, callback) {
         callback(row);
       } else callback(null);
     }
+  })
+}
+
+//Get component from parameters
+function getComponentFromParameters(req, res, input, parametersText, parameters) {
+  let query = "SELECT * FROM components WHERE "
+
+  let first = false;
+  for (let i = 0; i < parametersText.length; i++) {
+    if (!first) {
+      first = true;
+      query += parametersText[i] + " = ?"
+    } else {
+      query += " AND " + parametersText[i] + " = ?"
+    }
+    parameters.push(input[parametersText[i]])
+  }
+
+  req.db.all(query, parameters, (err, rows) => {
+    if (err) {
+      // If there's an error then provide the error message and the different attributes that could have caused it.
+      res.send("ERROR! error message:" + err.message + ", query: " + query + ", parameters: " + parameters)
+    } else
+      res.json(rows)
+  })
+}
+
+//Get component with license
+function getComponentFromLicense(req, res, id) {
+  let query = "SELECT componentID, componentName, componentVersion, dateCreated, lastEdited, comment, approved, approvedBy " 
+   + " FROM components INNER JOIN licensesInComponents ON components.id=licensesInComponents.componentID WHERE "
+
+  query += "licenseID = ?;"
+
+
+  req.db.all(query, [id], (err, rows) => {
+    if (err) {
+      // If there's an error then provide the error message and the different attributes that could have caused it.
+      res.send("ERROR! error message:" + err.message + ", query: " + query )
+    } else
+      res.json(rows)
   })
 }
 
@@ -295,7 +339,7 @@ function getUpdateComponentParameters(req, parametersText, parameters, approved,
     parametersText.push('comment')
 
   }
-  
+
 
   //logic for correct approve/approveBy
   if (approved[0] != null) {
@@ -342,7 +386,7 @@ function getInsertComponentParameters(req, parametersText, parameters, callback)
     parameters.push(new Date().toDateString())
     parametersText.push('dateCreated')
     date[0] = true
-  } 
+  }
   //Check if lastEdited was provided
   if (req.body.hasOwnProperty('lastEdited')) {
     parameters.push(new Date().toDateString())
