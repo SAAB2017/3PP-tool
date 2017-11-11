@@ -4,16 +4,18 @@
       <table class="table is-bordered">
         <thead>
         <tr>
-          <th>Components</th>
+          <th>Component name</th>
           <th width=1%>Version</th>
-          <th>Created</th>
+          <th>Date Created</th>
+          <th>Last edited</th>
         </tr>
         </thead>
         <tbody>
-        <tr v-for="component in components" @click="displayComponent(component)">
+        <tr v-for="component in components" @click="displayComponent(component.id)">
           <td>{{ component.componentName}}</td>
-          <td>{{ component.dateCreated }}</td>
           <td>{{ component.componentVersion }}</td>
+          <td>{{ component.dateCreated }}</td>
+          <td>{{ component.lastEdited }}</td>
         </tr>
         </tbody>
       </table>
@@ -42,8 +44,9 @@
       }
     },
 
-    mounted() {
-      axios.get(this.$baseAPI + 'components/pending')
+    mounted () {
+      const pendingURI = 'components/' + JSON.stringify({approved: 0})
+      axios.get(this.$baseAPI + pendingURI)
         .then(response => {
           this.components = response.data
         })
@@ -56,7 +59,8 @@
       },
 
       displayComponent(component) {
-        this.$router.push({ name: "Sign Component", params: { id: component.id } })
+        console.log(`Component id is ${component}`)
+        this.$router.push({ name: 'components_pending_id', params: { id: component }})
       }
     }
   }
