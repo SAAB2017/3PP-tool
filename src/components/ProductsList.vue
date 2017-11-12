@@ -1,12 +1,13 @@
 <template>
   <div class="products-list">
-    <div class="vertical-menu" style="max-height: 400px; min-width: 310px">
+    <div class="vertical-menu" style="max-height: 600px; min-width: 420px">
       <table class="table is-bordered">
         <thead>
         <tr>
-          <th>Products</th>
-          <th width=1%>Version</th>
-          <th>Created</th>
+          <th width="45%">Products</th>
+          <th width=15%>Version</th>
+          <th width="20%">Created</th>
+          <th width="20%">Last edited</th>
         </tr>
         </thead>
         <tbody>
@@ -14,12 +15,13 @@
           <td>{{ product.productName }}</td>
           <td>{{ product.productVersion }}</td>
           <td>{{ product.dateCreated }}</td>
+          <td>{{ product.lastEdited }}</td>
         </tr>
         </tbody>
       </table>
     </div>
 
-    <div class="field has-addons" style="padding-top: 15px">
+    <div class="field has-addons columns is-mobile is-centered" style="padding-top: 15px">
       <div class="control">
         <input v-model="searchProducts" class="input" type="text" placeholder="Find a product">
       </div>
