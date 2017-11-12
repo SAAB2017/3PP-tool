@@ -41,7 +41,12 @@ router.route('/')
         if (component != null && ((approved[0] == null && approved[1] == null) || ((component.approved == 1 && approved[0] == 0) || (component.approved != 1 && approved[1] != '')))) {
 
           //update the component
-          updateComponent(req, res, correctInputComponentName, correctInputComponentVersion, correctInputId, parametersText, parameters)
+          updateComponent(req, res, correctInputComponentName, correctInputComponentVersion, correctInputId, parametersText, parameters, function () {
+            //get component
+            getComponent(req, res, correctInputComponentName, correctInputComponentVersion, correctInputId, function (component) {
+              insertUpdateIntoLog(req, res, component.id, approved)
+            })
+          })
 
         }//Else throw an error
         else {
@@ -88,7 +93,16 @@ router.route('/')
     //Make sure the necessary parameters are provided to insert a new component.
     if (correctInputComponentName != null && correctInputComponentVersion != null && correctInputLicenseID == null) {
 
-      insertNewComponent(req, res, parametersText, parameters)
+      insertNewComponent(req, res, parametersText, parameters, function (returnValue) {
+        //Get the component so that the id can be extracted
+        getComponent(req, res, correctInputComponentName, correctInputComponentVersion, null, function (component) {
+          insertComponentLog(req, res, component.id, "Component created.",
+            function (returnValue) {
+              res.status(201)
+              res.send("Success!")
+            })
+        })
+      })
 
     } //Make sure the necessary parameters are provided to insert a new license into the component.
     else if ((correctInputComponentName != null && correctInputComponentVersion != null) || correctInputId != null && correctInputLicenseID != null) {
@@ -117,7 +131,10 @@ router.route('/')
                 //Create a log of the license added to the component
                 insertComponentLog(req, res, component.id, "Added license: " + license.licenseName + " v" + license.licenseVersion + ".",
                   function (returnValue) {
-                    updateComponent(req, res, null, null, component.id, ['approved', 'approvedBy'], ['0', '']);
+                    updateComponent(req, res, null, null, component.id, ['approved', 'approvedBy'], ['0', ''], function (returnValue) {
+                      res.status(200)
+                      res.send("Success")
+                    });
                   })
               }
             })
@@ -218,14 +235,14 @@ router.route('/:id')
 
       getComponentFromParameters(req, res, input, parametersText, parameters)
 
-    } else if((input.licenseName != null && input.licenseVersion != null) || input.licenseID != null){
+    } else if ((input.licenseName != null && input.licenseVersion != null) || input.licenseID != null) {
       //Check if licenseName and licenseVersion are provided but no licenseID
-      if (input.licenseName != null && input.licenseVersion != null) {
+      if (input.licenseName != null && input.licenseVersion != null && input.licenseID == null) {
         getLicense(req, res, input.licenseName, input.licenseVersion, null, function (license) {
-          if(license != null){
+          if (license != null) {
             //Get components with licenseID
             getComponentFromLicense(req, res, license.id)
-          }else{
+          } else {
             message = {
               "errorType": "licenseDoesNotExist"
             }
@@ -234,7 +251,7 @@ router.route('/:id')
           }
         })
       }//Else licenseId is provided
-      else{
+      else {
         //Get components with licenseID
         getComponentFromLicense(req, res, input.licenseID)
       }
@@ -282,7 +299,7 @@ function getComponent(req, res, componentName, componentVersion, id, callback) {
     if (error) {
       console.log(error.message)
       res.status(500)
-      res.send("ERROR! error message:" + error.message + ", query: " + queryCheckApproved + ", parameters: " + parametersCheckApproved)
+      res.send("ERROR! error message:" + error.message + ", query: " + query + ", parameters: " + parameters)
     } else {
       if (row != null) {
         callback(row);
@@ -326,14 +343,14 @@ function getComponentFromLicense(req, res, id) {
   req.db.all(query, [id], (err, rows) => {
     if (err) {
       // If there's an error then provide the error message and the different attributes that could have caused it.
-      res.send("ERROR! error message:" + err.message + ", query: " + query )
+      res.send("ERROR! error message:" + err.message + ", query: " + query)
     } else
       res.json(rows)
   })
 }
 
 //Update the component
-function updateComponent(req, res, componentName, componentVersion, id, parametersText, parameters) {
+function updateComponent(req, res, componentName, componentVersion, id, parametersText, parameters, callback) {
   let query = "UPDATE components SET "
 
   //Construct the remaining SQL query
@@ -363,17 +380,13 @@ function updateComponent(req, res, componentName, componentVersion, id, paramete
       res.status(500)
       res.send("ERROR! error message:" + error.message + ", query: " + query + ", parameters: " + parameters)
     } else {
-      res.status(200)
-      res.send("Success")
+      callback(true)
     }
   })
 }
 
 //Get parameters
 function getUpdateComponentParameters(req, parametersText, parameters, approved, callback) {
-  let correctInputComponentName = null
-  let correctInputComponentVersion = null
-  let correctInputId = null
   let date = false
 
   if (req.body.hasOwnProperty('approved')) {
@@ -514,8 +527,7 @@ function insertNewComponent(req, res, parametersText, parameters, callback) {
       res.status(500)
       res.send("ERROR! error message:" + error.message + ", query: " + query + ", parameters: " + parameters)
     } else {
-      res.status(201)
-      res.send("Success!")
+      callback(true)
     }
   })
 }
@@ -553,7 +565,7 @@ function getLicense(req, res, licenseName, licenseVersion, id, callback) {
     if (error) {
       console.log(error.message)
       res.status(500)
-      res.send("ERROR! error message:" + error.message + ", query: " + queryCheckApproved + ", parameters: " + parametersCheckApproved)
+      res.send("ERROR! error message:" + error.message + ", query: " + query + ", parameters: " + parameters)
     } else {
       if (row != null) {
         callback(row);
@@ -575,5 +587,30 @@ function insertComponentLog(req, res, id, text, callback) {
       callback(true);
     }
   })
+}
+
+//Insert the update into the ComponentLog
+function insertUpdateIntoLog(req, res, correctInputId, approved){
+  //If approve has changed then log it 
+  if(req.body.hasOwnProperty('approved')){
+    if(approved[0] == 0){
+      insertComponentLog(req, res, correctInputId, "Component changed to not approved.", function (log) {
+      })
+    }else if(approved[0] == 1){
+      insertComponentLog(req, res, correctInputId, "Component changed to approved by " + approved[1] + ".", function (log) {
+      })
+    }
+  }//If approveBy has changed then log it 
+  else if(req.body.hasOwnProperty('approvedBy')){
+    if(approved[1] == ''){
+      insertProductLog(req, res, correctInputId, "Component changed to not approved.", function (log) {
+      })
+    }else if(approved[1] != ''){
+      insertComponentLog(req, res, correctInputId, "Component changed to approved by " + approved[1] + ".", function (log) {
+      })
+    }
+  }
+  res.status(201)
+  res.send("Success!")
 }
 module.exports = router
