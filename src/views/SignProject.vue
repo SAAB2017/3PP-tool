@@ -33,7 +33,7 @@
 
 <script>
   import axios from 'axios'
-  const pendingURI = 'projects/pending/'
+
   export default {
 
     data () {
@@ -44,7 +44,7 @@
     },
 
     mounted () {
-      axios.get(this.$baseAPI + pendingURI + this.$route.params.id)
+      axios.get(this.$baseAPI + 'projects/', { id: this.project.id })
         .then(response => {
           if (response.status === '404') {
             console.log("Error requesting data.")
@@ -62,7 +62,7 @@
             id: this.project.id,
             approvedBy: this.project.approvedBy
           }
-          axios.put(this.$baseAPI + 'projects/pending/' + this.project.id, data)
+          axios.put(this.$baseAPI + 'projects/' + this.project.id, data)
             .then(response => {
               if (response.status === '201') {
                 axios.get(this.$baseAPI + 'projects/pending/' + this.project.id)

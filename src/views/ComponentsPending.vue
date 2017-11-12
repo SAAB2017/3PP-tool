@@ -1,8 +1,10 @@
 <template>
   <div class="section components">
-    <div class="columns">
-      <div class="column is-one-quarter is-offset-one-third">
-        <h1>Pending components</h1>
+    <div class="columns is-mobile is-centered">
+      <div class="column is-centered is-mobile">
+        <div style="text-align: center;">
+          <h2 class="subtitle is-4">Pending components</h2>
+        </div>
         <div>
           <div>
             <components-sign></components-sign>

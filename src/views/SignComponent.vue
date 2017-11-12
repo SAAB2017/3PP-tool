@@ -3,8 +3,7 @@
     <div v-if="component" class="component">
       <div class="columns is-mobile is-centered">
         <div class="column is-one-quarter-desktop is-one-third-tablet is-half-mobile">
-            <h1 class="title is-2">Component {{ component.componentName }}</h1>
-            <h2 class="subtitle is-4">Component name here</h2>
+            <h2 class="subtitle is-4">{{ component.componentName }}</h2>
         </div>
       </div>
 
@@ -16,7 +15,6 @@
             <label class="field-label label is-normal" style="width: 20%">Version</label>
             <div class="control" style="width: 80%">
               <input v-if="component.componentVersion" v-model="component.componentVersion" class="input" type="text" disabled>
-              <input v-else v-model="testVersion" class="input" type="text" disabled>
             </div>
           </div>
 
@@ -24,7 +22,6 @@
             <label class="field-label label is-normal" style="width: 20%">Created</label>
             <div class="control" style="width: 80%">
               <input v-if="component.dateCreated" v-model="component.dateCreated" class="input" type="text"  disabled>
-              <input v-else  v-model="testDate"class="input" type="text" disabled>
             </div>
           </div>
 
@@ -35,12 +32,8 @@
             <label class="field-label label is-normal" style="width: 20%">Comment</label>
             <div class="control" style="width: 80%">
               <textarea v-if="component.comment" class="textarea" v-model="component.comment"></textarea>
-              <textarea v-else class="textarea" v-model="testComment"></textarea>
             </div>
           </div>
-
-
-
         </div>
 
         <div class="column is-one-quarter-desktop is-two-thirds-tablet is-10-mobile">
@@ -55,68 +48,15 @@
                   </tr>
                   </thead>
                   <tbody>
-                  <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
+                  <tr v-for="license in licenses">
+                    <td>{{ license.licenseName }}</td>
+                    <td>{{ license.licenseVersion }}</td>
                   </tr>
-                  <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
-                  </tr>
-                  <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
-                  </tr>
-                  <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
-                  </tr>
-                  <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
-                  </tr>
-                  <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
-                  </tr>
-                  <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
-                  </tr>
-                  <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
-                  </tr>
-                  <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
-                  </tr> <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
-                  </tr>
-                  <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
-                  </tr>
-                  <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
-                  </tr> <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
-                  </tr>
-
-
                   </tbody>
                 </table>
               </div>
             </div>
-
-
         </div>
-
-
-
 
       </div>
       <div class="columns is-mobile is-centered is-gapless">
@@ -136,10 +76,8 @@
       </div>
 
       <div class="columns is-mobile is-centered">
-        <p class="help is-success has-text-right subtitle is-6">{{ message }}</p>
+        <p class="help is-success has-text-right subtitle is-6">Component status: {{ message }}</p>
       </div>
-
-
     </div>
     <div v-else>
       <h1>Component not found</h1>
@@ -150,51 +88,57 @@
 
 <script>
   import axios from 'axios'
-  const pendingURI = 'components/pending/'
   export default {
-
     data () {
       return {
         component: {},
-        message: '',
-        testName: 'Test name',
-        testVersion: 'Test version',
-        testDate: '2017-10-04',
-        testApproved: 'Nils Nilsson',
-        testComment: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
-
+        licenses: [],
+        license: {},
+        message: ''
       }
     },
 
     mounted () {
-      axios.get(this.$baseAPI + pendingURI + this.$route.params.id)
+      const pendingURI = 'components/' + JSON.stringify({id: this.$route.params.id})
+      axios.get(this.$baseAPI + pendingURI)
         .then(response => {
           if (response.status === '404') {
             console.log("Error requesting data.")
+          } else {
+            this.component = response.data[0]
+            this.message = ((this.component.approved === 0) ? 'Not signed' : 'Signed')
+            this.fetchLicenses()
           }
-          this.component = response.data
         })
     },
 
     methods: {
-
+      fetchLicenses() {
+        axios.get(this.$baseAPI + 'licenses/licensesInComponent/' + JSON.stringify(this.$route.params.id)).then(response => {
+          this.licenses = response.data
+        })
+      },
       signComponent () {
         if (this.component.approvedBy !== null || this.component.approvedBy) {
           console.log(this.component.componentName)
           let data = {
             id: this.component.id,
-            approvedBy: this.component.approvedBy
+            approvedBy: this.component.approvedBy,
+            comment: this.component.comment,
+            lastEdited: new Date().toLocaleDateString()
           }
-          axios.put(this.$baseAPI + 'components/pending/' + this.component.id, data)
+          axios.put(this.$baseAPI + 'components/approve', data)
             .then(response => {
-              if (response.status === '201') {
-                axios.get(this.$baseAPI + 'components/pending/' + this.component.id)
+              if (response.status === 204) {
+                axios.get(this.$baseAPI + 'components/' + JSON.stringify({id: this.$route.params.id}))
                   .then(response => {
+                    console.log(response.data)
                     this.message = 'Component signed'
-                    this.component = response.data
+                    this.component = response.data[0]
                   })
               } else {
                 console.log("Error: Could not sign component")
+                this.message = "Could not sign component"
               }
             })
         } else {

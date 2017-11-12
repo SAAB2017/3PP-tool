@@ -94,6 +94,21 @@ router.route('/')
     })
 
 // ----------------------------------------------------------------------------
+//  Methods for /componentLicenses/:id
+// ----------------------------------------------------------------------------
+router.route('/licensesInComponent/:id')
+  .get((req, res) => {
+    console.log(req.params.id)
+    let componentID = JSON.parse(req.params.id)
+    console.log(componentID)
+    let query = `SELECT licenseID, licenseName, licenseVersion, dateCreated, lastEdited, comment, URL FROM  licenses INNER JOIN licensesInComponents ON licenses.id=licensesInComponents.licenseID WHERE 
+    componentID=${componentID}`
+    req.db.all(query, (err, rows) => {
+      res.json(rows)
+    })
+  })
+
+// ----------------------------------------------------------------------------
 //  Methods for /licenses/:id
 // ----------------------------------------------------------------------------
 router.route('/:id')

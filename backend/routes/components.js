@@ -13,7 +13,7 @@ router.route('/')
   })
 
   //In order to change a component; send in a JSON object with the applicable parameters (componentName and componentVersion or id must be provided).
-  //In order to change the approval of a license attached to a component; send in a JSON object 
+  //In order to change the approval of a license attached to a component; send in a JSON object
   //with the applicable parameters (Ether componentName and componentVersion or id aswell as licenseID, approved and/or approvedBy must be provided).
   .post((req, res) => {
 
@@ -153,11 +153,79 @@ router.route('/')
   })
 
 // ----------------------------------------------------------------------------
+//  Methods for /components/approve
+// ----------------------------------------------------------------------------
+
+function validateRequest(id, sig) {
+  console.log("Validating data")
+  return true
+}
+
+router.route('/approve')
+  .put((req, res) => {
+    const approveData = req.body
+    let query = `UPDATE components SET approved = 1, approvedBy = '${approveData.approvedBy}', lastEdited = '${approveData.lastEdited}', comment='${approveData.comment}' where id = ${approveData.id}`
+    // precondition: check that id == OK, signature == OK and that component hasn't yet been signed
+    console.log(JSON.stringify(approveData))
+    if (validateRequest(approveData.id, approveData.approvedBy)) {
+      req.db.run(query, (error) => {
+        if (error) {
+          console.log("Error:")
+          console.log(error.message)
+          res.status(500)
+          res.end()
+        } else {
+          res.status(204).send('success')
+        }
+      })
+    }
+    // postcondition: component approved, signed
+  })
+
+// ----------------------------------------------------------------------------
+//  Methods for /components/add
+// ----------------------------------------------------------------------------
+router.route('/add')
+  .post((req, res) => {
+    const qd = req.body
+    let date = new Date().toLocaleDateString()
+    let lastEdit = date
+    let licenses = qd.licenses
+    let insertion = `INSERT INTO components (componentName, componentVersion, dateCreated, lastEdited, comment, approved) VALUES ('${qd.componentName}', ${qd.componentVersion}, '${date}', '${lastEdit}', '${qd.comment}',0)`
+    // precondition: check that id == OK, signature == OK and that component hasn't yet been signed
+    console.log(insertion)
+    req.db.run(insertion, (error) => {
+      if (error) {
+        console.log("Error:")
+        console.log(error.message)
+        res.status(500)
+        res.end()
+      } else {
+        req.db.get('SELECT COUNT(id) FROM COMPONENTS', (err, row) => {
+          if (err) {
+            res.status(500)
+            res.end()
+          } else {
+            let componentCount = row['COUNT(id)']
+            licenses.map((val) => {
+              insertLicenseIntoComponent(req, res, val, componentCount, () => {
+                let d = new Date().toLocaleDateString()
+                insertComponentLog(req, res, componentCount, d, () => {})
+              })
+            })
+          }
+        })
+        res.status(200).send('success')
+      }
+    })
+    // postcondition: component approved, signed
+  })
+// ----------------------------------------------------------------------------
 //  Methods for /components/:id
 // ----------------------------------------------------------------------------
 router.route('/:id')
 
-  // In order to search; send in a JSON object with the applicable parameters.
+// In order to search; send in a JSON object with the applicable parameters.
   .get((req, res) => {
     let input = JSON.parse(req.params.id)
     let parametersText = Object.keys(input)
@@ -213,7 +281,7 @@ router.route('/:id')
     })
   })
 
-module.exports = router
+
 
 function getComponent(req, res, componentName, componentVersion, id, callback) {
   let query = "SELECT * FROM components"
@@ -545,3 +613,4 @@ function insertUpdateIntoLog(req, res, correctInputId, approved){
   res.status(201)
   res.send("Success!")
 }
+module.exports = router

@@ -1,12 +1,13 @@
 <template>
   <div class="component-list">
-    <div class="vertical-menu" style="max-height: 400px; min-width: 310px">
+    <div class="vertical-menu" style="max-height: 600px; min-width: 420px">
       <table class="table is-bordered">
         <thead>
         <tr>
           <th>Components</th>
           <th width=1%>Version</th>
           <th>Created</th>
+          <th>Last edited</th>
         </tr>
         </thead>
         <tbody>
@@ -14,12 +15,13 @@
           <td>{{ component.componentName }}</td>
           <td>{{ component.componentVersion }}</td>
           <td>{{ component.dateCreated }}</td>
+          <td>{{ component.lastEdited }}</td>
         </tr>
         </tbody>
       </table>
     </div>
 
-    <div class="field has-addons" style="padding-top: 15px">
+    <div class="field has-addons columns is-mobile is-centered" style="padding-top: 15px">
       <div class="control">
         <input v-model="searchComponents" class="input" type="text" placeholder="Find a component">
       </div>
@@ -27,6 +29,7 @@
         <a @click="searchComponent" class="button is-primary">Search</a>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -43,7 +46,7 @@
     },
 
     mounted() {
-      axios.get(this.$baseAPI + 'components')
+      axios.get(this.$baseAPI + 'components/')
         .then(response => {
           this.components = response.data
         })

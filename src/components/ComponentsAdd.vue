@@ -2,7 +2,7 @@
   <div class="component-list">
     <div class="field">
       <p class="control">
-        <input v-model="component" class="input" type="text" placeholder="Name">
+        <input v-model="componentName" class="input" type="text" placeholder="Name">
       </p>
     </div>
     <div class="field">
@@ -21,7 +21,7 @@
         </thead>
         <tbody>
         <tr v-for="license in licenses">
-          <td style="text-align: center"><input class="checkbox" type="checkbox" id="cLicenseID"/></td>
+          <td style="text-align: center"><input class="checkbox" type="checkbox" v-bind:value=license.id v-model.number="checkedLicenses"></td>
           <td>{{ license.licenseName }}</td>
           <td>{{ license.licenseVersion }}</td>
         </tr>
@@ -46,7 +46,7 @@
 
     <div style="padding-top: 15px">
       <p class="control">
-        <a @click="addComponent" class="button is-primary">Add component</a>
+        <a @click="addComponent()" class="button is-primary">Add component</a>
       </p>
     </div>
   </div>
@@ -58,9 +58,10 @@
     data() {
       return {
         licenses: [],
-        component: null,
-        componentVersion: null,
-        componentComment: null
+        checkedLicenses: [],
+        componentName: '',
+        componentVersion: 0,
+        componentComment: ''
       }
     },
 
@@ -72,28 +73,27 @@
     },
 
     methods: {
-
-      addComponent() {
+      addComponent () {
         let data = {
-          componentName: this.component,
+          componentName: this.componentName,
           componentVersion: this.componentVersion,
-          comment: this.componentComment
-          // TODO put licenses for add.
+          comment: this.componentComment,
+          licenses: this.checkedLicenses
         }
 
-        axios.post(this.$baseAPI + 'components', data)
+        axios.post(this.$baseAPI + 'components/add', data)
           .then(response => {
-            if (response.data === "success") {
-              this.component = null
+            if (response.responseData.status === "success") {
+              this.componentName = null
               this.componentVersion = null
               this.componentComment = null
-
               axios.get(this.$baseAPI + 'components')
                 .then(response => {
                   this.components = response.data
                 })
             }
           })
+        this.$router.push({ name: 'components' })
       },
 
       searchLicense() {
