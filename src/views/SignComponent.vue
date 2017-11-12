@@ -127,8 +127,6 @@
             comment: this.component.comment,
             lastEdited: new Date().toLocaleDateString()
           }
-          console.log(JSON.stringify(data))
-          console.log(this.$baseAPI + 'components/approve/' + JSON.stringify({id: this.$route.params.id}))
           axios.put(this.$baseAPI + 'components/approve', data)
             .then(response => {
               if (response.status === 204) {

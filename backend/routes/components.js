@@ -164,6 +164,45 @@ router.route('/approve')
     }
     // postcondition: component approved, signed
   })
+
+// ----------------------------------------------------------------------------
+//  Methods for /components/add
+// ----------------------------------------------------------------------------
+router.route('/add')
+  .post((req, res) => {
+    const qd = req.body
+    let date = new Date().toLocaleDateString()
+    let lastEdit = date
+    let licenses = qd.licenses
+    let insertion = `INSERT INTO components (componentName, componentVersion, dateCreated, lastEdited, comment, approved) VALUES ('${qd.componentName}', ${qd.componentVersion}, '${date}', '${lastEdit}', '${qd.comment}',0)`
+    // precondition: check that id == OK, signature == OK and that component hasn't yet been signed
+    console.log(insertion)
+    req.db.run(insertion, (error) => {
+      if (error) {
+        console.log("Error:")
+        console.log(error.message)
+        res.status(500)
+        res.end()
+      } else {
+        req.db.get('SELECT COUNT(id) FROM COMPONENTS', (err, row) => {
+          if (err) {
+            res.status(500)
+            res.end()
+          } else {
+            let componentCount = row['COUNT(id)']
+            licenses.map((val) => {
+              insertLicenseIntoComponent(req, res, val, componentCount, () => {
+                let d = new Date().toLocaleDateString()
+                insertComponentLog(req, res, componentCount, d, () => {})
+              })
+            })
+          }
+        })
+        res.status(200).send('success')
+      }
+    })
+    // postcondition: component approved, signed
+  })
 // ----------------------------------------------------------------------------
 //  Methods for /components/:id
 // ----------------------------------------------------------------------------
@@ -225,7 +264,7 @@ router.route('/:id')
     })
   })
 
-module.exports = router
+
 
 function getComponent(req, res, componentName, componentVersion, id, callback) {
   let query = "SELECT * FROM components"
@@ -537,3 +576,4 @@ function insertComponentLog(req, res, id, text, callback) {
     }
   })
 }
+module.exports = router
