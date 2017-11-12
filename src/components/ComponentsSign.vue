@@ -1,13 +1,13 @@
 <template>
   <div class="components-list">
-    <div class="vertical-menu" class="column">
+    <div class="vertical-menu" style="max-height: 600px; min-width: 420px">
       <table class="table is-bordered">
         <thead>
         <tr>
-          <th>Component name</th>
-          <th width=1%>Version</th>
-          <th>Date Created</th>
-          <th>Last edited</th>
+          <th width="45%">Component</th>
+          <th width=15%>Version</th>
+          <th width="20%">Created</th>
+          <th width="20%">Last edited</th>
         </tr>
         </thead>
         <tbody>

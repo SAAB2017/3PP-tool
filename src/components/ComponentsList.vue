@@ -4,10 +4,10 @@
       <table class="table is-bordered">
         <thead>
         <tr>
-          <th>Components</th>
-          <th width=1%>Version</th>
-          <th>Created</th>
-          <th>Last edited</th>
+          <th width="45%">Component</th>
+          <th width=15%>Version</th>
+          <th width="20%">Created</th>
+          <th width="20%">Last edited</th>
         </tr>
         </thead>
         <tbody>

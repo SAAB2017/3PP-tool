@@ -1,7 +1,7 @@
 <template>
   <div class="section components">
-    <div class="columns is-mobile is-centered">
-      <div class="column is-centered is-mobile">
+    <div class="columns">
+      <div class="column is-one-third is-offset-one-third">
         <div style="text-align: center;">
           <h2 class="subtitle is-4">Pending components</h2>
         </div>
