@@ -1,6 +1,6 @@
 <template>
   <div class="components-list">
-    <div class="vertical-menu" style="max-height: 400px; max-width: 320px">
+    <div class="vertical-menu" class="column">
       <table class="table is-bordered">
         <thead>
         <tr>
@@ -21,7 +21,7 @@
       </table>
     </div>
 
-    <div class="field has-addons" style="padding-top: 15px">
+    <div class="field has-addons columns is-mobile is-centered" style="padding-top: 15px">
       <div class="control">
         <input v-model="searchComponents" class="input" type="text" placeholder="Find a component">
       </div>
