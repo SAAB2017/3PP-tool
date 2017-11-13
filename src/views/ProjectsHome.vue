@@ -1,9 +1,15 @@
 <template>
   <div class="section products">
-    <div class="columns">
-      <div class="column is-one-quarter is-offset-one-third">
-        <h1>Projects</h1>
-        <projects-list></projects-list>
+    <div class="columns is-mobile is-centered">
+      <div class="column is-half">
+        <div style="text-align: center;">
+          <h2 class="subtitle is-4">Projects</h2>
+        </div>
+        <div>
+          <div>
+            <projects-list></projects-list>
+          </div>
+        </div>
       </div>
     </div>
   </div>

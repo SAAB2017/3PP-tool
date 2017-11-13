@@ -1,8 +1,10 @@
 <template>
   <div class="section products">
-    <div class="columns">
-      <div class="column is-one-quarter is-offset-one-third">
-        <h1>Pending products</h1>
+    <div class="columns is-mobile is-centered">
+      <div class="column is-half">
+        <div style="text-align: center;">
+          <h2 class="subtitle is-4">Pending products</h2>
+        </div>
         <div>
           <div>
             <products-sign></products-sign>

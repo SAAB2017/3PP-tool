@@ -1,7 +1,7 @@
 <template>
   <div class="section components">
     <div class="columns is-mobile is-centered">
-      <div class="column is-centered is-mobile">
+      <div class="column is-half">
         <div style="text-align: center;">
           <h2 class="subtitle is-4">Components</h2>
         </div>
