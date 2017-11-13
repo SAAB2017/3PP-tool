@@ -4,7 +4,7 @@
       <table class="table is-bordered">
         <thead>
         <tr>
-          <th width="45%">Products</th>
+          <th width="45%">Product</th>
           <th width=15%>Version</th>
           <th width="20%">Created</th>
           <th width="20%">Last edited</th>
