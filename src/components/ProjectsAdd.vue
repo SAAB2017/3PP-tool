@@ -1,5 +1,7 @@
+<!-- View for adding Projects -->
 <template>
   <div class="component-list">
+    <!-- Fields for adding name and version to the project -->
     <div class="field">
       <p class="control">
         <input v-model="project" class="input" type="text" placeholder="Name">
@@ -10,6 +12,9 @@
         <input v-model="projectVersion" class="input" type="text" placeholder="Version">
       </p>
     </div>
+
+    <!-- Table for picking products to bind to the project. Shows all approved
+    products but becomes scrollable after reaching max-size (because of class="vertical-menu") -->
     <div class="vertical-menu" style="max-height: 200px; height: auto">
       <table>
         <thead>
@@ -28,6 +33,7 @@
         </tbody>
       </table>
     </div>
+    <!-- Field for searching for products. Uses "searchProduct"-method for searching -->
     <div class="field has-addons" style="padding-top: 15px">
       <div class="control">
         <input v-model="searchProducts" class="input" type="text" placeholder="Find a product">
@@ -37,13 +43,14 @@
       </div>
     </div>
 
+    <!-- Textarea for adding a comment to the project -->
     <div class="field">
       <div class="control">
         <textarea v-model="projectComment" class="textarea" placeholder="Comment for project"></textarea>
       </div>
     </div>
 
-
+    <!-- Button for adding the project. Uses "addProject"-function -->
     <div style="padding-top: 15px">
       <p class="control">
         <a @click="addProject" class="button is-primary">Add project</a>
@@ -63,7 +70,7 @@
         projectComment: null
       }
     },
-
+    /* Fetches products from the database and puts them in products */
     mounted() {
       axios.get(this.$baseAPI + 'products')
         .then(response => {
@@ -72,7 +79,9 @@
     },
 
     methods: {
-
+      /**
+       * Add a project to the database according to the fields in the view
+       */
       addProject() {
         let data = {
           projectName: this.project,
@@ -96,12 +105,11 @@
           })
       },
 
+      /**
+       * Searches for products from the database matching the search-criteria
+       */
       searchProduct(){
         // TODO implement method
-      },
-      // TODO Could be deleted? Or does it update the page after insert?
-      displayComponent(component) {
-        this.$router.push({ name: "Project", params: { id: component.id } })
       }
     }
   }

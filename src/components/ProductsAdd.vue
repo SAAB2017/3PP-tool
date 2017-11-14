@@ -1,5 +1,7 @@
+<!-- View for adding Products -->
 <template>
   <div class="component-list">
+    <!-- Fields for adding name and version to the product -->
     <div class="field">
       <p class="control">
         <input v-model="product" class="input" type="text" placeholder="Name">
@@ -10,6 +12,9 @@
         <input v-model="productVersion" class="input" type="text" placeholder="Version">
       </p>
     </div>
+
+    <!-- Table for picking components to bind to the product. Shows all approved
+    components but becomes scrollable after reaching max-size (because of class="vertical-menu") -->
     <div class="vertical-menu" style="max-height: 200px; height: auto">
       <table>
         <thead>
@@ -28,6 +33,7 @@
         </tbody>
       </table>
     </div>
+    <!-- Field for searching for components. Uses "searchComponent"-method for searching -->
     <div class="field has-addons" style="padding-top: 15px">
       <div class="control">
         <input v-model="searchComponents" class="input" type="text" placeholder="Find a component">
@@ -37,13 +43,14 @@
       </div>
     </div>
 
+    <!-- Textarea for adding a comment to the product -->
     <div class="field">
       <div class="control">
         <textarea v-model="productComment" class="textarea" placeholder="Comment for product"></textarea>
       </div>
     </div>
 
-
+    <!-- Button for adding the product. Uses "addProduct"-function -->
     <div style="padding-top: 15px">
       <p class="control">
         <a @click="addProduct" class="button is-primary">Add product</a>
@@ -63,7 +70,7 @@
         productComment: null
       }
     },
-
+    /* Fetches components from the database and puts them in components */
     mounted() {
       axios.get(this.$baseAPI + 'components')
         .then(response => {
@@ -72,7 +79,9 @@
     },
 
     methods: {
-
+      /**
+       * Add a product to the database according to the fields in the view
+       */
       addProduct() {
         let data = {
           productName: this.product,
@@ -96,12 +105,11 @@
           })
       },
 
+      /**
+       * Searches for liceses from the database matching the search-criteria
+       */
       searchComponent(){
         // TODO Implement method
-      },
-      // TODO Could be deleted? Or does it update the page after insert?
-      displayComponent(component) {
-        this.$router.push({ name: "Product", params: { id: component.id } })
       }
     }
   }
