@@ -1,5 +1,8 @@
+<!-- View for showing all signed products -->
 <template>
   <div class="products-list">
+    <!-- Table that contains all signed products. Will grow to max-height and then
+    become scrollable -->
     <div class="vertical-menu" style="max-height: 600px; min-width: 420px">
       <table class="table is-bordered">
         <thead>
@@ -21,6 +24,7 @@
       </table>
     </div>
 
+    <!-- Field for searching for a product in the table. Uses "searchProduct"-method -->
     <div class="field has-addons columns is-mobile is-centered" style="padding-top: 15px">
       <div class="control">
         <input v-model="searchProducts" class="input" type="text" placeholder="Find a product">
@@ -44,6 +48,7 @@
       }
     },
 
+    /* Fetches signed products from the database and puts them in products */
     mounted() {
       axios.get(this.$baseAPI + 'products')
         .then(response => {
@@ -52,34 +57,20 @@
     },
 
     methods: {
-
+      /**
+       * Searches for signed products from the database matching the search-criteria
+       */
       searchProduct(){
         // TODO Implement method
       },
 
+      /**
+       * Opens the view for a specific product with id id.
+       * @param product The product to be viewed
+       */
       displayComponent(product) {
         this.$router.push({ name: "products_id", params: { id: product.id } })
       }
-      /* TODO should be able to delete this
-      addproduct() {
-        var data = {
-          product: this.product,
-          version: this.productVersion
-        }
-
-        axios.post(this.$baseAPI + 'products', data)
-          .then(response => {
-            if (response.data === "success") {
-              this.product = null
-              this.productVersion = null
-
-              axios.get(this.$baseAPI + 'products')
-                .then(response => {
-                  this.products = response.data
-                })
-            }
-          })
-      } */
     }
   }
 </script>

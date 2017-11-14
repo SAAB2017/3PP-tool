@@ -1,5 +1,7 @@
+<!-- View for adding Components -->
 <template>
   <div class="component-list">
+    <!-- Fields for adding name and version to the component -->
     <div class="field">
       <p class="control">
         <input v-model="componentName" class="input" type="text" placeholder="Name">
@@ -10,6 +12,9 @@
         <input v-model="componentVersion" class="input" type="text" placeholder="Version">
       </p>
     </div>
+
+    <!-- Table for picking licenses to bind to the component. Shows all approved
+    licenses but becomes scrollable after reaching max-size (because of class="vertical-menu") -->
     <div class="vertical-menu" style="max-height: 200px; height: auto">
       <table>
         <thead>
@@ -28,6 +33,7 @@
         </tbody>
       </table>
     </div>
+    <!-- Field for searching for licenses. Uses "searchLicense"-method for searching -->
     <div class="field has-addons" style="padding-top: 15px">
       <div class="control">
         <input v-model="searchLicenses" class="input" type="text" placeholder="Find a license">
@@ -37,13 +43,14 @@
       </div>
     </div>
 
+    <!-- Textarea for adding a comment to the component -->
     <div class="field">
       <div class="control">
         <textarea v-model="componentComment" class="textarea" placeholder="Comment for component"></textarea>
       </div>
     </div>
 
-
+    <!-- Button for adding the component. Uses "addComponent"-function -->
     <div style="padding-top: 15px">
       <p class="control">
         <a @click="addComponent()" class="button is-primary">Add component</a>
@@ -60,11 +67,11 @@
         licenses: [],
         checkedLicenses: [],
         componentName: '',
-        componentVersion: 0,
+        componentVersion: '',
         componentComment: ''
       }
     },
-
+    /* Fetches liceses from the database and puts them in licenses */
     mounted() {
       axios.get(this.$baseAPI + 'licenses')
         .then(response => {
@@ -73,6 +80,9 @@
     },
 
     methods: {
+      /**
+       * Add a component to the database according to the fields in the view
+       */
       addComponent () {
         let data = {
           componentName: this.componentName,
@@ -96,12 +106,11 @@
         this.$router.push({ name: 'components' })
       },
 
+      /**
+       * Searches for liceses from the database matching the search-criteria
+       */
       searchLicense() {
         // TODO Implement method
-      },
-      // TODO Could be deleted? Or does it update the page after insert?
-      displayComponent(component) {
-        this.$router.push({ name: "Component", params: { id: component.id } })
       }
     }
   }
