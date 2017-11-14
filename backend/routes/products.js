@@ -146,6 +146,202 @@ router.route('/')
     res.send("Method not implemented")
   })
 
+  // ----------------------------------------------------------------------------
+//  Methods for /products/approve
+// ----------------------------------------------------------------------------
+
+function validateRequest(product, approved) {
+  return ((approved[0] == null && approved[1] == null) || ((product.approved == 1 && approved[0] == 0) || (product.approved != 1 && approved[1] != '')))
+}
+
+function getCorrectApproved(input) {
+  let approved = [null, null]
+
+  if (input.hasOwnProperty('approved')) {
+    if (input.approved == 0 && approved[1] == null) {
+      approved[1] = ''
+    }
+    approved[0] = input.approved
+  }
+
+  if (input.hasOwnProperty('approvedBy')) {
+    if (input.approvedBy != '') {
+      approved[0] = 1
+      approved[1] = input.approvedBy
+    }
+  }
+
+  //logic for correct approve/approvedBy
+  if (approved[0] != null) {
+    if (approved == 0 && approved[1] == null) {
+      approved[1] = ''
+    } else if (approved == 1 && approved[1] == null) {
+      approved[0] = null
+    }
+  }
+  return approved
+}
+
+router.route('/approve')
+  .put((req, res) => {
+    // precondition: check that id == OK, signature == OK and that the product hasn't yet been signed
+    const input = req.body
+    let approved = getCorrectApproved(input)
+
+    //Get product to make sure that it is not approved already
+    getProduct(req, res, null, null, input.id, function (product) {
+      //Make sure that row is not null and that an approved product can't be approved again by a diffrent person
+      if (product != null && input.id != null && validateRequest(product, approved)) {
+
+        //update the product
+        updateProduct(req, res, null, null, input.id, ['approved', 'approvedBy'], approved, function () {
+          insertUpdateIntoLog(req, res, product.id, approved)
+        })
+
+      }//Else throw an error
+      else {
+        let message
+        message = {
+          "errorType": "alreadySigned",
+          "byUser": "" + product.approvedBy
+          //"onTime": "1510062744"
+        }
+        console.log(message)
+        res.status(500).send(message)
+      }
+    })
+    // postcondition: product approved, signed and logged
+  })
+
+// ----------------------------------------------------------------------------
+//  Methods for /products/add
+// ----------------------------------------------------------------------------
+router.route('/add')
+  .post((req, res) => {
+    // precondition: product doesn't already exist.
+    const input = req.body
+    parametersText = []
+    parameters = []
+
+    //Get the correct parameters
+    getInsertProductParameters(req, parametersText, parameters, function (returnValue) {
+      parametersText = returnValue[0]
+      parameters = returnValue[1]
+
+      //Make sure the necessary parameters are provided to insert a new product.
+      if (input.productName != null && input.productVersion != null) {
+
+        insertNewProduct(req, res, parametersText, parameters, function (returnValue) {
+          //Get the product so that the id can be extracted
+          getProduct(req, res, input.productName, input.productVersion, null, function (product) {
+            insertProductLog(req, res, product.id, "Product created.",
+              function (returnValue) {
+                res.status(201).send("Success!")
+              })
+          })
+        })
+
+      }
+    })
+    // postcondition: product created and logged.
+  })
+
+// ----------------------------------------------------------------------------
+//  Methods for /products/connectComponentWithProduct
+// ----------------------------------------------------------------------------
+router.route('/connectComponentWithProduct')
+  .post((req, res) => {
+    // precondition: Component must exist aswell as the product.
+    const input = req.body
+
+    if (input.productID != null && input.componentID != null) {
+      //Insert the provided license into the component
+      insertComponentIntoProduct(req, res, input.componentID, input.productID, function (returnValue) {
+        //Get the component that was inserted
+        getComponent(req, res, null, null, input.componentID, function (component) {
+          if (component == null) {
+            message = {
+              "errorType": "componentDoesNotExist"
+            }
+            console.log(message)
+            res.status(500).send(message)
+          } else {
+            //Create a log of the license added to the component
+            insertProductLog(req, res, input.productID, "Added component: " + component.componentName + " v" + component.componentVersion + ".",
+              function (returnValue) {
+                updateProduct(req, res, null, null, input.productID, ['approved', 'approvedBy'], ['0', ''], function (returnValue) {
+                  res.status(200).send("Success")
+                });
+              })
+          }
+        })
+      })
+    }
+    // postcondition: The component is connected with the product.
+  })
+
+// ----------------------------------------------------------------------------
+//  Methods for /products/productsInProject/:id
+// ----------------------------------------------------------------------------
+router.route('/productsInProject/:id')
+  .get((req, res) => {
+    // precondition: project exists and it has products connected to it.
+    let input = JSON.parse(req.params.id)
+
+    if (input.id != null) {
+      //Get products from the project
+      getproductsFromProject(req, res, input.id)
+    }
+    // postcondition: components connected to the product.
+  })
+
+// ----------------------------------------------------------------------------
+//  Methods for /products/productstWithLicense/:id
+// ----------------------------------------------------------------------------
+router.route('/productstWithLicense/:id')
+  .get((req, res) => {
+    // precondition: license exists and it has atleast one component connected to it.
+    let input = JSON.parse(req.params.id)
+
+    if (input.id != null) {
+      //Get products connected to the license
+      getProductsWithLicense(req, res, input.id)
+    }
+    // postcondition: products with the license connected to it.
+  })
+
+// ----------------------------------------------------------------------------
+//  Methods for /products/productstWithComponent/:id
+// ----------------------------------------------------------------------------
+router.route('/productstWithComponent/:id')
+.get((req, res) => {
+  // precondition: component exists and is connected with atleast one product.
+  let input = JSON.parse(req.params.id)
+
+  if (input.id != null) {
+    //Get products connected to the component
+    getProductsWithComponent(req, res, input.id)
+  }
+  // postcondition: products with the components connected to it.
+})
+
+// ----------------------------------------------------------------------------
+//  Methods for /products/log/:id
+// ----------------------------------------------------------------------------
+router.route('/log/:id')
+.get((req, res) => {
+  // precondition: component exists.
+  let input = JSON.parse(req.params.id)
+  let parametersText = Object.keys(input)
+  let parameters = []
+
+  if (input.id != null) {
+    //Get the component log
+    getComponentLog(req, res, input.id)
+  }
+  // postcondition: the log entries of the component
+})
+
 // ----------------------------------------------------------------------------
 //  Methods for /products/:id
 // ----------------------------------------------------------------------------
@@ -160,47 +356,6 @@ router.route('/:id')
 
       getProductFromParameters(req, res, input, parametersText, parameters)
 
-    } else if ((input.licenseName != null && input.licenseVersion != null) || input.licenseID != null) {
-      //Check if licenseName and licenseVersion are provided but no licenseID
-      if (input.licenseName != null && input.licenseVersion != null && input.licenseID == null) {
-        getLicense(req, res, input.licenseName, input.licenseVersion, null, function (license) {
-          if (license != null) {
-            //Get products with licenseID
-            getProductFromLicense(req, res, license.id)
-          } else {
-            message = {
-              "errorType": "licenseDoesNotExist"
-            }
-            console.log(message)
-            res.status(500).send(message)
-          }
-        })
-      }//Else licenseId is provided
-      else {
-        //Get products with licenseID
-        getProductFromLicense(req, res, input.licenseID)
-      }
-
-    }else if((input.componentName != null && input.componentVersion != null) || input.componentID != null){
-      //Check if componentName and componentVersion are provided but no componentID
-      if (input.componentName != null && input.componentVersion != null && input.componentID == null) {
-        getComponent(req, res, input.componentName, input.componentVersion, null, function (component) {
-          if (component != null) {
-            //Get products with componentID
-            getProductFromComponent(req, res, component.id)
-          } else {
-            message = {
-              "errorType": "licenseDoesNotExist"
-            }
-            console.log(message)
-            res.status(500).send(message)
-          }
-        })
-      }//Else licenseId is provided
-      else {
-        //Get components with licenseID
-        getProductFromComponent(req, res, input.componentID)
-      }
     }
   })
 
@@ -542,22 +697,11 @@ function insertUpdateIntoLog(req, res, correctInputId, approved){
   res.send("Success!")
 }
 
-//Get product with license
-function getProductFromLicense(req, res, id) {
-  let query = "SELECT productID, productName, productVersion, dateCreated, lastEdited, comment, approved, approvedBy "
-                +"FROM " 
-                  +"products " 
-                  +"INNER JOIN " 
-                    +"componentsInProducts "
-                +"ON " 
-                  +"products.id=componentsInProducts.productID "	
-                  +"INNER join " 
-                    +"licensesInComponents " 
-                  +"ON " 
-                    +"licensesInComponents.componentID=componentsInProducts.componentID "
-                +"WHERE "
+//Get products in project
+function getproductsFromProject(req, res, id) {
+  let query = "SELECT productID AS id, productName, productVersion, dateCreated, lastEdited, comment, approved, approvedBy FROM products LEFT OUTER JOIN productsInProjects ON products.id=productsInProjects.productID"
 
-  query += "licenseID = ?;"
+  query += " WHERE projectID = ?;"
 
 
   req.db.all(query, [id], (err, rows) => {
@@ -565,22 +709,16 @@ function getProductFromLicense(req, res, id) {
       // If there's an error then provide the error message and the different attributes that could have caused it.
       res.send("ERROR! error message:" + err.message + ", query: " + query)
     } else
-      res.json(rows)
+      res.send(rows)
   })
 }
 
-//Get product with component
-function getProductFromComponent(req, res, id) {
-  let query = "SELECT productID, productName, productVersion, dateCreated, lastEdited, comment, approved, approvedBy "
-                +"FROM " 
-                  +"products " 
-                  +"INNER JOIN " 
-                    +"componentsInProducts "
-                +"ON " 
-                  +"products.id=componentsInProducts.productID "	
-                +"WHERE "
+//Get products connected to license
+function getProductsWithLicense(req, res, id) {
+  let query = "SELECT DISTINCT productID AS id, productName, productVersion, dateCreated, lastEdited, comment FROM products LEFT OUTER JOIN componentsInProducts ON products.id=componentsInProducts.productID"
+              + " LEFT OUTER JOIN licensesInComponents ON licensesInComponents.componentID=componentsInProducts.componentID"
 
-  query += "componentID = ?;"
+  query += " WHERE licenseID = ?;"
 
 
   req.db.all(query, [id], (err, rows) => {
@@ -588,6 +726,22 @@ function getProductFromComponent(req, res, id) {
       // If there's an error then provide the error message and the different attributes that could have caused it.
       res.send("ERROR! error message:" + err.message + ", query: " + query)
     } else
-      res.json(rows)
+      res.send(rows)
+  })
+}
+
+//Get products connected to component
+function getProductsWithComponent(req, res, id) {
+  let query = "SELECT DISTINCT productID AS id, productName, productVersion, dateCreated, lastEdited, comment FROM products LEFT OUTER JOIN componentsInProducts ON products.id=componentsInProducts.productID"
+
+  query += " WHERE componentID = ?;"
+
+
+  req.db.all(query, [id], (err, rows) => {
+    if (err) {
+      // If there's an error then provide the error message and the different attributes that could have caused it.
+      res.send("ERROR! error message:" + err.message + ", query: " + query)
+    } else
+      res.send(rows)
   })
 }

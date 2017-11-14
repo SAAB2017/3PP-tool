@@ -44,7 +44,7 @@ router.route('/')
           updateComponent(req, res, correctInputComponentName, correctInputComponentVersion, correctInputId, parametersText, parameters, function () {
             //get component
             getComponent(req, res, correctInputComponentName, correctInputComponentVersion, correctInputId, function (component) {
-              insertUpdateIntoLog(req, res, component.id, approved)
+              insertUpdateIntoLog(req, res, component.id, approved. req.comment)
             })
           })
 
@@ -213,6 +213,8 @@ router.route('/approve')
           "byUser": "" + component.approvedBy
           //"onTime": "1510062744"
         }
+        console.log(message)
+        res.status(500).send(message)
       }
     })
     // postcondition: component approved, signed and logged
@@ -252,12 +254,11 @@ router.route('/add')
   })
 
 // ----------------------------------------------------------------------------
-//  Methods for /connectLicenseWithComponent
+//  Methods for /components/connectLicenseWithComponent
 // ----------------------------------------------------------------------------
 router.route('/connectLicenseWithComponent')
   .post((req, res) => {
-    // precondition: License must exists aswell as the component.
-    console.log('Dete fungerar!')
+    // precondition: License must exist aswell as the component.
     const input = req.body
 
     if (input.licenseID != null && input.componentID != null) {
@@ -287,14 +288,12 @@ router.route('/connectLicenseWithComponent')
   })
 
 // ----------------------------------------------------------------------------
-//  Methods for /componentsInProduct/:id
+//  Methods for /components/componentsInProduct/:id
 // ----------------------------------------------------------------------------
 router.route('/componentsInProduct/:id')
   .get((req, res) => {
     // precondition: product exists and it has components connected to it..
     let input = JSON.parse(req.params.id)
-    let parametersText = Object.keys(input)
-    let parameters = []
 
     if (input.id != null) {
       //Get components from the product
@@ -304,14 +303,12 @@ router.route('/componentsInProduct/:id')
   })
 
 // ----------------------------------------------------------------------------
-//  Methods for /componentsInProject/:id
+//  Methods for /components/componentsInProject/:id
 // ----------------------------------------------------------------------------
 router.route('/componentsInProject/:id')
   .get((req, res) => {
     // precondition: project exists and it has atleast one product connected to it. The product/s in turn must have components connected to it.
     let input = JSON.parse(req.params.id)
-    let parametersText = Object.keys(input)
-    let parameters = []
 
     if (input.id != null) {
       //Get components from the product
@@ -321,21 +318,34 @@ router.route('/componentsInProject/:id')
   })
 
 // ----------------------------------------------------------------------------
-//  Methods for /componentsWithLicense/:id
+//  Methods for /components/componentsWithLicense/:id
 // ----------------------------------------------------------------------------
 router.route('/componentsWithLicense/:id')
-  .get((req, res) => {
-    // precondition: License exists and is connected with atleast one component.
-    let input = JSON.parse(req.params.id)
-    let parametersText = Object.keys(input)
-    let parameters = []
+.get((req, res) => {
+  // precondition: License exists and is connected with atleast one component.
+  let input = JSON.parse(req.params.id)
 
-    if (input.id != null) {
-      //Get components from the product
-      getComponentsWithLicense(req, res, input.id)
-    }
-    // postcondition: components with license connected to it.
-  })
+  if (input.id != null) {
+    //Get components from the product
+    getComponentsWithLicense(req, res, input.id)
+  }
+  // postcondition: components with license connected to it.
+})
+
+// ----------------------------------------------------------------------------
+//  Methods for /components/log/:id
+// ----------------------------------------------------------------------------
+router.route('/log/:id')
+.get((req, res) => {
+  // precondition: component exists.
+  let input = JSON.parse(req.params.id)
+
+  if (input.id != null) {
+    //Get the component log
+    getComponentLog(req, res, input.id)
+  }
+  // postcondition: the log entries of the component
+})
 
 // ----------------------------------------------------------------------------
 //  Methods for /components/:id
@@ -348,33 +358,11 @@ router.route('/:id')
     let parametersText = Object.keys(input)
     let parameters = []
 
-    if ((input.licenseName == null && input.licenseVersion == null) && input.licenseID == null) {
+    if ((input.componentName != null && input.componentVersion != null) && input.componentID != null) {
 
       getComponentFromParameters(req, res, input, parametersText, parameters)
 
-    } else if ((input.licenseName != null && input.licenseVersion != null) || input.licenseID != null) {
-      //Check if licenseName and licenseVersion are provided but no licenseID
-      if (input.licenseName != null && input.licenseVersion != null && input.licenseID == null) {
-        getLicense(req, res, input.licenseName, input.licenseVersion, null, function (license) {
-          if (license != null) {
-            //Get components with licenseID
-            getComponentFromLicense(req, res, license.id)
-          } else {
-            message = {
-              "errorType": "licenseDoesNotExist"
-            }
-            console.log(message)
-            res.status(500).send(message)
-          }
-        })
-      }//Else licenseId is provided
-      else {
-        //Get components with licenseID
-        getComponentFromLicense(req, res, input.licenseID)
-      }
-
     }
-
   })
 
   .post((req, res) => {
@@ -770,7 +758,13 @@ function insertComponentLog(req, res, id, text, callback) {
 }
 
 //Insert the update into the ComponentLog
-function insertUpdateIntoLog(req, res, correctInputId, approved) {
+function insertUpdateIntoLog(req, res, correctInputId, approved, comment) {
+
+  //If the comment was changed then log it
+  if(comment != null){
+    insertComponentLog(req, res, correctInputId, "Comment was changed to: " + comment + ".", function (log) {
+    })
+  }
   //If approve has changed then log it
   if (req.body.hasOwnProperty('approved')) {
     if (approved[0] == 0) {
@@ -792,4 +786,20 @@ function insertUpdateIntoLog(req, res, correctInputId, approved) {
   }
   res.status(204).send('success')
 }
+
+//Get component log
+function getComponentLog(req, res, id){
+  let query = "SELECT * FROM componentLog WHERE componentID = ?"
+  
+  req.db.all(query, [id], (error, rows) => {
+    if (error) {
+      console.log(error.message)
+      res.status(500)
+      res.send(error.message)
+    } else {
+      res.send(rows)
+    }
+  })
+}
+
 module.exports = router
