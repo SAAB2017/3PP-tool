@@ -1,5 +1,6 @@
 <!-- View for showing all signed components -->
 <template>
+
   <div class="component-list">
     <!-- Table that contains all signed components. Will grow to max-height and then
     become scrollable -->
@@ -30,16 +31,24 @@
         <input v-model="searchComponents" class="input" type="text" placeholder="Find a component">
       </div>
       <div class="control">
-        <a @click="searchComponent" class="button is-primary">Search</a>
+        <button @click="showModal()" class="button is-primary">Search</button>
       </div>
+    </div>
+
+    <div>
+      <components-add-modal></components-add-modal>
     </div>
   </div>
 </template>
 
 <script>
   import axios from 'axios'
+  import ComponentsAddModal from '@/components/ComponentsAddModal'
 
   export default {
+    components: {
+      ComponentsAddModal
+    },
     data() {
       return {
         components: [],
@@ -60,7 +69,7 @@
        * Searches for signed components from the database matching the search-criteria
        */
       searchComponent(){
-        // TODO Implement method
+        // TODO
       },
 
       /**
@@ -69,6 +78,16 @@
        */
       displayComponent(component) {
         this.$router.push({ name: "components_id", params: { id: component.id } })
+      },
+
+      showModal() {
+        var d = document.getElementById("modal")
+        d.classList.add("is-active")
+      },
+
+      closeModal() {
+        var d = document.getElementById("modal")
+        d.classList.remove("is-active")
       }
     }
   }
