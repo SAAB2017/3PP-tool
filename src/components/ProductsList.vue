@@ -3,12 +3,12 @@
   <div class="products-list">
     <!-- Table that contains all signed products. Will grow to max-height and then
     become scrollable -->
-    <div class="vertical-menu" style="max-height: 600px; min-width: 420px">
+    <div class="vertical-menu" style="max-height: 450px; min-width: 420px">
       <table class="table is-bordered">
         <thead>
         <tr>
           <th width="45%">Product</th>
-          <th width=15%>Version</th>
+          <th width="15%">Version</th>
           <th width="20%">Created</th>
           <th width="20%">Last edited</th>
         </tr>

@@ -1,12 +1,14 @@
 <template>
   <div class="section">
-    <div class="columns">
-      <div class="column is-one-quarter is-offset-one-third">
-        <div class="columns is-mobile is-centered">
-          <h1 class="has-text-left">Add component</h1>
+    <div class="columns is-mobile is-centered">
+      <div class="column is-one-quarter">
+        <div style="text-align: center;">
+          <h2 class="subtitle is-4">Add component</h2>
         </div>
-        <div class="component">
-          <components-add></components-add>
+        <div class="column">
+          <div class="component">
+            <components-add></components-add>
+          </div>
         </div>
       </div>
     </div>
