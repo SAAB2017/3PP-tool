@@ -252,6 +252,41 @@ router.route('/add')
   })
 
 // ----------------------------------------------------------------------------
+//  Methods for /connectLicenseWithComponent
+// ----------------------------------------------------------------------------
+router.route('/connectLicenseWithComponent')
+  .post((req, res) => {
+    // precondition: License must exists aswell as the component.
+    console.log('Dete fungerar!')
+    const input = req.body
+
+    if (input.licenseID != null && input.componentID != null) {
+      //Insert the provided license into the component
+      insertLicenseIntoComponent(req, res, input.licenseID, input.componentID, function (returnValue) {
+        //Get the license that was inserted
+        getLicense(req, res, null, null, input.licenseID, function (license) {
+          if (license == null) {
+            message = {
+              "errorType": "licenseDoesNotExist"
+            }
+            console.log(message)
+            res.status(500).send(message)
+          } else {
+            //Create a log of the license added to the component
+            insertComponentLog(req, res, input.componentID, "Added license: " + license.licenseName + " v" + license.licenseVersion + ".",
+              function (returnValue) {
+                updateComponent(req, res, null, null, input.componentID, ['approved', 'approvedBy'], ['0', ''], function (returnValue) {
+                  res.status(200).send("Success")
+                });
+              })
+          }
+        })
+      })
+    }
+    // postcondition: The license is connected with the component.
+  })
+
+// ----------------------------------------------------------------------------
 //  Methods for /componentsInProduct/:id
 // ----------------------------------------------------------------------------
 router.route('/componentsInProduct/:id')
@@ -457,7 +492,7 @@ function getComponentsFromProduct(req, res, id) {
 //Get component in project
 function getComponentsFromProject(req, res, id) {
   let query = "SELECT componentID AS id, componentName, componentVersion, dateCreated, lastEdited, comment, approved, approvedBy FROM components LEFT OUTER JOIN componentsInProducts ON components.id=componentsInProducts.componentID" +
-  " LEFT OUTER JOIN productsInProjects ON productsInProjects.productID=componentsInProducts.productID WHERE " 
+  " LEFT OUTER JOIN productsInProjects ON productsInProjects.productID=componentsInProducts.productID WHERE "
 
 query += "projectID = ?;"
 
@@ -736,7 +771,7 @@ function insertComponentLog(req, res, id, text, callback) {
 
 //Insert the update into the ComponentLog
 function insertUpdateIntoLog(req, res, correctInputId, approved) {
-  //If approve has changed then log it 
+  //If approve has changed then log it
   if (req.body.hasOwnProperty('approved')) {
     if (approved[0] == 0) {
       insertComponentLog(req, res, correctInputId, "Component changed to not approved.", function (log) {
@@ -745,7 +780,7 @@ function insertUpdateIntoLog(req, res, correctInputId, approved) {
       insertComponentLog(req, res, correctInputId, "Component changed to approved by " + approved[1] + ".", function (log) {
       })
     }
-  }//If approveBy has changed then log it 
+  }//If approveBy has changed then log it
   else if (req.body.hasOwnProperty('approvedBy')) {
     if (approved[1] == '') {
       insertProductLog(req, res, correctInputId, "Component changed to not approved.", function (log) {
