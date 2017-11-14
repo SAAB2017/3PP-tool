@@ -2,7 +2,9 @@
   <div class="section">
     <div class="columns">
       <div class="column is-one-quarter is-offset-one-third">
-        <h1>Add Project</h1>
+        <div class="columns is-mobile is-centered">
+          <h1 class="has-text-left">Add project</h1>
+        </div>
         <div class="columns">
           <div class="component">
             <projects-add></projects-add>
