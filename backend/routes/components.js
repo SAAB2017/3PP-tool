@@ -156,30 +156,66 @@ router.route('/')
 //  Methods for /components/approve
 // ----------------------------------------------------------------------------
 
-function validateRequest(id, sig) {
+function validateRequest(component, approved) {
   console.log("Validating data")
-  return true
+  return ((approved[0] == null && approved[1] == null) || ((component.approved == 1 && approved[0] == 0) || (component.approved != 1 && approved[1] != '')))
+}
+
+function getCorrectApproved(input) {
+  let approved = [null, null]
+
+  if (input.hasOwnProperty('approved')) {
+    if (input.approved == 0 && approved[1] == null) {
+      approved[1] = ''
+    }
+    approved[0] = input.approved
+  }
+
+  if (input.hasOwnProperty('approvedBy')) {
+    if (input.approvedBy != '') {
+      approved[0] = 1
+      approved[1] = input.approvedBy
+    }
+  }
+
+  //logic for correct approve/approvedBy
+  if (approved[0] != null) {
+    if (approved == 0 && approved[1] == null) {
+      approved[1] = ''
+    } else if (approved == 1 && approved[1] == null) {
+      approved[0] = null
+    }
+  }
+  return approved
 }
 
 router.route('/approve')
   .put((req, res) => {
-    const approveData = req.body
-    let query = `UPDATE components SET approved = 1, approvedBy = '${approveData.approvedBy}', lastEdited = '${approveData.lastEdited}', comment='${approveData.comment}' where id = ${approveData.id}`
     // precondition: check that id == OK, signature == OK and that component hasn't yet been signed
-    console.log(JSON.stringify(approveData))
-    if (validateRequest(approveData.id, approveData.approvedBy)) {
-      req.db.run(query, (error) => {
-        if (error) {
-          console.log("Error:")
-          console.log(error.message)
-          res.status(500)
-          res.end()
-        } else {
-          res.status(204).send('success')
+    const input = req.body
+    let approved = getCorrectApproved(input)
+
+    //Get component to make sure that it is not approved already
+    getComponent(req, res, null, null, input.id, function (component) {
+      //Make sure that row is not null and that an approved component can't be approved again by a diffrent person
+      if (component != null && input.id != null && validateRequest(component, approved)) {
+
+        //update the component
+        updateComponent(req, res, null, null, input.id, ['approved', 'approvedBy'], approved, function () {
+          insertUpdateIntoLog(req, res, component.id, approved)
+        })
+
+      }//Else throw an error
+      else {
+        let message
+        message = {
+          "errorType": "alreadySigned",
+          "byUser": "" + component.approvedBy
+          //"onTime": "1510062744"
         }
-      })
-    }
-    // postcondition: component approved, signed
+      }
+    })
+    // postcondition: component approved, signed and logged
   })
 
 // ----------------------------------------------------------------------------
@@ -187,45 +223,91 @@ router.route('/approve')
 // ----------------------------------------------------------------------------
 router.route('/add')
   .post((req, res) => {
-    const qd = req.body
-    let date = new Date().toLocaleDateString()
-    let lastEdit = date
-    let licenses = qd.licenses
-    let insertion = `INSERT INTO components (componentName, componentVersion, dateCreated, lastEdited, comment, approved) VALUES ('${qd.componentName}', ${qd.componentVersion}, '${date}', '${lastEdit}', '${qd.comment}',0)`
-    // precondition: check that id == OK, signature == OK and that component hasn't yet been signed
-    console.log(insertion)
-    req.db.run(insertion, (error) => {
-      if (error) {
-        console.log("Error:")
-        console.log(error.message)
-        res.status(500)
-        res.end()
-      } else {
-        req.db.get('SELECT COUNT(id) FROM COMPONENTS', (err, row) => {
-          if (err) {
-            res.status(500)
-            res.end()
-          } else {
-            let componentCount = row['COUNT(id)']
-            licenses.map((val) => {
-              insertLicenseIntoComponent(req, res, val, componentCount, () => {
-                let d = new Date().toLocaleDateString()
-                insertComponentLog(req, res, componentCount, d, () => {})
+    // precondition: component doesn't already exist.
+    const input = req.body
+    parametersText = []
+    parameters = []
+
+    //Get the correct parameters
+    getInsertComponentParameters(req, parametersText, parameters, function (returnValue) {
+      parametersText = returnValue[0]
+      parameters = returnValue[1]
+
+      //Make sure the necessary parameters are provided to insert a new component.
+      if (input.componentName != null && input.componentVersion != null) {
+
+        insertNewComponent(req, res, parametersText, parameters, function (returnValue) {
+          //Get the component so that the id can be extracted
+          getComponent(req, res, input.componentName, input.componentVersion, null, function (component) {
+            insertComponentLog(req, res, component.id, "Component created.",
+              function (returnValue) {
+                res.status(201).send("Success!")
               })
-            })
-          }
+          })
         })
-        res.status(200).send('success')
+
       }
     })
-    // postcondition: component approved, signed
+    // postcondition: component created and logged.
   })
+
+// ----------------------------------------------------------------------------
+//  Methods for /componentsInProduct/:id
+// ----------------------------------------------------------------------------
+router.route('/componentsInProduct/:id')
+  .get((req, res) => {
+    // precondition: product exists and it has components connected to it..
+    let input = JSON.parse(req.params.id)
+    let parametersText = Object.keys(input)
+    let parameters = []
+
+    if (input.id != null) {
+      //Get components from the product
+      getComponentsFromProduct(req, res, input.id)
+    }
+    // postcondition: components connected to the product.
+  })
+
+// ----------------------------------------------------------------------------
+//  Methods for /componentsInProject/:id
+// ----------------------------------------------------------------------------
+router.route('/componentsInProject/:id')
+  .get((req, res) => {
+    // precondition: project exists and it has atleast one product connected to it. The product/s in turn must have components connected to it.
+    let input = JSON.parse(req.params.id)
+    let parametersText = Object.keys(input)
+    let parameters = []
+
+    if (input.id != null) {
+      //Get components from the product
+      getComponentsFromProject(req, res, input.id)
+    }
+    // postcondition: components connected to the project.
+  })
+
+// ----------------------------------------------------------------------------
+//  Methods for /componentsWithLicense/:id
+// ----------------------------------------------------------------------------
+router.route('/componentsWithLicense/:id')
+  .get((req, res) => {
+    // precondition: License exists and is connected with atleast one component.
+    let input = JSON.parse(req.params.id)
+    let parametersText = Object.keys(input)
+    let parameters = []
+
+    if (input.id != null) {
+      //Get components from the product
+      getComponentsWithLicense(req, res, input.id)
+    }
+    // postcondition: components with license connected to it.
+  })
+
 // ----------------------------------------------------------------------------
 //  Methods for /components/:id
 // ----------------------------------------------------------------------------
 router.route('/:id')
 
-// In order to search; send in a JSON object with the applicable parameters.
+  // In order to search; send in a JSON object with the applicable parameters.
   .get((req, res) => {
     let input = JSON.parse(req.params.id)
     let parametersText = Object.keys(input)
@@ -336,6 +418,69 @@ function getComponentFromParameters(req, res, input, parametersText, parameters)
 function getComponentFromLicense(req, res, id) {
   let query = "SELECT componentID, componentName, componentVersion, dateCreated, lastEdited, comment, approved, approvedBy "
     + " FROM components INNER JOIN licensesInComponents ON components.id=licensesInComponents.componentID WHERE "
+
+  query += "licenseID = ?;"
+
+
+  req.db.all(query, [id], (err, rows) => {
+    if (err) {
+      // If there's an error then provide the error message and the different attributes that could have caused it.
+      res.send("ERROR! error message:" + err.message + ", query: " + query)
+    } else
+      res.json(rows)
+  })
+}
+
+//Get component in product
+function getComponentsFromProduct(req, res, id) {
+  let query = "SELECT componentID AS id , componentName, componentVersion, dateCreated, lastEdited, comment, approved, approvedBy "
+    + "FROM "
+    + "components "
+    + "INNER JOIN "
+    + "componentsInProducts "
+    + "ON "
+    + "components.id=componentsInProducts.componentID "
+    + "WHERE "
+
+  query += "productID = ?;"
+
+
+  req.db.all(query, [id], (err, rows) => {
+    if (err) {
+      // If there's an error then provide the error message and the different attributes that could have caused it.
+      res.send("ERROR! error message:" + err.message + ", query: " + query)
+    } else
+      res.json(rows)
+  })
+}
+
+//Get component in project
+function getComponentsFromProject(req, res, id) {
+  let query = "SELECT componentID AS id, componentName, componentVersion, dateCreated, lastEdited, comment, approved, approvedBy FROM components LEFT OUTER JOIN componentsInProducts ON components.id=componentsInProducts.componentID" +
+  " LEFT OUTER JOIN productsInProjects ON productsInProjects.productID=componentsInProducts.productID WHERE " 
+
+query += "projectID = ?;"
+
+
+  req.db.all(query, [id], (err, rows) => {
+    if (err) {
+      // If there's an error then provide the error message and the different attributes that could have caused it.
+      res.send("ERROR! error message:" + err.message + ", query: " + query)
+    } else
+      res.send(rows)
+  })
+}
+
+//Get components with license
+function getComponentsWithLicense(req, res, id) {
+  let query = "SELECT componentID AS id , componentName, componentVersion, dateCreated, lastEdited, comment, approved, approvedBy "
+    + "FROM "
+    + "components "
+    + "INNER JOIN "
+    + "licensesInComponents "
+    + "ON "
+    + "components.id=licensesInComponents.componentID "
+    + "WHERE "
 
   query += "licenseID = ?;"
 
@@ -464,13 +609,13 @@ function getInsertComponentParameters(req, parametersText, parameters, callback)
   }
   //Check if dateCreated was provided
   if (req.body.hasOwnProperty('dateCreated')) {
-    parameters.push(new Date().toDateString())
+    parameters.push(new Date().toLocaleDateString())
     parametersText.push('dateCreated')
     date[0] = true
   }
   //Check if lastEdited was provided
   if (req.body.hasOwnProperty('lastEdited')) {
-    parameters.push(new Date().toDateString())
+    parameters.push(new Date().toLocaleDateString())
     parametersText.push('lastEdited')
     date[1] = true
   }
@@ -488,12 +633,12 @@ function getInsertComponentParameters(req, parametersText, parameters, callback)
   //If dateCreated wasn't provided then provide it
   if (!date[0]) {
     parametersText.push('dateCreated')
-    parameters.push(new Date().toDateString())
+    parameters.push(new Date().toLocaleDateString())
   }
   //If lastEdited wasn't provided then provide it
   if (!date[1]) {
     parametersText.push('lastEdited')
-    parameters.push(new Date().toDateString())
+    parameters.push(new Date().toLocaleDateString())
   }
   let obj = [parametersText, parameters]
   callback(obj);
@@ -576,7 +721,7 @@ function getLicense(req, res, licenseName, licenseVersion, id, callback) {
 
 //Insert a new row into componentLog
 function insertComponentLog(req, res, id, text, callback) {
-  let parametersLog = [id, new Date().toDateString(), text]
+  let parametersLog = [id, new Date().toLocaleDateString(), text]
   let queryLog = "INSERT INTO componentLog (componentID, dateLogged, note) VALUES (?, ?, ?);"
   req.db.run((queryLog), parametersLog, (error) => {
     if (error) {
@@ -590,27 +735,26 @@ function insertComponentLog(req, res, id, text, callback) {
 }
 
 //Insert the update into the ComponentLog
-function insertUpdateIntoLog(req, res, correctInputId, approved){
+function insertUpdateIntoLog(req, res, correctInputId, approved) {
   //If approve has changed then log it 
-  if(req.body.hasOwnProperty('approved')){
-    if(approved[0] == 0){
+  if (req.body.hasOwnProperty('approved')) {
+    if (approved[0] == 0) {
       insertComponentLog(req, res, correctInputId, "Component changed to not approved.", function (log) {
       })
-    }else if(approved[0] == 1){
+    } else if (approved[0] == 1) {
       insertComponentLog(req, res, correctInputId, "Component changed to approved by " + approved[1] + ".", function (log) {
       })
     }
   }//If approveBy has changed then log it 
-  else if(req.body.hasOwnProperty('approvedBy')){
-    if(approved[1] == ''){
+  else if (req.body.hasOwnProperty('approvedBy')) {
+    if (approved[1] == '') {
       insertProductLog(req, res, correctInputId, "Component changed to not approved.", function (log) {
       })
-    }else if(approved[1] != ''){
+    } else if (approved[1] != '') {
       insertComponentLog(req, res, correctInputId, "Component changed to approved by " + approved[1] + ".", function (log) {
       })
     }
   }
-  res.status(201)
-  res.send("Success!")
+  res.status(204).send('success')
 }
 module.exports = router
