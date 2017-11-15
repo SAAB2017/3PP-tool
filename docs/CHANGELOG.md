@@ -10,13 +10,19 @@ Formatet är baserat på [Keep a Changelog] och detta projekt följer [Semantic 
 
 ## [0.2.0] – 2017-11-15
 ### Lagt till
-- Stora förändringar i API-motoriken (back-end) som effektiviserar back-end
 - Sida som hanterar signering av produkter
 - Sida som hanterar signering av komponenter
 - Sökfunktion för lisenser
 - Sökfunktion för komponenter
-- Anpassat tabeller i WUI för responsiv miljö
 - Lagt till favoritikon
+
+### Förändrat
+- Stora förändringar i API-motoriken (back-end) som effektiviserar back-end
+- Anpassat tabeller i WUI för responsiv miljö
+
+### Korrigeringar
+- Felaktiga länkreferenser i back-end
+- Felaktiga länkreferenser i front-end
 
 ## 0.1.0 - 2017-11-08
 ### Lagt till
