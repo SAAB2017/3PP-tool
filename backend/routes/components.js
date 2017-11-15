@@ -347,6 +347,28 @@ router.route('/log/:id')
   // postcondition: the log entries of the component
 })
 
+function validateSearchParameter(params) {
+  return true;
+}
+
+router.route('/search/:id')
+  .get((req, res) => {
+  // precondition: parameter is wellformed
+    const query = `select * from components where componentName LIKE "%${req.params.id}%"`
+    console.log(query)
+    req.db.all(query, (err, rows) => {
+      if (err) {
+        console.log(err)
+        res.status(404)
+        res.send("ERROR! error message:" + err.message + ", query: " + query)
+      } else {
+        res.status(200)
+        console.log(rows)
+        res.json(rows)
+      }
+    })
+  })
+
 // ----------------------------------------------------------------------------
 //  Methods for /components/:id
 // ----------------------------------------------------------------------------

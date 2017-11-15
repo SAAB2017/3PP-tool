@@ -26,7 +26,7 @@
     <!-- Field for searching for a component in the table. Uses "searchComponent"-method -->
     <div class="field has-addons columns is-mobile is-centered" style="padding-top: 15px">
       <div class="control">
-        <input v-model="searchComponents" class="input" type="text" placeholder="Find a component">
+        <input v-on:keydown.enter="searchComponent()" v-model="searchComponents" class="input" type="text" placeholder="Find a component">
       </div>
       <div class="control">
         <button @click="searchComponent()" class="button is-primary">Search</button>
@@ -50,6 +50,7 @@
     data() {
       return {
         components: [],
+        searchcomponents: null,
         component: null,
         componentVersion: null
       }
@@ -66,8 +67,17 @@
       /**
        * Searches for signed components from the database matching the search-criteria
        */
-      searchComponent(){
-        // TODO
+      searchComponent (param) {
+        if (param != 0 || param != null) {
+          axios.get(this.$baseAPI + 'components/search/' + this.searchComponents).then(response => {
+            console.log(response.data)
+            if (response.data != null) {
+              this.components = response.data
+            } else {
+              this.message = "No component found!"
+            }
+          })
+        }
       },
 
       /**
