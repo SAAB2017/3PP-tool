@@ -67,17 +67,17 @@
 
             <!-- Table that shows which licenses is in this project -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
-              <table class="table is-bordered">
+              <table>
                 <thead>
                 <tr>
-                  <th>Licenses in project</th>
-                  <th width=1%>Version</th>
+                  <th scope="col">Licenses in project</th>
+                  <th scope="col">Version</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="license in licenses">
-                  <td>{{ license.licenseName }}</td>
-                  <td>{{ license.licenseVersion }}</td>
+                  <td scope="row" data-label="License">{{ license.licenseName }}</td>
+                  <td scope="row" data-label="Version">{{ license.licenseVersion }}</td>
                 </tr>
                 </tbody>
               </table>
@@ -85,17 +85,17 @@
 
             <!-- Table that shows which components is in this project -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
-              <table class="table is-bordered">
+              <table>
                 <thead>
                 <tr>
-                  <th>Components in project</th>
-                  <th width=1%>Version</th>
+                  <th scope="col">Components in project</th>
+                  <th scope="col">Version</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="component in components">
-                  <td>{{ component.componentName }}</td>
-                  <td>{{ component.componentVersion }}</td>
+                  <td scope="row" data-label="Component">{{ component.componentName }}</td>
+                  <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
                 </tr>
                 </tbody>
               </table>
@@ -103,17 +103,17 @@
 
             <!-- Table that shows which products is in this project -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
-              <table class="table is-bordered">
+              <table>
                 <thead>
                 <tr>
-                  <th>Products in project</th>
-                  <th width=1%>Version</th>
+                  <th scope="col">Products in project</th>
+                  <th scope="col">Version</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="product in products">
-                  <td>{{ product.productName }}</td>
-                  <td>{{ product.productVersion }}</td>
+                  <td scope="row" data-label="Product">{{ product.productName }}</td>
+                  <td scope="row" data-label="Version">{{ product.productVersion }}</td>
                 </tr>
                 </tbody>
               </table>

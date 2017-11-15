@@ -67,17 +67,17 @@
 
             <!-- Table that shows which licenses is in this component -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
-              <table class="table is-bordered">
+              <table>
                 <thead>
                 <tr>
-                  <th>Licenses in component</th>
-                  <th width=1%>Version</th>
+                  <th scope="col">Licenses in component</th>
+                  <th scope="col">Version</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="license in licenses">
-                  <td> {{ license.licenseName }}</td>
-                  <td>{{ license.licenseVersion }}</td>
+                  <td scope="row" data-label="License"> {{ license.licenseName }}</td>
+                  <td scope="row" data-label="Version">{{ license.licenseVersion }}</td>
                 </tr>
                 </tbody>
               </table>
@@ -85,17 +85,17 @@
 
             <!-- Table that shows which products this component is in -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
-              <table class="table is-bordered">
+              <table>
                 <thead>
                 <tr>
-                  <th>Component in products</th>
-                  <th width=1%>Version</th>
+                  <th scope="col">Component in products</th>
+                  <th scope="col">Version</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr>
-                  <td>Test Name</td>
-                  <td>1.0</td>
+                  <td scope="row" data-label="Product">Test Name</td>
+                  <td scope="row" data-label="Version">1.0</td>
                 </tr>
                 </tbody>
               </table>
@@ -103,17 +103,17 @@
 
             <!-- Table that shows which projects this components is in -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
-              <table class="table is-bordered">
+              <table>
                 <thead>
                 <tr>
-                  <th>Component in projects</th>
-                  <th width=1%>Version</th>
+                  <th scope="col">Component in projects</th>
+                  <th scope="col">Version</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr>
-                  <td>Test Name</td>
-                  <td>1.0</td>
+                  <td scope="row" data-label="Project">Test Name</td>
+                  <td scope="row" data-label="Version">1.0</td>
                 </tr>
                 </tbody>
               </table>
