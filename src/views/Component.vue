@@ -149,10 +149,9 @@
 
     /* Fetch the component with id from database and add to component, then fetch licenses */
     mounted () {
-      const cURI = JSON.stringify({id: this.$route.params.id});
-      axios.get(this.$baseAPI + 'components/' + cURI)
+      axios.get(this.$baseAPI + 'components/' + this.$route.params.id)
         .then(response => {
-          this.component = response.data[0]
+          this.component = response.data
           this.fetchLicenses()
         })
     },
