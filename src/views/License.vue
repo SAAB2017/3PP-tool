@@ -67,17 +67,17 @@
 
             <!-- Table that shows which components this license is in -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
-              <table class="table is-bordered">
+              <table>
                 <thead>
                 <tr>
-                  <th>License in components</th>
-                  <th width=1%>Version</th>
+                  <th scope="col">License in components</th>
+                  <th scope="col">Version</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="component in components">
-                  <td>{{ component.componentName }}</td>
-                  <td>{{ component.componentVersion }}</td>
+                  <td scope="row" data-label="Component">{{ component.componentName }}</td>
+                  <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
                 </tr>
                 </tbody>
               </table>
@@ -85,17 +85,17 @@
 
             <!-- Table that shows which products this license is in -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
-              <table class="table is-bordered">
+              <table>
                 <thead>
                 <tr>
-                  <th>License in products</th>
-                  <th width=1%>Version</th>
+                  <th scope="col">License in products</th>
+                  <th scope="col">Version</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="product in products">
-                  <td>{{ product.productName }}</td>
-                  <td>{{ product.productVersion }}</td>
+                  <td scope="row" data-label="Product">{{ product.productName }}</td>
+                  <td scope="row" data-label="Version">{{ product.productVersion }}</td>
                 </tr>
                 </tbody>
               </table>
@@ -103,17 +103,17 @@
 
             <!-- Table that shows which projects this license is in -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
-              <table class="table is-bordered">
+              <table>
                 <thead>
                 <tr>
-                  <th>License in projects</th>
-                  <th width=1%>Version</th>
+                  <th scope="col">License in projects</th>
+                  <th scope="col">Version</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="project in projects">
-                  <td>{{ project.projectName }}</td>
-                  <td>{{ project.projectVersion }}</td>
+                  <td scope="row" data-label="Project">{{ project.projectName }}</td>
+                  <td scope="row" data-label="Version">{{ project.projectVersion }}</td>
                 </tr>
                 </tbody>
               </table>
@@ -151,10 +151,9 @@
     /* Fetch the license with id from database and add to license,
      * then fetch components, products and projects */
     mounted () {
-      const lURI = JSON.stringify({id: this.$route.params.id});
-      axios.get(this.$baseAPI + 'licenses/' + lURI)
+      axios.get(this.$baseAPI + 'licenses/' + this.$route.params.id)
         .then(response => {
-          this.license = response.data[0]
+          this.license = response.data
           this.fetchComponents()
           this.fetchProducts()
           this.fetchProjects()
@@ -180,7 +179,9 @@
        * Fetch all projects that contains this license
        */
       fetchProjects(){
-        // TODO Implement
+        axios.get('/projectstWithLicense/' + this.$route.params.id).then(response => {
+          console.log("Hello")
+        })
       }
     }
   }

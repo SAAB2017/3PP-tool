@@ -354,22 +354,24 @@ router.route('/:id')
 
   // In order to search; send in a JSON object with the applicable parameters.
   .get((req, res) => {
-    let input = JSON.parse(req.params.id)
-    let parametersText = Object.keys(input)
-    let parameters = []
-
-    if ((input.componentName != null && input.componentVersion != null) && input.componentID != null) {
-
-      getComponentFromParameters(req, res, input, parametersText, parameters)
-
-    }
+    let input = req.params.id
+    const query = `SELECT * FROM components WHERE id=${input}`
+    req.db.get(query, (err, row) => {
+      if (err) {
+        console.log(err)
+        res.status(404)
+        res.send("ERROR! error message:" + err.message + ", query: " + query)
+      } else {
+        res.status(200)
+        res.json(row)
+      }
+    })
   })
 
   .post((req, res) => {
     res.status(501)
     res.send("Method not allowed")
   })
-
 
   .put((req, res) => {
     res.status(501)
@@ -790,7 +792,7 @@ function insertUpdateIntoLog(req, res, correctInputId, approved, comment) {
 //Get component log
 function getComponentLog(req, res, id){
   let query = "SELECT * FROM componentLog WHERE componentID = ?"
-  
+
   req.db.all(query, [id], (error, rows) => {
     if (error) {
       console.log(error.message)

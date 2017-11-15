@@ -15,16 +15,14 @@
           <div class="field is-horizontal">
             <label class="field-label label is-normal" style="width: 20%">Version</label>
             <div class="control" style="width: 80%">
-              <input v-if="product.productVersion" v-model="product.productVersion" class="input" type="text" disabled>
-              <input v-else v-model="testVersion" class="input" type="text" disabled>
+              <input v-model="product.productVersion" class="input" type="text" disabled>
             </div>
           </div>
 
           <div class="field is-horizontal">
             <label class="field-label label is-normal" style="width: 20%">Created</label>
             <div class="control" style="width: 80%">
-              <input v-if="product.dateCreated" v-model="product.dateCreated" class="input" type="text"  disabled>
-              <input v-else  v-model="testDate"class="input" type="text" disabled>
+              <input v-model="product.dateCreated" class="input" type="text"  disabled>
             </div>
           </div>
 
@@ -34,8 +32,7 @@
           <div class="field is-horizontal">
             <label class="field-label label is-normal" style="width: 20%">Comment</label>
             <div class="control" style="width: 80%">
-              <textarea v-if="product.comment" class="textarea" v-model="product.comment"></textarea>
-              <textarea v-else class="textarea" v-model="testComment"></textarea>
+              <textarea class="textarea" v-model="product.comment"></textarea>
             </div>
           </div>
 
@@ -50,62 +47,15 @@
                 <table class="table is-bordered">
                   <thead>
                   <tr>
-                    <th>Components</th>
-                    <th width=1%>Version</th>
+                    <th scope="col">Components</th>
+                    <th scope="col">Version</th>
                   </tr>
                   </thead>
                   <tbody>
-                  <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
+                  <tr v-for="component in components">
+                    <td scope="row" data-label="Component">{{ component.componentName }}</td>
+                    <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
                   </tr>
-                  <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
-                  </tr>
-                  <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
-                  </tr>
-                  <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
-                  </tr>
-                  <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
-                  </tr>
-                  <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
-                  </tr>
-                  <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
-                  </tr>
-                  <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
-                  </tr>
-                  <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
-                  </tr> <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
-                  </tr>
-                  <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
-                  </tr>
-                  <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
-                  </tr> <tr>
-                    <td>Test Name</td>
-                    <td>1.0</td>
-                  </tr>
-
 
                   </tbody>
                 </table>
@@ -156,13 +106,9 @@
     data () {
       return {
         product: {},
-        message: '',
-        testName: 'Test name',
-        testVersion: 'Test version',
-        testDate: '2017-10-04',
-        testApproved: 'Nils Nilsson',
-        testComment: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
-
+        components: [],
+        component: {},
+        message: ''
       }
     },
 

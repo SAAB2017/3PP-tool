@@ -124,37 +124,37 @@ router.route('/log/:id')
     }
     // postcondition: the log entries of the license
   })
-// ---------------------------------------------------------------------------- 
-// Methods for /licensesInProduct/:id 
-// ---------------------------------------------------------------------------- 
+// ----------------------------------------------------------------------------
+// Methods for /licensesInProduct/:id
+// ----------------------------------------------------------------------------
 router.route('/licensesInProduct/:id')
   .get((req, res) => {
-    // precondition: the product must exists and it must also be connected to atleast one component. 
-    //This component must inturn be connected to a license. 
+    // precondition: the product must exists and it must also be connected to atleast one component.
+    //This component must inturn be connected to a license.
     let input = JSON.parse(req.params.id)
     let parametersText = Object.keys(input)
     let parameters = []
     if (input.id != null) {
-      //Get licenses from the product 
+      //Get licenses from the product
       getLicensesFromProduct(req, res, input.id)
     }
-    // postcondition: licenses connected to the product. 
+    // postcondition: licenses connected to the product.
   })
-// ---------------------------------------------------------------------------- 
-// Methods for /licensesInProject/:id 
-// ---------------------------------------------------------------------------- 
+// ----------------------------------------------------------------------------
+// Methods for /licensesInProject/:id
+// ----------------------------------------------------------------------------
 router.route('/licensesInProject/:id').get((req, res) => {
-  // precondition: the project must exists and it must also be connected to atleast one product. 
-  //This product must inturn be connected to a component. 
-  //Which also must be connected to a license. 
+  // precondition: the project must exists and it must also be connected to atleast one product.
+  //This product must inturn be connected to a component.
+  //Which also must be connected to a license.
   let input = JSON.parse(req.params.id)
   let parametersText = Object.keys(input)
   let parameters = []
   if (input.id != null) {
-    //Get licenses from the project 
+    //Get licenses from the project
     getLicensesFromProject(req, res, input.id)
   }
-  // postcondition: licenses connected to the project. 
+  // postcondition: licenses connected to the project.
 })
 
 // ----------------------------------------------------------------------------
@@ -165,37 +165,17 @@ router.route('/:id')
   // Search for a license, or license attribute.
   // In order to search; send in a JSON object with the applicable parameters.
   .get((req, res) => {
-
-    let input
-
-    // Simple check for parse errors.
-    try {
-      input = JSON.parse(req.params.id)
-    } catch (e) {
-      res.status(500)
-      res.send("JSON.parse try/catch statement failed")
-      console.warn(e)
-      return
-    }
-
-    // Construct SQL query based on input parameters.
-    let query = "SELECT * FROM licenses WHERE "
-    let values = []
-
-    for (key in input) {
-      query += key + " = ? AND "
-      values.push(input[key])
-    }
-
-    // Remove trailing AND.
-    query = query.slice(0, -5)
-
-    req.db.all(query, values, (err, rows) => {
+    let input = req.params.id
+    const query = `SELECT * FROM licenses WHERE id=${input}`
+    req.db.get(query, (err, row) => {
       if (err) {
-        // If there's an error then provide the error message and the different attributes that could have caused it.
+        console.log(err)
+        res.status(404)
         res.send("ERROR! error message:" + err.message + ", query: " + query)
-      } else
-        res.json(rows)
+      } else {
+        res.status(200)
+        res.json(row)
+      }
     })
   })
 
@@ -239,7 +219,7 @@ function getLicensesFromProduct(req, res, id) {
 
   req.db.all(query, [id], (err, rows) => {
     if (err) {
-      // If there's an error then provide the error message and the different attributes that could have caused it. 
+      // If there's an error then provide the error message and the different attributes that could have caused it.
       res.send("ERROR! error message:" + err.message + ", query: " + query)
     } else
       res.json(rows)
@@ -255,7 +235,7 @@ function getLicensesFromProject(req, res, id) {
 
   req.db.all(query, [id], (err, rows) => {
     if (err) {
-      // If there's an error then provide the error message and the different attributes that could have caused it. 
+      // If there's an error then provide the error message and the different attributes that could have caused it.
       res.send("ERROR! error message:" + err.message + ", query: " + query)
     } else
       res.json(rows)

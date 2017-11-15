@@ -14,14 +14,14 @@
           <div class="field is-horizontal">
             <label class="field-label label is-normal" style="width: 20%">Version</label>
             <div class="control" style="width: 80%">
-              <input v-if="component.componentVersion" v-model="component.componentVersion" class="input" type="text" disabled>
+              <input v-model="component.componentVersion" class="input" type="text" disabled>
             </div>
           </div>
 
           <div class="field is-horizontal">
             <label class="field-label label is-normal" style="width: 20%">Created</label>
             <div class="control" style="width: 80%">
-              <input v-if="component.dateCreated" v-model="component.dateCreated" class="input" type="text"  disabled>
+              <input v-model="component.dateCreated" class="input" type="text"  disabled>
             </div>
           </div>
 
@@ -31,7 +31,7 @@
           <div class="field is-horizontal">
             <label class="field-label label is-normal" style="width: 20%">Comment</label>
             <div class="control" style="width: 80%">
-              <textarea v-if="component.comment" class="textarea" v-model="component.comment"></textarea>
+              <textarea class="textarea" v-model="component.comment"></textarea>
             </div>
           </div>
         </div>
@@ -43,14 +43,14 @@
                 <table class="table is-bordered">
                   <thead>
                   <tr>
-                    <th>Licenses</th>
-                    <th width=1%>Version</th>
+                    <th scope="col">Licenses</th>
+                    <th scope="col">Version</th>
                   </tr>
                   </thead>
                   <tbody>
                   <tr v-for="license in licenses">
-                    <td>{{ license.licenseName }}</td>
-                    <td>{{ license.licenseVersion }}</td>
+                    <td scope="row" data-label="License">{{ license.licenseName }}</td>
+                    <td scope="row" data-label="Version">{{ license.licenseVersion }}</td>
                   </tr>
                   </tbody>
                 </table>
