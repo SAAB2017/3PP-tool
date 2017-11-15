@@ -8,10 +8,27 @@ Formatet är baserat på [Keep a Changelog] och detta projekt följer [Semantic 
 
 ## [Ej utgiven]
 
+## [0.2.0] – 2017-11-15
+### Lagt till
+- Sida som hanterar signering av produkter
+- Sida som hanterar signering av komponenter
+- Sökfunktion för lisenser
+- Sökfunktion för komponenter
+- Lagt till favoritikon
+
+### Förändrat
+- Stora förändringar i API-motoriken (back-end) som effektiviserar back-end
+- Anpassat tabeller i WUI för responsiv miljö
+
+### Korrigeringar
+- Felaktiga länkreferenser i back-end
+- Felaktiga länkreferenser i front-end
+
 ## 0.1.0 - 2017-11-08
 ### Lagt till
 - Översikt som ger en överblick över komponenter, produkter och projekt
 - Licensöversikt som ger en överblick över licenser i databasen
 - Möjliggör att lägga till nya licenser, komponenter samt projekt i databasen
 
-[Ej utgiven]: https://github.com/SAAB2017/3PP-tool/compare/v0.1.0...HEAD
+[Ej utgiven]: https://github.com/SAAB2017/3PP-tool/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/SAAB2017/3PP-tool/compare/v0.1.0...v0.2.0
