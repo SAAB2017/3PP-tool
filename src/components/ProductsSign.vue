@@ -1,5 +1,8 @@
+<!-- View for showing all unsigned products -->
 <template>
   <div class="products-list">
+    <!-- Table that contains all unsigned products. Will grow to max-height and then
+    become scrollable -->
     <div class="vertical-menu" style="max-height: 600px; min-width: 420px">
       <table class="table is-bordered">
         <thead>
@@ -21,6 +24,7 @@
       </table>
     </div>
 
+    <!-- Field for searching for a product in the table. Uses "searchProduct"-method -->
     <div class="field has-addons columns is-mobile is-centered" style="padding-top: 15px">
       <div class="control">
         <input v-model="searchProducts" class="input" type="text" placeholder="Find a product">
@@ -44,6 +48,7 @@
       }
     },
 
+    /* Fetches unsigned products from the database and puts them in products */
     mounted() {
       axios.get(this.$baseAPI + 'products/pending')
         .then(response => {
@@ -52,11 +57,17 @@
     },
 
     methods: {
-
+      /**
+       * Searches for unsigned products from the database matching the search-criteria
+       */
       searchProduct(){
         // TODO Implement method
       },
 
+      /**
+       * Opens the view for signing a specific product with id id.
+       * @param product The product to be signed
+       */
       displayComponent(product) {
         this.$router.push({ name: "Sign Product", params: { id: product.id } })
       }
