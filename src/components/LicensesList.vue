@@ -91,8 +91,4 @@
   tbody>tr:hover {
     cursor: pointer;
   }
-  .vertical-menu {
-    width: 100%;
-    overflow-y: auto;
-  }
 </style>

@@ -3,26 +3,24 @@
   <div class="projects-list">
     <!-- Table that contains all signed projects. Will grow to max-height and then
     become scrollable -->
-    <div class="vertical-menu" style="max-height: 450px; min-width: 420px">
-      <table class="table is-bordered">
+      <table>
         <thead>
         <tr>
-          <th width="45%">Project</th>
-          <th width="15%">Version</th>
-          <th width="20%">Created</th>
-          <th width="20%">Last edited</th>
+          <th scope="col">Project</th>
+          <th scope="col">Version</th>
+          <th scope="col">Created</th>
+          <th scope="col">Last edited</th>
         </tr>
         </thead>
         <tbody>
         <tr v-for="project in projects" @click="displayComponent(project)">
-          <td>{{ project.projectName}}</td>
-          <td>{{ project.projectVersion }}</td>
-          <td>{{ project.dateCreated }}</td>
-          <td>{{ project.lastEdited }}</td>
+          <td scope="row" data-label="Project">{{ project.projectName}}</td>
+          <td scope="row" data-label="Version">{{ project.projectVersion }}</td>
+          <td scope="row" data-label="Created">{{ project.dateCreated }}</td>
+          <td scope="row" data-label="Last edited">{{ project.lastEdited }}</td>
         </tr>
         </tbody>
       </table>
-    </div>
 
     <!-- Field for searching for a project in the table. Uses "searchProject"-method -->
     <div class="field has-addons columns is-mobile is-centered" style="padding-top: 15px">

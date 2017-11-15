@@ -3,26 +3,25 @@
   <div class="products-list">
     <!-- Table that contains all signed products. Will grow to max-height and then
     become scrollable -->
-    <div class="vertical-menu" style="max-height: 450px; min-width: 420px">
-      <table class="table is-bordered">
+
+      <table>
         <thead>
         <tr>
-          <th width="45%">Product</th>
-          <th width="15%">Version</th>
-          <th width="20%">Created</th>
-          <th width="20%">Last edited</th>
+          <th scope="col">Product</th>
+          <th scope="col">Version</th>
+          <th scope="col">Created</th>
+          <th scope="col">Last edited</th>
         </tr>
         </thead>
         <tbody>
         <tr v-for="product in products" @click="displayComponent(product)">
-          <td>{{ product.productName }}</td>
-          <td>{{ product.productVersion }}</td>
-          <td>{{ product.dateCreated }}</td>
-          <td>{{ product.lastEdited }}</td>
+          <td scope="row" data-label="Product">{{ product.productName }}</td>
+          <td scope="row" data-label="Version">{{ product.productVersion }}</td>
+          <td scope="row" data-label="Created">{{ product.dateCreated }}</td>
+          <td scope="row" data-label="Last edited">{{ product.lastEdited }}</td>
         </tr>
         </tbody>
       </table>
-    </div>
 
     <!-- Field for searching for a product in the table. Uses "searchProduct"-method -->
     <div class="field has-addons columns is-mobile is-centered" style="padding-top: 15px">
@@ -90,9 +89,5 @@
 
   tbody>tr:hover {
     cursor: pointer;
-  }
-  .vertical-menu {
-    width: 100%;
-    overflow-y: auto;
   }
 </style>

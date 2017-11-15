@@ -1,15 +1,13 @@
 <template>
   <div class="section products">
     <div class="columns is-mobile is-centered">
-      <div class="column is-half">
-        <div style="text-align: center;">
-          <h2 class="subtitle is-4">Projects</h2>
-        </div>
-        <div>
-          <div>
-            <projects-list></projects-list>
-          </div>
-        </div>
+      <div class="column is-half" style="text-align: center;">
+        <h2 class="subtitle is-4">Projects</h2>
+      </div>
+    </div>
+    <div class="columns is-mobile is-centered">
+      <div class="column is-half-desktop is-three-quarters-tablet is-full-mobile">
+        <projects-list></projects-list>
       </div>
     </div>
   </div>

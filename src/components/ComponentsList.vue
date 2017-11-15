@@ -1,29 +1,27 @@
 <!-- View for showing all signed components -->
 <template>
-
   <div class="component-list">
     <!-- Table that contains all signed components. Will grow to max-height and then
     become scrollable -->
-    <div class="vertical-menu" style="max-height: 450px; min-width: 420px">
-      <table class="table is-bordered">
+
+      <table>
         <thead>
         <tr>
-          <th width="45%">Component</th>
-          <th width="15%">Version</th>
-          <th width="20%">Created</th>
-          <th width="20%">Last edited</th>
+          <th scope="col">Component</th>
+          <th scope="col">Version</th>
+          <th scope="col">Created</th>
+          <th scope="col">Last edited</th>
         </tr>
         </thead>
         <tbody>
         <tr v-for="component in components" @click="displayComponent(component)">
-          <td>{{ component.componentName }}</td>
-          <td>{{ component.componentVersion }}</td>
-          <td>{{ component.dateCreated }}</td>
-          <td>{{ component.lastEdited }}</td>
+          <td scope="row" data-label="Component">{{ component.componentName }}</td>
+          <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
+          <td scope="row" data-label="Created">{{ component.dateCreated }}</td>
+          <td scope="row" data-label="Last edited">{{ component.lastEdited }}</td>
         </tr>
         </tbody>
       </table>
-    </div>
 
     <!-- Field for searching for a component in the table. Uses "searchComponent"-method -->
     <div class="field has-addons columns is-mobile is-centered" style="padding-top: 15px">
@@ -101,9 +99,5 @@
 
   tbody>tr:hover {
     cursor: pointer;
-  }
-  .vertical-menu {
-    width: 100%;
-    overflow-y: auto;
   }
 </style>
