@@ -3,26 +3,25 @@
   <div class="licenses-list">
     <!-- Table that contains all signed licenses. Will grow to max-height and then
     become scrollable -->
-    <div class="vertical-menu" style="max-height: 450px; min-width: 420px">
-      <table class="table is-bordered">
-        <thead>
+
+    <table>
+      <thead>
         <tr>
-          <th width="45%">License</th>
-          <th width="15%">Version</th>
-          <th width="20%">Created</th>
-          <th width="20%">Last edited</th>
+          <th scope="col">License</th>
+          <th scope="col">Version</th>
+          <th scope="col">Created</th>
+          <th scope="col">Last edited</th>
         </tr>
-        </thead>
-        <tbody>
+      </thead>
+      <tbody>
         <tr v-for="license in licenses" @click="displayComponent(license)">
-          <td>{{ license.licenseName }}</td>
-          <td>{{ license.licenseVersion }}</td>
-          <td>{{ license.dateCreated }}</td>
-          <td>{{ license.lastEdited }}</td>
+          <td scope="row" data-label="License">{{ license.licenseName }}</td>
+          <td scope="row" data-label="Version">{{ license.licenseVersion }}</td>
+          <td scope="row" data-label="Created">{{ license.dateCreated }}</td>
+          <td scope="row" data-label="Last edited">{{ license.lastEdited }}</td>
         </tr>
-        </tbody>
-      </table>
-    </div>
+      </tbody>
+    </table>
 
     <!-- Field for searching for a license in the table. Uses "searchLicense"-method -->
     <div class="field has-addons columns is-mobile is-centered" style="padding-top: 15px">
