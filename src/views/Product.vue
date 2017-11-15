@@ -153,10 +153,10 @@
      * then fetch licenses, components and projects
      */
     mounted () {
-      const pURI = JSON.stringify({id: this.$route.params.id});
-      axios.get(this.$baseAPI + 'products/' + pURI)
+      console.log("ID:" + this.$route.params.id)
+      axios.get(this.$baseAPI + 'products/' + this.$route.params.id)
         .then(response => {
-          this.product = response.data[0]
+          this.product = response.data
           this.fetchLicenses()
           this.fetchComponents()
           this.fetchProjects()

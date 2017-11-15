@@ -355,11 +355,12 @@ router.route('/:id')
   // In order to search; send in a JSON object with the applicable parameters.
   .get((req, res) => {
     let input = req.params.id
-    console.log(input)
-    let query = `SELECT * FROM components WHERE id=${input}`
+    const query = `SELECT * FROM components WHERE id=${input}`
     req.db.get(query, (err, row) => {
       if (err) {
         console.log(err)
+        res.status(404)
+        res.send("ERROR! error message:" + err.message + ", query: " + query)
       } else {
         res.status(200)
         res.json(row)

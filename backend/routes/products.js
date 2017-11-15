@@ -348,15 +348,18 @@ router.route('/log/:id')
 router.route('/:id')
 
   .get((req, res) => {
-    let input = JSON.parse(req.params.id)
-    let parametersText = Object.keys(input)
-    let parameters = []
-
-    if ((input.productName != null && input.productVersion != null) || input.productID != null) {
-
-      getProductFromParameters(req, res, input, parametersText, parameters)
-
-    }
+    let input = req.params.id
+    const query = `SELECT * FROM products WHERE id=${input}`
+    req.db.get(query, (err, row) => {
+      if (err) {
+        console.log(err)
+        res.status(404)
+        res.send("ERROR! error message:" + err.message + ", query: " + query)
+      } else {
+        res.status(200)
+        res.json(row)
+      }
+    })
   })
 
   .post((req, res) => {
@@ -674,7 +677,7 @@ function getUpdateProductParameters(req, parametersText, parameters, approved, c
 
 //Insert the update into the ProductLog
 function insertUpdateIntoLog(req, res, correctInputId, approved){
-  //If approve has changed then log it 
+  //If approve has changed then log it
   if(req.body.hasOwnProperty('approved')){
     if(approved[0] == 0){
       insertProductLog(req, res, correctInputId, "Product changed to not approved.", function (log) {
@@ -683,7 +686,7 @@ function insertUpdateIntoLog(req, res, correctInputId, approved){
       insertProductLog(req, res, correctInputId, "Product changed to approved by " + approved[1] + ".", function (log) {
       })
     }
-  }//If approveBy has changed then log it 
+  }//If approveBy has changed then log it
   else if(req.body.hasOwnProperty('approvedBy')){
     if(approved[1] == ''){
       insertProductLog(req, res, correctInputId, "Product changed to not approved.", function (log) {

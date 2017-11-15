@@ -150,10 +150,9 @@
     },
 
     mounted () {
-      const pURI = JSON.stringify({id: this.$route.params.id});
-      axios.get(this.$baseAPI + 'projects/' + pURI)
+      axios.get(this.$baseAPI + 'projects/' + this.$route.params.id)
         .then(response => {
-          this.project = response.data[0]
+          this.project = response.data
           this.message = response.message
           this.fetchLicenses()
           this.fetchComponents()
