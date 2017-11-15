@@ -151,10 +151,9 @@
     /* Fetch the license with id from database and add to license,
      * then fetch components, products and projects */
     mounted () {
-      const lURI = JSON.stringify({id: this.$route.params.id});
-      axios.get(this.$baseAPI + 'licenses/' + lURI)
+      axios.get(this.$baseAPI + 'licenses/' + this.$route.params.id)
         .then(response => {
-          this.license = response.data[0]
+          this.license = response.data
           this.fetchComponents()
           this.fetchProducts()
           this.fetchProjects()
@@ -180,7 +179,9 @@
        * Fetch all projects that contains this license
        */
       fetchProjects(){
-        // TODO Implement
+        axios.get('/projectstWithLicense/' + this.$route.params.id).then(response => {
+          console.log("Hello")
+        })
       }
     }
   }
