@@ -33,13 +33,22 @@
         <a @click="searchProject" class="button is-primary">Search</a>
       </div>
     </div>
+
+    <div class="columns is-mobile is-centered">
+      <projects-add-modal></projects-add-modal>
+    </div>
   </div>
 </template>
 
 <script>
   import axios from 'axios'
+  import ProjectsAddModal from '@/components/ProjectsAddModal'
 
   export default {
+    components: {
+      ProjectsAddModal
+    },
+
     data() {
       return {
         projects: [],

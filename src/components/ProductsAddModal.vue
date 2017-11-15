@@ -1,70 +1,69 @@
-<!-- View for adding Components -->
+<!-- View for adding Products -->
 <template>
   <div class="component-list">
     <div class="control" style="padding-top: 25px">
-      <a @click="showModal()" class="button is-primary">Add component</a>
+      <a @click="showModal()" class="button is-primary">Add product</a>
     </div>
     <div id="modal" class="modal">
       <div class="modal-background" @click="closeModal()"></div>
       <div class="modal-card" style="text-align: center">
         <header class="modal-card-head">
-          <p class="modal-card-title">Add Component</p>
+          <p class="modal-card-title">Add Product</p>
           <button class="delete" aria-label="close" @click="closeModal()"></button>
         </header>
         <section class="modal-card-body">
-
-          <!-- Fields for adding name and version to the component -->
+          <!-- Fields for adding name and version to the product -->
           <div class="field">
             <p class="control">
-              <input v-model="componentName" class="input" type="text" placeholder="Name">
+              <input v-model="product" class="input" type="text" placeholder="Name">
             </p>
           </div>
           <div class="field">
             <p class="control">
-              <input v-model="componentVersion" class="input" type="text" placeholder="Version">
+              <input v-model="productVersion" class="input" type="text" placeholder="Version">
             </p>
           </div>
 
-          <!-- Table for picking licenses to bind to the component. Shows all approved
-          licenses but becomes scrollable after reaching max-size (because of class="vertical-menu") -->
+          <!-- Table for picking components to bind to the product. Shows all approved
+          components but becomes scrollable after reaching max-size (because of class="vertical-menu") -->
           <div class="vertical-menu" style="max-height: 200px; height: auto">
             <table>
               <thead>
               <tr>
                 <td></td>
-                <th>License</th>
+                <th>Component</th>
                 <th>Version</th>
               </tr>
               </thead>
               <tbody>
-              <tr v-for="license in licenses">
-                <td style="text-align: center"><input class="checkbox" type="checkbox" v-bind:value=license.id v-model.number="checkedLicenses"></td>
-                <td>{{ license.licenseName }}</td>
-                <td>{{ license.licenseVersion }}</td>
+              <tr v-for="component in components">
+                <td style="text-align: center"><input class="checkbox" type="checkbox" id="cComponentID"/></td>
+                <td>{{ component.componentName }}</td>
+                <td>{{ component.componentVersion }}</td>
               </tr>
               </tbody>
             </table>
           </div>
-          <!-- Field for searching for licenses. Uses "searchLicense"-method for searching -->
+          <!-- Field for searching for components. Uses "searchComponent"-method for searching -->
           <div class="field has-addons" style="padding-top: 15px">
             <div class="control">
-              <input v-model="searchLicenses" class="input" type="text" placeholder="Find a license">
+              <input v-model="searchComponents" class="input" type="text" placeholder="Find a component">
             </div>
             <div class="control">
-              <a @click="searchLicense" class="button is-primary">Search</a>
+              <a @click="searchComponent" class="button is-primary">Search</a>
             </div>
           </div>
 
-          <!-- Textarea for adding a comment to the component -->
+          <!-- Textarea for adding a comment to the product -->
           <div class="field">
             <div class="control">
-              <textarea v-model="componentComment" class="textarea" placeholder="Comment for component"></textarea>
+              <textarea v-model="productComment" class="textarea" placeholder="Comment for product"></textarea>
             </div>
           </div>
         </section>
 
         <footer class="modal-card-foot" style="justify-content: center">
-          <button @click="addComponent()" class="button is-success">Add Component</button>
+          <button @click="addProduct()" class="button is-success">Add Product</button>
         </footer>
 
       </div>
@@ -74,18 +73,16 @@
 
 <script>
   import axios from 'axios'
-
   export default {
     data() {
       return {
-        licenses: [],
-        checkedLicenses: [],
-        componentName: '',
-        componentVersion: '',
-        componentComment: ''
+        components: [],
+        product: null,
+        productVersion: null,
+        productComment: null
       }
     },
-    /* Fetches liceses from the database and puts them in licenses */
+    /* Fetches components from the database and puts them in components */
     mounted() {
       let vm = this
       document.addEventListener('keyup', function (event) {
@@ -93,33 +90,34 @@
           vm.closeModal()
         }
       })
-      axios.get(this.$baseAPI + 'licenses')
+      axios.get(this.$baseAPI + 'components')
         .then(response => {
-          this.licenses = response.data
+          this.components = response.data
         })
     },
 
     methods: {
       /**
-       * Add a component to the database according to the fields in the view
+       * Add a product to the database according to the fields in the view
        */
-      addComponent () {
+      addProduct() {
         let data = {
-          componentName: this.componentName,
-          componentVersion: this.componentVersion,
-          comment: this.componentComment,
-          licenses: this.checkedLicenses
+          productName: this.product,
+          productVersion: this.productVersion,
+          comment: this.productComment
+          // TODO put components for add.
         }
 
-        axios.post(this.$baseAPI + 'components/add', data)
+        axios.post(this.$baseAPI + 'products', data)
           .then(response => {
-            if (response.responseData.status === "success") {
-              this.componentName = null
-              this.componentVersion = null
-              this.componentComment = null
-              axios.get(this.$baseAPI + 'components')
+            if (response.data === "success") {
+              this.product = null
+              this.productVersion = null
+              this.productComment = null
+
+              axios.get(this.$baseAPI + 'products')
                 .then(response => {
-                  this.components = response.data
+                  this.product = response.data
                 })
             }
           })
@@ -130,14 +128,14 @@
       /**
        * Searches for liceses from the database matching the search-criteria
        */
-      searchLicense() {
+      searchComponent(){
         // TODO Implement method
       },
 
       showModal() {
         var d = document.getElementById("modal")
         d.classList.add("is-active")
-       },
+      },
 
       closeModal() {
         var d = document.getElementById("modal")

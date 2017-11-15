@@ -33,13 +33,21 @@
         <a @click="searchProduct" class="button is-primary">Search</a>
       </div>
     </div>
+    <div class="columns is-mobile is-centered" style="justify-content: center">
+      <products-add-modal></products-add-modal>
+    </div>
   </div>
 </template>
 
 <script>
   import axios from 'axios'
+  import ProductsAddModal from '@/components/ProductsAddModal'
 
   export default {
+    components: {
+      ProductsAddModal
+    },
+
     data() {
       return {
         products: [],

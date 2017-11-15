@@ -31,11 +31,11 @@
         <input v-model="searchComponents" class="input" type="text" placeholder="Find a component">
       </div>
       <div class="control">
-        <button @click="showModal()" class="button is-primary">Search</button>
+        <button @click="searchComponent()" class="button is-primary">Search</button>
       </div>
     </div>
 
-    <div>
+    <div class="columns is-mobile is-centered">
       <components-add-modal></components-add-modal>
     </div>
   </div>
