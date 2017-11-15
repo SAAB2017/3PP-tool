@@ -408,7 +408,7 @@ function insertUpdateIntoLog(req, res, id, approved, comment) {
     insertProjectLog(req, res, correctInputId, "Comment was changed to: " + comment + ".", function (log) {
     })
   }
-  //If approve has changed then log it 
+  //If approve has changed then log it
   if (req.body.hasOwnProperty('approved')) {
     if (approved[0] == 0) {
       insertProjectLog(req, res, id, "Product changed to not approved.", function (log) {
@@ -417,7 +417,7 @@ function insertUpdateIntoLog(req, res, id, approved, comment) {
       insertProjectLog(req, res, id, "Product changed to approved by " + approved[1] + ".", function (log) {
       })
     }
-  }//If approveBy has changed then log it 
+  }//If approveBy has changed then log it
   else if (req.body.hasOwnProperty('approvedBy')) {
     if (approved[1] == '') {
       insertProjectLog(req, res, id, "Product changed to not approved.", function (log) {
@@ -466,7 +466,7 @@ function getProjectsWithLicense(req, res, id) {
 
 //Get projects connected with component
 function getProjectsWithComponent(req, res, id) {
-  let query = "SELECT DISTINCT projectID AS id, projectName, projectVersion, dateCreated, lastEdited, comment FROM projects LEFT OUTER JOIN productsInProjects ON projects.id=productsInProjects.projectID" 
+  let query = "SELECT DISTINCT projectID AS id, projectName, projectVersion, dateCreated, lastEdited, comment FROM projects LEFT OUTER JOIN productsInProjects ON projects.id=productsInProjects.projectID"
               + " LEFT OUTER JOIN componentsInProducts ON componentsInProducts.productID=productsInProjects.productID"
 
   query += " WHERE componentID = ?;"
@@ -500,7 +500,7 @@ function getProjectsWithProduct(req, res, id) {
 //Get project log
 function getProjectLog(req, res, id){
   let query = "SELECT * FROM projectLog WHERE projectID = ?"
-  
+
   req.db.all(query, [id], (error, rows) => {
     if (error) {
       console.log(error.message)
@@ -534,3 +534,19 @@ function getProjectFromParameters(req, res, input, parametersText, parameters) {
       res.json(rows)
   })
 }
+
+router.route('/:id')
+.get((req, res) => {
+  let input = req.params.id
+  const query = `SELECT * FROM projects WHERE id=${input}`
+  req.db.get(query, (err, row) => {
+    if (err) {
+      console.log(err)
+      res.status(404)
+      res.send("ERROR! error message:" + err.message + ", query: " + query)
+    } else {
+      res.status(200)
+      res.json(row)
+    }
+  })
+})
