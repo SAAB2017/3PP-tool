@@ -1,6 +1,7 @@
 ## Välkommen till Projekt SAAB 2017
 
 ### Dokument
+- [API_DOCUMENTATION.md](https://github.com/SAAB2017/3PP-tool/blob/master/docs/API_DOCUMENTATION.md)
 - [CHANGELOG.md](https://github.com/SAAB2017/3PP-tool/blob/master/docs/CHANGELOG.md)
 - [CREATE_DB.md](https://github.com/SAAB2017/3PP-tool/blob/master/docs/CREATE_DB.md)
 - [LICENSE.md](https://github.com/SAAB2017/3PP-tool/blob/master/docs/LICENSE.md)
