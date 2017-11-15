@@ -1,3 +1,4 @@
+<!-- View for showing information about and updating a project -->
 <template>
   <div class="section">
         <div v-if="project" class="component">
@@ -5,27 +6,27 @@
             <h1 class="has-text-left">Project {{ project.id }}</h1>
           </div>
 
+          <!-- Columns that is centered and multiline for support on lower resolution -->
           <div class="columns is-mobile is-centered is-multiline">
 
-
+            <!-- Column that contains the name and version of the project. Also contains
+             the update button -->
             <div class="column is-one-quarter-desktop is-one-third-tablet is-5-mobile">
               <div class="field is-horizontal">
                 <label class="field-label label is-normal">Name</label>
                 <div class="control">
-                  <input v-if="project.projectName" v-model="project.projectName" class="input" type="text">
-                  <input v-else class="input" type="text" v-model="testName">
+                  <input v-model="project.projectName" class="input" type="text">
                 </div>
               </div>
 
               <div class="field is-horizontal">
                 <label class="field-label label is-normal">Version</label>
                 <div class="control">
-                  <input v-if="project.projectVersion" v-model="project.projectVersion" class="input" type="text">
-                  <input v-else v-model="testVersion" class="input" type="text" >
+                  <input v-model="project.projectVersion" class="input" type="text">
                 </div>
               </div>
               <p class="help is-success has-text-right">{{ message }}</p>
-
+              <!-- Button for updating the project values. Uses "updateProject"-function -->
               <div class="field is-grouped is-grouped-right">
                 <div class="control">
                   <button @click="updateProject()" class="button is-primary">Update</button>
@@ -33,39 +34,39 @@
               </div>
             </div>
 
-
+            <!-- Column that contains the date the product was created and the signature
+             for the person that approved it -->
             <div class="column is-one-quarter-desktop is-one-third-tablet is-5-mobile">
               <div class="field is-horizontal">
                 <label class="field-label label is-normal">Created</label>
                 <div class="control">
-                  <input v-if="project.dateCreated" v-model="project.dateCreated" class="input" type="text"  disabled>
-                  <input v-else  v-model="testDate"class="input" type="text" disabled>
+                  <input v-model="project.dateCreated" class="input" type="text"  readonly>
                 </div>
               </div>
               <div class="field is-horizontal">
                 <label class="field-label label is-normal">Approver</label>
                 <div class="control">
-                  <input v-if="project.approvedBy" v-model="project.approvedBy" class="input" type="text" disabled>
-                  <input v-else v-model="testApproved" class="input" type="text" disabled>
+                  <input v-model="project.approvedBy" class="input" type="text" readonly>
                 </div>
               </div>
             </div>
 
+            <!-- Column that contains the comment for the product -->
             <div class="column is-half-desktop is-two-thirds-tablet is-10-mobile">
               <div class="field is-horizontal">
                 <label class="field-label label is-normal">Comment</label>
                 <div class="control" style="width: 100%">
-                  <textarea v-if="project.comment" class="textarea" v-model="project.comment"></textarea>
-                  <textarea v-else class="textarea" v-model="testComment"></textarea>
+                  <textarea class="textarea" v-model="project.comment"></textarea>
                 </div>
               </div>
             </div>
           </div>
 
+          <!-- Columns that contains tables -->
           <div class="columns is-mobile is-centered is-multiline">
 
+            <!-- Table that shows which licenses is in this project -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
-              <!-- TODO Fix for-loops -->
               <table class="table is-bordered">
                 <thead>
                 <tr>
@@ -74,14 +75,15 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                  <td>Test Name</td>
-                  <td>1.0</td>
+                <tr v-for="license in licenses">
+                  <td>{{ license.licenseName }}</td>
+                  <td>{{ license.licenseVersion }}</td>
                 </tr>
                 </tbody>
               </table>
             </div>
 
+            <!-- Table that shows which components is in this project -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
               <table class="table is-bordered">
                 <thead>
@@ -91,14 +93,15 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                  <td>Test Name</td>
-                  <td>1.0</td>
+                <tr v-for="component in components">
+                  <td>{{ component.componentName }}</td>
+                  <td>{{ component.componentVersion }}</td>
                 </tr>
                 </tbody>
               </table>
             </div>
 
+            <!-- Table that shows which products is in this project -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
               <table class="table is-bordered">
                 <thead>
@@ -108,9 +111,9 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                  <td>Test Name</td>
-                  <td>1.0</td>
+                <tr v-for="product in products">
+                  <td>{{ product.productName }}</td>
+                  <td>{{ product.productVersion }}</td>
                 </tr>
                 </tbody>
               </table>
@@ -118,11 +121,13 @@
           </div>
 
         </div>
+        <!-- If no product with id id is found -->
         <div v-else>
           <div class="columns">
             <div class="column is-3">
               <h1>Project not found</h1>
               <p>No project with ID {{ id }}</p>
+              <p>{{ message }}</p>
             </div>
           </div>
         </div>
@@ -137,24 +142,50 @@
     data () {
       return {
         project: {},
-        message: '',
-        testName: 'Test name',
-        testVersion: 'Test version',
-        testDate: '2017-10-04',
-        testApproved: 'Nils Nilsson',
-        testComment: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+        licenses: [],
+        components: [],
+        projects: [],
+        message: ''
       }
     },
 
     mounted () {
-      axios.get(this.$baseAPI + 'projects/' + this.$route.params.id)
+      const pURI = JSON.stringify({id: this.$route.params.id});
+      axios.get(this.$baseAPI + 'projects/' + pURI)
         .then(response => {
-          this.project = response.data
+          this.project = response.data[0]
+          this.message = response.message
+          this.fetchLicenses()
+          this.fetchComponents()
+          this.fetchProducts()
         })
     },
 
     methods: {
+      /**
+       * Fetch all licenses that is in this project
+       */
+      fetchLicenses(){
+        // TODO Implement
+      },
 
+      /**
+       * Fetch all components that is in this project
+       */
+      fetchComponents(){
+        // TODO Implement
+      },
+
+      /**
+       * Fetch all products that is in this project
+       */
+      fetchProducts(){
+        // TODO Implement
+      },
+
+      /**
+       * Update this product with new values
+       */
       updateProject () {
         var data = {
           id: this.project.id,

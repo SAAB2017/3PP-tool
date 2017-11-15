@@ -1,25 +1,29 @@
+<!-- View for showing all signed projects -->
 <template>
   <div class="projects-list">
-    <div class="vertical-menu" style="max-height: 400px; min-width: 310px">
-      <table class="table is-bordered">
+    <!-- Table that contains all signed projects. Will grow to max-height and then
+    become scrollable -->
+      <table>
         <thead>
         <tr>
-          <th>Projects</th>
-          <th width=1%>Version</th>
-          <th>Created</th>
+          <th scope="col">Project</th>
+          <th scope="col">Version</th>
+          <th scope="col">Created</th>
+          <th scope="col">Last edited</th>
         </tr>
         </thead>
         <tbody>
         <tr v-for="project in projects" @click="displayComponent(project)">
-          <td>{{ project.projectName}}</td>
-          <td>{{ project.projectVersion }}</td>
-          <td>{{ project.dateCreated }}</td>
+          <td scope="row" data-label="Project">{{ project.projectName}}</td>
+          <td scope="row" data-label="Version">{{ project.projectVersion }}</td>
+          <td scope="row" data-label="Created">{{ project.dateCreated }}</td>
+          <td scope="row" data-label="Last edited">{{ project.lastEdited }}</td>
         </tr>
         </tbody>
       </table>
-    </div>
 
-    <div class="field has-addons" style="padding-top: 15px">
+    <!-- Field for searching for a project in the table. Uses "searchProject"-method -->
+    <div class="field has-addons columns is-mobile is-centered" style="padding-top: 15px">
       <div class="control">
         <input v-model="searchProjects" class="input" type="text" placeholder="Find a project">
       </div>
@@ -27,13 +31,22 @@
         <a @click="searchProject" class="button is-primary">Search</a>
       </div>
     </div>
+
+    <div class="columns is-mobile is-centered">
+      <projects-add-modal></projects-add-modal>
+    </div>
   </div>
 </template>
 
 <script>
   import axios from 'axios'
+  import ProjectsAddModal from '@/components/ProjectsAddModal'
 
   export default {
+    components: {
+      ProjectsAddModal
+    },
+
     data() {
       return {
         projects: [],
@@ -42,6 +55,7 @@
       }
     },
 
+    /* Fetches signed projects from the database and puts them in projects */
     mounted() {
       axios.get(this.$baseAPI + 'projects')
         .then(response => {
@@ -50,39 +64,26 @@
     },
 
     methods: {
-
+      /**
+       * Searches for signed projects from the database matching the search-criteria
+       */
       searchProject(){
         // TODO Implement method
       },
 
+      /**
+       * Opens the view for a specific project with id id.
+       * @param project The project to be viewed
+       */
       displayComponent(project) {
         this.$router.push({ name: "projects_id", params: { id: project.id } })
       }
-      /* TODO should be able to delete this
-      addproject() {
-        var data = {
-          project: this.project,
-          version: this.projectVersion
-        }
-
-        axios.post(this.$baseAPI + 'projects', data)
-          .then(response => {
-            if (response.data === "success") {
-              this.project = null
-              this.projectVersion = null
-
-              axios.get(this.$baseAPI + 'projects')
-                .then(response => {
-                  this.projects = response.data
-                })
-            }
-          })
-      } */
     }
   }
 </script>
 
 <style scoped>
+
   .projects-list {
     margin-bottom: 20px;
   }

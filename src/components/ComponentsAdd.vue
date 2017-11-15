@@ -1,8 +1,10 @@
+<!-- View for adding Components -->
 <template>
   <div class="component-list">
+    <!-- Fields for adding name and version to the component -->
     <div class="field">
       <p class="control">
-        <input v-model="component" class="input" type="text" placeholder="Name">
+        <input v-model="componentName" class="input" type="text" placeholder="Name">
       </p>
     </div>
     <div class="field">
@@ -10,6 +12,9 @@
         <input v-model="componentVersion" class="input" type="text" placeholder="Version">
       </p>
     </div>
+
+    <!-- Table for picking licenses to bind to the component. Shows all approved
+    licenses but becomes scrollable after reaching max-size (because of class="vertical-menu") -->
     <div class="vertical-menu" style="max-height: 200px; height: auto">
       <table>
         <thead>
@@ -21,13 +26,14 @@
         </thead>
         <tbody>
         <tr v-for="license in licenses">
-          <td style="text-align: center"><input class="checkbox" type="checkbox" id="cLicenseID"/></td>
+          <td style="text-align: center"><input class="checkbox" type="checkbox" v-bind:value=license.id v-model.number="checkedLicenses"></td>
           <td>{{ license.licenseName }}</td>
           <td>{{ license.licenseVersion }}</td>
         </tr>
         </tbody>
       </table>
     </div>
+    <!-- Field for searching for licenses. Uses "searchLicense"-method for searching -->
     <div class="field has-addons" style="padding-top: 15px">
       <div class="control">
         <input v-model="searchLicenses" class="input" type="text" placeholder="Find a license">
@@ -37,16 +43,17 @@
       </div>
     </div>
 
+    <!-- Textarea for adding a comment to the component -->
     <div class="field">
       <div class="control">
         <textarea v-model="componentComment" class="textarea" placeholder="Comment for component"></textarea>
       </div>
     </div>
 
-
+    <!-- Button for adding the component. Uses "addComponent"-function -->
     <div style="padding-top: 15px">
       <p class="control">
-        <a @click="addComponent" class="button is-primary">Add component</a>
+        <a @click="addComponent()" class="button is-primary">Add component</a>
       </p>
     </div>
   </div>
@@ -58,12 +65,13 @@
     data() {
       return {
         licenses: [],
-        component: null,
-        componentVersion: null,
-        componentComment: null
+        checkedLicenses: [],
+        componentName: '',
+        componentVersion: '',
+        componentComment: ''
       }
     },
-
+    /* Fetches liceses from the database and puts them in licenses */
     mounted() {
       axios.get(this.$baseAPI + 'licenses')
         .then(response => {
@@ -72,36 +80,37 @@
     },
 
     methods: {
-
-      addComponent() {
+      /**
+       * Add a component to the database according to the fields in the view
+       */
+      addComponent () {
         let data = {
-          componentName: this.component,
+          componentName: this.componentName,
           componentVersion: this.componentVersion,
-          comment: this.componentComment
-          // TODO put licenses for add.
+          comment: this.componentComment,
+          licenses: this.checkedLicenses
         }
 
-        axios.post(this.$baseAPI + 'components', data)
+        axios.post(this.$baseAPI + 'components/add', data)
           .then(response => {
-            if (response.data === "success") {
-              this.component = null
+            if (response.responseData.status === "success") {
+              this.componentName = null
               this.componentVersion = null
               this.componentComment = null
-
               axios.get(this.$baseAPI + 'components')
                 .then(response => {
                   this.components = response.data
                 })
             }
           })
+        this.$router.push({ name: 'components' })
       },
 
+      /**
+       * Searches for liceses from the database matching the search-criteria
+       */
       searchLicense() {
         // TODO Implement method
-      },
-      // TODO Could be deleted? Or does it update the page after insert?
-      displayComponent(component) {
-        this.$router.push({ name: "Component", params: { id: component.id } })
       }
     }
   }

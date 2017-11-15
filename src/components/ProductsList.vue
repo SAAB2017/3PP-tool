@@ -1,25 +1,30 @@
+<!-- View for showing all signed products -->
 <template>
   <div class="products-list">
-    <div class="vertical-menu" style="max-height: 400px; min-width: 310px">
-      <table class="table is-bordered">
+    <!-- Table that contains all signed products. Will grow to max-height and then
+    become scrollable -->
+
+      <table>
         <thead>
         <tr>
-          <th>Products</th>
-          <th width=1%>Version</th>
-          <th>Created</th>
+          <th scope="col">Product</th>
+          <th scope="col">Version</th>
+          <th scope="col">Created</th>
+          <th scope="col">Last edited</th>
         </tr>
         </thead>
         <tbody>
         <tr v-for="product in products" @click="displayComponent(product)">
-          <td>{{ product.productName }}</td>
-          <td>{{ product.productVersion }}</td>
-          <td>{{ product.dateCreated }}</td>
+          <td scope="row" data-label="Product">{{ product.productName }}</td>
+          <td scope="row" data-label="Version">{{ product.productVersion }}</td>
+          <td scope="row" data-label="Created">{{ product.dateCreated }}</td>
+          <td scope="row" data-label="Last edited">{{ product.lastEdited }}</td>
         </tr>
         </tbody>
       </table>
-    </div>
 
-    <div class="field has-addons" style="padding-top: 15px">
+    <!-- Field for searching for a product in the table. Uses "searchProduct"-method -->
+    <div class="field has-addons columns is-mobile is-centered" style="padding-top: 15px">
       <div class="control">
         <input v-model="searchProducts" class="input" type="text" placeholder="Find a product">
       </div>
@@ -27,13 +32,21 @@
         <a @click="searchProduct" class="button is-primary">Search</a>
       </div>
     </div>
+    <div class="columns is-mobile is-centered" style="justify-content: center">
+      <products-add-modal></products-add-modal>
+    </div>
   </div>
 </template>
 
 <script>
   import axios from 'axios'
+  import ProductsAddModal from '@/components/ProductsAddModal'
 
   export default {
+    components: {
+      ProductsAddModal
+    },
+
     data() {
       return {
         products: [],
@@ -42,6 +55,7 @@
       }
     },
 
+    /* Fetches signed products from the database and puts them in products */
     mounted() {
       axios.get(this.$baseAPI + 'products')
         .then(response => {
@@ -50,34 +64,20 @@
     },
 
     methods: {
-
+      /**
+       * Searches for signed products from the database matching the search-criteria
+       */
       searchProduct(){
         // TODO Implement method
       },
 
+      /**
+       * Opens the view for a specific product with id id.
+       * @param product The product to be viewed
+       */
       displayComponent(product) {
         this.$router.push({ name: "products_id", params: { id: product.id } })
       }
-      /* TODO should be able to delete this
-      addproduct() {
-        var data = {
-          product: this.product,
-          version: this.productVersion
-        }
-
-        axios.post(this.$baseAPI + 'products', data)
-          .then(response => {
-            if (response.data === "success") {
-              this.product = null
-              this.productVersion = null
-
-              axios.get(this.$baseAPI + 'products')
-                .then(response => {
-                  this.products = response.data
-                })
-            }
-          })
-      } */
     }
   }
 </script>
@@ -89,9 +89,5 @@
 
   tbody>tr:hover {
     cursor: pointer;
-  }
-  .vertical-menu {
-    width: 100%;
-    overflow-y: auto;
   }
 </style>

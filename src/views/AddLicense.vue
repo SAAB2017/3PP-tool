@@ -1,9 +1,11 @@
 <template>
   <div class="section">
-    <div class="columns">
-      <div class="column is-one-quarter is-offset-one-third">
-        <h1>Add License</h1>
-        <div class="columns">
+    <div class="columns is-mobile is-centered">
+      <div class="column is-one-quarter">
+        <div style="text-align: center;">
+          <h2 class="subtitle is-4">Add license</h2>
+        </div>
+        <div class="column">
           <div class="component">
             <licenses-add></licenses-add>
           </div>

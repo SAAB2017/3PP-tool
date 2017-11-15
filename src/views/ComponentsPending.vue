@@ -1,16 +1,26 @@
 <template>
-  <div class="section">
-    <h1 v-html="not_implemented"></h1>
+  <div class="section components">
+    <div class="columns is-mobile is-centered">
+      <div class="column is-half">
+        <div style="text-align: center;">
+          <h2 class="subtitle is-4">Pending components</h2>
+        </div>
+        <div>
+          <div>
+            <components-sign></components-sign>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-  // TODO: ProductsPending.vue ej implementerad
+  import ComponentsSign from '@/components/ComponentsSign'
+
   export default {
-    data () {
-      return {
-        not_implemented: "<em>ComponentsPending.vue</em> är ej implementerad."
-      }
+    components: {
+      ComponentsSign
     }
   }
 </script>

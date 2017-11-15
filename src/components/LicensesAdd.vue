@@ -1,5 +1,7 @@
+<!-- View for adding Licenses -->
 <template>
   <div class="component-list">
+    <!-- Fields for adding name, version, license type, URL and comment for a license-->
     <div class="field">
       <p class="control">
         <input v-model="license" class="input" type="text" placeholder="Name">
@@ -53,7 +55,9 @@
     },
 
     methods: {
-
+      /**
+       * Add a license to the database according to the fields in the view
+       */
       addLicense() {
         let data = {
           licenseName: this.license,
@@ -79,10 +83,6 @@
                 })
             }
           })
-      },
-      // TODO Could be deleted? Or does it update the page after insert?
-      displayComponent(component) {
-        this.$router.push({ name: "License", params: { id: component.id } })
       }
     }
   }
