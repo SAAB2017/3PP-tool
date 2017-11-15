@@ -1,5 +1,8 @@
+<!-- View for showing all unsigned components -->
 <template>
   <div class="components-list">
+    <!-- Table that contains all unsigned components. Will grow to max-height and then
+    become scrollable -->
     <div class="vertical-menu" style="max-height: 600px; min-width: 420px">
       <table class="table is-bordered">
         <thead>
@@ -21,6 +24,7 @@
       </table>
     </div>
 
+    <!-- Field for searching for a component in the table. Uses "searchComponent"-method -->
     <div class="field has-addons columns is-mobile is-centered" style="padding-top: 15px">
       <div class="control">
         <input v-model="searchComponents" class="input" type="text" placeholder="Find a component">
@@ -43,7 +47,7 @@
         componentVersion: null
       }
     },
-
+    /* Fetches unsigned components from the database and puts them in components */
     mounted () {
       const pendingURI = 'components/' + JSON.stringify({approved: 0})
       axios.get(this.$baseAPI + pendingURI)
@@ -53,11 +57,17 @@
     },
 
     methods: {
-
+      /**
+       * Searches for unsigned components from the database matching the search-criteria
+       */
       searchComponent(){
         // TODO Implement method
       },
 
+      /**
+       * Opens the view for signing a specific component with id id.
+       * @param component The component to be signed
+       */
       displayComponent(component) {
         console.log(`Component id is ${component}`)
         this.$router.push({ name: 'components_pending_id', params: { id: component }})

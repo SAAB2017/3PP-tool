@@ -1,3 +1,4 @@
+<!-- View for showing information about a license -->
 <template>
   <div class="section">
         <div v-if="license" class="component">
@@ -5,65 +6,67 @@
             <h1 class="has-text-left">License {{ license.id }}</h1>
           </div>
 
+          <!-- Columns that is centered and multiline for support on lower resolution -->
           <div class="columns is-mobile is-centered is-multiline">
 
+            <!-- Column that contains the name and version of the license. Also contains
+             the update button -->
             <div class="column is-one-quarter-desktop is-one-third-tablet is-5-mobile">
               <div class="field is-horizontal">
                 <label class="field-label label is-normal">Name</label>
                 <div class="control">
-                  <input v-if="license.licenseName" v-model="license.licenseName" class="input" type="text">
-                  <input v-else class="input" type="text" v-model="testName">
+                  <input v-model="license.licenseName" class="input" type="text" readonly>
                 </div>
               </div>
 
               <div class="field is-horizontal">
                 <label class="field-label label is-normal">Version</label>
                 <div class="control">
-                  <input v-if="license.licenseVersion" v-model="license.licenseVersion" class="input" type="text">
-                  <input v-else v-model="testVersion" class="input" type="text" >
+                  <input v-model="license.licenseVersion" class="input" type="text" readonly>
                 </div>
               </div>
             </div>
 
+            <!-- Column that contains the date the license was created, the license type
+             and the URL for the license -->
             <div class="column is-one-quarter-desktop is-one-third-tablet is-5-mobile">
               <div class="field is-horizontal">
                 <label class="field-label label is-normal">Created</label>
                 <div class="control">
-                  <input v-if="license.dateCreated" v-model="license.dateCreated" class="input" type="text"  disabled>
-                  <input v-else  v-model="testDate" class="input" type="text" disabled>
+                  <input v-model="license.dateCreated" class="input" type="text"  readonly>
                 </div>
               </div>
               <div class="field is-horizontal">
                 <label class="field-label label is-normal">Type</label>
                 <div class="control">
-                  <input v-if="license.licenseType" v-model="license.licenseType" class="input" type="text" disabled>
-                  <input v-else v-model="testType" class="input" type="text" disabled>
+                  <input v-model="license.licenseType" class="input" type="text" readonly>
                 </div>
               </div>
               <div class="field is-horizontal">
                 <label class="field-label label is-normal">URL</label>
                 <div class="control">
-                  <input v-if="license.URL" v-model="license.URL" class="input" type="text" disabled>
-                  <input v-else v-model="testURL" class="input" type="text" disabled>
+                  <input v-if="license.URL" v-model="license.URL" class="input" type="text" readonly>
+                  <input v-else v-model="testURL" class="input" type="text" readonly>
                 </div>
               </div>
             </div>
 
+            <!-- Column that contains the comment for the license -->
             <div class="column is-half-desktop is-two-thirds-tablet is-10-mobile">
               <div class="field is-horizontal">
                 <label class="field-label label is-normal">Comment</label>
                 <div class="control" style="width: 100%">
-                  <textarea v-if="license.comment" class="textarea" v-model="license.comment"></textarea>
-                  <textarea v-else class="textarea" v-model="testComment"></textarea>
+                  <textarea class="textarea" v-model="license.comment" readonly></textarea>
                 </div>
               </div>
             </div>
           </div>
 
+          <!-- Columns that contains tables -->
           <div class="columns is-mobile is-centered is-multiline">
 
+            <!-- Table that shows which components this license is in -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
-              <!-- TODO Fix for-loops -->
               <table class="table is-bordered">
                 <thead>
                 <tr>
@@ -72,14 +75,15 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                  <td>Test Name</td>
-                  <td>1.0</td>
+                <tr v-for="component in components">
+                  <td>{{ component.componentName }}</td>
+                  <td>{{ component.componentVersion }}</td>
                 </tr>
                 </tbody>
               </table>
             </div>
 
+            <!-- Table that shows which products this license is in -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
               <table class="table is-bordered">
                 <thead>
@@ -89,14 +93,15 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                  <td>Test Name</td>
-                  <td>1.0</td>
+                <tr v-for="product in products">
+                  <td>{{ product.productName }}</td>
+                  <td>{{ product.productVersion }}</td>
                 </tr>
                 </tbody>
               </table>
             </div>
 
+            <!-- Table that shows which projects this license is in -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
               <table class="table is-bordered">
                 <thead>
@@ -106,9 +111,9 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                  <td>Test Name</td>
-                  <td>1.0</td>
+                <tr v-for="project in projects">
+                  <td>{{ project.projectName }}</td>
+                  <td>{{ project.projectVersion }}</td>
                 </tr>
                 </tbody>
               </table>
@@ -116,6 +121,7 @@
           </div>
 
         </div>
+        <!-- If no license is found -->
         <div v-else>
           <div class="columns">
             <div class="column is-3">
@@ -135,21 +141,47 @@
     data () {
       return {
         license: {},
-        message: '',
-        testName: 'Test name',
-        testVersion: 'Test version',
-        testDate: '2017-10-04',
-        testType: 'Test type',
-        testURL: 'https://www.google.com',
-        testComment: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+        components: [],
+        products: [],
+        projects: [],
+        message: ''
       }
     },
 
+    /* Fetch the license with id from database and add to license,
+     * then fetch components, products and projects */
     mounted () {
-      axios.get(this.$baseAPI + 'licenses/' + this.$route.params.id)
+      const lURI = JSON.stringify({id: this.$route.params.id});
+      axios.get(this.$baseAPI + 'licenses/' + lURI)
         .then(response => {
-          this.license = response.data
+          this.license = response.data[0]
+          this.fetchComponents()
+          this.fetchProducts()
+          this.fetchProjects()
         })
+    },
+
+    methods: {
+      /**
+       * Fetch all components that contains this license
+       */
+      fetchComponents(){
+        // TODO Implement
+      },
+
+      /**
+       * Fetch all products that contains this license
+       */
+      fetchProducts(){
+        // TODO Implement
+      },
+
+      /**
+       * Fetch all projects that contains this license
+       */
+      fetchProjects(){
+        // TODO Implement
+      }
     }
   }
 </script>

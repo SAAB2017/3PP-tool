@@ -1,5 +1,8 @@
+<!-- View for showing all unsigned projects -->
 <template>
   <div class="projects-list">
+    <!-- Table that contains all unsigned projects. Will grow to max-height and then
+    become scrollable -->
     <div class="vertical-menu" style="max-height: 600px; min-width: 420px">
       <table class="table is-bordered">
         <thead>
@@ -21,6 +24,7 @@
       </table>
     </div>
 
+    <!-- Field for searching for a project in the table. Uses "searchProject"-method -->
     <div class="field has-addons columns is-mobile is-centered" style="padding-top: 15px">
       <div class="control">
         <input v-model="searchProjects" class="input" type="text" placeholder="Find a project">
@@ -44,6 +48,7 @@
       }
     },
 
+    /* Fetches unsigned projects from the database and puts them in projects */
     mounted() {
       axios.get(this.$baseAPI + 'projects/pending')
         .then(response => {
@@ -52,11 +57,17 @@
     },
 
     methods: {
-
+      /**
+       * Searches for unsigned projects from the database matching the search-criteria
+       */
       searchProject(){
         // TODO Implement method
       },
 
+      /**
+       * Opens the view for signing a specific project with id id.
+       * @param project The project to be signed
+       */
       displayComponent(project) {
         this.$router.push({ name: "Sign Project", params: { id: project.id } })
       }
