@@ -76,13 +76,9 @@ d<!-- View for adding Licenses -->
               this.licenseType = null
               this.licenseURL = null
               this.licenseComment = null
-
-              axios.get(this.$baseAPI + 'products')
-                .then(response => {
-                  this.license = response.data
-                })
             }
           })
+        this.$router.push({name: 'licenses'})
       }
     }
   }
