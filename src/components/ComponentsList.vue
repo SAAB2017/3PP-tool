@@ -4,6 +4,15 @@
     <!-- Table that contains all signed components. Will grow to max-height and then
     become scrollable -->
 
+    <div class="field has-addons columns is-mobile is-centered" style="padding-top: 15px">
+      <div class="control">
+        <input v-on:keyup="searchComponent" v-model="searchComponents" class="input" type="text" placeholder="Find a component">
+      </div>
+      <div class="control">
+        <button @click="searchComponent()" class="button is-primary">Search</button>
+      </div>
+    </div>
+
       <table>
         <thead>
         <tr>
@@ -24,14 +33,7 @@
       </table>
 
     <!-- Field for searching for a component in the table. Uses "searchComponent"-method -->
-    <div class="field has-addons columns is-mobile is-centered" style="padding-top: 15px">
-      <div class="control">
-        <input v-on:keydown.enter="searchComponent()" v-model="searchComponents" class="input" type="text" placeholder="Find a component">
-      </div>
-      <div class="control">
-        <button @click="searchComponent()" class="button is-primary">Search</button>
-      </div>
-    </div>
+
 
     <div class="columns is-mobile is-centered">
       <components-add-modal></components-add-modal>
@@ -56,19 +58,20 @@
       }
     },
     /* Fetches signed components from the database and puts them in components */
-    mounted() {
-      axios.get(this.$baseAPI + 'components/')
-        .then(response => {
-          this.components = response.data
-        })
+    mounted () {
+      this.getAllComponents()
     },
 
     methods: {
       /**
        * Searches for signed components from the database matching the search-criteria
        */
-      searchComponent (param) {
-        if (param != 0 || param != null) {
+      searchComponent () {
+        if (this.searchComponents.length === 0) {
+          this.getAllComponents()
+          return
+        }
+        if (this.searchcomponents !== 0 || this.searchcomponents !== null || this.searchcomponents !== '') {
           axios.get(this.$baseAPI + 'components/search/' + this.searchComponents).then(response => {
             console.log(response.data)
             if (response.data != null) {
@@ -77,6 +80,8 @@
               this.message = "No component found!"
             }
           })
+        } else {
+          this.getAllComponents()
         }
       },
 
@@ -87,14 +92,20 @@
       displayComponent(component) {
         this.$router.push({ name: "components_id", params: { id: component.id } })
       },
+      getAllComponents() {
+        axios.get(this.$baseAPI + 'components/')
+          .then(response => {
+            this.components = response.data
+          })
+      },
 
       showModal() {
-        var d = document.getElementById("modal")
+        let d = document.getElementById("modal")
         d.classList.add("is-active")
       },
 
       closeModal() {
-        var d = document.getElementById("modal")
+        let d = document.getElementById("modal")
         d.classList.remove("is-active")
       }
     }
