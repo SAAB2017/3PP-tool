@@ -6,7 +6,7 @@
 
     <div class="field has-addons columns is-mobile is-centered" style="padding-top: 15px">
       <div class="control">
-        <input v-on:keyup="searchComponent" v-model="searchComponents" class="input" type="text" placeholder="Find a component">
+        <input v-on:keyup="searchComponent()" v-model="searchComponents" class="input" type="text" placeholder="Find a component">
       </div>
       <div class="control">
         <button @click="searchComponent()" class="button is-primary">Search</button>
@@ -49,10 +49,10 @@
     components: {
       ComponentsAddModal
     },
-    data() {
+    data () {
       return {
         components: [],
-        searchcomponents: null,
+        searchComponents: null,
         component: null,
         componentVersion: null
       }
@@ -71,7 +71,7 @@
           this.getAllComponents()
           return
         }
-        if (this.searchcomponents !== 0 || this.searchcomponents !== null || this.searchcomponents !== '') {
+        if (this.searchComponents !== 0 || this.searchComponents !== null || this.searchComponents !== '') {
           axios.get(this.$baseAPI + 'components/search/' + this.searchComponents).then(response => {
             console.log(response.data)
             if (response.data != null) {

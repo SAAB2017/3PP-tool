@@ -3,6 +3,15 @@
   <div class="licenses-list">
     <!-- Table that contains all signed licenses. Will grow to max-height and then
     become scrollable -->
+    <!-- Field for searching for a license in the table. Uses "searchLicense"-method -->
+    <div class="field has-addons columns is-mobile is-centered" style="padding-top: 15px">
+      <div class="control">
+        <input v-on:keyup="searchLicenses()" v-model="searchLicense" class="input" type="text" placeholder="Find a license">
+      </div>
+      <div class="control">
+        <a @click="searchLicenses()" class="button is-primary">Search</a>
+      </div>
+    </div>
 
     <table>
       <thead>
@@ -23,15 +32,7 @@
       </tbody>
     </table>
 
-    <!-- Field for searching for a license in the table. Uses "searchLicense"-method -->
-    <div class="field has-addons columns is-mobile is-centered" style="padding-top: 15px">
-      <div class="control">
-        <input v-model="searchLicenses" class="input" type="text" placeholder="Find a license">
-      </div>
-      <div class="control">
-        <a @click="searchLicense()" class="button is-primary">Search</a>
-      </div>
-    </div>
+
 
     <div class="columns is-mobile is-centered">
       <licenses-add-modal></licenses-add-modal>
@@ -52,24 +53,43 @@
       return {
         licenses: [],
         license: null,
-        licenseVersion: null
+        licenseVersion: null,
+        searchLicense: null
       }
     },
 
     /* Fetches signed licenses from the database and puts them in licenses */
     mounted() {
-      axios.get(this.$baseAPI + 'licenses')
-        .then(response => {
-          this.licenses = response.data
-        })
+      this.getAllLicenses()
     },
 
     methods: {
       /**
        * Searches for licenses from the database matching the search-criteria
        */
-      searchLicense(){
-        // TODO Implement method
+      getAllLicenses () {
+        axios.get(this.$baseAPI + 'licenses/')
+          .then(response => {
+            this.licenses = response.data
+          })
+      },
+
+      searchLicenses () {
+        if (this.searchLicense.length === 0) {
+          this.getAllLicenses()
+          return
+        }
+        if (this.searchLicense !== 0 || this.searchLicense !== null || this.searchLicense !== '') {
+          axios.get(this.$baseAPI + 'licenses/search/' + this.searchLicense).then(response => {
+            if (response.data != null) {
+              this.licenses  = response.data
+            } else {
+              this.message = "No component found!"
+            }
+          })
+        } else {
+          this.getAllLicenses()
+        }
       },
 
       /**
