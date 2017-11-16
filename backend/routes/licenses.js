@@ -94,6 +94,58 @@ router.route('/')
   })
 
 // ----------------------------------------------------------------------------
+//  Methods for /search/:id
+// ----------------------------------------------------------------------------
+router.route('/search/:id')
+  .get((req, res) => {
+    // precondition: parameter is wellformed
+    // TODO: write a function that performs checks on input, so that it is wellformed, i.e. it's only english characters
+    const query = `select * from licenses where licenseName LIKE "%${req.params.id}%"`
+    req.db.all(query, (err, rows) => {
+      if (err) {
+        console.log(err)
+        res.status(404)
+        res.send("ERROR! error message:" + err.message + ", query: " + query)
+      } else {
+        res.status(200)
+        console.log(rows)
+        res.json(rows)
+      }
+    })
+  })
+
+router.route('/add')
+  .post((req, res) => {
+    // precondition: component doesn't already exist.
+    const input = req.body
+    parametersText = []
+    parameters = []
+
+    //Get the correct parameters
+    getInsertComponentParameters(req, parametersText, parameters, function (returnValue) {
+      parametersText = returnValue[0]
+      parameters = returnValue[1]
+
+      //Make sure the necessary parameters are provided to insert a new component.
+      if (input.componentName != null && input.componentVersion != null) {
+
+        insertNewComponent(req, res, parametersText, parameters, function (returnValue) {
+          //Get the component so that the id can be extracted
+          getComponent(req, res, input.componentName, input.componentVersion, null, function (component) {
+            insertComponentLog(req, res, component.id, "Component created.",
+              function (returnValue) {
+                res.status(201).send("Success!")
+              })
+          })
+        })
+
+      }
+    })
+    // postcondition: component created and logged.
+  })
+
+
+// ----------------------------------------------------------------------------
 //  Methods for /componentLicenses/:id
 // ----------------------------------------------------------------------------
 router.route('/licensesInComponent/:id')
