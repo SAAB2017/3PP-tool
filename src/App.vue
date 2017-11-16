@@ -22,9 +22,15 @@
   #app {
     margin: 10px;
   }
-  tbody {
+  .tbodyadd {
     display: block;
-    max-height: 25em;
+    max-height: 200px;
+    overflow: auto;
+  }
+
+  .tbodyhome {
+    display: block;
+    max-height: 450px;
     overflow: auto;
   }
 
