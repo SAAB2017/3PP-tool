@@ -97,10 +97,6 @@
               this.componentName = null
               this.componentVersion = null
               this.componentComment = null
-              axios.get(this.$baseAPI + 'components')
-                .then(response => {
-                  this.components = response.data
-                })
             }
           })
         this.$router.push({ name: 'components' })

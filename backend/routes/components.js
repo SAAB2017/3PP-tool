@@ -226,32 +226,39 @@ router.route('/approve')
 router.route('/add')
   .post((req, res) => {
     // precondition: component doesn't already exist.
-    const input = req.body
-    parametersText = []
-    parameters = []
-
-    //Get the correct parameters
-    getInsertComponentParameters(req, parametersText, parameters, function (returnValue) {
-      parametersText = returnValue[0]
-      parameters = returnValue[1]
-
-      //Make sure the necessary parameters are provided to insert a new component.
-      if (input.componentName != null && input.componentVersion != null) {
-
-        insertNewComponent(req, res, parametersText, parameters, function (returnValue) {
-          //Get the component so that the id can be extracted
-          getComponent(req, res, input.componentName, input.componentVersion, null, function (component) {
+    let licenses = req.body.licenses
+    addComponent(req.body, (query) => {
+      req.db.run(query, (error) => {
+        if (error) {
+          console.log(error.message)
+          res.status(500)
+          res.send("ERROR! error message:" + error.message + ", query: " + query)
+        } else {
+          // Get the component so that the id can be extracted
+          getComponent(req, res, req.body.componentName, req.body.componentVersion, null, function (component) {
             insertComponentLog(req, res, component.id, "Component created.",
               function (returnValue) {
+                licenses.forEach((license) => insertLicenseIntoComponent(req, res, license, component.id, (succeeded) => {
+                  if (!succeeded) {
+                    res.status(500)
+                    res.send('Error! Component was not found!')
+                  }
+                }))
                 res.status(201).send("Success!")
               })
           })
-        })
-
-      }
+        }
+      })
     })
     // postcondition: component created and logged.
   })
+
+function addComponent(component, cb) {
+  let date = new Date().toLocaleDateString()
+  const query = `INSERT INTO components (componentName, componentVersion, dateCreated, lastEdited, comment) VALUES ('${component.componentName}','${component.componentVersion}','${date}','${date}','${component.componentName}')`
+  console.log(query)
+  cb(query)
+}
 
 // ----------------------------------------------------------------------------
 //  Methods for /components/connectLicenseWithComponent
@@ -350,6 +357,10 @@ router.route('/log/:id')
 function validateSearchParameter(params) {
   return true;
 }
+
+// ----------------------------------------------------------------------------
+//  Methods for /components/search/:id
+// ----------------------------------------------------------------------------
 
 router.route('/search/:id')
   .get((req, res) => {
