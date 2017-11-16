@@ -68,7 +68,7 @@ d<!-- View for adding Licenses -->
           // TODO put components for add.
         }
 
-        axios.post(this.$baseAPI + '/licenses/add', data)
+        axios.post(this.$baseAPI + 'licenses/add', data)
           .then(response => {
             if (response.data === "success") {
               this.license = null

@@ -114,37 +114,55 @@ router.route('/search/:id')
     })
   })
 
+// ----------------------------------------------------------------------------
+//  Methods for /add
+// ----------------------------------------------------------------------------
 router.route('/add')
   .post((req, res) => {
-    // precondition: component doesn't already exist.
-    const input = req.body
-    parametersText = []
-    parameters = []
+    // pre-condition: 
+    // TODO: validate request
+    const lic = req.body
+    let date = new Date().toLocaleDateString()
+    // Construct SQL query based on input parameters.
 
-    //Get the correct parameters
-    getInsertComponentParameters(req, parametersText, parameters, function (returnValue) {
-      parametersText = returnValue[0]
-      parameters = returnValue[1]
-
-      //Make sure the necessary parameters are provided to insert a new component.
-      if (input.componentName != null && input.componentVersion != null) {
-
-        insertNewComponent(req, res, parametersText, parameters, function (returnValue) {
-          //Get the component so that the id can be extracted
-          getComponent(req, res, input.componentName, input.componentVersion, null, function (component) {
-            insertComponentLog(req, res, component.id, "Component created.",
-              function (returnValue) {
-                res.status(201).send("Success!")
-              })
-          })
+    const query = `INSERT INTO licenses (licenseName, licenseVersion, dateCreated, lastEdited, URL, comment, licenseType) VALUES ('${lic.licenseName}', '${lic.licenseVersion}', '${date}', '${date}', '${lic.URL}', '${lic.comment}', '${lic.licenseType}')`
+    console.log(query)
+    // Send the license to the database.
+    req.db.run(query, (error) => {
+      if (error) {
+        console.log(error.message)
+        res.status(500)
+        res.send(error.message)
+      } else {
+        let licenseID = 1
+        let queryGetID = "SELECT MAX(id) AS 'id' FROM licenses"
+        req.db.get(queryGetID, [], (error, row) => {
+          if (error) {
+            // If there's an error then provide the error message and the different attributes that could have caused it.
+            res.send("ERROR! error message:" + error.message + " query: " + queryGetID)
+          } else {
+            licenseID += row.id
+          }
         })
-
-      }
+        // Log the creation of the license.
+        const logquery = `INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES (${licenseID}, '${date}', 'License created.')`
+        console.log(logquery)
+        req.db.run(logquery, (error) => {
+          if (error) {
+            console.log(error.message)
+            res.status(500)
+            res.send(error.message)
+          } else {
+            console.log("Success!")
+            res.status(201)
+            res.send('success')
+          }
+        })      }
     })
     // postcondition: component created and logged.
   })
-
-
+  
+  
 // ----------------------------------------------------------------------------
 //  Methods for /componentLicenses/:id
 // ----------------------------------------------------------------------------
