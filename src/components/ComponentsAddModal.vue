@@ -27,7 +27,7 @@
 
           <!-- Table for picking licenses to bind to the component. Shows all approved
           licenses but becomes scrollable after reaching max-size (because of class="vertical-menu") -->
-          <div class="vertical-menu" style="max-height: 200px; height: auto">
+          <div style="max-height: 200px;">
             <table>
               <thead>
               <tr>
