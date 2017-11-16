@@ -12,7 +12,7 @@
           <th scope="col">Last edited</th>
         </tr>
         </thead>
-        <tbody>
+        <tbody class="tbodyhome">
         <tr v-for="project in projects" @click="displayComponent(project)">
           <td scope="row" data-label="Project">{{ project.projectName}}</td>
           <td scope="row" data-label="Version">{{ project.projectVersion }}</td>

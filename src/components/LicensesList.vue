@@ -22,7 +22,7 @@
           <th scope="col">Last edited</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody class="tbodyhome">
         <tr v-for="license in licenses" @click="displayComponent(license)">
           <td scope="row" data-label="License">{{ license.licenseName }}</td>
           <td scope="row" data-label="Version">{{ license.licenseVersion }}</td>
