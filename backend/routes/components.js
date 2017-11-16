@@ -227,36 +227,40 @@ router.route('/add')
   .post((req, res) => {
     // precondition: component doesn't already exist.
     let licenses = req.body.licenses
-    addComponent(req.body, (query) => {
-      req.db.run(query, (error) => {
-        if (error) {
-          console.log(error.message)
-          res.status(500)
-          res.send("ERROR! error message:" + error.message + ", query: " + query)
-        } else {
-          // Get the component so that the id can be extracted
-          getComponent(req, res, req.body.componentName, req.body.componentVersion, null, function (component) {
-            insertComponentLog(req, res, component.id, "Component created.",
-              function (returnValue) {
-                licenses.forEach((license) => insertLicenseIntoComponent(req, res, license, component.id, (succeeded) => {
-                  if (!succeeded) {
-                    res.status(500)
-                    res.send('Error! Component was not found!')
-                  }
-                }))
-                res.status(201).send("Success!")
-              })
-          })
-        }
+    req.db.run('begin', () => {
+      addComponent(req.body, (query) => {
+        req.db.run(query, (error) => {
+          if (error) {
+            console.log(error.message)
+            res.status(500)
+            req.db.run('rollback')
+            res.send("ERROR! error message:" + error.message + ", query: " + query)
+          } else {
+            // Get the component so that the id can be extracted
+            getComponent(req, res, req.body.componentName, req.body.componentVersion, null, function (component) {
+              insertComponentLog(req, res, component.id, "Component created.",
+                function (returnValue) {
+                  licenses.forEach((license) => insertLicenseIntoComponent(req, res, license, component.id, (succeeded) => {
+                    if (!succeeded) {
+                      req.db.run('rollback')
+                      res.status(500)
+                      res.send('Error! Component was not found!')
+                    }
+                  }))
+                  req.db.run('commit')
+                  res.status(201).send("Success!")
+                })
+            })
+          }
+        })
       })
     })
     // postcondition: component created and logged.
   })
 
-function addComponent(component, cb) {
+function addComponent (component, cb) {
   let date = new Date().toLocaleDateString()
   const query = `INSERT INTO components (componentName, componentVersion, dateCreated, lastEdited, comment) VALUES ('${component.componentName}','${component.componentVersion}','${date}','${date}','${component.componentName}')`
-  console.log(query)
   cb(query)
 }
 

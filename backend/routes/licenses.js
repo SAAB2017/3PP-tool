@@ -40,8 +40,9 @@ router.route('/')
       if (error) {
         // If there's an error then provide the error message and the different attributes that could have caused it.
         res.send("ERROR! error message:" + error.message + ", query: " + queryGetID)
-      } else
+      } else {
         licenseID += row.id
+      }
     })
 
     // Construct SQL query based on input parameters.
@@ -108,7 +109,6 @@ router.route('/search/:id')
         res.send("ERROR! error message:" + err.message + ", query: " + query)
       } else {
         res.status(200)
-        console.log(rows)
         res.json(rows)
       }
     })
@@ -122,11 +122,10 @@ router.route('/add')
     // pre-condition: 
     // TODO: validate request
     const lic = req.body
-    let date = new Date().toLocaleDateString()
+    const date = new Date().toLocaleDateString()
     // Construct SQL query based on input parameters.
 
     const query = `INSERT INTO licenses (licenseName, licenseVersion, dateCreated, lastEdited, URL, comment, licenseType) VALUES ('${lic.licenseName}', '${lic.licenseVersion}', '${date}', '${date}', '${lic.URL}', '${lic.comment}', '${lic.licenseType}')`
-    console.log(query)
     // Send the license to the database.
     req.db.run(query, (error) => {
       if (error) {
@@ -135,8 +134,8 @@ router.route('/add')
         res.send(error.message)
       } else {
         let licenseID = 1
-        let queryGetID = "SELECT MAX(id) AS 'id' FROM licenses"
-        req.db.get(queryGetID, [], (error, row) => {
+        const queryGetID = "SELECT MAX(id) AS 'id' FROM licenses"
+        req.db.get(queryGetID, (error, row) => {
           if (error) {
             // If there's an error then provide the error message and the different attributes that could have caused it.
             res.send("ERROR! error message:" + error.message + " query: " + queryGetID)
@@ -146,7 +145,6 @@ router.route('/add')
         })
         // Log the creation of the license.
         const logquery = `INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES (${licenseID}, '${date}', 'License created.')`
-        console.log(logquery)
         req.db.run(logquery, (error) => {
           if (error) {
             console.log(error.message)
@@ -157,7 +155,8 @@ router.route('/add')
             res.status(201)
             res.send('success')
           }
-        })      }
+        })
+      }
     })
     // postcondition: component created and logged.
   })
