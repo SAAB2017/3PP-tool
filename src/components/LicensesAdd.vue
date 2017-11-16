@@ -1,4 +1,4 @@
-<!-- View for adding Licenses -->
+d<!-- View for adding Licenses -->
 <template>
   <div class="component-list">
     <!-- Fields for adding name, version, license type, URL and comment for a license-->
@@ -68,7 +68,7 @@
           // TODO put components for add.
         }
 
-        axios.post(this.$baseAPI + 'products', data)
+        axios.post(this.$baseAPI + 'licenses/add', data)
           .then(response => {
             if (response.data === "success") {
               this.license = null
@@ -76,13 +76,9 @@
               this.licenseType = null
               this.licenseURL = null
               this.licenseComment = null
-
-              axios.get(this.$baseAPI + 'products')
-                .then(response => {
-                  this.license = response.data
-                })
             }
           })
+        this.$router.push({name: 'licenses'})
       }
     }
   }

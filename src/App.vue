@@ -22,6 +22,18 @@
   #app {
     margin: 10px;
   }
+  tbody {
+    display: block;
+    max-height: 25em;
+    overflow: auto;
+  }
+
+  thead, tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+  }
+
   table {
     border: 1px solid #ccc;
     border-collapse: collapse;

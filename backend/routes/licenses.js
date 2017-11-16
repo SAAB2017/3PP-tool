@@ -40,8 +40,9 @@ router.route('/')
       if (error) {
         // If there's an error then provide the error message and the different attributes that could have caused it.
         res.send("ERROR! error message:" + error.message + ", query: " + queryGetID)
-      } else
+      } else {
         licenseID += row.id
+      }
     })
 
     // Construct SQL query based on input parameters.
@@ -93,6 +94,74 @@ router.route('/')
     res.send("Method not allowed")
   })
 
+// ----------------------------------------------------------------------------
+//  Methods for /search/:id
+// ----------------------------------------------------------------------------
+router.route('/search/:id')
+  .get((req, res) => {
+    // precondition: parameter is wellformed
+    // TODO: write a function that performs checks on input, so that it is wellformed, i.e. it's only english characters
+    const query = `select * from licenses where licenseName LIKE "%${req.params.id}%"`
+    req.db.all(query, (err, rows) => {
+      if (err) {
+        console.log(err)
+        res.status(404)
+        res.send("ERROR! error message:" + err.message + ", query: " + query)
+      } else {
+        res.status(200)
+        res.json(rows)
+      }
+    })
+  })
+
+// ----------------------------------------------------------------------------
+//  Methods for /add
+// ----------------------------------------------------------------------------
+router.route('/add')
+  .post((req, res) => {
+    // pre-condition: 
+    // TODO: validate request
+    const lic = req.body
+    const date = new Date().toLocaleDateString()
+    // Construct SQL query based on input parameters.
+
+    const query = `INSERT INTO licenses (licenseName, licenseVersion, dateCreated, lastEdited, URL, comment, licenseType) VALUES ('${lic.licenseName}', '${lic.licenseVersion}', '${date}', '${date}', '${lic.URL}', '${lic.comment}', '${lic.licenseType}')`
+    // Send the license to the database.
+    req.db.run(query, (error) => {
+      if (error) {
+        console.log(error.message)
+        res.status(500)
+        res.send(error.message)
+      } else {
+        let licenseID = 1
+        const queryGetID = "SELECT MAX(id) AS 'id' FROM licenses"
+        req.db.get(queryGetID, (error, row) => {
+          if (error) {
+            // If there's an error then provide the error message and the different attributes that could have caused it.
+            res.send("ERROR! error message:" + error.message + " query: " + queryGetID)
+          } else {
+            licenseID += row.id
+          }
+        })
+        // Log the creation of the license.
+        const logquery = `INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES (${licenseID}, '${date}', 'License created.')`
+        req.db.run(logquery, (error) => {
+          if (error) {
+            console.log(error.message)
+            res.status(500)
+            res.send(error.message)
+          } else {
+            console.log("Success!")
+            res.status(201)
+            res.send('success')
+          }
+        })
+      }
+    })
+    // postcondition: component created and logged.
+  })
+  
+  
 // ----------------------------------------------------------------------------
 //  Methods for /componentLicenses/:id
 // ----------------------------------------------------------------------------
