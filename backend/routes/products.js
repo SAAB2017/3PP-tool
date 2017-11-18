@@ -296,9 +296,9 @@ router.route('/productsInProject/:id')
   })
 
 // ----------------------------------------------------------------------------
-//  Methods for /products/productstWithLicense/:id
+//  Methods for /products/productsWithLicense/:id
 // ----------------------------------------------------------------------------
-router.route('/productstWithLicense/:id')
+router.route('/productsWithLicense/:id')
   .get((req, res) => {
     // precondition: license exists and it has atleast one component connected to it.
     let input = JSON.parse(req.params.id)
@@ -311,9 +311,9 @@ router.route('/productstWithLicense/:id')
   })
 
 // ----------------------------------------------------------------------------
-//  Methods for /products/productstWithComponent/:id
+//  Methods for /products/productsWithComponent/:id
 // ----------------------------------------------------------------------------
-router.route('/productstWithComponent/:id')
+router.route('/productsWithComponent/:id')
 .get((req, res) => {
   // precondition: component exists and is connected with atleast one product.
   let input = JSON.parse(req.params.id)

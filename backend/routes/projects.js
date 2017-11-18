@@ -147,9 +147,9 @@ router.route('/connectProductWithProject')
   })
 
 // ----------------------------------------------------------------------------
-//  Methods for /projects/projectstWithLicense/:id
+//  Methods for /projects/projectsWithLicense/:id
 // ----------------------------------------------------------------------------
-router.route('/projectstWithLicense/:id')
+router.route('/projectsWithLicense/:id')
   .get((req, res) => {
     // precondition: license exists and is connected with atleast one project.
     let input = JSON.parse(req.params.id)
@@ -162,7 +162,7 @@ router.route('/projectstWithLicense/:id')
   })
 
 // ----------------------------------------------------------------------------
-//  Methods for /projects/projectstWithComponent/:id
+//  Methods for /projects/projectsWithComponent/:id
 // ----------------------------------------------------------------------------
 router.route('/projectsWithComponent/:id')
   .get((req, res) => {
@@ -177,9 +177,9 @@ router.route('/projectsWithComponent/:id')
   })
 
 // ----------------------------------------------------------------------------
-//  Methods for /projects/projectstWithProduct/:id
+//  Methods for /projects/projectsWithProduct/:id
 // ----------------------------------------------------------------------------
-router.route('/projectstWithProduct/:id')
+router.route('/projectsWithProduct/:id')
   .get((req, res) => {
     // precondition: product exists and is connected with atleast one project.
     let input = JSON.parse(req.params.id)
