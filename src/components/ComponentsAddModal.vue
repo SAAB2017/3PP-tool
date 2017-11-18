@@ -4,7 +4,7 @@
     <div class="control" style="padding-top: 25px">
       <a @click="showModal()" class="button is-primary">Add component</a>
     </div>
-    <div id="modal" class="modal">
+    <div id="modal-components" class="modal">
       <div class="modal-background" @click="closeModal()"></div>
       <div class="modal-card" style="text-align: center">
         <header class="modal-card-head">
@@ -27,24 +27,22 @@
 
           <!-- Table for picking licenses to bind to the component. Shows all approved
           licenses but becomes scrollable after reaching max-size (because of class="vertical-menu") -->
-          <div style="max-height: 200px;">
             <table>
               <thead>
               <tr>
-                <td></td>
-                <th>License</th>
-                <th>Version</th>
+                <td style="width: 25px"></td>
+                <th scope="col">License</th>
+                <th scope="col">Version</th>
               </tr>
               </thead>
-              <tbody>
+              <tbody class="tbodyadd">
               <tr v-for="license in licenses">
-                <td style="text-align: center"><input class="checkbox" type="checkbox" v-bind:value=license.id v-model.number="checkedLicenses"></td>
-                <td>{{ license.licenseName }}</td>
-                <td>{{ license.licenseVersion }}</td>
+                <td style="width: 25px"><input class="checkbox" type="checkbox" v-bind:value=license.id v-model.number="checkedLicenses"></td>
+                <td scope="row" data-label="License">{{ license.licenseName }}</td>
+                <td scope="row" data-label="Version">{{ license.licenseVersion }}</td>
               </tr>
               </tbody>
             </table>
-          </div>
           <!-- Field for searching for licenses. Uses "searchLicense"-method for searching -->
           <div class="field has-addons" style="padding-top: 15px">
             <div class="control">
@@ -135,12 +133,12 @@
       },
 
       showModal() {
-        var d = document.getElementById("modal")
+        var d = document.getElementById("modal-components")
         d.classList.add("is-active")
        },
 
       closeModal() {
-        var d = document.getElementById("modal")
+        var d = document.getElementById("modal-components")
         d.classList.remove("is-active")
       }
     }

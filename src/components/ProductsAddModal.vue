@@ -4,7 +4,7 @@
     <div class="control" style="padding-top: 25px">
       <a @click="showModal()" class="button is-primary">Add product</a>
     </div>
-    <div id="modal" class="modal">
+    <div id="modal-products" class="modal">
       <div class="modal-background" @click="closeModal()"></div>
       <div class="modal-card" style="text-align: center">
         <header class="modal-card-head">
@@ -15,7 +15,7 @@
           <!-- Fields for adding name and version to the product -->
           <div class="field">
             <p class="control">
-              <input v-model="product" class="input" type="text" placeholder="Name">
+              <input v-model="productName" class="input" type="text" placeholder="Name">
             </p>
           </div>
           <div class="field">
@@ -26,24 +26,22 @@
 
           <!-- Table for picking components to bind to the product. Shows all approved
           components but becomes scrollable after reaching max-size (because of class="vertical-menu") -->
-          <div class="vertical-menu" style="max-height: 200px; height: auto">
             <table>
               <thead>
               <tr>
-                <td></td>
-                <th>Component</th>
-                <th>Version</th>
+                <td style="width: 25px"></td>
+                <th scope="col">Component</th>
+                <th scope="col">Version</th>
               </tr>
               </thead>
-              <tbody>
+              <tbody class="tbodyadd">
               <tr v-for="component in components">
-                <td style="text-align: center"><input class="checkbox" type="checkbox" id="cComponentID"/></td>
-                <td>{{ component.componentName }}</td>
-                <td>{{ component.componentVersion }}</td>
+                <td style="width: 25px"><input class="checkbox" type="checkbox" v-bind:value=component.id v-model.number="checkedComponents"/></td>
+                <td scope="row" data-label="Component">{{ component.componentName }}</td>
+                <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
               </tr>
               </tbody>
             </table>
-          </div>
           <!-- Field for searching for components. Uses "searchComponent"-method for searching -->
           <div class="field has-addons" style="padding-top: 15px">
             <div class="control">
@@ -77,9 +75,10 @@
     data() {
       return {
         components: [],
-        product: null,
-        productVersion: null,
-        productComment: null
+        checkedComponents: [],
+        productName: '',
+        productVersion: '',
+        productComment: ''
       }
     },
     /* Fetches components from the database and puts them in components */
@@ -100,20 +99,21 @@
       /**
        * Add a product to the database according to the fields in the view
        */
-      addProduct() {
+      addProduct () {
         let data = {
-          productName: this.product,
+          productName: this.productName,
           productVersion: this.productVersion,
-          comment: this.productComment
-          // TODO put components for add.
+          comment: this.productComment,
+          components: this.checkedComponents
         }
 
-        axios.post(this.$baseAPI + 'products', data)
+        axios.post(this.$baseAPI + 'products/add', data)
           .then(response => {
-            if (response.data === "success") {
-              this.product = null
-              this.productVersion = null
-              this.productComment = null
+            if (response.responseData.status === "success") {
+              this.productName = ''
+              this.productVersion = ''
+              this.productComment = ''
+              this.componentList = []
 
               axios.get(this.$baseAPI + 'products')
                 .then(response => {
@@ -133,12 +133,12 @@
       },
 
       showModal() {
-        var d = document.getElementById("modal")
+        var d = document.getElementById("modal-products")
         d.classList.add("is-active")
       },
 
       closeModal() {
-        var d = document.getElementById("modal")
+        var d = document.getElementById("modal-products")
         d.classList.remove("is-active")
       }
     }
