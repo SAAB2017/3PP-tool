@@ -16,7 +16,7 @@
           <!-- Fields for adding name and version to the project -->
           <div class="field">
             <p class="control">
-              <input v-model="project" class="input" type="text" placeholder="Name">
+              <input v-model="projectName" class="input" type="text" placeholder="Name">
             </p>
           </div>
           <div class="field">
@@ -37,7 +37,7 @@
               </thead>
               <tbody class="tbodyadd">
               <tr v-for="product in products">
-                <td style="width: 25px"><input class="checkbox" type="checkbox" id="cProductID"/></td>
+                <td style="width: 25px"><input class="checkbox" type="checkbox" v-bind:value=product.id v-model.number="checkedProducts"></td>
                 <td scope="row" data-label="Product">{{ product.productName }}</td>
                 <td scope="row" data-label="Version">{{ product.productVersion }}</td>
               </tr>
@@ -76,9 +76,10 @@
     data() {
       return {
         products: [],
-        project: null,
-        projectVersion: null,
-        projectComment: null
+        checkedProducts: [],
+        projectName: '',
+        projectVersion: '',
+        projectComment: ''
       }
     },
     /* Fetches products from the database and puts them in products */
@@ -101,23 +102,19 @@
        */
       addProject() {
         let data = {
-          projectName: this.project,
+          projectName: this.projectName,
           projectVersion: this.projectVersion,
-          comment: this.componentVersion
-          // TODO put products for add.
+          comment: this.projectComment,
+          products: this.checkedProducts
         }
 
-        axios.post(this.$baseAPI + 'projects', data)
+        axios.post(this.$baseAPI + 'projects/add', data)
           .then(response => {
-            if (response.data === "success") {
-              this.project = null
-              this.projectVersion = null
-              this.projectComment = null
-
-              axios.get(this.$baseAPI + 'projects')
-                .then(response => {
-                  this.project = response.data
-                })
+            if (response.responseData.status === "success") {
+              this.projectName = ''
+              this.projectVersion = ''
+              this.projectComment = ''
+              this.checkedProducts = []
             }
           })
         this.closeModal()
