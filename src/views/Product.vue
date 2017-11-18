@@ -153,7 +153,6 @@
      * then fetch licenses, components and projects
      */
     mounted () {
-      console.log("ID:" + this.$route.params.id)
       axios.get(this.$baseAPI + 'products/' + this.$route.params.id)
         .then(response => {
           this.product = response.data
@@ -168,21 +167,27 @@
        * Fetch all licenses that is in this product
        */
       fetchLicenses(){
-        // TODO Implement
+        axios.get(this.$baseAPI + 'licenses/licensesInProduct/' + JSON.stringify(this.$route.params.id)).then(response => {
+          this.licenses = response.data
+        })
       },
 
       /**
        * Fetch all components that is in this product
        */
       fetchComponents(){
-        // TODO Implement
+        axios.get(this.$baseAPI + 'licenses/componentsInProduct/' + JSON.stringify(this.$route.params.id)).then(response => {
+          this.components = response.data
+        })
       },
 
       /**
        * Fetch all projects that contains this product
        */
       fetchProjects(){
-        // TODO Implement
+        axios.get(this.$baseAPI + 'licenses/projectsWithProduct/' + JSON.stringify(this.$route.params.id)).then(response => {
+        this.components = response.data
+      })
       },
       /**
        * Update this product with new values
