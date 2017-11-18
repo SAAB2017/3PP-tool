@@ -22,7 +22,7 @@
           <th scope="col">Last edited</th>
         </tr>
         </thead>
-        <tbody>
+        <tbody class="tbodyhome">
         <tr v-for="component in components" @click="displayComponent(component)">
           <td scope="row" data-label="Component">{{ component.componentName }}</td>
           <td scope="row" data-label="Version">{{ component.componentVersion }}</td>

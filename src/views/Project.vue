@@ -144,7 +144,7 @@
         project: {},
         licenses: [],
         components: [],
-        projects: [],
+        products: [],
         message: ''
       }
     },
@@ -153,7 +153,6 @@
       axios.get(this.$baseAPI + 'projects/' + this.$route.params.id)
         .then(response => {
           this.project = response.data
-          this.message = response.message
           this.fetchLicenses()
           this.fetchComponents()
           this.fetchProducts()
@@ -165,21 +164,27 @@
        * Fetch all licenses that is in this project
        */
       fetchLicenses(){
-        // TODO Implement
+        axios.get(this.$baseAPI + 'licenses/licensesInProject/' + JSON.stringify(this.$route.params.id)).then(response => {
+          this.licenses = response.data
+        })
       },
 
       /**
        * Fetch all components that is in this project
        */
       fetchComponents(){
-        // TODO Implement
+        axios.get(this.$baseAPI + 'licenses/componentInProject/' + JSON.stringify(this.$route.params.id)).then(response => {
+          this.components = response.data
+        })
       },
 
       /**
        * Fetch all products that is in this project
        */
       fetchProducts(){
-        // TODO Implement
+        axios.get(this.$baseAPI + 'licenses/productsInProject/' + JSON.stringify(this.$route.params.id)).then(response => {
+          this.products = response.data
+        })
       },
 
       /**
