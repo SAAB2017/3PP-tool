@@ -13,7 +13,7 @@
           <th scope="col">Last edited</th>
         </tr>
         </thead>
-        <tbody>
+        <tbody class="tbodyhome">
         <tr v-for="product in products" @click="displayComponent(product)">
           <td scope="row" data-label="Product">{{ product.productName }}</td>
           <td scope="row" data-label="Version">{{ product.productVersion }}</td>

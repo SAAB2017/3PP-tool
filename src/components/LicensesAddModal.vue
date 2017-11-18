@@ -4,7 +4,7 @@
     <div class="control" style="padding-top: 25px">
       <a @click="showModal()" class="button is-primary">Add license</a>
     </div>
-    <div id="modal" class="modal">
+    <div id="modal-licenses" class="modal">
       <div class="modal-background" @click="closeModal()"></div>
       <div class="modal-card" style="text-align: center">
         <header class="modal-card-head">
@@ -101,12 +101,12 @@
       },
 
       showModal() {
-        var d = document.getElementById("modal")
+        var d = document.getElementById("modal-licenses")
         d.classList.add("is-active")
       },
 
       closeModal() {
-        var d = document.getElementById("modal")
+        var d = document.getElementById("modal-licenses")
         d.classList.remove("is-active")
       }
     }
