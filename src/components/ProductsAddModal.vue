@@ -15,7 +15,7 @@
           <!-- Fields for adding name and version to the product -->
           <div class="field">
             <p class="control">
-              <input v-model="product" class="input" type="text" placeholder="Name">
+              <input v-model="productName" class="input" type="text" placeholder="Name">
             </p>
           </div>
           <div class="field">
@@ -36,7 +36,7 @@
               </thead>
               <tbody class="tbodyadd">
               <tr v-for="component in components">
-                <td style="width: 25px"><input class="checkbox" type="checkbox" id="cComponentID"/></td>
+                <td style="width: 25px"><input class="checkbox" type="checkbox" v-bind:value=component.id v-model.number="checkedComponents"/></td>
                 <td scope="row" data-label="Component">{{ component.componentName }}</td>
                 <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
               </tr>
@@ -75,9 +75,10 @@
     data() {
       return {
         components: [],
-        product: null,
-        productVersion: null,
-        productComment: null
+        checkedComponents: [],
+        productName: '',
+        productVersion: '',
+        productComment: ''
       }
     },
     /* Fetches components from the database and puts them in components */
@@ -98,20 +99,21 @@
       /**
        * Add a product to the database according to the fields in the view
        */
-      addProduct() {
+      addProduct () {
         let data = {
-          productName: this.product,
+          productName: this.productName,
           productVersion: this.productVersion,
-          comment: this.productComment
-          // TODO put components for add.
+          comment: this.productComment,
+          components: this.checkedComponents
         }
 
-        axios.post(this.$baseAPI + 'products', data)
+        axios.post(this.$baseAPI + 'products/add', data)
           .then(response => {
-            if (response.data === "success") {
-              this.product = null
-              this.productVersion = null
-              this.productComment = null
+            if (response.responseData.status === "success") {
+              this.productName = ''
+              this.productVersion = ''
+              this.productComment = ''
+              this.componentList = []
 
               axios.get(this.$baseAPI + 'products')
                 .then(response => {
