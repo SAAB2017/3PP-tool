@@ -421,13 +421,13 @@ function getInsertProductParameters(req, parametersText, parameters, callback) {
   }
   //Check if dateCreated was provided
   if (req.body.hasOwnProperty('dateCreated')) {
-    parameters.push(new Date().toDateString())
+    parameters.push(new Date().toLocaleDateString())
     parametersText.push('dateCreated')
     date[0] = true
   }
   //Check if lastEdited was provided
   if (req.body.hasOwnProperty('lastEdited')) {
-    parameters.push(new Date().toDateString())
+    parameters.push(new Date().toLocaleDateString())
     parametersText.push('lastEdited')
     date[1] = true
   }
@@ -445,12 +445,12 @@ function getInsertProductParameters(req, parametersText, parameters, callback) {
   //If dateCreated wasn't provided then provide it
   if (!date[0]) {
     parametersText.push('dateCreated')
-    parameters.push(new Date().toDateString())
+    parameters.push(new Date().toLocaleDateString())
   }
   //If lastEdited wasn't provided then provide it
   if (!date[1]) {
     parametersText.push('lastEdited')
-    parameters.push(new Date().toDateString())
+    parameters.push(new Date().toLocaleDateString())
   }
   let obj = [parametersText, parameters]
   callback(obj);
@@ -543,7 +543,7 @@ function getComponent(req, res, componentName, componentVersion, id, callback) {
 
 //Insert a new row into productLog
 function insertProductLog(req, res, id, text, callback) {
-  let parametersLog = [id, new Date().toDateString(), text]
+  let parametersLog = [id, new Date().toLocaleDateString(), text]
   let queryLog = "INSERT INTO productLog (productID, dateLogged, note) VALUES (?, ?, ?);"
   req.db.run((queryLog), parametersLog, (error) => {
     if (error) {
@@ -632,7 +632,7 @@ function getUpdateProductParameters(req, parametersText, parameters, approved, c
 
   if (req.body.hasOwnProperty('lastEdited')) {
 
-    parameters.push(new Date().toDateString())
+    parameters.push(new Date().toLocaleDateString())
     parametersText.push('lastEdited')
     date = true
   }
@@ -665,7 +665,7 @@ function getUpdateProductParameters(req, parametersText, parameters, approved, c
   //If lastEdited wasn't provided then provide it
   if (!date) {
     parametersText.push('lastEdited')
-    parameters.push(new Date().toDateString())
+    parameters.push(new Date().toLocaleDateString())
   }
   let obj = [approved, parameters, parametersText]
   callback(obj);

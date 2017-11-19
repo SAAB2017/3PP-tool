@@ -614,7 +614,7 @@ function getUpdateComponentParameters(req, parametersText, parameters, approved,
 
   if (req.body.hasOwnProperty('lastEdited')) {
 
-    parameters.push(new Date().toDateString())
+    parameters.push(new Date().toLocaleDateString())
     parametersText.push('lastEdited')
     date = true
   }
@@ -647,7 +647,7 @@ function getUpdateComponentParameters(req, parametersText, parameters, approved,
   //If lastEdited wasn't provided then provide it
   if (!date) {
     parametersText.push('lastEdited')
-    parameters.push(new Date().toDateString())
+    parameters.push(new Date().toLocaleDateString())
   }
   let obj = [approved, parameters, parametersText]
   callback(obj);

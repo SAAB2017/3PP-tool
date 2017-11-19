@@ -72,7 +72,7 @@ router.route('/')
       } else {
 
         // Log the creation of the license.
-        values = [licenseID, new Date().toDateString(), "License created."]
+        values = [licenseID, new Date().toLocaleDateString(), "License created."]
         query = "INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES (?, ?, ?)"
 
         req.db.run(query, values, (error) => {
@@ -127,36 +127,39 @@ router.route('/add')
 
     const query = `INSERT INTO licenses (licenseName, licenseVersion, dateCreated, lastEdited, URL, comment, licenseType) VALUES ('${lic.licenseName}', '${lic.licenseVersion}', '${date}', '${date}', '${lic.URL}', '${lic.comment}', '${lic.licenseType}')`
     // Send the license to the database.
-    req.db.run(query, (error) => {
-      if (error) {
-        console.log(error.message)
-        res.status(500)
-        res.send(error.message)
-      } else {
-        let licenseID = 1
-        const queryGetID = "SELECT MAX(id) AS 'id' FROM licenses"
-        req.db.get(queryGetID, (error, row) => {
-          if (error) {
-            // If there's an error then provide the error message and the different attributes that could have caused it.
-            res.send("ERROR! error message:" + error.message + " query: " + queryGetID)
-          } else {
-            licenseID += row.id
-          }
-        })
-        // Log the creation of the license.
-        const logquery = `INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES (${licenseID}, '${date}', 'License created.')`
-        req.db.run(logquery, (error) => {
-          if (error) {
-            console.log(error.message)
-            res.status(500)
-            res.send(error.message)
-          } else {
-            console.log("Success!")
-            res.status(201)
-            res.send('success')
-          }
-        })
-      }
+    req.db.run('begin', () => {
+      req.db.run(query, (error) => {
+        if (error) {
+          console.log(error.message)
+          res.status(500)
+          res.send(error.message)
+        } else {
+          let licenseID = 1
+          const queryGetID = "SELECT MAX(id) AS 'id' FROM licenses"
+          req.db.get(queryGetID, (error, row) => {
+            if (error) {
+              // If there's an error then provide the error message and the different attributes that could have caused it.
+              res.send("ERROR! error message:" + error.message + " query: " + queryGetID)
+            } else {
+              licenseID += row.id
+            }
+          })
+          // Log the creation of the license.
+          const logquery = `INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES (${licenseID}, '${date}', 'License created.')`
+          req.db.run(logquery, (error) => {
+            if (error) {
+              console.log(error.message)
+              res.status(500)
+              res.send(error.message)
+            } else {
+              console.log("Success!")
+              req.db.run('commit')
+              res.status(201)
+              res.send('success')
+            }
+          })
+        }
+      })
     })
     // postcondition: component created and logged.
   })

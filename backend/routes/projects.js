@@ -208,15 +208,22 @@ router.route('/log/:id')
 // ----------------------------------------------------------------------------
 //  Methods for /projects/search/:id
 // ----------------------------------------------------------------------------
+
 router.route('/search/:id')
-
   .get((req, res) => {
-    let input = req.params.id
-    let parametersText = Object.keys(input)
-    let parameters = []
-
-    getProjectFromParameters(req, res, input, parametersText, parameters)
-
+    // precondition: parameter is wellformed
+    const query = `select * from projects where projectName LIKE "%${req.params.id}%"`
+    console.log(query)
+    req.db.all(query, (err, rows) => {
+      if (err) {
+        console.log(err)
+        res.status(404)
+        res.send("ERROR! error message:" + err.message + ", query: " + query)
+      } else {
+        res.status(200)
+        res.json(rows)
+      }
+    })
   })
 
 module.exports = router
