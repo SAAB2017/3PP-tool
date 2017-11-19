@@ -75,9 +75,9 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="license in licenses">
-                  <td scope="row" data-label="License">{{ license.licenseName }}</td>
-                  <td scope="row" data-label="Version">{{ license.licenseVersion }}</td>
+                <tr v-for="lic in licenses">
+                  <td scope="row" data-label="License">{{ lic.licenseName }}</td>
+                  <td scope="row" data-label="Version">{{ lic.licenseVersion }}</td>
                 </tr>
                 </tbody>
               </table>
@@ -93,9 +93,9 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="component in components">
-                  <td scope="row" data-label="Component">{{ component.componentName }}</td>
-                  <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
+                <tr v-for="comp in components">
+                  <td scope="row" data-label="Component">{{ comp.componentName }}</td>
+                  <td scope="row" data-label="Version">{{ comp.componentVersion }}</td>
                 </tr>
                 </tbody>
               </table>
@@ -166,8 +166,8 @@
       /**
        * Fetch all licenses that is in this product
        */
-      fetchLicenses(){
-        axios.get(this.$baseAPI + 'licenses/licensesInProduct/' + JSON.stringify(this.$route.params.id)).then(response => {
+      fetchLicenses (){
+        axios.get(this.$baseAPI + 'licenses/licensesInProduct/' + this.$route.params.id).then(response => {
           this.licenses = response.data
         })
       },
@@ -176,7 +176,7 @@
        * Fetch all components that is in this product
        */
       fetchComponents(){
-        axios.get(this.$baseAPI + 'licenses/componentsInProduct/' + JSON.stringify(this.$route.params.id)).then(response => {
+        axios.get(this.$baseAPI + 'components/componentsInProduct/' + this.$route.params.id).then(response => {
           this.components = response.data
         })
       },
@@ -185,9 +185,9 @@
        * Fetch all projects that contains this product
        */
       fetchProjects(){
-        axios.get(this.$baseAPI + 'licenses/projectsWithProduct/' + JSON.stringify(this.$route.params.id)).then(response => {
-        this.components = response.data
-      })
+        axios.get(this.$baseAPI + 'projects/projectsWithProduct/' + this.$route.params.id).then(response => {
+          this.projects = response.data
+        })
       },
       /**
        * Update this product with new values

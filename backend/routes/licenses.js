@@ -72,7 +72,7 @@ router.route('/')
       } else {
 
         // Log the creation of the license.
-        values = [licenseID, new Date().toDateString(), "License created."]
+        values = [licenseID, new Date().toLocaleDateString(), "License created."]
         query = "INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES (?, ?, ?)"
 
         req.db.run(query, values, (error) => {
@@ -119,7 +119,7 @@ router.route('/search/:id')
 // ----------------------------------------------------------------------------
 router.route('/add')
   .post((req, res) => {
-    // pre-condition: 
+    // pre-condition:
     // TODO: validate request
     const lic = req.body
     const date = new Date().toLocaleDateString()
@@ -127,48 +127,50 @@ router.route('/add')
 
     const query = `INSERT INTO licenses (licenseName, licenseVersion, dateCreated, lastEdited, URL, comment, licenseType) VALUES ('${lic.licenseName}', '${lic.licenseVersion}', '${date}', '${date}', '${lic.URL}', '${lic.comment}', '${lic.licenseType}')`
     // Send the license to the database.
-    req.db.run(query, (error) => {
-      if (error) {
-        console.log(error.message)
-        res.status(500)
-        res.send(error.message)
-      } else {
-        let licenseID = 1
-        const queryGetID = "SELECT MAX(id) AS 'id' FROM licenses"
-        req.db.get(queryGetID, (error, row) => {
-          if (error) {
-            // If there's an error then provide the error message and the different attributes that could have caused it.
-            res.send("ERROR! error message:" + error.message + " query: " + queryGetID)
-          } else {
-            licenseID += row.id
-          }
-        })
-        // Log the creation of the license.
-        const logquery = `INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES (${licenseID}, '${date}', 'License created.')`
-        req.db.run(logquery, (error) => {
-          if (error) {
-            console.log(error.message)
-            res.status(500)
-            res.send(error.message)
-          } else {
-            console.log("Success!")
-            res.status(201)
-            res.send('success')
-          }
-        })
-      }
+    req.db.run('begin', () => {
+      req.db.run(query, (error) => {
+        if (error) {
+          console.log(error.message)
+          res.status(500)
+          res.send(error.message)
+        } else {
+          let licenseID = 1
+          const queryGetID = "SELECT MAX(id) AS 'id' FROM licenses"
+          req.db.get(queryGetID, (error, row) => {
+            if (error) {
+              // If there's an error then provide the error message and the different attributes that could have caused it.
+              res.send("ERROR! error message:" + error.message + " query: " + queryGetID)
+            } else {
+              licenseID += row.id
+            }
+          })
+          // Log the creation of the license.
+          const logquery = `INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES (${licenseID}, '${date}', 'License created.')`
+          req.db.run(logquery, (error) => {
+            if (error) {
+              console.log(error.message)
+              res.status(500)
+              res.send(error.message)
+            } else {
+              console.log("Success!")
+              req.db.run('commit')
+              res.status(201)
+              res.send('success')
+            }
+          })
+        }
+      })
     })
     // postcondition: component created and logged.
   })
-  
-  
+
+
 // ----------------------------------------------------------------------------
 //  Methods for /componentLicenses/:id
 // ----------------------------------------------------------------------------
 router.route('/licensesInComponent/:id')
   .get((req, res) => {
-    console.log(req.params.id)
-    let componentID = JSON.parse(req.params.id)
+    let componentID = req.params.id
     console.log(componentID)
     let query = `SELECT licenseID, licenseName, licenseVersion, dateCreated, lastEdited, comment, URL FROM  licenses INNER JOIN licensesInComponents ON licenses.id=licensesInComponents.licenseID WHERE 
     componentID=${componentID}`
@@ -183,13 +185,10 @@ router.route('/licensesInComponent/:id')
 router.route('/log/:id')
   .get((req, res) => {
     // precondition: license exists.
-    let input = JSON.parse(req.params.id)
-    let parametersText = Object.keys(input)
-    let parameters = []
-
-    if (input.id != null) {
+    let input = req.params.id
+    if (input != null) {
       //Get the license log
-      getLicenseLog(req, res, input.id)
+      getLicenseLog(req, res, input)
     }
     // postcondition: the log entries of the license
   })
@@ -200,12 +199,10 @@ router.route('/licensesInProduct/:id')
   .get((req, res) => {
     // precondition: the product must exists and it must also be connected to atleast one component.
     //This component must inturn be connected to a license.
-    let input = JSON.parse(req.params.id)
-    let parametersText = Object.keys(input)
-    let parameters = []
-    if (input.id != null) {
+    let input = req.params.id
+    if (input != null) {
       //Get licenses from the product
-      getLicensesFromProduct(req, res, input.id)
+      getLicensesFromProduct(req, res, input)
     }
     // postcondition: licenses connected to the product.
   })
@@ -216,12 +213,10 @@ router.route('/licensesInProject/:id').get((req, res) => {
   // precondition: the project must exists and it must also be connected to atleast one product.
   //This product must inturn be connected to a component.
   //Which also must be connected to a license.
-  let input = JSON.parse(req.params.id)
-  let parametersText = Object.keys(input)
-  let parameters = []
-  if (input.id != null) {
+  let input = req.params.id
+  if (input != null) {
     //Get licenses from the project
-    getLicensesFromProject(req, res, input.id)
+    getLicensesFromProject(req, res, input)
   }
   // postcondition: licenses connected to the project.
 })

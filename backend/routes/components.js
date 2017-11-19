@@ -304,11 +304,10 @@ router.route('/connectLicenseWithComponent')
 router.route('/componentsInProduct/:id')
   .get((req, res) => {
     // precondition: product exists and it has components connected to it..
-    let input = JSON.parse(req.params.id)
-
-    if (input.id != null) {
+    let input = req.params.id
+    if (input != null) {
       //Get components from the product
-      getComponentsFromProduct(req, res, input.id)
+      getComponentsFromProduct(req, res, input)
     }
     // postcondition: components connected to the product.
   })
@@ -319,11 +318,11 @@ router.route('/componentsInProduct/:id')
 router.route('/componentsInProject/:id')
   .get((req, res) => {
     // precondition: project exists and it has atleast one product connected to it. The product/s in turn must have components connected to it.
-    let input = JSON.parse(req.params.id)
+    let input = req.params.id
 
-    if (input.id != null) {
+    if (input != null) {
       //Get components from the product
-      getComponentsFromProject(req, res, input.id)
+      getComponentsFromProject(req, res, input)
     }
     // postcondition: components connected to the project.
   })
@@ -334,11 +333,11 @@ router.route('/componentsInProject/:id')
 router.route('/componentsWithLicense/:id')
 .get((req, res) => {
   // precondition: License exists and is connected with atleast one component.
-  let input = JSON.parse(req.params.id)
+  let input = req.params.id
 
-  if (input.id != null) {
+  if (input != null) {
     //Get components from the product
-    getComponentsWithLicense(req, res, input.id)
+    getComponentsWithLicense(req, res, input)
   }
   // postcondition: components with license connected to it.
 })
@@ -349,11 +348,10 @@ router.route('/componentsWithLicense/:id')
 router.route('/log/:id')
 .get((req, res) => {
   // precondition: component exists.
-  let input = JSON.parse(req.params.id)
-
-  if (input.id != null) {
+  let input = req.params.id
+  if (input != null) {
     //Get the component log
-    getComponentLog(req, res, input.id)
+    getComponentLog(req, res, input)
   }
   // postcondition: the log entries of the component
 })
@@ -551,8 +549,9 @@ function getComponentsWithLicense(req, res, id) {
     if (err) {
       // If there's an error then provide the error message and the different attributes that could have caused it.
       res.send("ERROR! error message:" + err.message + ", query: " + query)
-    } else
+    } else {
       res.json(rows)
+    }
   })
 }
 
@@ -616,7 +615,7 @@ function getUpdateComponentParameters(req, parametersText, parameters, approved,
 
   if (req.body.hasOwnProperty('lastEdited')) {
 
-    parameters.push(new Date().toDateString())
+    parameters.push(new Date().toLocaleDateString())
     parametersText.push('lastEdited')
     date = true
   }
@@ -649,7 +648,7 @@ function getUpdateComponentParameters(req, parametersText, parameters, approved,
   //If lastEdited wasn't provided then provide it
   if (!date) {
     parametersText.push('lastEdited')
-    parameters.push(new Date().toDateString())
+    parameters.push(new Date().toLocaleDateString())
   }
   let obj = [approved, parameters, parametersText]
   callback(obj);
