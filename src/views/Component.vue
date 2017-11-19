@@ -93,9 +93,9 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                  <td scope="row" data-label="Product">Test Name</td>
-                  <td scope="row" data-label="Version">1.0</td>
+                <tr v-for="p in products">
+                  <td scope="row" data-label="License"> {{ p.productName }}</td>
+                  <td scope="row" data-label="Version">{{ p.productVersion }}</td>
                 </tr>
                 </tbody>
               </table>
@@ -109,11 +109,12 @@
                   <th scope="col">Component in projects</th>
                   <th scope="col">Version</th>
                 </tr>
+
                 </thead>
                 <tbody>
-                <tr>
-                  <td scope="row" data-label="Project">Test Name</td>
-                  <td scope="row" data-label="Version">1.0</td>
+                <tr v-for="pro in projects">
+                  <td scope="row" data-label="License"> {{ pro.projectName }}</td>
+                  <td scope="row" data-label="Version">{{ pro.projectVersion }}</td>
                 </tr>
                 </tbody>
               </table>
@@ -143,6 +144,8 @@
       return {
         component: {},
         licenses: [],
+        products: [],
+        projects: [],
         message: ''
       }
     },
@@ -153,6 +156,8 @@
         .then(response => {
           this.component = response.data
           this.fetchLicenses()
+          this.fetchProducts()
+          this.fetchProjects()
         })
     },
 
@@ -161,7 +166,7 @@
        * Fetch all licenses that is in this component
        */
       fetchLicenses () {
-        axios.get(this.$baseAPI + 'licenses/licensesInComponent/' + JSON.stringify(this.$route.params.id)).then(response => {
+        axios.get(this.$baseAPI + 'licenses/licensesInComponent/' + this.$route.params.id).then(response => {
           this.licenses = response.data
         })
       },
@@ -170,7 +175,18 @@
        * Fetch all products that contains this component
        */
       fetchProducts() {
+        axios.get(this.$baseAPI + 'products/productsWithComponent/' + this.$route.params.id).then(response => {
+          this.products = response.data
+        })
+      },
 
+      /**
+       * Fetch all project that contains this component
+       */
+      fetchProjects() {
+        axios.get(this.$baseAPI + 'projects/projectsWithComponent/' + this.$route.params.id).then(response => {
+          this.projects = response.data
+        })
       },
       /**
        * Update this component with new values

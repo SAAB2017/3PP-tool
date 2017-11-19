@@ -152,11 +152,11 @@ router.route('/connectProductWithProject')
 router.route('/projectsWithLicense/:id')
   .get((req, res) => {
     // precondition: license exists and is connected with atleast one project.
-    let input = JSON.parse(req.params.id)
+    let input = req.params.id
 
-    if (input.id != null) {
+    if (input != null) {
       //Get projects connected to the license
-      getProjectsWithLicense(req, res, input.id)
+      getProjectsWithLicense(req, res, input)
     }
     // postcondition: projects with the license connected to it.
   })
@@ -167,11 +167,10 @@ router.route('/projectsWithLicense/:id')
 router.route('/projectsWithComponent/:id')
   .get((req, res) => {
     // precondition: component exists and is connected with atleast one project.
-    let input = JSON.parse(req.params.id)
-
-    if (input.id != null) {
+    let input = req.params.id
+    if (input != null) {
       //Get projects connected to the component
-      getProjectsWithComponent(req, res, input.id)
+      getProjectsWithComponent(req, res, input)
     }
     // postcondition: projects with the components connected to it.
   })
@@ -182,11 +181,11 @@ router.route('/projectsWithComponent/:id')
 router.route('/projectsWithProduct/:id')
   .get((req, res) => {
     // precondition: product exists and is connected with atleast one project.
-    let input = JSON.parse(req.params.id)
+    let input = req.params.id
 
-    if (input.id != null) {
+    if (input != null) {
       //Get projects connected to the product
-      getProjectsWithProduct(req, res, input.id)
+      getProjectsWithProduct(req, res, input)
     }
     // postcondition: projects with the product connected to it.
   })
@@ -197,13 +196,11 @@ router.route('/projectsWithProduct/:id')
 router.route('/log/:id')
   .get((req, res) => {
     // precondition: project exists.
-    let input = JSON.parse(req.params.id)
-    let parametersText = Object.keys(input)
-    let parameters = []
+    let input = req.params.id
 
-    if (input.id != null) {
+    if (input != null) {
       //Get the project log
-      getProjectLog(req, res, input.id)
+      getProjectLog(req, res, input)
     }
     // postcondition: the log entries of the project
   })
@@ -214,7 +211,7 @@ router.route('/log/:id')
 router.route('/search/:id')
 
   .get((req, res) => {
-    let input = JSON.parse(req.params.id)
+    let input = req.params.id
     let parametersText = Object.keys(input)
     let parameters = []
 
@@ -476,8 +473,11 @@ function getProjectsWithComponent(req, res, id) {
     if (err) {
       console.log(error.message)
       res.status(500).send(error.message)
-    } else
+    }
+    else {
+      console.log("MOTERFUCKER" + rows)
       res.send(rows)
+    }
   })
 }
 
@@ -486,7 +486,6 @@ function getProjectsWithProduct(req, res, id) {
   let query = "SELECT DISTINCT projectID AS id, projectName, projectVersion, dateCreated, lastEdited, comment FROM projects LEFT OUTER JOIN productsInProjects ON projects.id=productsInProjects.projectID"
 
   query += " WHERE productID = ?;"
-
 
   req.db.all(query, [id], (err, rows) => {
     if (err) {

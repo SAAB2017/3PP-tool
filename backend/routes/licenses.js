@@ -119,7 +119,7 @@ router.route('/search/:id')
 // ----------------------------------------------------------------------------
 router.route('/add')
   .post((req, res) => {
-    // pre-condition: 
+    // pre-condition:
     // TODO: validate request
     const lic = req.body
     const date = new Date().toLocaleDateString()
@@ -160,15 +160,14 @@ router.route('/add')
     })
     // postcondition: component created and logged.
   })
-  
-  
+
+
 // ----------------------------------------------------------------------------
 //  Methods for /componentLicenses/:id
 // ----------------------------------------------------------------------------
 router.route('/licensesInComponent/:id')
   .get((req, res) => {
-    console.log(req.params.id)
-    let componentID = JSON.parse(req.params.id)
+    let componentID = req.params.id
     console.log(componentID)
     let query = `SELECT licenseID, licenseName, licenseVersion, dateCreated, lastEdited, comment, URL FROM  licenses INNER JOIN licensesInComponents ON licenses.id=licensesInComponents.licenseID WHERE 
     componentID=${componentID}`
@@ -183,13 +182,10 @@ router.route('/licensesInComponent/:id')
 router.route('/log/:id')
   .get((req, res) => {
     // precondition: license exists.
-    let input = JSON.parse(req.params.id)
-    let parametersText = Object.keys(input)
-    let parameters = []
-
-    if (input.id != null) {
+    let input = req.params.id
+    if (input != null) {
       //Get the license log
-      getLicenseLog(req, res, input.id)
+      getLicenseLog(req, res, input)
     }
     // postcondition: the log entries of the license
   })
@@ -200,12 +196,10 @@ router.route('/licensesInProduct/:id')
   .get((req, res) => {
     // precondition: the product must exists and it must also be connected to atleast one component.
     //This component must inturn be connected to a license.
-    let input = JSON.parse(req.params.id)
-    let parametersText = Object.keys(input)
-    let parameters = []
-    if (input.id != null) {
+    let input = req.params.id
+    if (input != null) {
       //Get licenses from the product
-      getLicensesFromProduct(req, res, input.id)
+      getLicensesFromProduct(req, res, input)
     }
     // postcondition: licenses connected to the product.
   })
@@ -216,12 +210,10 @@ router.route('/licensesInProject/:id').get((req, res) => {
   // precondition: the project must exists and it must also be connected to atleast one product.
   //This product must inturn be connected to a component.
   //Which also must be connected to a license.
-  let input = JSON.parse(req.params.id)
-  let parametersText = Object.keys(input)
-  let parameters = []
-  if (input.id != null) {
+  let input = req.params.id
+  if (input != null) {
     //Get licenses from the project
-    getLicensesFromProject(req, res, input.id)
+    getLicensesFromProject(req, res, input)
   }
   // postcondition: licenses connected to the project.
 })

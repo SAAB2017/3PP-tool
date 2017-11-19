@@ -182,6 +182,21 @@ function getCorrectApproved(input) {
   return approved
 }
 
+
+// ----------------------------------------------------------------------------
+//  Methods for /products/productsWithComponent/:id
+// ----------------------------------------------------------------------------
+router.route('/productsWithComponent/:id')
+  .get((req, res) => {
+    // precondition: component exists and is connected with atleast one product.
+    let input = req.params.id
+    if (input != null) {
+      //Get products connected to the component
+      getProductsWithComponent(req, res, input)
+    }
+    // postcondition: products with the components connected to it.
+  })
+
 router.route('/approve')
   .put((req, res) => {
     // precondition: check that id == OK, signature == OK and that the product hasn't yet been signed
@@ -286,11 +301,10 @@ router.route('/connectComponentWithProduct')
 router.route('/productsInProject/:id')
   .get((req, res) => {
     // precondition: project exists and it has products connected to it.
-    let input = JSON.parse(req.params.id)
-
-    if (input.id != null) {
+    let input = req.params.id
+    if (input != null) {
       //Get products from the project
-      getproductsFromProject(req, res, input.id)
+      getproductsFromProject(req, res, input)
     }
     // postcondition: components connected to the product.
   })
@@ -301,29 +315,14 @@ router.route('/productsInProject/:id')
 router.route('/productsWithLicense/:id')
   .get((req, res) => {
     // precondition: license exists and it has atleast one component connected to it.
-    let input = JSON.parse(req.params.id)
-
-    if (input.id != null) {
+    let input = req.params.id
+    if (input != null) {
       //Get products connected to the license
-      getProductsWithLicense(req, res, input.id)
+      getProductsWithLicense(req, res, input)
     }
     // postcondition: products with the license connected to it.
   })
 
-// ----------------------------------------------------------------------------
-//  Methods for /products/productsWithComponent/:id
-// ----------------------------------------------------------------------------
-router.route('/productsWithComponent/:id')
-.get((req, res) => {
-  // precondition: component exists and is connected with atleast one product.
-  let input = JSON.parse(req.params.id)
-
-  if (input.id != null) {
-    //Get products connected to the component
-    getProductsWithComponent(req, res, input.id)
-  }
-  // postcondition: products with the components connected to it.
-})
 
 // ----------------------------------------------------------------------------
 //  Methods for /products/log/:id
@@ -331,13 +330,10 @@ router.route('/productsWithComponent/:id')
 router.route('/log/:id')
 .get((req, res) => {
   // precondition: component exists.
-  let input = JSON.parse(req.params.id)
-  let parametersText = Object.keys(input)
-  let parameters = []
-
-  if (input.id != null) {
+  let input = req.params.id
+  if (input != null) {
     //Get the component log
-    getComponentLog(req, res, input.id)
+    getComponentLog(req, res, input)
   }
   // postcondition: the log entries of the component
 })
@@ -744,7 +740,32 @@ function getProductsWithComponent(req, res, id) {
     if (err) {
       // If there's an error then provide the error message and the different attributes that could have caused it.
       res.send("ERROR! error message:" + err.message + ", query: " + query)
-    } else
+    } else {
+      console.log("WADASAD")
+      console.log(rows)
       res.send(rows)
+    }
   })
 }
+
+// ----------------------------------------------------------------------------
+//  Methods for /products/search/:id
+// ----------------------------------------------------------------------------
+
+router.route('/search/:id')
+  .get((req, res) => {
+    // precondition: parameter is wellformed
+    const query = `select * from products where productName LIKE "%${req.params.id}%"`
+    console.log(query)
+    req.db.all(query, (err, rows) => {
+      if (err) {
+        console.log(err)
+        res.status(404)
+        res.send("ERROR! error message:" + err.message + ", query: " + query)
+      } else {
+        res.status(200)
+        console.log(rows)
+        res.json(rows)
+      }
+    })
+  })
