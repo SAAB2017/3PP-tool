@@ -549,8 +549,9 @@ function getComponentsWithLicense(req, res, id) {
     if (err) {
       // If there's an error then provide the error message and the different attributes that could have caused it.
       res.send("ERROR! error message:" + err.message + ", query: " + query)
-    } else
+    } else {
       res.json(rows)
+    }
   })
 }
 
