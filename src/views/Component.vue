@@ -109,7 +109,6 @@
                   <th scope="col">Component in projects</th>
                   <th scope="col">Version</th>
                 </tr>
-
                 </thead>
                 <tbody>
                 <tr v-for="pro in projects">
@@ -122,7 +121,6 @@
           </div>
 
         </div>
-
         <!-- If no component with id id is found -->
         <div v-else>
           <div class="columns">
@@ -150,7 +148,9 @@
       }
     },
 
-    /* Fetch the component with id from database and add to component, then fetch licenses */
+    /* Fetch the component with id from database and add to component,
+     * then fetch licenses, components and products
+     */
     mounted () {
       axios.get(this.$baseAPI + 'components/' + this.$route.params.id)
         .then(response => {
@@ -207,16 +207,6 @@
                   this.message = 'Update sucessful'
                   this.component = response.data
                 })
-            }
-          })
-      },
-
-      // TODO Remove?
-      deleteComponent () {
-        axios.delete(this.$baseAPI + 'components/' + this.component.id)
-          .then(response => {
-            if (response.status === '200') {
-              this.$router.push({ name: 'components' })
             }
           })
       }
