@@ -88,7 +88,7 @@
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">Component in products</th>
+                  <th scope="col">Products with component</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
@@ -106,7 +106,7 @@
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">Component in projects</th>
+                  <th scope="col">Projects with component</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>

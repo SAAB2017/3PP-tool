@@ -106,7 +106,7 @@
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">Product in projects</th>
+                  <th scope="col">Projects with product</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
