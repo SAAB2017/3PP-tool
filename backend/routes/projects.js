@@ -484,7 +484,7 @@ function getProjectsWithLicense(req, res, id) {
 
   req.db.all(query, [id], (err, rows) => {
     if (err) {
-      console.log(error.message)
+      console.log(error)
       res.status(500).send(error.message)
     } else
       res.send(rows)
