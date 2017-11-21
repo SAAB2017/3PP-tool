@@ -166,7 +166,7 @@
        * Fetch all licenses that is in this component
        */
       fetchLicenses () {
-        axios.get(this.$baseAPI + 'licenses/licensesInComponent/' + this.$route.params.id).then(response => {
+        axios.get(this.$baseAPI + 'pr/licensesInComponent/' + this.$route.params.id).then(response => {
           this.licenses = response.data
         })
       },

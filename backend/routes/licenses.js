@@ -42,7 +42,6 @@ router.route('/add')
     const lic = req.body
     const date = new Date().toLocaleDateString()
     // Construct SQL query based on input parameters.
-
     const query = `INSERT INTO licenses (licenseName, licenseVersion, dateCreated, lastEdited, URL, comment, licenseType) VALUES ('${lic.licenseName}', '${lic.licenseVersion}', '${date}', '${date}', '${lic.URL}', '${lic.comment}', '${lic.licenseType}')`
     // Send the license to the database.
     req.db.run('begin', () => {
