@@ -77,7 +77,7 @@
             if (response.data != null) {
               this.components = response.data
             } else {
-              this.message = "No component found!"
+              this.message = 'No component found!'
             }
           })
         } else {
@@ -89,24 +89,24 @@
        * Opens the view for a specific component with id id.
        * @param component The component to be viewed
        */
-      displayComponent(component) {
-        this.$router.push({ name: "components_id", params: { id: component.id } })
+      displayComponent (component) {
+        this.$router.push({ name: 'components_id', params: { id: component.id } })
       },
-      getAllComponents() {
+      getAllComponents () {
         axios.get(this.$baseAPI + 'components/')
           .then(response => {
             this.components = response.data
           })
       },
 
-      showModal() {
-        let d = document.getElementById("modal")
-        d.classList.add("is-active")
+      showModal () {
+        let d = document.getElementById('modal')
+        d.classList.add('is-active')
       },
 
-      closeModal() {
-        let d = document.getElementById("modal")
-        d.classList.remove("is-active")
+      closeModal () {
+        let d = document.getElementById('modal')
+        d.classList.remove('is-active')
       }
     }
   }

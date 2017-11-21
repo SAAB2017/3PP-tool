@@ -103,7 +103,7 @@
       axios.get(this.$baseAPI + pendingURI)
         .then(response => {
           if (response.status === '404') {
-            console.log("Error requesting data.")
+            console.log('Error requesting data.')
           } else {
             this.component = response.data[0]
             this.message = ((this.component.approved === 0) ? 'Not signed' : 'Signed')
@@ -113,7 +113,7 @@
     },
 
     methods: {
-      fetchLicenses() {
+      fetchLicenses () {
         axios.get(this.$baseAPI + 'licenses/licensesInComponent/' + JSON.stringify(this.$route.params.id)).then(response => {
           this.licenses = response.data
         })
@@ -137,12 +137,12 @@
                     this.component = response.data[0]
                   })
               } else {
-                console.log("Error: Could not sign component")
-                this.message = "Could not sign component"
+                console.log('Error: Could not sign component')
+                this.message = 'Could not sign component'
               }
             })
         } else {
-          this.message = "Invalid signature!"
+          this.message = 'Invalid signature!'
         }
       }
     }

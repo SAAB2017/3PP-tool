@@ -40,7 +40,7 @@
   import axios from 'axios'
 
   export default {
-    data() {
+    data () {
       return {
         projects: [],
         project: null,
@@ -49,7 +49,7 @@
     },
 
     /* Fetches unsigned projects from the database and puts them in projects */
-    mounted() {
+    mounted () {
       axios.get(this.$baseAPI + 'projects/pending')
         .then(response => {
           this.projects = response.data
@@ -60,7 +60,7 @@
       /**
        * Searches for unsigned projects from the database matching the search-criteria
        */
-      searchProject(){
+      searchProject () {
         // TODO Implement method
       },
 
@@ -68,8 +68,8 @@
        * Opens the view for signing a specific project with id id.
        * @param project The project to be signed
        */
-      displayComponent(project) {
-        this.$router.push({ name: "Sign Project", params: { id: project.id } })
+      displayComponent (project) {
+        this.$router.push({ name: 'Sign Project', params: { id: project.id } })
       }
     }
   }

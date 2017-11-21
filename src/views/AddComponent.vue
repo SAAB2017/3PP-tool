@@ -16,7 +16,6 @@
 </template>
 
 <script>
-  import axios from 'axios'
   import ComponentsAdd from '@/components/ComponentsAdd'
 
   export default {

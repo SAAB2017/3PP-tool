@@ -74,7 +74,7 @@
   import axios from 'axios'
 
   export default {
-    data() {
+    data () {
       return {
         licenses: [],
         checkedLicenses: [],
@@ -84,10 +84,10 @@
       }
     },
     /* Fetches liceses from the database and puts them in licenses */
-    mounted() {
+    mounted () {
       let vm = this
       document.addEventListener('keyup', function (event) {
-        if (event.key == 'Escape'){
+        if (event.key === 'Escape') {
           vm.closeModal()
         }
       })
@@ -111,7 +111,7 @@
 
         axios.post(this.$baseAPI + 'components/add', data)
           .then(response => {
-            if (response.responseData.status === "success") {
+            if (response.responseData.status === 'success') {
               this.componentName = null
               this.componentVersion = null
               this.componentComment = null
@@ -128,18 +128,18 @@
       /**
        * Searches for liceses from the database matching the search-criteria
        */
-      searchLicense() {
+      searchLicense () {
         // TODO Implement method
       },
 
-      showModal() {
-        var d = document.getElementById("modal-components")
-        d.classList.add("is-active")
-       },
+      showModal () {
+        let d = document.getElementById('modal-components')
+        d.classList.add('is-active')
+      },
 
-      closeModal() {
-        var d = document.getElementById("modal-components")
-        d.classList.remove("is-active")
+      closeModal () {
+        let d = document.getElementById('modal-components')
+        d.classList.remove('is-active')
       }
     }
   }
@@ -152,11 +152,6 @@
 
   tbody>tr:hover {
     cursor: pointer;
-  }
-  .vertical-menu {
-    width: 100%;
-    height: 150px;
-    overflow-y: auto;
   }
 
 </style>

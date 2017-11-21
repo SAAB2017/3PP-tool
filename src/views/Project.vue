@@ -165,7 +165,7 @@
       /**
        * Fetch all licenses that is in this project
        */
-      fetchLicenses(){
+      fetchLicenses () {
         axios.get(this.$baseAPI + 'licenses/licensesInProject/' + this.$route.params.id).then(response => {
           this.licenses = response.data
         })
@@ -174,7 +174,7 @@
       /**
        * Fetch all components that is in this project
        */
-      fetchComponents(){
+      fetchComponents () {
         axios.get(this.$baseAPI + 'components/componentsInProject/' + this.$route.params.id).then(response => {
           this.components = response.data
         })
@@ -183,7 +183,7 @@
       /**
        * Fetch all products that is in this project
        */
-      fetchProducts(){
+      fetchProducts () {
         axios.get(this.$baseAPI + 'products/productsInProject/' + this.$route.params.id).then(response => {
           this.products = response.data
         })
@@ -192,7 +192,7 @@
        * Update this product with new values
        */
       updateProject () {
-        var data = {
+        let data = {
           id: this.project.id,
           component: this.project.component,
           version: this.project.version,

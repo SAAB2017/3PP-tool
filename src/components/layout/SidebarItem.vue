@@ -19,7 +19,7 @@
 <script>
   export default {
     name: 'sidebar-item',
-    props: [ "label" ],
+    props: [ 'label' ]
   }
 </script>
 

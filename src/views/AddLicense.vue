@@ -16,7 +16,6 @@
 </template>
 
 <script>
-  import axios from 'axios'
   import LicensesAdd from '@/components/LicensesAdd'
 
   export default {
