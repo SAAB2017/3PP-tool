@@ -174,7 +174,7 @@
       /**
        * Fetch all products that contains this component
        */
-      fetchProducts() {
+      fetchProducts () {
         axios.get(this.$baseAPI + 'products/productsWithComponent/' + this.$route.params.id).then(response => {
           this.products = response.data
         })
@@ -183,7 +183,7 @@
       /**
        * Fetch all project that contains this component
        */
-      fetchProjects() {
+      fetchProjects () {
         axios.get(this.$baseAPI + 'projects/projectsWithComponent/' + this.$route.params.id).then(response => {
           this.projects = response.data
         })
@@ -192,7 +192,7 @@
        * Update this component with new values
        */
       updateComponent () {
-        var data = {
+        let data = {
           id: this.component.id,
           component: this.component,
           version: this.component.version,
@@ -207,16 +207,6 @@
                   this.message = 'Update sucessful'
                   this.component = response.data
                 })
-            }
-          })
-      },
-
-      // TODO Remove?
-      deleteComponent () {
-        axios.delete(this.$baseAPI + 'components/' + this.component.id)
-          .then(response => {
-            if (response.status === '200') {
-              this.$router.push({ name: 'components' })
             }
           })
       }

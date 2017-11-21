@@ -49,7 +49,7 @@
     components: {
       ProjectsAddModal
     },
-    data() {
+    data () {
       return {
         projects: [],
         searchProjects: null,
@@ -58,7 +58,7 @@
       }
     },
     /* Fetches signed projects from the database and puts them in projects */
-    mounted() {
+    mounted () {
       this.getAllProjects()
     },
 
@@ -66,7 +66,7 @@
       /**
        * Searches for signed projects from the database matching the search-criteria
        */
-      searchProject(){
+      searchProject () {
         if (this.searchProjects.length === 0) {
           this.getAllProjects()
           return
@@ -77,7 +77,7 @@
             if (response.data != null) {
               this.projects = response.data
             } else {
-              this.message = "No project found!"
+              this.message = 'No project found!'
             }
           })
         } else {
@@ -89,10 +89,10 @@
        * Opens the view for a specific project with id id.
        * @param project The project to be viewed
        */
-      displayComponent(project) {
-        this.$router.push({ name: "projects_id", params: { id: project.id } })
+      displayComponent (project) {
+        this.$router.push({ name: 'projects_id', params: { id: project.id } })
       },
-      getAllProjects() {
+      getAllProjects () {
         axios.get(this.$baseAPI + 'projects/')
           .then(response => {
             this.projects = response.data
@@ -110,9 +110,5 @@
 
   tbody>tr:hover {
     cursor: pointer;
-  }
-  .vertical-menu {
-    width: 100%;
-    overflow-y: auto;
   }
 </style>

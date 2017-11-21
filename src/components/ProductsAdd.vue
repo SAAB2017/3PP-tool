@@ -62,7 +62,7 @@
 <script>
   import axios from 'axios'
   export default {
-    data() {
+    data () {
       return {
         components: [],
         checkedComponents: [],
@@ -72,7 +72,7 @@
       }
     },
     /* Fetches components from the database and puts them in components */
-    mounted() {
+    mounted () {
       axios.get(this.$baseAPI + 'components')
         .then(response => {
           this.components = response.data
@@ -93,7 +93,7 @@
 
         axios.post(this.$baseAPI + 'products/add', data)
           .then(response => {
-            if (response.responseData.status === "success") {
+            if (response.responseData.status === 'success') {
               this.productName = ''
               this.productVersion = ''
               this.productComment = ''
@@ -106,7 +106,7 @@
       /**
        * Searches for liceses from the database matching the search-criteria
        */
-      searchComponent(){
+      searchComponent () {
         // TODO Implement method
       }
     }

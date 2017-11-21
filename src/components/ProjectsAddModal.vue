@@ -73,7 +73,7 @@
 <script>
   import axios from 'axios'
   export default {
-    data() {
+    data () {
       return {
         products: [],
         checkedProducts: [],
@@ -83,10 +83,10 @@
       }
     },
     /* Fetches products from the database and puts them in products */
-    mounted() {
+    mounted () {
       let vm = this
       document.addEventListener('keyup', function (event) {
-        if (event.key == 'Escape'){
+        if (event.key === 'Escape') {
           vm.closeModal()
         }
       })
@@ -100,7 +100,7 @@
       /**
        * Add a project to the database according to the fields in the view
        */
-      addProject() {
+      addProject () {
         let data = {
           projectName: this.projectName,
           projectVersion: this.projectVersion,
@@ -110,7 +110,7 @@
 
         axios.post(this.$baseAPI + 'projects/add', data)
           .then(response => {
-            if (response.responseData.status === "success") {
+            if (response.responseData.status === 'success') {
               this.projectName = ''
               this.projectVersion = ''
               this.projectComment = ''
@@ -124,18 +124,18 @@
       /**
        * Searches for products from the database matching the search-criteria
        */
-      searchProduct(){
+      searchProduct () {
         // TODO implement method
       },
 
-      showModal() {
-        var d = document.getElementById("modal-projects")
-        d.classList.add("is-active")
+      showModal () {
+        let d = document.getElementById('modal-projects')
+        d.classList.add('is-active')
       },
 
-      closeModal() {
-        var d = document.getElementById("modal-projects")
-        d.classList.remove("is-active")
+      closeModal () {
+        let d = document.getElementById('modal-projects')
+        d.classList.remove('is-active')
       }
     }
   }
@@ -148,11 +148,6 @@
 
   tbody>tr:hover {
     cursor: pointer;
-  }
-  .vertical-menu {
-    width: 100%;
-    height: 150px;
-    overflow-y: auto;
   }
 
 </style>

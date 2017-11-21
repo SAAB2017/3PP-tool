@@ -72,7 +72,7 @@
 <script>
   import axios from 'axios'
   export default {
-    data() {
+    data () {
       return {
         components: [],
         checkedComponents: [],
@@ -82,10 +82,10 @@
       }
     },
     /* Fetches components from the database and puts them in components */
-    mounted() {
+    mounted () {
       let vm = this
       document.addEventListener('keyup', function (event) {
-        if (event.key == 'Escape'){
+        if (event.key === 'Escape') {
           vm.closeModal()
         }
       })
@@ -109,7 +109,7 @@
 
         axios.post(this.$baseAPI + 'products/add', data)
           .then(response => {
-            if (response.responseData.status === "success") {
+            if (response.responseData.status === 'success') {
               this.productName = ''
               this.productVersion = ''
               this.productComment = ''
@@ -128,18 +128,18 @@
       /**
        * Searches for liceses from the database matching the search-criteria
        */
-      searchComponent(){
+      searchComponent () {
         // TODO Implement method
       },
 
-      showModal() {
-        var d = document.getElementById("modal-products")
-        d.classList.add("is-active")
+      showModal () {
+        var d = document.getElementById('modal-products')
+        d.classList.add('is-active')
       },
 
-      closeModal() {
-        var d = document.getElementById("modal-products")
-        d.classList.remove("is-active")
+      closeModal () {
+        var d = document.getElementById('modal-products')
+        d.classList.remove('is-active')
       }
     }
   }
@@ -152,11 +152,6 @@
 
   tbody>tr:hover {
     cursor: pointer;
-  }
-  .vertical-menu {
-    width: 100%;
-    height: 150px;
-    overflow-y: auto;
   }
 
 </style>

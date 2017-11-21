@@ -40,7 +40,7 @@
   import axios from 'axios'
 
   export default {
-    data() {
+    data () {
       return {
         components: [],
         component: null,
@@ -60,7 +60,7 @@
       /**
        * Searches for unsigned components from the database matching the search-criteria
        */
-      searchComponent(){
+      searchComponent () {
         // TODO Implement method
       },
 
@@ -68,9 +68,9 @@
        * Opens the view for signing a specific component with id id.
        * @param component The component to be signed
        */
-      displayComponent(component) {
+      displayComponent (component) {
         console.log(`Component id is ${component}`)
-        this.$router.push({ name: 'components_pending_id', params: { id: component }})
+        this.$router.push({ name: 'components_pending_id', params: { id: component } })
       }
     }
   }

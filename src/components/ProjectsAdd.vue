@@ -62,7 +62,7 @@
 <script>
   import axios from 'axios'
   export default {
-    data() {
+    data () {
       return {
         products: [],
         checkedProducts: [],
@@ -72,7 +72,7 @@
       }
     },
     /* Fetches products from the database and puts them in products */
-    mounted() {
+    mounted () {
       axios.get(this.$baseAPI + 'products')
         .then(response => {
           this.products = response.data
@@ -83,7 +83,7 @@
       /**
        * Add a project to the database according to the fields in the view
        */
-      addProject() {
+      addProject () {
         let data = {
           projectName: this.projectName,
           projectVersion: this.projectVersion,
@@ -93,7 +93,7 @@
 
         axios.post(this.$baseAPI + 'projects/add', data)
           .then(response => {
-            if (response.responseData.status === "success") {
+            if (response.responseData.status === 'success') {
               this.projectName = ''
               this.projectVersion = ''
               this.projectComment = ''
@@ -106,7 +106,7 @@
       /**
        * Searches for products from the database matching the search-criteria
        */
-      searchProduct(){
+      searchProduct () {
         // TODO implement method
       }
     }
