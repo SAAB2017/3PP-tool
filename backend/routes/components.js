@@ -306,14 +306,16 @@ function getComponentsFromProduct(req, res, id) {
     if (err) {
       // If there's an error then provide the error message and the different attributes that could have caused it.
       res.send("ERROR! error message:" + err.message + ", query: " + query)
-    } else
+    } else {
+      console.log(rows)
       res.json(rows)
+    }
   })
 }
 
 //Get component in project
 function getComponentsFromProject(req, res, id) {
-  let query = "SELECT componentID AS id, componentName, componentVersion, dateCreated, lastEdited, comment, approved, approvedBy FROM components LEFT OUTER JOIN componentsInProducts ON components.id=componentsInProducts.componentID" +
+  let query = "SELECT DISTINCT componentID AS id, componentName, componentVersion, dateCreated, lastEdited, comment, approved, approvedBy FROM components LEFT OUTER JOIN componentsInProducts ON components.id=componentsInProducts.componentID" +
   " LEFT OUTER JOIN productsInProjects ON productsInProjects.productID=componentsInProducts.productID WHERE "
 
 query += "projectID = ?;"
