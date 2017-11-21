@@ -7,13 +7,12 @@ var router = express.Router()
 router.route('/')
 
   .get((req, res) => {
-    req.db.all("SELECT * FROM products", (err, rows) => {
+    req.db.all('SELECT * FROM products', (err, rows) => {
       res.json(rows)
     })
   })
 
   .post((req, res) => {
-
     let parametersText = []
     let parameters = []
     let correctInputProductName = req.body.productName
@@ -27,35 +26,31 @@ router.route('/')
       parametersText = returnValue[2]
     })
 
-    //Make sure that there is either an id provided or a productName and productVersion provided
+    // Make sure that there is either an id provided or a productName and productVersion provided
     if ((correctInputProductName != null && correctInputProductVersion != null) || correctInputId != null) {
-
-      //Get the product if it exists
+      // Get the product if it exists
       getProduct(req, res, correctInputProductName, correctInputProductVersion, correctInputId, function (product) {
-
-        //Make sure that row is not null and that an approved component can't be approved again by a diffrent person
+        // Make sure that row is not null and that an approved component can't be approved again by a diffrent person
         if (product != null && ((approved[0] == null && approved[1] == null) || ((product.approved == 1 && approved[0] == 0) || (product.approved != 1 && approved[1] != '')))) {
-
-          //update the product
+          // update the product
           updateProduct(req, res, correctInputProductName, correctInputProductVersion, correctInputId, parametersText, parameters, function (update) {
-            //get product
-            getProduct(req, res, correctInputProductName, correctInputProductVersion, correctInputId, function(product){
+            // get product
+            getProduct(req, res, correctInputProductName, correctInputProductVersion, correctInputId, function (product) {
               insertUpdateIntoLog(req, res, product.id, approved)
             })
           })
-
-        }//Else throw an error
+        }// Else throw an error
         else {
           let message
           if (product != null) {
             message = {
-              "errorType": "alreadySigned",
-              "byUser": "" + product.approvedBy
-              //"onTime": "1510062744"
+              'errorType': 'alreadySigned',
+              'byUser': '' + product.approvedBy
+              // "onTime": "1510062744"
             }
           } else {
             message = {
-              "errorType": "productDoesNotExist"
+              'errorType': 'productDoesNotExist'
             }
           }
           console.log(message)
@@ -63,9 +58,9 @@ router.route('/')
         }
       })
     } else {
-      console.log("ERROR! Must insert either a correct id or a correct componentName and a correct componentVerison.")
+      console.log('ERROR! Must insert either a correct id or a correct componentName and a correct componentVerison.')
       res.status(500)
-      res.send("ERROR! Must insert either a correct id or a correct componentName and a correct componentVerison.")
+      res.send('ERROR! Must insert either a correct id or a correct componentName and a correct componentVerison.')
     }
   })
 
@@ -79,55 +74,51 @@ router.route('/')
     let correctInputComponentID = req.body.componentID
     let correctInputId = req.body.id
 
-    //Get the correct parameters
+    // Get the correct parameters
     getInsertProductParameters(req, parametersText, parameters, function (returnValue) {
       parametersText = returnValue[0]
       parameters = returnValue[1]
     })
 
-    //Make sure the necessary parameters are provided to insert a new product.
+    // Make sure the necessary parameters are provided to insert a new product.
     if (correctInputProductName != null && correctInputProductVersion != null && correctInputComponentID == null) {
-
-      //insert the new product
-      insertNewProduct(req, res, parametersText, parameters, function(returnValue){
-        //Get the product so that the id can be extracted
+      // insert the new product
+      insertNewProduct(req, res, parametersText, parameters, function (returnValue) {
+        // Get the product so that the id can be extracted
         getProduct(req, res, correctInputProductName, correctInputProductVersion, null, function (product) {
-          insertProductLog(req, res, product.id, "Product created.",
+          insertProductLog(req, res, product.id, 'Product created.',
           function (returnValue) {
             res.status(201)
-            res.send("Success!")
+            res.send('Success!')
           })
         })
       })
-
-    } //Make sure the necessary parameters are provided to insert a new license into the product.
+    } // Make sure the necessary parameters are provided to insert a new license into the product.
     else if ((correctInputProductName != null && correctInputProductVersion != null) || correctInputId != null && correctInputComponentID != null) {
-
-      //Get the product so that the id can be extracted
+      // Get the product so that the id can be extracted
       getProduct(req, res, correctInputProductName, correctInputProductVersion, correctInputId, function (product) {
         if (product == null) {
           message = {
-            "errorType": "componentDoesNotExist"
+            'errorType': 'componentDoesNotExist'
           }
           console.log(message)
           res.status(500).send(message)
         } else {
-
-          //Insert the provided component into the product
+          // Insert the provided component into the product
           insertComponentIntoProduct(req, res, correctInputComponentID, product.id, function (returnValue) {
-            //Get the component that was inserted
+            // Get the component that was inserted
             getComponent(req, res, null, null, correctInputComponentID, function (component) {
               if (component == null) {
                 message = {
-                  "errorType": "componentDoesNotExist"
+                  'errorType': 'componentDoesNotExist'
                 }
                 console.log(message)
                 res.status(500).send(message)
               } else {
-                //Create a log of the component added to the product
-                insertProductLog(req, res, product.id, "Added component: " + component.componentName + " v" + component.componentVersion + ".",
+                // Create a log of the component added to the product
+                insertProductLog(req, res, product.id, 'Added component: ' + component.componentName + ' v' + component.componentVersion + '.',
                   function (returnValue) {
-                    updateProduct(req, res, null, null, product.id, ['approved', 'approvedBy'], ['0', '']);
+                    updateProduct(req, res, null, null, product.id, ['approved', 'approvedBy'], ['0', ''])
                   })
               }
             })
@@ -143,18 +134,18 @@ router.route('/')
   // TODO - implement
   .delete((req, res) => {
     res.status(501)
-    res.send("Method not implemented")
+    res.send('Method not implemented')
   })
 
   // ----------------------------------------------------------------------------
 //  Methods for /products/approve
 // ----------------------------------------------------------------------------
 
-function validateRequest(product, approved) {
+function validateRequest (product, approved) {
   return ((approved[0] == null && approved[1] == null) || ((product.approved == 1 && approved[0] == 0) || (product.approved != 1 && approved[1] != '')))
 }
 
-function getCorrectApproved(input) {
+function getCorrectApproved (input) {
   let approved = [null, null]
 
   if (input.hasOwnProperty('approved')) {
@@ -171,7 +162,7 @@ function getCorrectApproved(input) {
     }
   }
 
-  //logic for correct approve/approvedBy
+  // logic for correct approve/approvedBy
   if (approved[0] != null) {
     if (approved == 0 && approved[1] == null) {
       approved[1] = ''
@@ -182,7 +173,6 @@ function getCorrectApproved(input) {
   return approved
 }
 
-
 // ----------------------------------------------------------------------------
 //  Methods for /products/productsWithComponent/:id
 // ----------------------------------------------------------------------------
@@ -191,7 +181,7 @@ router.route('/productsWithComponent/:id')
     // precondition: component exists and is connected with atleast one product.
     let input = req.params.id
     if (input != null) {
-      //Get products connected to the component
+      // Get products connected to the component
       getProductsWithComponent(req, res, input)
     }
     // postcondition: products with the components connected to it.
@@ -203,23 +193,21 @@ router.route('/approve')
     const input = req.body
     let approved = getCorrectApproved(input)
 
-    //Get product to make sure that it is not approved already
+    // Get product to make sure that it is not approved already
     getProduct(req, res, null, null, input.id, function (product) {
-      //Make sure that row is not null and that an approved product can't be approved again by a diffrent person
+      // Make sure that row is not null and that an approved product can't be approved again by a diffrent person
       if (product != null && input.id != null && validateRequest(product, approved)) {
-
-        //update the product
+        // update the product
         updateProduct(req, res, null, null, input.id, ['approved', 'approvedBy'], approved, function () {
           insertUpdateIntoLog(req, res, product.id, approved)
         })
-
-      }//Else throw an error
+      }// Else throw an error
       else {
         let message
         message = {
-          "errorType": "alreadySigned",
-          "byUser": "" + product.approvedBy
-          //"onTime": "1510062744"
+          'errorType': 'alreadySigned',
+          'byUser': '' + product.approvedBy
+          // "onTime": "1510062744"
         }
         console.log(message)
         res.status(500).send(message)
@@ -235,31 +223,50 @@ router.route('/add')
   .post((req, res) => {
     // precondition: product doesn't already exist.
     const input = req.body
-    parametersText = []
-    parameters = []
-
-    //Get the correct parameters
-    getInsertProductParameters(req, parametersText, parameters, function (returnValue) {
-      parametersText = returnValue[0]
-      parameters = returnValue[1]
-
-      //Make sure the necessary parameters are provided to insert a new product.
-      if (input.productName != null && input.productVersion != null) {
-
-        insertNewProduct(req, res, parametersText, parameters, function (returnValue) {
-          //Get the product so that the id can be extracted
-          getProduct(req, res, input.productName, input.productVersion, null, function (product) {
-            insertProductLog(req, res, product.id, "Product created.",
-              function (returnValue) {
-                res.status(201).send("Success!")
+    const components = input.components
+    req.db.run('begin', (err) => {
+      if (err) {
+        console.log('Error acquiring lock on database: ' + err.message)
+      } else {
+        addProduct(input, (query) => {
+          console.log(query)
+          req.db.run(query, (err) => {
+            if (err) {
+              console.log(err.message)
+              res.status(500)
+              req.db.run('rollback')
+              res.send("ERROR! error message:" + err.message + ", query: " + query)
+            } else {
+              getProduct(req, res, input.productName, input.productVersion, null, function (product) {
+                insertProductLog(req, res, product.id, 'Product created.',
+                  function (returnValue) {
+                  // här säger vi; för alla komponenter, låt comp vara komponent
+                  // lägg in komponent i produkt
+                    components.forEach((comp) => { insertComponentIntoProduct(req, res, comp, product.id, (succeeded) => {
+                      if (!succeeded) { // if *any* of the insertions fail, we rollback the entire thing
+                        req.db.run('rollback')
+                        res.status(500)
+                        res.send('Error! Component was not found!')
+                      }
+                    })
+                    })
+                    req.db.run('commit')
+                    res.status(201).send('Success!')
+                  })
               })
+            }
           })
         })
-
       }
     })
     // postcondition: product created and logged.
   })
+
+function addProduct (product, cb) {
+  let date = new Date().toLocaleDateString()
+  const query = `INSERT INTO products (productName, productVersion, dateCreated, lastEdited, comment) VALUES ('${product.productName}','${product.productVersion}','${date}','${date}','${product.comment}')`
+  cb(query)
+}
 
 // ----------------------------------------------------------------------------
 //  Methods for /products/connectComponentWithProduct
@@ -270,23 +277,23 @@ router.route('/connectComponentWithProduct')
     const input = req.body
 
     if (input.productID != null && input.componentID != null) {
-      //Insert the provided license into the component
+      // Insert the provided license into the component
       insertComponentIntoProduct(req, res, input.componentID, input.productID, function (returnValue) {
-        //Get the component that was inserted
+        // Get the component that was inserted
         getComponent(req, res, null, null, input.componentID, function (component) {
           if (component == null) {
             message = {
-              "errorType": "componentDoesNotExist"
+              'errorType': 'componentDoesNotExist'
             }
             console.log(message)
             res.status(500).send(message)
           } else {
-            //Create a log of the license added to the component
-            insertProductLog(req, res, input.productID, "Added component: " + component.componentName + " v" + component.componentVersion + ".",
+            // Create a log of the license added to the component
+            insertProductLog(req, res, input.productID, 'Added component: ' + component.componentName + ' v' + component.componentVersion + '.',
               function (returnValue) {
                 updateProduct(req, res, null, null, input.productID, ['approved', 'approvedBy'], ['0', ''], function (returnValue) {
-                  res.status(200).send("Success")
-                });
+                  res.status(200).send('Success')
+                })
               })
           }
         })
@@ -303,7 +310,7 @@ router.route('/productsInProject/:id')
     // precondition: project exists and it has products connected to it.
     let input = req.params.id
     if (input != null) {
-      //Get products from the project
+      // Get products from the project
       getproductsFromProject(req, res, input)
     }
     // postcondition: components connected to the product.
@@ -317,12 +324,11 @@ router.route('/productsWithLicense/:id')
     // precondition: license exists and it has atleast one component connected to it.
     let input = req.params.id
     if (input != null) {
-      //Get products connected to the license
+      // Get products connected to the license
       getProductsWithLicense(req, res, input)
     }
     // postcondition: products with the license connected to it.
   })
-
 
 // ----------------------------------------------------------------------------
 //  Methods for /products/log/:id
@@ -332,7 +338,7 @@ router.route('/log/:id')
   // precondition: component exists.
   let input = req.params.id
   if (input != null) {
-    //Get the component log
+    // Get the component log
     getComponentLog(req, res, input)
   }
   // postcondition: the log entries of the component
@@ -350,7 +356,7 @@ router.route('/:id')
       if (err) {
         console.log(err)
         res.status(404)
-        res.send("ERROR! error message:" + err.message + ", query: " + query)
+        res.send('ERROR! error message:' + err.message + ', query: ' + query)
       } else {
         res.status(200)
         res.json(row)
@@ -360,38 +366,38 @@ router.route('/:id')
 
   .post((req, res) => {
     res.status(405)
-    res.send("Method not allowed")
+    res.send('Method not allowed')
   })
 
   // TODO - implement
   .put((req, res) => {
     res.status(501)
-    res.send("Method not implemented")
+    res.send('Method not implemented')
   })
 
   .delete((req, res) => {
-    var query = "DELETE FROM products WHERE id = ?"
+    var query = 'DELETE FROM products WHERE id = ?'
     var id = req.params.id
 
     req.db.get(query, [id], (err, row) => {
       res.status(200)
-      res.send("product deleted")
+      res.send('product deleted')
     })
   })
 
 module.exports = router
 
-//Get component from parameters
-function getProductFromParameters(req, res, input, parametersText, parameters) {
-  let query = "SELECT * FROM products WHERE "
+// Get component from parameters
+function getProductFromParameters (req, res, input, parametersText, parameters) {
+  let query = 'SELECT * FROM products WHERE '
 
-  let first = false;
+  let first = false
   for (let i = 0; i < parametersText.length; i++) {
     if (!first) {
-      first = true;
-      query += parametersText[i] + " = ?"
+      first = true
+      query += parametersText[i] + ' = ?'
     } else {
-      query += " AND " + parametersText[i] + " = ?"
+      query += ' AND ' + parametersText[i] + ' = ?'
     }
     parameters.push(input[parametersText[i]])
   }
@@ -399,106 +405,105 @@ function getProductFromParameters(req, res, input, parametersText, parameters) {
   req.db.all(query, parameters, (err, rows) => {
     if (err) {
       // If there's an error then provide the error message and the different attributes that could have caused it.
-      res.send("ERROR! error message:" + err.message + ", query: " + query + ", parameters: " + parameters)
-    } else
-      res.json(rows)
+      res.send('ERROR! error message:' + err.message + ', query: ' + query + ', parameters: ' + parameters)
+    } else { res.json(rows) }
   })
 }
 
-//Get parameters
-function getInsertProductParameters(req, parametersText, parameters, callback) {
+// Get parameters
+function getInsertProductParameters (req, parametersText, parameters, callback) {
   let date = [false, false]
 
-  //Check if productName was provided
+  // Check if productName was provided
   if (req.body.hasOwnProperty('productName')) {
     parameters.push(req.body.productName)
     parametersText.push('productName')
   }
-  //Check if productVersion was provided
+  // Check if productVersion was provided
   if (req.body.hasOwnProperty('productVersion')) {
     parameters.push(req.body.productVersion)
     parametersText.push('productVersion')
   }
-  //Check if dateCreated was provided
+  // Check if dateCreated was provided
   if (req.body.hasOwnProperty('dateCreated')) {
     parameters.push(new Date().toLocaleDateString())
     parametersText.push('dateCreated')
     date[0] = true
   }
-  //Check if lastEdited was provided
+  // Check if lastEdited was provided
   if (req.body.hasOwnProperty('lastEdited')) {
     parameters.push(new Date().toLocaleDateString())
     parametersText.push('lastEdited')
     date[1] = true
   }
-  //Check if comment was provided
+  // Check if comment was provided
   if (req.body.hasOwnProperty('comment')) {
     parameters.push(req.body.comment)
     parametersText.push('comment')
   }
-  //Set approved/approvedBy as default values
+  // Set approved/approvedBy as default values
   parameters.push(0)
   parametersText.push('approved')
   parameters.push('')
   parametersText.push('approvedBy')
 
-  //If dateCreated wasn't provided then provide it
+  // If dateCreated wasn't provided then provide it
   if (!date[0]) {
     parametersText.push('dateCreated')
     parameters.push(new Date().toLocaleDateString())
   }
-  //If lastEdited wasn't provided then provide it
+  // If lastEdited wasn't provided then provide it
   if (!date[1]) {
     parametersText.push('lastEdited')
     parameters.push(new Date().toLocaleDateString())
   }
   let obj = [parametersText, parameters]
-  callback(obj);
+  callback(obj)
 }
 
-//Insert product
-function insertNewProduct(req, res, parametersText, parameters, callback) {
-  let query = "INSERT INTO products ( "
+// Insert product
+function insertNewProduct (req, res, parametersText, parameters, callback) {
+  let query = 'INSERT INTO products ( '
 
-  //Construct the remaining SQL query
+  // Construct the remaining SQL query
   for (let j = 0; j < 2; j++) {
-    let first = false;
+    let first = false
     for (let i = 0; i < parametersText.length; i++) {
       if (!first) {
         first = true
         if (j == 0) query += parametersText[i]
-        else query += "?"
+        else query += '?'
       } else {
-        if (j == 0) query += ", " + parametersText[i]
-        else query += ", ?"
+        if (j == 0) query += ', ' + parametersText[i]
+        else query += ', ?'
       }
     }
     if (j == 0) {
-      query += ") VALUES ("
-    } else query += ");"
+      query += ') VALUES ('
+    } else query += ');'
   }
 
   req.db.run(query, parameters, (error) => {
     if (error) {
       console.log(error.message)
       res.status(500)
-      res.send("ERROR! error message:" + error.message + ", query: " + query + ", parameters: " + parameters)
+      res.send('ERROR! error message:' + error.message + ', query: ' + query + ', parameters: ' + parameters)
     } else {
       callback(true)
     }
   })
 }
 
-//Get product
-function getProduct(req, res, productName, productVersion, id, callback) {
-  let query = "SELECT * FROM products"
+// Get product
+function getProduct (req, res, productName, productVersion, id, callback) {
+  let query = 'SELECT * FROM products'
   let parameters = []
   if (productName != null && productVersion != null) {
-    query += " WHERE productName = ? AND productVersion = ?;"
+    query += ' WHERE productName = ? AND productVersion = ?;'
     parameters.push(productName)
     parameters.push(productVersion)
   } else if (id != null) {
-    query += " WHERE id = ?;"
+    query += ' WHERE id = ?;'
     parameters.push(id)
   }
 
@@ -506,25 +511,25 @@ function getProduct(req, res, productName, productVersion, id, callback) {
     if (error) {
       console.log(error.message)
       res.status(500)
-      res.send("ERROR! error message:" + error.message + ", query: " + query + ", parameters: " + parameters)
+      res.send('ERROR! error message:' + error.message + ', query: ' + query + ', parameters: ' + parameters)
     } else {
       if (row != null) {
-        callback(row);
-      } else callback(null);
+        callback(row)
+      } else callback(null)
     }
   })
 }
 
-//Get Component
-function getComponent(req, res, componentName, componentVersion, id, callback) {
-  let query = "SELECT * FROM components"
+// Get Component
+function getComponent (req, res, componentName, componentVersion, id, callback) {
+  let query = 'SELECT * FROM components'
   let parameters = []
   if (componentName != null && componentVersion != null) {
-    query += " WHERE componentName = ? AND componentVersion = ?;"
+    query += ' WHERE componentName = ? AND componentVersion = ?;'
     parameters.push(componentName)
     parameters.push(componentVersion)
   } else if (id != null) {
-    query += " WHERE id = ?;"
+    query += ' WHERE id = ?;'
     parameters.push(id)
   }
 
@@ -532,52 +537,52 @@ function getComponent(req, res, componentName, componentVersion, id, callback) {
     if (error) {
       console.log(error.message)
       res.status(500)
-      res.send("ERROR! error message:" + error.message + ", query: " + query + ", parameters: " + parameters)
+      res.send('ERROR! error message:' + error.message + ', query: ' + query + ', parameters: ' + parameters)
     } else {
       if (row != null) {
-        callback(row);
-      } else callback(null);
+        callback(row)
+      } else callback(null)
     }
   })
 }
 
-//Insert a new row into productLog
-function insertProductLog(req, res, id, text, callback) {
+// Insert a new row into productLog
+function insertProductLog (req, res, id, text, callback) {
   let parametersLog = [id, new Date().toLocaleDateString(), text]
-  let queryLog = "INSERT INTO productLog (productID, dateLogged, note) VALUES (?, ?, ?);"
+  let queryLog = 'INSERT INTO productLog (productID, dateLogged, note) VALUES (?, ?, ?);'
   req.db.run((queryLog), parametersLog, (error) => {
     if (error) {
       console.log(error.message)
       res.status(500)
       res.send(error.message)
     } else {
-      callback(true);
+      callback(true)
     }
   })
 }
 
-//Update the product
-function updateProduct(req, res, productName, productVersion, id, parametersText, parameters, callback) {
-  let query = "UPDATE products SET "
+// Update the product
+function updateProduct (req, res, productName, productVersion, id, parametersText, parameters, callback) {
+  let query = 'UPDATE products SET '
 
-  //Construct the remaining SQL query
-  let first = false;
+  // Construct the remaining SQL query
+  let first = false
   for (let i = 0; i < parametersText.length; i++) {
     if (!first) {
       first = true
-      query += parametersText[i] + " = ?"
+      query += parametersText[i] + ' = ?'
     } else {
-      query += ", " + parametersText[i] + " = ?"
+      query += ', ' + parametersText[i] + ' = ?'
     }
   }
 
-  //Check if either productName/productVersion or id was provided and use them one find the row to alter
+  // Check if either productName/productVersion or id was provided and use them one find the row to alter
   if (productName != null && productVersion != null) {
-    query += " WHERE productName = ? AND productVersion = ?;"
+    query += ' WHERE productName = ? AND productVersion = ?;'
     parameters.push(productName)
     parameters.push(productVersion)
   } else if (id != null) {
-    query += " WHERE id = ?;"
+    query += ' WHERE id = ?;'
     parameters.push(id)
   }
 
@@ -585,17 +590,17 @@ function updateProduct(req, res, productName, productVersion, id, parametersText
     if (error) {
       console.log(error.message)
       res.status(500)
-      res.send("ERROR! error message:" + error.message + ", query: " + query + ", parameters: " + parameters)
+      res.send('ERROR! error message:' + error.message + ', query: ' + query + ', parameters: ' + parameters)
     } else {
       callback(true)
     }
   })
 }
 
-//insert a component into a product
-function insertComponentIntoProduct(req, res, componentID, productID, callback) {
-  //Insert the component as a component of the component
-  let query = "INSERT INTO componentsInProducts ( componentID, productID) VALUES (?, ?);"
+// insert a component into a product
+function insertComponentIntoProduct (req, res, componentID, productID, callback) {
+  // Insert the component as a component of the component
+  let query = 'INSERT INTO componentsInProducts ( componentID, productID) VALUES (?, ?);'
   let parameters = [componentID, productID]
   req.db.run(query, parameters, (error) => {
     if (error) {
@@ -603,49 +608,41 @@ function insertComponentIntoProduct(req, res, componentID, productID, callback) 
       res.status(500)
       res.send(error.message)
     } else {
-      callback(true);
+      callback(true)
     }
   })
 }
 
-//Get parameters
-function getUpdateProductParameters(req, parametersText, parameters, approved, callback) {
+// Get parameters
+function getUpdateProductParameters (req, parametersText, parameters, approved, callback) {
   let date = false
 
   if (req.body.hasOwnProperty('approved')) {
-
     if (req.body.approved == 0 && approved[1] == null) {
       approved[1] = ''
     }
     approved[0] = req.body.approved
-
   }
 
   if (req.body.hasOwnProperty('approvedBy')) {
-
     if (req.body.approvedBy != '') {
       approved[0] = 1
       approved[1] = req.body.approvedBy
     }
-
   }
 
   if (req.body.hasOwnProperty('lastEdited')) {
-
     parameters.push(new Date().toLocaleDateString())
     parametersText.push('lastEdited')
     date = true
   }
 
   if (req.body.hasOwnProperty('comment')) {
-
     parameters.push(req.body.comment)
     parametersText.push('comment')
-
   }
 
-
-  //logic for correct approve/approveBy
+  // logic for correct approve/approveBy
   if (approved[0] != null) {
     if (approved == 0 && approved[1] == null) {
       approved[1] = ''
@@ -654,7 +651,7 @@ function getUpdateProductParameters(req, parametersText, parameters, approved, c
     }
   }
 
-  //Insert approved and approvedBy if it passed the logic check
+  // Insert approved and approvedBy if it passed the logic check
   if (approved[0] != null && approved[1] != null) {
     parametersText.push('approved')
     parameters.push(approved[0])
@@ -662,86 +659,81 @@ function getUpdateProductParameters(req, parametersText, parameters, approved, c
     parameters.push(approved[1])
   }
 
-  //If lastEdited wasn't provided then provide it
+  // If lastEdited wasn't provided then provide it
   if (!date) {
     parametersText.push('lastEdited')
     parameters.push(new Date().toLocaleDateString())
   }
   let obj = [approved, parameters, parametersText]
-  callback(obj);
+  callback(obj)
 }
 
-//Insert the update into the ProductLog
-function insertUpdateIntoLog(req, res, correctInputId, approved){
-  //If approve has changed then log it
-  if(req.body.hasOwnProperty('approved')){
-    if(approved[0] == 0){
-      insertProductLog(req, res, correctInputId, "Product changed to not approved.", function (log) {
+// Insert the update into the ProductLog
+function insertUpdateIntoLog (req, res, correctInputId, approved) {
+  // If approve has changed then log it
+  if (req.body.hasOwnProperty('approved')) {
+    if (approved[0] == 0) {
+      insertProductLog(req, res, correctInputId, 'Product changed to not approved.', function (log) {
       })
-    }else if(approved[0] == 1){
-      insertProductLog(req, res, correctInputId, "Product changed to approved by " + approved[1] + ".", function (log) {
+    } else if (approved[0] == 1) {
+      insertProductLog(req, res, correctInputId, 'Product changed to approved by ' + approved[1] + '.', function (log) {
       })
     }
-  }//If approveBy has changed then log it
-  else if(req.body.hasOwnProperty('approvedBy')){
-    if(approved[1] == ''){
-      insertProductLog(req, res, correctInputId, "Product changed to not approved.", function (log) {
+  }// If approveBy has changed then log it
+  else if (req.body.hasOwnProperty('approvedBy')) {
+    if (approved[1] == '') {
+      insertProductLog(req, res, correctInputId, 'Product changed to not approved.', function (log) {
       })
-    }else if(approved[1] != ''){
-      insertProductLog(req, res, correctInputId, "Product changed to approved by " + approved[1] + ".", function (log) {
+    } else if (approved[1] != '') {
+      insertProductLog(req, res, correctInputId, 'Product changed to approved by ' + approved[1] + '.', function (log) {
       })
     }
   }
   res.status(201)
-  res.send("Success!")
+  res.send('Success!')
 }
 
-//Get products in project
-function getproductsFromProject(req, res, id) {
-  let query = "SELECT productID AS id, productName, productVersion, dateCreated, lastEdited, comment, approved, approvedBy FROM products LEFT OUTER JOIN productsInProjects ON products.id=productsInProjects.productID"
+// Get products in project
+function getproductsFromProject (req, res, id) {
+  let query = 'SELECT productID AS id, productName, productVersion, dateCreated, lastEdited, comment, approved, approvedBy FROM products LEFT OUTER JOIN productsInProjects ON products.id=productsInProjects.productID'
 
-  query += " WHERE projectID = ?;"
-
+  query += ' WHERE projectID = ?;'
 
   req.db.all(query, [id], (err, rows) => {
     if (err) {
       // If there's an error then provide the error message and the different attributes that could have caused it.
-      res.send("ERROR! error message:" + err.message + ", query: " + query)
-    } else
-      res.send(rows)
+      res.send('ERROR! error message:' + err.message + ', query: ' + query)
+    } else { res.send(rows) }
   })
 }
 
-//Get products connected to license
-function getProductsWithLicense(req, res, id) {
-  let query = "SELECT DISTINCT productID AS id, productName, productVersion, dateCreated, lastEdited, comment FROM products LEFT OUTER JOIN componentsInProducts ON products.id=componentsInProducts.productID"
-              + " LEFT OUTER JOIN licensesInComponents ON licensesInComponents.componentID=componentsInProducts.componentID"
+// Get products connected to license
+function getProductsWithLicense (req, res, id) {
+  let query = 'SELECT DISTINCT productID AS id, productName, productVersion, dateCreated, lastEdited, comment FROM products LEFT OUTER JOIN componentsInProducts ON products.id=componentsInProducts.productID' +
+              ' LEFT OUTER JOIN licensesInComponents ON licensesInComponents.componentID=componentsInProducts.componentID'
 
-  query += " WHERE licenseID = ?;"
-
+  query += ' WHERE licenseID = ?;'
 
   req.db.all(query, [id], (err, rows) => {
     if (err) {
       // If there's an error then provide the error message and the different attributes that could have caused it.
-      res.send("ERROR! error message:" + err.message + ", query: " + query)
-    } else
-      res.send(rows)
+      res.send('ERROR! error message:' + err.message + ', query: ' + query)
+    } else { res.send(rows) }
   })
 }
 
-//Get products connected to component
-function getProductsWithComponent(req, res, id) {
-  let query = "SELECT DISTINCT productID AS id, productName, productVersion, dateCreated, lastEdited, comment FROM products LEFT OUTER JOIN componentsInProducts ON products.id=componentsInProducts.productID"
+// Get products connected to component
+function getProductsWithComponent (req, res, id) {
+  let query = 'SELECT DISTINCT productID AS id, productName, productVersion, dateCreated, lastEdited, comment FROM products LEFT OUTER JOIN componentsInProducts ON products.id=componentsInProducts.productID'
 
-  query += " WHERE componentID = ?;"
-
+  query += ' WHERE componentID = ?;'
 
   req.db.all(query, [id], (err, rows) => {
     if (err) {
       // If there's an error then provide the error message and the different attributes that could have caused it.
-      res.send("ERROR! error message:" + err.message + ", query: " + query)
+      res.send('ERROR! error message:' + err.message + ', query: ' + query)
     } else {
-      console.log("WADASAD")
+      console.log('WADASAD')
       console.log(rows)
       res.send(rows)
     }
@@ -761,7 +753,7 @@ router.route('/search/:id')
       if (err) {
         console.log(err)
         res.status(404)
-        res.send("ERROR! error message:" + err.message + ", query: " + query)
+        res.send('ERROR! error message:' + err.message + ', query: ' + query)
       } else {
         res.status(200)
         console.log(rows)

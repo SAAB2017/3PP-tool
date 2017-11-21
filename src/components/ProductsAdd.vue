@@ -91,6 +91,7 @@
           components: this.checkedComponents
         }
 
+
         axios.post(this.$baseAPI + 'products/add', data)
           .then(response => {
             if (response.responseData.status === "success") {

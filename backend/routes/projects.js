@@ -86,31 +86,54 @@ router.route('/add')
   .post((req, res) => {
     // precondition: project doesn't already exist.
     const input = req.body
-    parametersText = []
-    parameters = []
+    const products = req.body.products
 
     //Get the correct parameters
-    getInsertProjectParameters(req, parametersText, parameters, function (returnValue) {
-      parametersText = returnValue[0]
-      parameters = returnValue[1]
-
-      //Make sure the necessary parameters are provided to insert a new project.
-      if (input.projectName != null && input.projectVersion != null) {
-
-        insertNewProject(req, res, parametersText, parameters, function (returnValue) {
-          //Get the project so that the id can be extracted
-          getProject(req, res, input.projectName, input.projectVersion, null, function (project) {
-            insertProjectLog(req, res, project.id, "Project created.",
-              function (returnValue) {
-                res.status(201).send("Success!")
-              })
+    req.db.run('begin', err => {
+      if(err) {
+        console.log(err)
+      }
+      else {
+        addProject(input, (query) => {
+          console.log(query)
+          req.db.run(query, (err) => {
+            if (err) {
+              console.log(err.message)
+              res.status(500)
+              req.db.run('rollback')
+              res.send("ERROR! error message:" + err.message + ", query: " + query)
+            } else {
+                getProject(req, res, input.projectName, input.projectVersion, null, function (product) {
+                  insertProjectLog(req, res, product.id, 'Product created.',
+                    function (returnValue) {
+                      // här säger vi; för alla komponenter, låt comp vara komponent
+                      // lägg in komponent i produkt
+                      products.forEach((comp) => { insertProductIntoProject(req, res, comp, product.id, (succeeded) => {
+                        if (!succeeded) { // if *any* of the insertions fail, we rollback the entire thing
+                          req.db.run('rollback')
+                          res.status(500)
+                          res.send('Error! Component was not found!')
+                        }
+                      })
+                      })
+                      req.db.run('commit')
+                      res.status(201).send('Success!')
+                    })
+                })
+            }
           })
         })
-
       }
     })
+
     // postcondition: project created and logged.
   })
+
+function addProject (project, cb) {
+  let date = new Date().toLocaleDateString()
+  const query = `INSERT INTO projects (projectName, projectVersion, dateCreated, lastEdited, comment) VALUES ('${project.projectName}','${project.projectVersion}','${date}','${date}','${project.comment}')`
+  cb(query)
+}
 
 // ----------------------------------------------------------------------------
 //  Methods for /projects/connectProductWithProject
@@ -441,7 +464,7 @@ function insertProductIntoProject(req, res, productID, projectID, callback) {
   let parameters = [productID, projectID]
   req.db.run(query, parameters, (error) => {
     if (error) {
-      console.log(error.message)
+      console.log(error)
       res.status(500)
       res.send(error.message)
     } else {
@@ -456,12 +479,12 @@ function getProjectsWithLicense(req, res, id) {
               + " LEFT OUTER JOIN componentsInProducts ON componentsInProducts.productID=productsInProjects.productID"
               + " LEFT OUTER JOIN licensesInComponents ON licensesInComponents.componentID=componentsInProducts.componentID"
 
-  query += " WHERE licenseID = ?;"
+  query += " WHERE D = ?;"
 
 
   req.db.all(query, [id], (err, rows) => {
     if (err) {
-      console.log(error.message)
+      console.log(error)
       res.status(500).send(error.message)
     } else
       res.send(rows)
