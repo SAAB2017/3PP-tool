@@ -70,7 +70,7 @@
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">License in components</th>
+                  <th scope="col">Components with license</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
@@ -88,7 +88,7 @@
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">License in products</th>
+                  <th scope="col">Products with license</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
@@ -106,7 +106,7 @@
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">License in projects</th>
+                  <th scope="col">Project with license</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>

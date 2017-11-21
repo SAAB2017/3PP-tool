@@ -127,7 +127,6 @@
             <div class="column is-3">
               <h1>Project not found</h1>
               <p>No project with ID {{ id }}</p>
-              <p>{{ message }}</p>
             </div>
           </div>
         </div>
@@ -149,6 +148,9 @@
       }
     },
 
+    /* Fetch the project with id from database and add to project,
+     * then fetch licenses, components and products
+     */
     mounted () {
       axios.get(this.$baseAPI + 'projects/' + this.$route.params.id)
         .then(response => {
@@ -186,7 +188,6 @@
           this.products = response.data
         })
       },
-
       /**
        * Update this product with new values
        */
