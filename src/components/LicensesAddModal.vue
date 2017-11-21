@@ -53,7 +53,7 @@
 <script>
   import axios from 'axios'
   export default {
-    data() {
+    data () {
       return {
         license: null,
         licenseVersion: null,
@@ -63,10 +63,10 @@
       }
     },
 
-    mounted() {
+    mounted () {
       let vm = this
       document.addEventListener('keyup', function (event) {
-        if (event.key == 'Escape'){
+        if (event.key === 'Escape') {
           vm.closeModal()
         }
       })
@@ -76,7 +76,7 @@
       /**
        * Add a license to the database according to the fields in the view
        */
-      addLicense() {
+      addLicense () {
         let data = {
           licenseName: this.license,
           licenseVersion: this.licenseVersion,
@@ -88,7 +88,7 @@
 
         axios.post(this.$baseAPI + 'licenses/add', data)
           .then(response => {
-            if (response.data === "success") {
+            if (response.data === 'success') {
               this.license = null
               this.licenseVersion = null
               this.licenseType = null
@@ -100,14 +100,14 @@
         location.reload()
       },
 
-      showModal() {
-        var d = document.getElementById("modal-licenses")
-        d.classList.add("is-active")
+      showModal () {
+        let d = document.getElementById('modal-licenses')
+        d.classList.add('is-active')
       },
 
-      closeModal() {
-        var d = document.getElementById("modal-licenses")
-        d.classList.remove("is-active")
+      closeModal () {
+        let d = document.getElementById('modal-licenses')
+        d.classList.remove('is-active')
       }
     }
   }

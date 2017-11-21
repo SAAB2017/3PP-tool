@@ -49,7 +49,7 @@
       ProductsAddModal
     },
 
-    data() {
+    data () {
       return {
         products: [],
         searchProducts: null,
@@ -59,7 +59,7 @@
     },
 
     /* Fetches signed products from the database and puts them in products */
-    mounted() {
+    mounted () {
       this.getAllProducts()
     },
 
@@ -67,7 +67,7 @@
       /**
        * Searches for signed products from the database matching the search-criteria
        */
-      searchProduct(){
+      searchProduct () {
         if (this.searchProducts.length === 0) {
           this.getAllProducts()
           return
@@ -78,7 +78,7 @@
             if (response.data != null) {
               this.products = response.data
             } else {
-              this.message = "No product found!"
+              this.message = 'No product found!'
             }
           })
         } else {
@@ -90,11 +90,11 @@
        * Opens the view for a specific product with id id.
        * @param product The product to be viewed
        */
-      displayComponent(product) {
-        this.$router.push({ name: "products_id", params: { id: product.id } })
+      displayComponent (product) {
+        this.$router.push({ name: 'products_id', params: { id: product.id } })
       },
 
-      getAllProducts(){
+      getAllProducts () {
         axios.get(this.$baseAPI + 'products/')
           .then(response => {
             this.products = response.data

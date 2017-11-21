@@ -40,7 +40,7 @@
   import axios from 'axios'
 
   export default {
-    data() {
+    data () {
       return {
         products: [],
         product: null,
@@ -49,7 +49,7 @@
     },
 
     /* Fetches unsigned products from the database and puts them in products */
-    mounted() {
+    mounted () {
       axios.get(this.$baseAPI + 'products/pending')
         .then(response => {
           this.products = response.data
@@ -60,7 +60,7 @@
       /**
        * Searches for unsigned products from the database matching the search-criteria
        */
-      searchProduct(){
+      searchProduct () {
         // TODO Implement method
       },
 
@@ -68,8 +68,8 @@
        * Opens the view for signing a specific product with id id.
        * @param product The product to be signed
        */
-      displayComponent(product) {
-        this.$router.push({ name: "Sign Product", params: { id: product.id } })
+      displayComponent (product) {
+        this.$router.push({ name: 'Sign Product', params: { id: product.id } })
       }
     }
   }

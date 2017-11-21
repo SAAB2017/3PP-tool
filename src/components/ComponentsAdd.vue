@@ -62,7 +62,7 @@
 <script>
   import axios from 'axios'
   export default {
-    data() {
+    data () {
       return {
         licenses: [],
         checkedLicenses: [],
@@ -72,7 +72,7 @@
       }
     },
     /* Fetches liceses from the database and puts them in licenses */
-    mounted() {
+    mounted () {
       axios.get(this.$baseAPI + 'licenses')
         .then(response => {
           this.licenses = response.data
@@ -93,7 +93,7 @@
 
         axios.post(this.$baseAPI + 'components/add', data)
           .then(response => {
-            if (response.responseData.status === "success") {
+            if (response.responseData.status === 'success') {
               this.componentName = null
               this.componentVersion = null
               this.componentComment = null
@@ -105,7 +105,7 @@
       /**
        * Searches for liceses from the database matching the search-criteria
        */
-      searchLicense() {
+      searchLicense () {
         // TODO Implement method
       }
     }

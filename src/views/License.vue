@@ -70,7 +70,7 @@
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">License in components</th>
+                  <th scope="col">Components with license</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
@@ -88,7 +88,7 @@
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">License in products</th>
+                  <th scope="col">Products with license</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
@@ -106,7 +106,7 @@
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">License in projects</th>
+                  <th scope="col">Project with license</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
@@ -164,7 +164,7 @@
       /**
        * Fetch all components that contains this license
        */
-      fetchComponents(){
+      fetchComponents () {
         axios.get(this.$baseAPI + 'components/componentsWithLicense/' + this.$route.params.id).then(response => {
           this.components = response.data
         })
@@ -173,7 +173,7 @@
       /**
        * Fetch all products that contains this license
        */
-      fetchProducts(){
+      fetchProducts () {
         axios.get(this.$baseAPI + 'products/productsWithLicense/' + this.$route.params.id).then(response => {
           this.products = response.data
         })
@@ -182,7 +182,7 @@
       /**
        * Fetch all projects that contains this license
        */
-      fetchProjects(){
+      fetchProjects () {
         axios.get(this.$baseAPI + 'projects/projectsWithLicense/' + this.$route.params.id).then(response => {
           this.projects = response.data
         })

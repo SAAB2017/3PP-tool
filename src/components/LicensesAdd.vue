@@ -44,7 +44,7 @@ d<!-- View for adding Licenses -->
 <script>
   import axios from 'axios'
   export default {
-    data() {
+    data () {
       return {
         license: null,
         licenseVersion: null,
@@ -58,7 +58,7 @@ d<!-- View for adding Licenses -->
       /**
        * Add a license to the database according to the fields in the view
        */
-      addLicense() {
+      addLicense () {
         let data = {
           licenseName: this.license,
           licenseVersion: this.licenseVersion,
@@ -70,7 +70,7 @@ d<!-- View for adding Licenses -->
 
         axios.post(this.$baseAPI + 'licenses/add', data)
           .then(response => {
-            if (response.data === "success") {
+            if (response.data === 'success') {
               this.license = null
               this.licenseVersion = null
               this.licenseType = null

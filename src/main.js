@@ -20,6 +20,6 @@ let main = new Vue({
 })
 
 polyfillLoader({
-  "features": "Promise,fetch",
-  "onCompleted": main
+  'features': 'Promise,fetch',
+  'onCompleted': main
 })

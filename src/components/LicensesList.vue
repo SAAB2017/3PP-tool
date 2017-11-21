@@ -49,7 +49,7 @@
       LicensesAddModal
     },
 
-    data() {
+    data () {
       return {
         licenses: [],
         license: null,
@@ -59,7 +59,7 @@
     },
 
     /* Fetches signed licenses from the database and puts them in licenses */
-    mounted() {
+    mounted () {
       this.getAllLicenses()
     },
 
@@ -82,9 +82,9 @@
         if (this.searchLicense !== 0 || this.searchLicense !== null || this.searchLicense !== '') {
           axios.get(this.$baseAPI + 'licenses/search/' + this.searchLicense).then(response => {
             if (response.data != null) {
-              this.licenses  = response.data
+              this.licenses = response.data
             } else {
-              this.message = "No component found!"
+              this.message = 'No component found!'
             }
           })
         } else {
@@ -96,8 +96,8 @@
        * Opens the view for a specific license with id id.
        * @param license The license to be viewed
        */
-      displayComponent(license) {
-        this.$router.push({ name: "licenses_id", params: { id: license.id } })
+      displayComponent (license) {
+        this.$router.push({ name: 'licenses_id', params: { id: license.id } })
       }
     }
   }

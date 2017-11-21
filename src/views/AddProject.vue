@@ -16,7 +16,6 @@
 </template>
 
 <script>
-  import axios from 'axios'
   import ProjectsAdd from '@/components/ProjectsAdd'
 
   export default {
