@@ -1,12 +1,8 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import { polyfillLoader } from 'polyfill-io-feature-detection'
-import { polyfill } from 'es6-promise'
 import 'bulma/css/bulma.css'
 import 'font-awesome/css/font-awesome.css'
-
-polyfill()
 
 Vue.config.productionTip = false
 
@@ -17,9 +13,4 @@ let main = new Vue({
   router,
   template: '<App/>',
   components: { App }
-})
-
-polyfillLoader({
-  'features': 'Promise,fetch',
-  'onCompleted': main
 })

@@ -98,7 +98,11 @@ const webpackConfig = merge(baseWebpackConfig, {
         to: config.build.assetsSubDirectory,
         ignore: ['.*']
       }
-    ])
+    ]),
+    new webpack.ProvidePlugin({
+      Promise: 'bluebird'
+    }),
+    new webpack.NormalModuleReplacementPlugin(/es6-promise$/, 'bluebird')
   ]
 })
 
