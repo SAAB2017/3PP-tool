@@ -7,7 +7,7 @@ var router = express.Router()
 router.route('/')
 
   .get((req, res) => {
-    req.db.all("SELECT * FROM projects", (err, rows) => {
+    req.db.all("SELECT * FROM projects", (error, rows) => {
       res.json(rows)
     })
   })
@@ -89,19 +89,19 @@ router.route('/add')
     const products = req.body.products
 
     //Get the correct parameters
-    req.db.run('begin', err => {
-      if(err) {
-        console.log(err)
+    req.db.run('begin', error => {
+      if(error) {
+        console.log(error)
       }
       else {
         addProject(input, (query) => {
           console.log(query)
-          req.db.run(query, (err) => {
-            if (err) {
-              console.log(err.message)
+          req.db.run(query, (error) => {
+            if (error) {
+              console.log(error.message)
               res.status(500)
               req.db.run('rollback')
-              res.send("ERROR! error message:" + err.message + ", query: " + query)
+              res.send("ERROR! error message:" + error.message + ", query: " + query)
             } else {
                 getProject(req, res, input.projectName, input.projectVersion, null, function (product) {
                   insertProjectLog(req, res, product.id, 'Product created.',
@@ -237,11 +237,11 @@ router.route('/search/:id')
     // precondition: parameter is wellformed
     const query = `select * from projects where projectName LIKE "%${req.params.id}%"`
     console.log(query)
-    req.db.all(query, (err, rows) => {
-      if (err) {
-        console.log(err)
+    req.db.all(query, (error, rows) => {
+      if (error) {
+        console.log(error)
         res.status(404)
-        res.send("ERROR! error message:" + err.message + ", query: " + query)
+        res.send("ERROR! error message:" + error.message + ", query: " + query)
       } else {
         res.status(200)
         res.json(rows)
@@ -482,8 +482,8 @@ function getProjectsWithLicense(req, res, id) {
   query += " WHERE D = ?;"
 
 
-  req.db.all(query, [id], (err, rows) => {
-    if (err) {
+  req.db.all(query, [id], (error, rows) => {
+    if (error) {
       console.log(error)
       res.status(500).send(error.message)
     } else
@@ -499,8 +499,8 @@ function getProjectsWithComponent(req, res, id) {
   query += " WHERE componentID = ?;"
 
 
-  req.db.all(query, [id], (err, rows) => {
-    if (err) {
+  req.db.all(query, [id], (error, rows) => {
+    if (error) {
       console.log(error.message)
       res.status(500).send(error.message)
     }
@@ -517,8 +517,8 @@ function getProjectsWithProduct(req, res, id) {
 
   query += " WHERE productID = ?;"
 
-  req.db.all(query, [id], (err, rows) => {
-    if (err) {
+  req.db.all(query, [id], (error, rows) => {
+    if (error) {
       console.log(error.message)
       res.status(500).send(error.message)
     } else
@@ -555,8 +555,8 @@ function getProjectFromParameters(req, res, input, parametersText, parameters) {
     parameters.push(input[parametersText[i]])
   }
 
-  req.db.all(query, parameters, (err, rows) => {
-    if (err) {
+  req.db.all(query, parameters, (error, rows) => {
+    if (error) {
       console.log(error.message)
       res.status(500).send(error.message)
     } else
@@ -568,11 +568,11 @@ router.route('/:id')
 .get((req, res) => {
   let input = req.params.id
   const query = `SELECT * FROM projects WHERE id=${input}`
-  req.db.get(query, (err, row) => {
-    if (err) {
-      console.log(err)
+  req.db.get(query, (error, row) => {
+    if (error) {
+      console.log(error)
       res.status(404)
-      res.send("ERROR! error message:" + err.message + ", query: " + query)
+      res.send("ERROR! error message:" + error.message + ", query: " + query)
     } else {
       res.status(200)
       res.json(row)
