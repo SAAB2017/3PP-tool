@@ -479,7 +479,7 @@ function getProjectsWithLicense(req, res, id) {
               + " LEFT OUTER JOIN componentsInProducts ON componentsInProducts.productID=productsInProjects.productID"
               + " LEFT OUTER JOIN licensesInComponents ON licensesInComponents.componentID=componentsInProducts.componentID"
 
-  query += " WHERE D = ?;"
+  query += " WHERE licenseID = ?;"
 
 
   req.db.all(query, [id], (error, rows) => {
