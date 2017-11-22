@@ -145,52 +145,111 @@ INSERT INTO Accounts (accountID, password, name, email) VALUES
 
 /* Licenses */
 INSERT INTO licenses (licenseName, licenseVersion, dateCreated, lastEdited, URL, comment, licenseType) VALUES
-	("Test License", "1.01", 0, 0, "www.detfungerar.com", "hello world!", "License type"),
-    ("Test License1", "1.1", 0, 0, "www.detfungerar.com", "hello world!", "License type1"),
-    ("Test License1", "1.2", 0, 0, "www.detfungerar.com", "hello world!", "License type1"),
-    ("Test License2", "1.1", 0, 0, "www.detfungerar.com", "hello world!", "License type");
+	("GNU AGPL", "3.0", "2017-10-01", "2017-10-01", "https://www.gnu.org/licenses/agpl-3.0.en.html", "GNU Affero General Public License", "Open source license"),
+    ("GNU GPL", "3.0", "2017-10-05", "2017-10-05", "https://www.gnu.org/licenses/gpl-3.0.en.html", "GNU General Public License", "Open source license"),
+    ("GNU LGPL", "3.0", "2017-10-10", "2017-10-10", "https://www.gnu.org/licenses/lgpl-3.0.en.html", "GNU Lesser General Public License", "Open source license"),
+    ("Mozilla Public License", "2.0", "2017-10-15", "2017-10-15", "https://www.mozilla.org/en-US/MPL/2.0/", NULL, "Open source license"),
+    ("Apache License", "2.0", "2017-10-20", "2017-10-15", "https://www.mozilla.org/en-US/MPL/2.0/", NULL, "Open source license"),
+    ("MIT License", "1.0", "2017-10-20", "2017-10-20", "https://opensource.org/licenses/MIT/", NULL, "Open source license"),
+    ("CMU License", "1.0", "2017-10-25", "2017-10-25", "https://spdx.org/licenses/MIT-CMU.html", NULL, "Open source license"),
+    ("SIL OFL", "1.1", "2017-10-30", "2017-10-30", "http://scripts.sil.org/OFL", NULL, "Open source license"),
+    ("BSD 3-clause", "1.0", "2017-11-01", "2017-11-01", "https://opensource.org/licenses/BSD-3-Clause", NULL, "Open source license"),
+    ("The Unlicense", "1.0", "2017-10-25", "2017-10-25", "https://choosealicense.com/licenses/unlicense/", NULL, "Open source license");
 
 /* Components */
-INSERT INTO components
-    (componentName, componentVersion, dateCreated, lastEdited, comment) VALUES
-    ("Test Components", "1.0", 0, 0, "component comment");
+INSERT INTO components (componentName, componentVersion, dateCreated, lastEdited, comment) VALUES
+    ("vue", "2.5.2", "2017-11-01", "2017-11-01", "The Progressive JavaScript Framework."),
+    ("node", "9.2.0", "2017-11-03", "2017-11-03", "The Progressive JavaScript Framework."),
+    ("axios", "0.17.0", "2017-11-04", "2017-11-04", "Promise based HTTP client for the browser and node.js."),
+    ("bulma", "0.6.0", "2017-11-05", "2017-11-05", "Modern CSS framework based on Flexbox."),
+    ("cors", "2.8.4", "2017-11-06", "2017-11-06", "CORS is a node.js package for providing a Connect/Express middleware that can be used to enable CORS with various options."),
+    ("es6-promise", "4.1.1", "2017-11-07", "2017-11-07", "A polyfill for ES6-style Promises."),
+    ("font-awesome", "4.7.0", "2017-11-08", "2017-11-08", "The iconic font and CSS toolkit."),
+    ("npm-watch", "0.3.0", "2017-11-09", "2017-11-09", "Run scripts from package.json when files change."),
+    ("polyfill-io-feature-detection", "1.1.14", "2017-11-10", "2017-11-10", "Feature detection in the browser before loading polyfill using services like polyfill.io."),
+    ("sqlite3", "3.1.13", "2017-11-11", "2017-11-11", "Asynchronous, non-blocking SQLite3 bindings for Node.js."),
+    ("vue-axios", "2.0.2", "2017-11-12", "2017-11-12", "A small wrapper for integrating axios to Vuejs"),
+    ("vue-router", "3.0.1", "2017-11-13", "2017-11-13", "This is vue-router, the official router for Vue.js. It deeply integrates with Vue.js core to make building Single Page Applications with Vue.js a breeze.");
 
 /* Products */
 INSERT INTO products
-    (productName, productVersion,
-    dateCreated, lastEdited, comment) VALUES
-    ("Test Products", "1.0", 0, 0, "product comment");
+    (productName, productVersion, dateCreated, lastEdited, comment) VALUES
+    ("Third-Party License Management REST API", "1.0", "2017-11-20", "2017-11-20", "Third party handler Rest API for handling licenses."),
+    ("Third-Party License Management WUI", "1.0", "2017-11-20", "2017-11-20", "Third party handler Rest API for handling licenses.");
 
 /* Projects */
 INSERT INTO projects
-    (projectName, projectVersion,
-    dateCreated, lastEdited, comment) VALUES
-    ("Test Projects", "1.0", 0, 0, "project comment");
+    (projectName, projectVersion, dateCreated, lastEdited, comment) VALUES
+    ("3PP Management Tool", "1.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.");
 
 /* License Log */
 INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES
     (1, 0, "License created."),
     (2, 0, "License created."),
 	  (3, 0, "License created."),
-	  (4, 0, "License created.");
+	  (4, 0, "License created."),
+	  (5, 0, "License created."),
+	  (6, 0, "License created."),
+	  (7, 0, "License created."),
+	  (8, 0, "License created."),
+	  (9, 0, "License created."),
+	  (10, 0, "License created.");
 
 /* Component Log */
 INSERT INTO componentLog (componentID, dateLogged, note) VALUES
-    (1, 0, "Component created.");
+    (1, 0, "Component created."),
+    (2, 0, "Component created."),
+    (3, 0, "Component created."),
+    (4, 0, "Component created."),
+    (5, 0, "Component created."),
+    (6, 0, "Component created."),
+    (7, 0, "Component created."),
+    (9, 0, "Component created."),
+    (9, 0, "Component created."),
+    (10, 0, "Component created."),
+    (11, 0, "Component created."),
+    (12, 0, "Component created.");
 
 /* Product Log */
 INSERT INTO productLog (productID, dateLogged, note) VALUES
-    (1, 0, "Product created.");
+    (1, 0, "Product created."),
+    (2, 0, "Product created.");
 
 /* Project Log */
 INSERT INTO projectLog (projectID, dateLogged, note) VALUES
     (1, 0, "Project created.");
 
 INSERT INTO licensesInComponents (licenseID, componentID) VALUES
-    (1, 1);
+    (6, 1),
+    (6, 2),
+    (7, 2),
+    (6, 3),
+    (6, 4),
+    (6, 5),
+    (6, 6),
+    (8, 7),
+    (6, 8),
+    (6, 9),
+    (9, 10),
+    (6, 11),
+    (6, 12);
 
 INSERT INTO componentsInProducts (componentID, productID) VALUES
-    (1, 1);
+    (2, 1),
+    (8, 1),
+    (10, 1),
+    (1, 2),
+    (2, 2),
+    (3, 2),
+    (4, 2),
+    (5, 2),
+    (6, 2),
+    (7, 2),
+    (8, 2),
+    (9, 2),
+    (11, 2),
+    (12, 2);
 
 INSERT INTO productsInProjects (productID, projectID) VALUES
-    (1, 1);
+    (1, 1),
+    (2, 1);
