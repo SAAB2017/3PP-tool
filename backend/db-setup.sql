@@ -50,7 +50,7 @@ CREATE TABLE "components" (
     dateCreated DATE,
     lastEdited DATETIME,
     comment TEXT,
-    approved BIT,
+    approved BIT DEFAULT 0,
     approvedBy TEXT,
     UNIQUE(componentName, componentVersion) ON CONFLICT ABORT
     PRIMARY KEY (id)
@@ -157,30 +157,30 @@ INSERT INTO licenses (licenseName, licenseVersion, dateCreated, lastEdited, URL,
     ("The Unlicense", "1.0", "2017-10-25", "2017-10-25", "https://choosealicense.com/licenses/unlicense/", NULL, "Open source license");
 
 /* Components */
-INSERT INTO components (componentName, componentVersion, dateCreated, lastEdited, comment) VALUES
-    ("vue", "2.5.2", "2017-11-01", "2017-11-01", "The Progressive JavaScript Framework."),
-    ("node", "9.2.0", "2017-11-03", "2017-11-03", "The Progressive JavaScript Framework."),
-    ("axios", "0.17.0", "2017-11-04", "2017-11-04", "Promise based HTTP client for the browser and node.js."),
-    ("bulma", "0.6.0", "2017-11-05", "2017-11-05", "Modern CSS framework based on Flexbox."),
-    ("cors", "2.8.4", "2017-11-06", "2017-11-06", "CORS is a node.js package for providing a Connect/Express middleware that can be used to enable CORS with various options."),
-    ("es6-promise", "4.1.1", "2017-11-07", "2017-11-07", "A polyfill for ES6-style Promises."),
-    ("font-awesome", "4.7.0", "2017-11-08", "2017-11-08", "The iconic font and CSS toolkit."),
-    ("npm-watch", "0.3.0", "2017-11-09", "2017-11-09", "Run scripts from package.json when files change."),
-    ("polyfill-io-feature-detection", "1.1.14", "2017-11-10", "2017-11-10", "Feature detection in the browser before loading polyfill using services like polyfill.io."),
-    ("sqlite3", "3.1.13", "2017-11-11", "2017-11-11", "Asynchronous, non-blocking SQLite3 bindings for Node.js."),
-    ("vue-axios", "2.0.2", "2017-11-12", "2017-11-12", "A small wrapper for integrating axios to Vuejs"),
-    ("vue-router", "3.0.1", "2017-11-13", "2017-11-13", "This is vue-router, the official router for Vue.js. It deeply integrates with Vue.js core to make building Single Page Applications with Vue.js a breeze.");
+INSERT INTO components (componentName, componentVersion, dateCreated, lastEdited, comment, approved, approvedBy) VALUES
+    ("vue", "2.5.2", "2017-11-01", "2017-11-01", "The Progressive JavaScript Framework.", "1", "Nils Nilsson"),
+    ("node", "9.2.0", "2017-11-03", "2017-11-03", "The Progressive JavaScript Framework.", "1", "Nils Nilsson"),
+    ("axios", "0.17.0", "2017-11-04", "2017-11-04", "Promise based HTTP client for the browser and node.js.", "1", "Nils Nilsson"),
+    ("bulma", "0.6.0", "2017-11-05", "2017-11-05", "Modern CSS framework based on Flexbox.", "1", "Nils Nilsson"),
+    ("cors", "2.8.4", "2017-11-06", "2017-11-06", "CORS is a node.js package for providing a Connect/Express middleware that can be used to enable CORS with various options.", "1", "Nils Nilsson"),
+    ("es6-promise", "4.1.1", "2017-11-07", "2017-11-07", "A polyfill for ES6-style Promises.", "1", "Nils Nilsson"),
+    ("font-awesome", "4.7.0", "2017-11-08", "2017-11-08", "The iconic font and CSS toolkit.", "1", "Nils Nilsson"),
+    ("npm-watch", "0.3.0", "2017-11-09", "2017-11-09", "Run scripts from package.json when files change.", "1", "Nils Nilsson"),
+    ("polyfill-io-feature-detection", "1.1.14", "2017-11-10", "2017-11-10", "Feature detection in the browser before loading polyfill using services like polyfill.io.", "1", "Nils Nilsson"),
+    ("sqlite3", "3.1.13", "2017-11-11", "2017-11-11", "Asynchronous, non-blocking SQLite3 bindings for Node.js.", "0", "Nils Nilsson"),
+    ("vue-axios", "2.0.2", "2017-11-12", "2017-11-12", "A small wrapper for integrating axios to Vuejs", "0", "Nils Nilsson"),
+    ("vue-router", "3.0.1", "2017-11-13", "2017-11-13", "This is vue-router, the official router for Vue.js. It deeply integrates with Vue.js core to make building Single Page Applications with Vue.js a breeze.", "0", "Nils Nilsson");
 
 /* Products */
 INSERT INTO products
-    (productName, productVersion, dateCreated, lastEdited, comment) VALUES
-    ("Third-Party License Management REST API", "1.0", "2017-11-20", "2017-11-20", "Third party handler Rest API for handling licenses."),
-    ("Third-Party License Management WUI", "1.0", "2017-11-20", "2017-11-20", "Third party handler Rest API for handling licenses.");
+    (productName, productVersion, dateCreated, lastEdited, comment, approved, approvedBy) VALUES
+    ("Third-Party License Management REST API", "1.0", "2017-11-20", "2017-11-20", "Third party handler Rest API for handling licenses.", "1", "Nils Nilsson"),
+    ("Third-Party License Management WUI", "1.0", "2017-11-20", "2017-11-20", "Third party handler Rest API for handling licenses.", "1", "Nils Nilsson");
 
 /* Projects */
 INSERT INTO projects
-    (projectName, projectVersion, dateCreated, lastEdited, comment) VALUES
-    ("3PP Management Tool", "1.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.");
+    (projectName, projectVersion, dateCreated, lastEdited, comment, approved, approvedBy) VALUES
+    ("3PP Management Tool", "1.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.", "1", "Nils Nilsson");
 
 /* License Log */
 INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES
