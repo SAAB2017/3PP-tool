@@ -29,6 +29,9 @@
           <td scope="row" data-label="Created">{{ component.dateCreated }}</td>
           <td scope="row" data-label="Last edited">{{ component.lastEdited }}</td>
         </tr>
+        <tr v-if="showPaginatorClick">
+          <div id="paginator" style="text-align: center;" @click="getNextPage()">...Click here for more results...</div>
+        </tr>
         </tbody>
       </table>
 
@@ -54,12 +57,17 @@
         components: [],
         searchComponents: null,
         component: null,
-        componentVersion: null
+        componentVersion: null,
+        page: 0,
+        pageCount: 0,
+        total: 0,
+        showPaginatorClick: true
       }
     },
     /* Fetches signed components from the database and puts them in components */
     mounted () {
-      this.getAllComponents()
+      this.getPageCount()
+      this.getFirst()
     },
 
     methods: {
@@ -92,13 +100,42 @@
       displayComponent (component) {
         this.$router.push({ name: 'components_id', params: { id: component.id } })
       },
+      getFirst () {
+        axios.get(this.$baseAPI + 'components/?page=0')
+          .then(response => {
+            this.components = response.data
+          })
+      },
       getAllComponents () {
         axios.get(this.$baseAPI + 'components/')
           .then(response => {
             this.components = response.data
           })
       },
-
+      getNextPage () {
+        if (this.components.length < this.total) {
+          this.page += 1
+          axios.get(this.$baseAPI + `components/?page=${this.page}`)
+            .then(response => {
+              // this.components.push(response.data)
+              response.data.forEach(elem => this.components.push(elem))
+              console.log(`Current page: ${this.page} len: ${this.components.length} total: ${this.total}`)
+            })
+        } else {
+          this.showPaginatorClick = null
+        }
+      },
+      getPageCount () {
+        axios.get(this.$baseAPI + `components/?pageCount`)
+          .then(response => {
+            this.total = response.data.rowCount
+            if (this.total < 100) {
+              this.pageCount = 1
+            } else {
+              this.pageCount = Math.ceil(response.data.rowCount / 5)
+            }
+          })
+      },
       showModal () {
         let d = document.getElementById('modal')
         d.classList.add('is-active')
