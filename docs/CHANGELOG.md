@@ -26,6 +26,7 @@ Formatet är baserat på [Keep a Changelog] och detta projekt följer [Semantic 
 - Tillagt detaljspecifikation för ett projekt med dess beroenden med avseende på licens, komponent och produkt
 
 ### Ändrat
+- Namnet på WUI har bytt namn från "3PP Manager" till "License Management Tool" för att göra en mer tydlighet i vad WUI gör
 - Förändrat hur komponenter läggs till
 - Ändrat WUI för att göra den mer dynamisk
 - Ändrat datumformatsvisualiseringen i WUI som följer den internationella standarden ISO 8601
