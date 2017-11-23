@@ -75,7 +75,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="co in components">
+                <tr v-for="co in components" @click="displayComponent(co)">
                   <td scope="row" data-label="Component">{{ co.componentName }}</td>
                   <td scope="row" data-label="Version">{{ co.componentVersion }}</td>
                 </tr>
@@ -93,7 +93,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="produ in products">
+                <tr v-for="produ in products" @click="displayProduct(produ)">
                   <td scope="row" data-label="Product">{{ produ.productName }}</td>
                   <td scope="row" data-label="Version">{{ produ.productVersion }}</td>
                 </tr>
@@ -111,7 +111,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="projec in projects">
+                <tr v-for="projec in projects" @click="displayProject(projec)">
                   <td scope="row" data-label="Project">{{ projec.projectName }}</td>
                   <td scope="row" data-label="Version">{{ projec.projectVersion }}</td>
                 </tr>
@@ -130,6 +130,92 @@
             </div>
           </div>
         </div>
+
+    <div class="modal" id="modalWindow">
+      <div class="modal-background" @click="closeModal()"></div>
+      <div class="modal-card" style="text-align: center">
+
+        <header class="modal-card-head">
+          <p class="modal-card-title"> {{ modalName }} </p>
+          <button class="delete" aria-label="close" @click="closeModal()"></button>
+        </header>
+
+        <section class="modal-card-body">
+
+          <div class="field is-horizontal" style="padding-right: 30px">
+            <div class="field-label">
+              <label class="label is-normal">Name</label>
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="control">
+                  <input v-model="modalName" class="input" type="text" readonly>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field is-horizontal" style="padding-right: 30px">
+            <div class="field-label">
+              <label class="label is-normal">Version</label>
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="control">
+                  <input v-model="modalVersion" class="input" type="text" readonly>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field is-horizontal" style="padding-right: 30px">
+            <div class="field-label">
+              <label class="label is-normal">Created</label>
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="control">
+                  <input v-model="modalCreated" class="input" type="text" readonly>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field is-horizontal" style="padding-right: 30px">
+            <div class="field-label">
+              <label class="label is-normal">Approver</label>
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="control">
+                  <input v-model="modalApprover" class="input" type="text" readonly>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field is-horizontal" style="padding-right: 30px">
+            <div class="field-label">
+              <label class="label is-normal">Comment</label>
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="control">
+                  <textarea v-model="modalComment" class="textarea" readonly/>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <footer class="modal-card-foot" style="justify-content: center">
+          <button @click="goTo(modalComponent)" class="button is-success">Go to {{ modalComp }} </button>
+        </footer>
+
+
+      </div>
+    </div>
   </div>
 </template>
 
@@ -144,7 +230,14 @@
         components: [],
         products: [],
         projects: [],
-        message: ''
+        message: '',
+        modalComponent: {},
+        modalComp: '',
+        modalName: '',
+        modalVersion: '',
+        modalCreated: '',
+        modalApprover: '',
+        modalComment: ''
       }
     },
 
@@ -186,6 +279,60 @@
         axios.get(this.$baseAPI + 'projects/projectsWithLicense/' + this.$route.params.id).then(response => {
           this.projects = response.data
         })
+      },
+
+      showModal () {
+        let d = document.getElementById('modalWindow')
+        d.classList.add('is-active')
+      },
+
+      closeModal () {
+        let d = document.getElementById('modalWindow')
+        d.classList.remove('is-active')
+        this.modalComp = ''
+        this.modalName = ''
+        this.modalVersion = ''
+        this.modalCreated = ''
+        this.modalApprover = ''
+        this.modalComment = ''
+        this.modalComponent = {}
+      },
+
+      displayComponent (component) {
+        this.modalComponent = component
+        this.modalComp = 'component'
+        this.modalName = component.componentName
+        this.modalVersion = component.componentVersion
+        this.modalCreated = component.dateCreated
+        this.modalComment = component.comment
+        this.showModal()
+      },
+
+      displayProduct (product) {
+        this.modalComponent = product
+        this.modalComp = 'product'
+        this.modalName = product.productName
+        this.modalVersion = product.productVersion
+        this.modalCreated = product.dateCreated
+        this.modalComment = product.comment
+        this.modalApprover = product.approvedBy
+        this.showModal()
+      },
+
+      displayProject (project) {
+        this.modalComponent = project
+        this.modalComp = 'project'
+        this.modalName = project.projectName
+        this.modalVersion = project.projectVersion
+        this.modalCreated = project.dateCreated
+        this.modalComment = project.comment
+        this.modalApprover = project.approvedBy
+        this.showModal()
+      },
+
+      goTo (part) {
+        let routeName = this.modalComp + 's_id'
+        this.$router.push({name: routeName, params: {id: part.id}})
       }
     }
   }
