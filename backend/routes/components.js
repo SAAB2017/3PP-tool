@@ -7,9 +7,42 @@ var router = express.Router()
 router.route('/')
 
   .get((req, res) => {
-    req.db.all("SELECT * FROM components", (err, rows) => {
-      res.json(rows)
-    })
+    let currentPage = 0
+    if (typeof req.query.pageCount !== 'undefined') {
+      console.log(req.query.pageCount)
+      const pageCountQuery = `select count(*) as rowCount from components`
+      req.db.all(pageCountQuery, (err, rows) => {
+        if (err) {
+          console.log(err)
+        } else {
+          console.log(rows[0].ROWCOUNT)
+          res.json(rows[0])
+        }
+      })
+      return
+    }
+    if (typeof req.query.page !== 'undefined') {
+      currentPage = +req.query.page
+      let offset = (currentPage) * 5
+      const query = `SELECT * FROM components ORDER BY components.componentName LIMIT ${offset}, 5`
+      console.log(query)
+      req.db.all(query, (err, rows) => {
+        if (err) {
+          console.log(err)
+        } else {
+          res.json(rows)
+        }
+      })
+    } else {
+      req.db.all('SELECT * FROM components where approved="1" ', (err, rows) => {
+        if (err) {
+          console.log(err)
+        } else {
+          res.json(rows)
+        }
+      })
+    }
+
   })
 
 // ----------------------------------------------------------------------------
@@ -48,6 +81,19 @@ function getCorrectApproved(input) {
   }
   return approved
 }
+
+
+router.route('/pending')
+  .get((req, res) => {
+    req.db.all("SELECT * FROM components where approved=0", (err, rows) => {
+      if (err) {
+        console.log(err)
+      } else {
+        console.log(rows)
+        res.json(rows)
+      }
+    })
+  })
 
 router.route('/approve')
   .put((req, res) => {
@@ -120,7 +166,7 @@ router.route('/add')
 
 function addComponent (component, cb) {
   let date = new Date().toLocaleDateString()
-  const query = `INSERT INTO components (componentName, componentVersion, dateCreated, lastEdited, comment) VALUES ('${component.componentName}','${component.componentVersion}','${date}','${date}','${component.componentName}')`
+  const query = `INSERT INTO components (componentName, componentVersion, dateCreated, lastEdited, comment, approved, approvedBy) VALUES ('${component.componentName}','${component.componentVersion}','${date}','${date}','${component.componentName}', 0, '')`
   cb(query)
 }
 
@@ -491,5 +537,6 @@ function getComponentLog(req, res, id){
     }
   })
 }
+
 
 module.exports = router
