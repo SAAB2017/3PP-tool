@@ -93,9 +93,9 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="component in components">
-                  <td scope="row" data-label="Component">{{ component.componentName }}</td>
-                  <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
+                <tr v-for="com in components">
+                  <td scope="row" data-label="Component">{{ com.componentName }}</td>
+                  <td scope="row" data-label="Version">{{ com.componentVersion }}</td>
                 </tr>
                 </tbody>
               </table>
@@ -127,7 +127,6 @@
             <div class="column is-3">
               <h1>Project not found</h1>
               <p>No project with ID {{ id }}</p>
-              <p>{{ message }}</p>
             </div>
           </div>
         </div>
@@ -144,16 +143,18 @@
         project: {},
         licenses: [],
         components: [],
-        projects: [],
+        products: [],
         message: ''
       }
     },
 
+    /* Fetch the project with id from database and add to project,
+     * then fetch licenses, components and products
+     */
     mounted () {
       axios.get(this.$baseAPI + 'projects/' + this.$route.params.id)
         .then(response => {
           this.project = response.data
-          this.message = response.message
           this.fetchLicenses()
           this.fetchComponents()
           this.fetchProducts()
@@ -164,29 +165,34 @@
       /**
        * Fetch all licenses that is in this project
        */
-      fetchLicenses(){
-        // TODO Implement
+      fetchLicenses () {
+        axios.get(this.$baseAPI + 'licenses/licensesInProject/' + this.$route.params.id).then(response => {
+          this.licenses = response.data
+        })
       },
 
       /**
        * Fetch all components that is in this project
        */
-      fetchComponents(){
-        // TODO Implement
+      fetchComponents () {
+        axios.get(this.$baseAPI + 'components/componentsInProject/' + this.$route.params.id).then(response => {
+          this.components = response.data
+        })
       },
 
       /**
        * Fetch all products that is in this project
        */
-      fetchProducts(){
-        // TODO Implement
+      fetchProducts () {
+        axios.get(this.$baseAPI + 'products/productsInProject/' + this.$route.params.id).then(response => {
+          this.products = response.data
+        })
       },
-
       /**
        * Update this product with new values
        */
       updateProject () {
-        var data = {
+        let data = {
           id: this.project.id,
           component: this.project.component,
           version: this.project.version,

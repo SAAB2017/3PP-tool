@@ -75,9 +75,9 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="license in licenses">
-                  <td scope="row" data-label="License">{{ license.licenseName }}</td>
-                  <td scope="row" data-label="Version">{{ license.licenseVersion }}</td>
+                <tr v-for="lic in licenses">
+                  <td scope="row" data-label="License">{{ lic.licenseName }}</td>
+                  <td scope="row" data-label="Version">{{ lic.licenseVersion }}</td>
                 </tr>
                 </tbody>
               </table>
@@ -93,9 +93,9 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="component in components">
-                  <td scope="row" data-label="Component">{{ component.componentName }}</td>
-                  <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
+                <tr v-for="comp in components">
+                  <td scope="row" data-label="Component">{{ comp.componentName }}</td>
+                  <td scope="row" data-label="Version">{{ comp.componentVersion }}</td>
                 </tr>
                 </tbody>
               </table>
@@ -106,7 +106,7 @@
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">Product in projects</th>
+                  <th scope="col">Projects with product</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
@@ -153,7 +153,6 @@
      * then fetch licenses, components and projects
      */
     mounted () {
-      console.log("ID:" + this.$route.params.id)
       axios.get(this.$baseAPI + 'products/' + this.$route.params.id)
         .then(response => {
           this.product = response.data
@@ -167,28 +166,34 @@
       /**
        * Fetch all licenses that is in this product
        */
-      fetchLicenses(){
-        // TODO Implement
+      fetchLicenses () {
+        axios.get(this.$baseAPI + 'licenses/licensesInProduct/' + this.$route.params.id).then(response => {
+          this.licenses = response.data
+        })
       },
 
       /**
        * Fetch all components that is in this product
        */
-      fetchComponents(){
-        // TODO Implement
+      fetchComponents () {
+        axios.get(this.$baseAPI + 'components/componentsInProduct/' + this.$route.params.id).then(response => {
+          this.components = response.data
+        })
       },
 
       /**
        * Fetch all projects that contains this product
        */
-      fetchProjects(){
-        // TODO Implement
+      fetchProjects () {
+        axios.get(this.$baseAPI + 'projects/projectsWithProduct/' + this.$route.params.id).then(response => {
+          this.projects = response.data
+        })
       },
       /**
        * Update this product with new values
        */
       updateProduct () {
-        var data = {
+        let data = {
           id: this.product.id,
           product: this.product,
           version: this.product.version,

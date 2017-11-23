@@ -4,7 +4,7 @@
     <div class="control" style="padding-top: 25px">
       <a @click="showModal()" class="button is-primary">Add license</a>
     </div>
-    <div id="modal" class="modal">
+    <div id="modal-licenses" class="modal">
       <div class="modal-background" @click="closeModal()"></div>
       <div class="modal-card" style="text-align: center">
         <header class="modal-card-head">
@@ -53,7 +53,7 @@
 <script>
   import axios from 'axios'
   export default {
-    data() {
+    data () {
       return {
         license: null,
         licenseVersion: null,
@@ -63,10 +63,10 @@
       }
     },
 
-    mounted() {
+    mounted () {
       let vm = this
       document.addEventListener('keyup', function (event) {
-        if (event.key == 'Escape'){
+        if (event.key === 'Escape') {
           vm.closeModal()
         }
       })
@@ -76,7 +76,7 @@
       /**
        * Add a license to the database according to the fields in the view
        */
-      addLicense() {
+      addLicense () {
         let data = {
           licenseName: this.license,
           licenseVersion: this.licenseVersion,
@@ -86,33 +86,28 @@
           // TODO put components for add.
         }
 
-        axios.post(this.$baseAPI + 'products', data)
+        axios.post(this.$baseAPI + 'licenses/add', data)
           .then(response => {
-            if (response.data === "success") {
+            if (response.data === 'success') {
               this.license = null
               this.licenseVersion = null
               this.licenseType = null
               this.licenseURL = null
               this.licenseComment = null
-
-              axios.get(this.$baseAPI + 'products')
-                .then(response => {
-                  this.license = response.data
-                })
             }
           })
         this.closeModal()
         location.reload()
       },
 
-      showModal() {
-        var d = document.getElementById("modal")
-        d.classList.add("is-active")
+      showModal () {
+        let d = document.getElementById('modal-licenses')
+        d.classList.add('is-active')
       },
 
-      closeModal() {
-        var d = document.getElementById("modal")
-        d.classList.remove("is-active")
+      closeModal () {
+        let d = document.getElementById('modal-licenses')
+        d.classList.remove('is-active')
       }
     }
   }

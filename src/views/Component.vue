@@ -88,14 +88,14 @@
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">Component in products</th>
+                  <th scope="col">Products with component</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                  <td scope="row" data-label="Product">Test Name</td>
-                  <td scope="row" data-label="Version">1.0</td>
+                <tr v-for="p in products">
+                  <td scope="row" data-label="License"> {{ p.productName }}</td>
+                  <td scope="row" data-label="Version">{{ p.productVersion }}</td>
                 </tr>
                 </tbody>
               </table>
@@ -106,14 +106,14 @@
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">Component in projects</th>
+                  <th scope="col">Projects with component</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                  <td scope="row" data-label="Project">Test Name</td>
-                  <td scope="row" data-label="Version">1.0</td>
+                <tr v-for="pro in projects">
+                  <td scope="row" data-label="License"> {{ pro.projectName }}</td>
+                  <td scope="row" data-label="Version">{{ pro.projectVersion }}</td>
                 </tr>
                 </tbody>
               </table>
@@ -121,7 +121,6 @@
           </div>
 
         </div>
-
         <!-- If no component with id id is found -->
         <div v-else>
           <div class="columns">
@@ -143,16 +142,22 @@
       return {
         component: {},
         licenses: [],
+        products: [],
+        projects: [],
         message: ''
       }
     },
 
-    /* Fetch the component with id from database and add to component, then fetch licenses */
+    /* Fetch the component with id from database and add to component,
+     * then fetch licenses, components and products
+     */
     mounted () {
       axios.get(this.$baseAPI + 'components/' + this.$route.params.id)
         .then(response => {
           this.component = response.data
           this.fetchLicenses()
+          this.fetchProducts()
+          this.fetchProjects()
         })
     },
 
@@ -161,7 +166,7 @@
        * Fetch all licenses that is in this component
        */
       fetchLicenses () {
-        axios.get(this.$baseAPI + 'licenses/licensesInComponent/' + JSON.stringify(this.$route.params.id)).then(response => {
+        axios.get(this.$baseAPI + 'licenses/licensesInComponent/' + this.$route.params.id).then(response => {
           this.licenses = response.data
         })
       },
@@ -169,14 +174,25 @@
       /**
        * Fetch all products that contains this component
        */
-      fetchProducts() {
+      fetchProducts () {
+        axios.get(this.$baseAPI + 'products/productsWithComponent/' + this.$route.params.id).then(response => {
+          this.products = response.data
+        })
+      },
 
+      /**
+       * Fetch all project that contains this component
+       */
+      fetchProjects () {
+        axios.get(this.$baseAPI + 'projects/projectsWithComponent/' + this.$route.params.id).then(response => {
+          this.projects = response.data
+        })
       },
       /**
        * Update this component with new values
        */
       updateComponent () {
-        var data = {
+        let data = {
           id: this.component.id,
           component: this.component,
           version: this.component.version,
@@ -191,16 +207,6 @@
                   this.message = 'Update sucessful'
                   this.component = response.data
                 })
-            }
-          })
-      },
-
-      // TODO Remove?
-      deleteComponent () {
-        axios.delete(this.$baseAPI + 'components/' + this.component.id)
-          .then(response => {
-            if (response.status === '200') {
-              this.$router.push({ name: 'components' })
             }
           })
       }

@@ -14,7 +14,7 @@
     components: {
       Navbar,
       MainContent
-    },
+    }
   }
 </script>
 
@@ -22,6 +22,24 @@
   #app {
     margin: 10px;
   }
+  .tbodyadd {
+    display: block;
+    max-height: 200px;
+    overflow: auto;
+  }
+
+  .tbodyhome {
+    display: block;
+    max-height: 450px;
+    overflow: auto;
+  }
+
+  thead, tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+  }
+
   table {
     border: 1px solid #ccc;
     border-collapse: collapse;

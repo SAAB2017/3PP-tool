@@ -7,7 +7,7 @@ var router = express.Router()
 router.route('/')
 
   .get((req, res) => {
-    req.db.all("SELECT * FROM projects", (err, rows) => {
+    req.db.all("SELECT * FROM projects", (error, rows) => {
       res.json(rows)
     })
   })
@@ -86,31 +86,54 @@ router.route('/add')
   .post((req, res) => {
     // precondition: project doesn't already exist.
     const input = req.body
-    parametersText = []
-    parameters = []
+    const products = req.body.products
 
     //Get the correct parameters
-    getInsertProjectParameters(req, parametersText, parameters, function (returnValue) {
-      parametersText = returnValue[0]
-      parameters = returnValue[1]
-
-      //Make sure the necessary parameters are provided to insert a new project.
-      if (input.projectName != null && input.projectVersion != null) {
-
-        insertNewProject(req, res, parametersText, parameters, function (returnValue) {
-          //Get the project so that the id can be extracted
-          getProject(req, res, input.projectName, input.projectVersion, null, function (project) {
-            insertProjectLog(req, res, project.id, "Project created.",
-              function (returnValue) {
-                res.status(201).send("Success!")
-              })
+    req.db.run('begin', error => {
+      if(error) {
+        console.log(error)
+      }
+      else {
+        addProject(input, (query) => {
+          console.log(query)
+          req.db.run(query, (error) => {
+            if (error) {
+              console.log(error.message)
+              res.status(500)
+              req.db.run('rollback')
+              res.send("ERROR! error message:" + error.message + ", query: " + query)
+            } else {
+                getProject(req, res, input.projectName, input.projectVersion, null, function (product) {
+                  insertProjectLog(req, res, product.id, 'Product created.',
+                    function (returnValue) {
+                      // här säger vi; för alla komponenter, låt comp vara komponent
+                      // lägg in komponent i produkt
+                      products.forEach((comp) => { insertProductIntoProject(req, res, comp, product.id, (succeeded) => {
+                        if (!succeeded) { // if *any* of the insertions fail, we rollback the entire thing
+                          req.db.run('rollback')
+                          res.status(500)
+                          res.send('Error! Component was not found!')
+                        }
+                      })
+                      })
+                      req.db.run('commit')
+                      res.status(201).send('Success!')
+                    })
+                })
+            }
           })
         })
-
       }
     })
+
     // postcondition: project created and logged.
   })
+
+function addProject (project, cb) {
+  let date = new Date().toLocaleDateString()
+  const query = `INSERT INTO projects (projectName, projectVersion, dateCreated, lastEdited, comment) VALUES ('${project.projectName}','${project.projectVersion}','${date}','${date}','${project.comment}')`
+  cb(query)
+}
 
 // ----------------------------------------------------------------------------
 //  Methods for /projects/connectProductWithProject
@@ -147,46 +170,45 @@ router.route('/connectProductWithProject')
   })
 
 // ----------------------------------------------------------------------------
-//  Methods for /projects/projectstWithLicense/:id
+//  Methods for /projects/projectsWithLicense/:id
 // ----------------------------------------------------------------------------
-router.route('/projectstWithLicense/:id')
+router.route('/projectsWithLicense/:id')
   .get((req, res) => {
     // precondition: license exists and is connected with atleast one project.
-    let input = JSON.parse(req.params.id)
+    let input = req.params.id
 
-    if (input.id != null) {
+    if (input != null) {
       //Get projects connected to the license
-      getProjectsWithLicense(req, res, input.id)
+      getProjectsWithLicense(req, res, input)
     }
     // postcondition: projects with the license connected to it.
   })
 
 // ----------------------------------------------------------------------------
-//  Methods for /projects/projectstWithComponent/:id
+//  Methods for /projects/projectsWithComponent/:id
 // ----------------------------------------------------------------------------
 router.route('/projectsWithComponent/:id')
   .get((req, res) => {
     // precondition: component exists and is connected with atleast one project.
-    let input = JSON.parse(req.params.id)
-
-    if (input.id != null) {
+    let input = req.params.id
+    if (input != null) {
       //Get projects connected to the component
-      getProjectsWithComponent(req, res, input.id)
+      getProjectsWithComponent(req, res, input)
     }
     // postcondition: projects with the components connected to it.
   })
 
 // ----------------------------------------------------------------------------
-//  Methods for /projects/projectstWithProduct/:id
+//  Methods for /projects/projectsWithProduct/:id
 // ----------------------------------------------------------------------------
-router.route('/projectstWithProduct/:id')
+router.route('/projectsWithProduct/:id')
   .get((req, res) => {
     // precondition: product exists and is connected with atleast one project.
-    let input = JSON.parse(req.params.id)
+    let input = req.params.id
 
-    if (input.id != null) {
+    if (input != null) {
       //Get projects connected to the product
-      getProjectsWithProduct(req, res, input.id)
+      getProjectsWithProduct(req, res, input)
     }
     // postcondition: projects with the product connected to it.
   })
@@ -197,13 +219,11 @@ router.route('/projectstWithProduct/:id')
 router.route('/log/:id')
   .get((req, res) => {
     // precondition: project exists.
-    let input = JSON.parse(req.params.id)
-    let parametersText = Object.keys(input)
-    let parameters = []
+    let input = req.params.id
 
-    if (input.id != null) {
+    if (input != null) {
       //Get the project log
-      getProjectLog(req, res, input.id)
+      getProjectLog(req, res, input)
     }
     // postcondition: the log entries of the project
   })
@@ -211,15 +231,22 @@ router.route('/log/:id')
 // ----------------------------------------------------------------------------
 //  Methods for /projects/search/:id
 // ----------------------------------------------------------------------------
+
 router.route('/search/:id')
-
   .get((req, res) => {
-    let input = JSON.parse(req.params.id)
-    let parametersText = Object.keys(input)
-    let parameters = []
-
-    getProjectFromParameters(req, res, input, parametersText, parameters)
-
+    // precondition: parameter is wellformed
+    const query = `select * from projects where projectName LIKE "%${req.params.id}%"`
+    console.log(query)
+    req.db.all(query, (error, rows) => {
+      if (error) {
+        console.log(error)
+        res.status(404)
+        res.send("ERROR! error message:" + error.message + ", query: " + query)
+      } else {
+        res.status(200)
+        res.json(rows)
+      }
+    })
   })
 
 module.exports = router
@@ -437,7 +464,7 @@ function insertProductIntoProject(req, res, productID, projectID, callback) {
   let parameters = [productID, projectID]
   req.db.run(query, parameters, (error) => {
     if (error) {
-      console.log(error.message)
+      console.log(error)
       res.status(500)
       res.send(error.message)
     } else {
@@ -455,9 +482,9 @@ function getProjectsWithLicense(req, res, id) {
   query += " WHERE licenseID = ?;"
 
 
-  req.db.all(query, [id], (err, rows) => {
-    if (err) {
-      console.log(error.message)
+  req.db.all(query, [id], (error, rows) => {
+    if (error) {
+      console.log(error)
       res.status(500).send(error.message)
     } else
       res.send(rows)
@@ -472,12 +499,15 @@ function getProjectsWithComponent(req, res, id) {
   query += " WHERE componentID = ?;"
 
 
-  req.db.all(query, [id], (err, rows) => {
-    if (err) {
+  req.db.all(query, [id], (error, rows) => {
+    if (error) {
       console.log(error.message)
       res.status(500).send(error.message)
-    } else
+    }
+    else {
+      console.log("MOTERFUCKER" + rows)
       res.send(rows)
+    }
   })
 }
 
@@ -487,9 +517,8 @@ function getProjectsWithProduct(req, res, id) {
 
   query += " WHERE productID = ?;"
 
-
-  req.db.all(query, [id], (err, rows) => {
-    if (err) {
+  req.db.all(query, [id], (error, rows) => {
+    if (error) {
       console.log(error.message)
       res.status(500).send(error.message)
     } else
@@ -526,8 +555,8 @@ function getProjectFromParameters(req, res, input, parametersText, parameters) {
     parameters.push(input[parametersText[i]])
   }
 
-  req.db.all(query, parameters, (err, rows) => {
-    if (err) {
+  req.db.all(query, parameters, (error, rows) => {
+    if (error) {
       console.log(error.message)
       res.status(500).send(error.message)
     } else
@@ -539,11 +568,11 @@ router.route('/:id')
 .get((req, res) => {
   let input = req.params.id
   const query = `SELECT * FROM projects WHERE id=${input}`
-  req.db.get(query, (err, row) => {
-    if (err) {
-      console.log(err)
+  req.db.get(query, (error, row) => {
+    if (error) {
+      console.log(error)
       res.status(404)
-      res.send("ERROR! error message:" + err.message + ", query: " + query)
+      res.send("ERROR! error message:" + error.message + ", query: " + query)
     } else {
       res.status(200)
       res.json(row)

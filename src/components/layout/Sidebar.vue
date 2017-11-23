@@ -1,11 +1,11 @@
 <template>
-  <div class="menu">
-    <sidebar-item :label="dashboard"></sidebar-item>
+  <div class='menu'>
+    <sidebar-item :label='dashboard'></sidebar-item>
     <!-- Lagt till licens -->
-    <sidebar-item :label="licenses"></sidebar-item>
-    <sidebar-item :label="components"></sidebar-item>
-    <sidebar-item :label="products"></sidebar-item>
-    <sidebar-item :label="projects"></sidebar-item>
+    <sidebar-item :label='licenses'></sidebar-item>
+    <sidebar-item :label='components'></sidebar-item>
+    <sidebar-item :label='products'></sidebar-item>
+    <sidebar-item :label='projects'></sidebar-item>
   </div>
 </template>
 
@@ -15,24 +15,24 @@
   export default {
     name: 'sidebar',
     components: {
-      SidebarItem,
+      SidebarItem
     },
 
     data () {
       return {
         dashboard: {
-          name: "Dashboard",
+          name: 'Dashboard',
           items: [{
-            name: "Overview",
-            link: "/"
+            name: 'Overview',
+            link: '/'
           }]
         },
 
         licenses: {
-          name: "Licenses",
+          name: 'Licenses',
           items: [{
-            name: "List licenses",
-            link: "/licenses",
+            name: 'List licenses',
+            link: '/licenses',
             children: [{
               name: 'Add',
               link: '/licenses/add'
@@ -41,7 +41,7 @@
         },
 
         components: {
-          name: "Components",
+          name: 'Components',
           items: [{
             name: 'List components',
             link: '/components',
@@ -49,15 +49,15 @@
               name: 'Add',
               link: '/components/add'
             },
-              {
-                name: 'Pending',
-                link: '/components/pending'
-              }]
+            {
+              name: 'Pending',
+              link: '/components/pending'
+            }]
           }]
         },
 
         products: {
-          name: "Products",
+          name: 'Products',
           items: [{
             name: 'List products',
             link: '/products',
@@ -65,15 +65,15 @@
               name: 'Add',
               link: '/products/add'
             },
-              {
-                name: 'Pending',
-                link: '/products/pending'
-              }]
+            {
+              name: 'Pending',
+              link: '/products/pending'
+            }]
           }]
         },
 
         projects: {
-          name: "Projects",
+          name: 'Projects',
           items: [{
             name: 'List projects',
             link: '/projects',
@@ -81,10 +81,10 @@
               name: 'Add',
               link: '/projects/add'
             },
-              {
-                name: 'Pending',
-                link: '/projects/pending'
-              }]
+            {
+              name: 'Pending',
+              link: '/projects/pending'
+            }]
           }]
         }
       }

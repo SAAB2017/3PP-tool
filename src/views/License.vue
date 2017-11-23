@@ -70,14 +70,14 @@
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">License in components</th>
+                  <th scope="col">Components with license</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="component in components">
-                  <td scope="row" data-label="Component">{{ component.componentName }}</td>
-                  <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
+                <tr v-for="co in components">
+                  <td scope="row" data-label="Component">{{ co.componentName }}</td>
+                  <td scope="row" data-label="Version">{{ co.componentVersion }}</td>
                 </tr>
                 </tbody>
               </table>
@@ -88,14 +88,14 @@
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">License in products</th>
+                  <th scope="col">Products with license</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="product in products">
-                  <td scope="row" data-label="Product">{{ product.productName }}</td>
-                  <td scope="row" data-label="Version">{{ product.productVersion }}</td>
+                <tr v-for="produ in products">
+                  <td scope="row" data-label="Product">{{ produ.productName }}</td>
+                  <td scope="row" data-label="Version">{{ produ.productVersion }}</td>
                 </tr>
                 </tbody>
               </table>
@@ -106,14 +106,14 @@
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">License in projects</th>
+                  <th scope="col">Project with license</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="project in projects">
-                  <td scope="row" data-label="Project">{{ project.projectName }}</td>
-                  <td scope="row" data-label="Version">{{ project.projectVersion }}</td>
+                <tr v-for="projec in projects">
+                  <td scope="row" data-label="Project">{{ projec.projectName }}</td>
+                  <td scope="row" data-label="Version">{{ projec.projectVersion }}</td>
                 </tr>
                 </tbody>
               </table>
@@ -164,23 +164,27 @@
       /**
        * Fetch all components that contains this license
        */
-      fetchComponents(){
-        // TODO Implement
+      fetchComponents () {
+        axios.get(this.$baseAPI + 'components/componentsWithLicense/' + this.$route.params.id).then(response => {
+          this.components = response.data
+        })
       },
 
       /**
        * Fetch all products that contains this license
        */
-      fetchProducts(){
-        // TODO Implement
+      fetchProducts () {
+        axios.get(this.$baseAPI + 'products/productsWithLicense/' + this.$route.params.id).then(response => {
+          this.products = response.data
+        })
       },
 
       /**
        * Fetch all projects that contains this license
        */
-      fetchProjects(){
-        axios.get('/projectstWithLicense/' + this.$route.params.id).then(response => {
-          console.log("Hello")
+      fetchProjects () {
+        axios.get(this.$baseAPI + 'projects/projectsWithLicense/' + this.$route.params.id).then(response => {
+          this.projects = response.data
         })
       }
     }

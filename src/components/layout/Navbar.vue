@@ -54,42 +54,38 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    var $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+    let $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0)
     if ($navbarBurgers.length > 0) {
-
       // Add a click event on each of them
       $navbarBurgers.forEach(function ($el) {
         $el.addEventListener('click', function () {
-
           // Get the target from the "data-target" attribute
-          var target = $el.dataset.target;
-          var $target = document.getElementById(target);
+          let target = $el.dataset.target
+          let $target = document.getElementById(target)
 
           // Toggle the class on both the "navbar-burger" and the "navbar-menu"
-          $el.classList.toggle('is-active');
-          $target.classList.toggle('is-active');
-
-        });
-      });
+          $el.classList.toggle('is-active')
+          $target.classList.toggle('is-active')
+        })
+      })
     }
-
-  });
+  })
 
   export default {
     name: 'navbar',
-    data() {
+    data () {
       return {
         menu: [{
           name: '',
-          link: '',
+          link: ''
         },
         {
           name: '',
-          link: '',
+          link: ''
         },
         {
           name: '',
-          link: '',
+          link: ''
         }]
       }
     }

@@ -53,7 +53,7 @@ export default new Router({
     {
       path: '/components',
       name: 'components',
-      component: ComponentsHome,
+      component: ComponentsHome
     },
     {
       path: '/components/:id(\\d+)',

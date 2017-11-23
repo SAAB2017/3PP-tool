@@ -116,7 +116,7 @@
       axios.get(this.$baseAPI + pendingURI + this.$route.params.id)
         .then(response => {
           if (response.status === '404') {
-            console.log("Error requesting data.")
+            console.log('Error requesting data.')
           }
           this.project = response.data
         })
@@ -140,11 +140,11 @@
                     this.project = response.data
                   })
               } else {
-                console.log("Error: Could not sign project")
+                console.log('Error: Could not sign project')
               }
             })
         } else {
-          this.message = "Invalid signature!"
+          this.message = 'Invalid signature!'
         }
       }
     }

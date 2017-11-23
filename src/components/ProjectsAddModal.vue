@@ -4,7 +4,7 @@
     <div class="control" style="padding-top: 25px">
       <a @click="showModal()" class="button is-primary">Add project</a>
     </div>
-    <div id="modal" class="modal">
+    <div id="modal-projects" class="modal">
       <div class="modal-background" @click="closeModal()"></div>
       <div class="modal-card" style="text-align: center">
         <header class="modal-card-head">
@@ -16,7 +16,7 @@
           <!-- Fields for adding name and version to the project -->
           <div class="field">
             <p class="control">
-              <input v-model="project" class="input" type="text" placeholder="Name">
+              <input v-model="projectName" class="input" type="text" placeholder="Name">
             </p>
           </div>
           <div class="field">
@@ -26,25 +26,23 @@
           </div>
 
           <!-- Table for picking products to bind to the project. Shows all approved
-          products but becomes scrollable after reaching max-size (because of class="vertical-menu") -->
-          <div class="vertical-menu" style="max-height: 200px; height: auto">
+          products but becomes scrollable after reaching max-size -->
             <table>
               <thead>
               <tr>
-                <td></td>
-                <th>Project</th>
-                <th>Version</th>
+                <td style="width: 25px"></td>
+                <th scope="col">Project</th>
+                <th scope="col">Version</th>
               </tr>
               </thead>
-              <tbody>
+              <tbody class="tbodyadd">
               <tr v-for="product in products">
-                <td style="text-align: center"><input class="checkbox" type="checkbox" id="cProductID"/></td>
-                <td>{{ product.productName }}</td>
-                <td>{{ product.productVersion }}</td>
+                <td style="width: 25px"><input class="checkbox" type="checkbox" v-bind:value=product.id v-model.number="checkedProducts"></td>
+                <td scope="row" data-label="Product">{{ product.productName }}</td>
+                <td scope="row" data-label="Version">{{ product.productVersion }}</td>
               </tr>
               </tbody>
             </table>
-          </div>
           <!-- Field for searching for products. Uses "searchProduct"-method for searching -->
           <div class="field has-addons" style="padding-top: 15px">
             <div class="control">
@@ -75,19 +73,20 @@
 <script>
   import axios from 'axios'
   export default {
-    data() {
+    data () {
       return {
         products: [],
-        project: null,
-        projectVersion: null,
-        projectComment: null
+        checkedProducts: [],
+        projectName: '',
+        projectVersion: '',
+        projectComment: ''
       }
     },
     /* Fetches products from the database and puts them in products */
-    mounted() {
+    mounted () {
       let vm = this
       document.addEventListener('keyup', function (event) {
-        if (event.key == 'Escape'){
+        if (event.key === 'Escape') {
           vm.closeModal()
         }
       })
@@ -101,25 +100,21 @@
       /**
        * Add a project to the database according to the fields in the view
        */
-      addProject() {
+      addProject () {
         let data = {
-          projectName: this.project,
+          projectName: this.projectName,
           projectVersion: this.projectVersion,
-          comment: this.componentVersion
-          // TODO put products for add.
+          comment: this.projectComment,
+          products: this.checkedProducts
         }
 
-        axios.post(this.$baseAPI + 'projects', data)
+        axios.post(this.$baseAPI + 'projects/add', data)
           .then(response => {
-            if (response.data === "success") {
-              this.project = null
-              this.projectVersion = null
-              this.projectComment = null
-
-              axios.get(this.$baseAPI + 'projects')
-                .then(response => {
-                  this.project = response.data
-                })
+            if (response.responseData.status === 'success') {
+              this.projectName = ''
+              this.projectVersion = ''
+              this.projectComment = ''
+              this.checkedProducts = []
             }
           })
         this.closeModal()
@@ -129,18 +124,18 @@
       /**
        * Searches for products from the database matching the search-criteria
        */
-      searchProduct(){
+      searchProduct () {
         // TODO implement method
       },
 
-      showModal() {
-        var d = document.getElementById("modal")
-        d.classList.add("is-active")
+      showModal () {
+        let d = document.getElementById('modal-projects')
+        d.classList.add('is-active')
       },
 
-      closeModal() {
-        var d = document.getElementById("modal")
-        d.classList.remove("is-active")
+      closeModal () {
+        let d = document.getElementById('modal-projects')
+        d.classList.remove('is-active')
       }
     }
   }
@@ -153,11 +148,6 @@
 
   tbody>tr:hover {
     cursor: pointer;
-  }
-  .vertical-menu {
-    width: 100%;
-    height: 150px;
-    overflow-y: auto;
   }
 
 </style>

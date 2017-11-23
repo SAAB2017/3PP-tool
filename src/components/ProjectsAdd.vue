@@ -4,7 +4,7 @@
     <!-- Fields for adding name and version to the project -->
     <div class="field">
       <p class="control">
-        <input v-model="project" class="input" type="text" placeholder="Name">
+        <input v-model="projectName" class="input" type="text" placeholder="Name">
       </p>
     </div>
     <div class="field">
@@ -26,7 +26,7 @@
         </thead>
         <tbody>
         <tr v-for="product in products">
-          <td style="text-align: center"><input class="checkbox" type="checkbox" id="cProductID"/></td>
+          <td style="text-align: center"><input class="checkbox" type="checkbox" v-bind:value=product.id v-model.number="checkedProducts"></td>
           <td>{{ product.productName }}</td>
           <td>{{ product.productVersion }}</td>
         </tr>
@@ -53,7 +53,7 @@
     <!-- Button for adding the project. Uses "addProject"-function -->
     <div style="padding-top: 15px">
       <p class="control">
-        <a @click="addProject" class="button is-primary">Add project</a>
+        <a @click="addProject()" class="button is-primary">Add project</a>
       </p>
     </div>
   </div>
@@ -62,16 +62,17 @@
 <script>
   import axios from 'axios'
   export default {
-    data() {
+    data () {
       return {
         products: [],
-        project: null,
-        projectVersion: null,
-        projectComment: null
+        checkedProducts: [],
+        projectName: '',
+        projectVersion: '',
+        projectComment: ''
       }
     },
     /* Fetches products from the database and puts them in products */
-    mounted() {
+    mounted () {
       axios.get(this.$baseAPI + 'products')
         .then(response => {
           this.products = response.data
@@ -82,33 +83,30 @@
       /**
        * Add a project to the database according to the fields in the view
        */
-      addProject() {
+      addProject () {
         let data = {
-          projectName: this.project,
+          projectName: this.projectName,
           projectVersion: this.projectVersion,
-          comment: this.componentVersion
-          // TODO put products for add.
+          comment: this.projectComment,
+          products: this.checkedProducts
         }
 
-        axios.post(this.$baseAPI + 'projects', data)
+        axios.post(this.$baseAPI + 'projects/add', data)
           .then(response => {
-            if (response.data === "success") {
-              this.project = null
-              this.projectVersion = null
-              this.projectComment = null
-
-              axios.get(this.$baseAPI + 'projects')
-                .then(response => {
-                  this.project = response.data
-                })
+            if (response.responseData.status === 'success') {
+              this.projectName = ''
+              this.projectVersion = ''
+              this.projectComment = ''
+              this.checkedProducts = []
             }
           })
+        this.$router.push({ name: 'projects' })
       },
 
       /**
        * Searches for products from the database matching the search-criteria
        */
-      searchProduct(){
+      searchProduct () {
         // TODO implement method
       }
     }
