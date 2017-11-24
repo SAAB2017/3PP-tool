@@ -1,4 +1,20 @@
 <!-- View for showing all signed components -->
+<style>
+  .component-fade-enter-active, .component-fade-leave-active {
+    transition: opacity .3s ease;
+  }
+  .component-fade-enter, .component-fade-leave-to
+    /* .component-fade-leave-active below version 2.1.8 */ {
+    opacity: 0;
+  }
+  .list-enter-active, .list-leave-active {
+    transition: all 1s;
+  }
+  .list-enter, .list-leave-to /* .list-leave-active below version 2.1.8 */ {
+    opacity: 0;
+  }
+</style>
+
 <template>
   <div class="component-list">
     <!-- Table that contains all signed components. Will grow to max-height and then
@@ -11,6 +27,14 @@
       <div class="control">
         <button @click="searchComponent()" class="button is-primary">Search</button>
       </div>
+      <div>
+        <select id="pagesize" v-model.number="pageCountSettings" type="number">
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
     </div>
 
       <table>
@@ -22,13 +46,16 @@
           <th scope="col">Last edited</th>
         </tr>
         </thead>
-        <tbody class="tbodyhome">
-        <tr v-for="component in components" @click="displayComponent(component)">
+        <tbody class="">
+        <transition-group name="list" appear>
+        <tr v-for="component in components" @click="displayComponent(component)" v-bind:key="component" class="list-item">
           <td scope="row" data-label="Component">{{ component.componentName }}</td>
           <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
           <td scope="row" data-label="Created">{{ component.dateCreated }}</td>
           <td scope="row" data-label="Last edited">{{ component.lastEdited }}</td>
         </tr>
+        </transition-group>
+
         <tr v-if="showPaginatorClick">
           <div id="paginator" style="text-align: center;" @click="getNextPage()">...Click here for more results...</div>
         </tr>
@@ -42,6 +69,7 @@
       <components-add-modal></components-add-modal>
     </div>
   </div>
+
 </template>
 
 <script>
@@ -61,7 +89,8 @@
         page: 0,
         pageCount: 0,
         total: 0,
-        showPaginatorClick: true
+        showPaginatorClick: true,
+        pageCountSettings: 10,
       }
     },
     /* Fetches signed components from the database and puts them in components */
@@ -77,6 +106,7 @@
       searchComponent () {
         if (this.searchComponents.length === 0) {
           this.getAllComponents()
+          console.log("mofo")
           return
         }
         if (this.searchComponents !== 0 || this.searchComponents !== null || this.searchComponents !== '') {
@@ -87,6 +117,7 @@
             } else {
               this.message = 'No component found!'
             }
+            console.log(this.searchComponents)
           })
         } else {
           this.getAllComponents()
@@ -101,7 +132,7 @@
         this.$router.push({ name: 'components_id', params: { id: component.id } })
       },
       getFirst () {
-        axios.get(this.$baseAPI + 'components/?page=0')
+        axios.get(this.$baseAPI + 'components/?page=0&amount=5')
           .then(response => {
             this.components = response.data
           })
@@ -115,18 +146,18 @@
       getNextPage () {
         if (this.components.length < this.total) {
           this.page += 1
-          axios.get(this.$baseAPI + `components/?page=${this.page}`)
+          axios.get(this.$baseAPI + `components/?page=${this.page}&amount=5`)
             .then(response => {
-              // this.components.push(response.data)
               response.data.forEach(elem => this.components.push(elem))
               console.log(`Current page: ${this.page} len: ${this.components.length} total: ${this.total}`)
             })
-        } else {
+        }
+        if (this.components.length === this.total) {
           this.showPaginatorClick = null
         }
       },
       getPageCount () {
-        axios.get(this.$baseAPI + `components/?pageCount`)
+        axios.get(this.$baseAPI + `components/?totalElements`)
           .then(response => {
             this.total = response.data.rowCount
             if (this.total < 100) {

@@ -8,23 +8,22 @@ router.route('/')
 
   .get((req, res) => {
     let currentPage = 0
-    if (typeof req.query.pageCount !== 'undefined') {
-      console.log(req.query.pageCount)
+    if (typeof req.query.totalElements !== 'undefined') {
       const pageCountQuery = `select count(*) as rowCount from components`
       req.db.all(pageCountQuery, (err, rows) => {
         if (err) {
           console.log(err)
         } else {
-          console.log(rows[0].ROWCOUNT)
           res.json(rows[0])
         }
       })
       return
     }
-    if (typeof req.query.page !== 'undefined') {
+    if (typeof req.query.page !== 'undefined' && typeof req.query.amount !== 'undefined') {
       currentPage = +req.query.page
-      let offset = (currentPage) * 5
-      const query = `SELECT * FROM components ORDER BY components.componentName LIMIT ${offset}, 5`
+      const amount = +req.query.amount
+      let offset = (currentPage) * amount
+      const query = `SELECT * FROM components ORDER BY components.componentName LIMIT ${offset}, ${amount}`
       console.log(query)
       req.db.all(query, (err, rows) => {
         if (err) {
@@ -34,7 +33,8 @@ router.route('/')
         }
       })
     } else {
-      req.db.all('SELECT * FROM components where approved="1" ', (err, rows) => {
+      console.log("Motherfucker")
+      req.db.all('SELECT * FROM components', (err, rows) => {
         if (err) {
           console.log(err)
         } else {
