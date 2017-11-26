@@ -1,6 +1,6 @@
 <!-- View for adding Products -->
 <template>
-  <div class="component-list">
+  <div class="product-list">
     <!-- Fields for adding name and version to the product -->
     <div class="field">
       <p class="control">
@@ -15,24 +15,22 @@
 
     <!-- Table for picking components to bind to the product. Shows all approved
     components but becomes scrollable after reaching max-size (because of class="vertical-menu") -->
-    <div class="vertical-menu" style="max-height: 200px; height: auto">
-      <table>
-        <thead>
-        <tr>
-          <td></td>
-          <th>Component</th>
-          <th>Version</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="component in components">
-          <td style="text-align: center"><input class="checkbox" type="checkbox" v-bind:value=component.id v-model.number="checkedComponents"/></td>
-          <td>{{ component.componentName }}</td>
-          <td>{{ component.componentVersion }}</td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
+    <table>
+      <thead>
+      <tr>
+        <td style="width: 25px"></td>
+        <th scope="col">Component</th>
+        <th scope="col">Version</th>
+      </tr>
+      </thead>
+      <tbody class="tbodyadd">
+      <tr v-for="component in components">
+        <td style="width: 25px"><input class="checkbox" type="checkbox" v-bind:value=component.id v-model.number="checkedComponents"></td>
+        <td scope="row" data-label="Component">{{ component.componentName }}</td>
+        <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
+      </tr>
+      </tbody>
+    </table>
     <!-- Field for searching for components. Uses "searchComponent"-method for searching -->
     <div class="field has-addons" style="padding-top: 15px">
       <div class="control">
@@ -50,10 +48,9 @@
       </div>
     </div>
 
-    <!-- Button for adding the product. Uses "addProduct"-function -->
     <div style="padding-top: 15px">
       <p class="control">
-        <a @click="addProduct" class="button is-primary">Add product</a>
+        <a @click="addProduct()" class="button is-primary">Add Product</a>
       </p>
     </div>
   </div>
@@ -61,7 +58,9 @@
 
 <script>
   import axios from 'axios'
+
   export default {
+
     data () {
       return {
         components: [],
@@ -71,7 +70,7 @@
         productComment: ''
       }
     },
-    /* Fetches components from the database and puts them in components */
+    /* Fetches liceses from the database and puts them in components */
     mounted () {
       axios.get(this.$baseAPI + 'components')
         .then(response => {
@@ -91,17 +90,19 @@
           components: this.checkedComponents
         }
 
-
         axios.post(this.$baseAPI + 'products/add', data)
           .then(response => {
             if (response.responseData.status === 'success') {
-              this.productName = ''
-              this.productVersion = ''
-              this.productComment = ''
-              this.checkedLicenses = []
+              this.productName = null
+              this.productVersion = null
+              this.productComment = null
+              axios.get(this.$baseAPI + 'products')
+                .then(response => {
+                  this.products = response.data
+                })
             }
           })
-        this.$router.push({ name: 'products' })
+        this.$router.go()
       },
 
       /**
@@ -115,17 +116,12 @@
 </script>
 
 <style scoped>
-  .component-list {
+  .product-list {
     margin-bottom: 30px;
   }
 
   tbody>tr:hover {
     cursor: pointer;
-  }
-  .vertical-menu {
-    width: 100%;
-    height: 150px;
-    overflow-y: auto;
   }
 
 </style>
