@@ -3,7 +3,7 @@
   <div class="components-list">
     <!-- Table that contains all unsigned components. Will grow to max-height and then
     become scrollable -->
-    <table class="table is-bordered">
+    <table>
       <thead>
       <tr>
         <th scope="col">Component</th>
