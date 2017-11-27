@@ -175,7 +175,7 @@ INSERT INTO components (componentName, componentVersion, dateCreated, lastEdited
 INSERT INTO products
     (productName, productVersion, dateCreated, lastEdited, comment, approved, approvedBy) VALUES
     ("Third-Party License Management REST API", "1.0", "2017-11-20", "2017-11-20", "Third party handler Rest API for handling licenses.", "1", "Nils Nilsson"),
-    ("Third-Party License Management WUI", "1.0", "2017-11-20", "2017-11-20", "Third party handler Rest API for handling licenses.", "1", "Nils Nilsson");
+    ("Third-Party License Management WUI", "1.0", "2017-11-20", "2017-11-20", "Third party handler Rest API for handling licenses.", "0", "Nils Nilsson");
 
 /* Projects */
 INSERT INTO projects
