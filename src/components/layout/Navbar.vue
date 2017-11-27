@@ -13,38 +13,12 @@
 
 
     <div id="the-nav-bar" class="navbar-menu">
-      <div class="navbar-start">
+      <div class="navbar-start" @click="closeNavBar()">
         <router-link :to="{ name: 'home'}" class="navbar-item">Home</router-link>
-        <div class="navbar-item has-dropdown is-hoverable">
-          <router-link :to="{ name: 'licenses'}" class="navbar-link">Licences</router-link>
-          <div class="navbar-dropdown is-boxed">
-            <router-link :to="{ name: 'licenses_add'}" class="navbar-item">Add License</router-link>
-          </div>
-        </div>
-
-        <div class="navbar-item has-dropdown is-hoverable">
-          <router-link :to="{ name: 'components'}" class="navbar-link">Components</router-link>
-          <div class="navbar-dropdown is-boxed">
-            <router-link :to="{ name: 'components_add'}" class="navbar-item">Add component</router-link>
-            <router-link :to="{ name: 'components_pending'}" class="navbar-item">Approve component</router-link>
-          </div>
-        </div>
-
-        <div class="navbar-item has-dropdown is-hoverable">
-          <router-link :to="{ name: 'products'}" class="navbar-link">Products</router-link>
-          <div class="navbar-dropdown is-boxed">
-            <router-link :to="{ name: 'products_add'}" class="navbar-item">Add product</router-link>
-            <router-link :to="{ name: 'products_pending'}" class="navbar-item">Approve product</router-link>
-          </div>
-        </div>
-
-        <div class="navbar-item has-dropdown is-hoverable">
-          <router-link :to="{ name: 'projects'}" class="navbar-link">Projects</router-link>
-          <div class="navbar-dropdown is-boxed">
-            <router-link :to="{ name: 'projects_add'}" class="navbar-item">Add project</router-link>
-            <router-link :to="{ name: 'projects_pending'}" class="navbar-item">Approve project</router-link>
-          </div>
-        </div>
+        <router-link :to="{ name: 'licenses'}" class="navbar-item">Licences</router-link>
+        <router-link :to="{ name: 'components'}" class="navbar-item">Components</router-link>
+        <router-link :to="{ name: 'products'}" class="navbar-item">Products</router-link>
+        <router-link :to="{ name: 'projects'}" class="navbar-item">Projects</router-link>
       </div>
 
 
@@ -87,6 +61,13 @@
           name: '',
           link: ''
         }]
+      }
+    },
+
+    methods: {
+      closeNavBar () {
+        let navbar = document.getElementById('the-nav-bar')
+        navbar.classList.remove('is-active')
       }
     }
   }
