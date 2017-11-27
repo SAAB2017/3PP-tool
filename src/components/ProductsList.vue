@@ -33,22 +33,13 @@
       </table>
 
     <!-- Field for searching for a product in the table. Uses "searchProduct"-method -->
-
-    <div class="columns is-mobile is-centered" style="justify-content: center">
-      <products-add-modal></products-add-modal>
-    </div>
   </div>
 </template>
 
 <script>
   import axios from 'axios'
-  import ProductsAddModal from '@/components/ProductsAddModal'
 
   export default {
-    components: {
-      ProductsAddModal
-    },
-
     data () {
       return {
         products: [],

@@ -64,22 +64,14 @@
 
     <!-- Field for searching for a component in the table. Uses "searchComponent"-method -->
 
-
-    <div class="columns is-mobile is-centered">
-      <components-add-modal></components-add-modal>
-    </div>
   </div>
 
 </template>
 
 <script>
   import axios from 'axios'
-  import ComponentsAddModal from '@/components/ComponentsAddModal'
 
   export default {
-    components: {
-      ComponentsAddModal
-    },
     data () {
       return {
         components: [],
