@@ -7,7 +7,7 @@ var router = express.Router()
 router.route('/')
 
   .get((req, res) => {
-    req.db.all('SELECT * FROM products', (err, rows) => {
+    req.db.all('SELECT * FROM products WHERE approved=1', (err, rows) => {
       res.json(rows)
     })
   })
@@ -173,6 +173,18 @@ function getCorrectApproved (input) {
   return approved
 }
 
+router.route('/pending')
+  .get((req, res) => {
+    req.db.all("SELECT * FROM products where approved=0", (err, rows) => {
+      if (err) {
+        console.log(err)
+      } else {
+        console.log(rows)
+        res.json(rows)
+      }
+    })
+  })
+
 // ----------------------------------------------------------------------------
 //  Methods for /products/productsWithComponent/:id
 // ----------------------------------------------------------------------------
@@ -264,7 +276,7 @@ router.route('/add')
 
 function addProduct (product, cb) {
   let date = new Date().toLocaleDateString()
-  const query = `INSERT INTO products (productName, productVersion, dateCreated, lastEdited, comment) VALUES ('${product.productName}','${product.productVersion}','${date}','${date}','${product.comment}')`
+  const query = `INSERT INTO products (productName, productVersion, dateCreated, lastEdited, comment, approved) VALUES ('${product.productName}','${product.productVersion}','${date}','${date}','${product.comment}', '0')`
   cb(query)
 }
 
@@ -689,7 +701,7 @@ function insertUpdateIntoLog (req, res, correctInputId, approved) {
       })
     }
   }
-  res.status(201)
+  res.status(204)
   res.send('Success!')
 }
 

@@ -1,10 +1,10 @@
 <template>
-  <nav class="navbar">
+  <nav class="navbar is-fixed-top">
     <div class="navbar-brand">
       <a class="navbar-item" href="/">
         <img src="../../assets/Saab_logo.png">
       </a>
-      <div class="navbar-burger burger" data-target="the-nav-bar">
+      <div id="burger" class="navbar-burger burger" data-target="the-nav-bar">
         <span></span>
         <span></span>
         <span></span>
@@ -68,15 +68,14 @@
       closeNavBar () {
         let navbar = document.getElementById('the-nav-bar')
         navbar.classList.remove('is-active')
+        let burger = document.getElementById('burger')
+        burger.classList.remove('is-active')
       }
     }
   }
 </script>
 
 <style scoped>
-  .navbar {
-    margin-bottom: 20px;
-  }
 
   .logo {
     padding: 10px;
