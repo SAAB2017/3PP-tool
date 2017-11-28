@@ -7,7 +7,7 @@ var router = express.Router()
 router.route('/')
 
   .get((req, res) => {
-    req.db.all("SELECT * FROM projects", (error, rows) => {
+    req.db.all("SELECT * FROM projects WHERE approved=1", (error, rows) => {
       res.json(rows)
     })
   })
@@ -77,6 +77,18 @@ router.route('/approve')
       }
     })
     // postcondition: project approved, signed and logged
+  })
+
+router.route('/pending')
+  .get((req, res) => {
+    req.db.all("SELECT * FROM projects where approved=0", (err, rows) => {
+      if (err) {
+        console.log(err)
+      } else {
+        console.log(rows)
+        res.json(rows)
+      }
+    })
   })
 
 // ----------------------------------------------------------------------------
@@ -454,7 +466,7 @@ function insertUpdateIntoLog(req, res, id, approved, comment) {
       })
     }
   }
-  res.status(201).send("Success!")
+  res.status(204).send("Success!")
 }
 
 //insert a product into a project
