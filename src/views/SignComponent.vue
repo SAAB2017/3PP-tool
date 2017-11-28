@@ -7,6 +7,8 @@
 
           <h2 class="subtitle is-4" style="text-align: center">{{ component.componentName }}</h2>
 
+          <p class="help is-danger subtitle is-6" style="text-align: center; padding-bottom: 15px">{{ message }}</p>
+
           <div class="columns is-mobile is-centered">
             <div class="field is-horizontal">
               <div class="control">
@@ -60,9 +62,6 @@
             </tbody>
           </table>
 
-
-          <!--p class="help is-success has-text-right subtitle is-6">Component status: {{ message }}</p-->
-
         </div>
       </div>
 
@@ -102,7 +101,7 @@
         })
       },
       signComponent () {
-        if (this.component.approvedBy !== null || this.component.approvedBy) {
+        if (this.component.approvedBy !== '' || this.component.approvedBy) {
           console.log(this.component.componentName)
           let data = {
             id: this.component.id,
@@ -113,15 +112,19 @@
           axios.put(this.$baseAPI + 'components/approve', data)
             .then(response => {
               if (response.status === 204) {
-                axios.get(this.$baseAPI + 'components/' + this.$route.params.id)
-                  .then(response => {
-                    console.log(response.data)
-                    this.message = 'Component signed'
-                    this.component = response.data[0]
-                  })
+                console.log(response.data)
+                this.message = 'Component signed'
               } else {
                 console.log('Error: Could not sign component')
-                this.message = 'Could not sign component'
+                this.message = response.data
+              }
+            })
+            .catch(error => {
+              console.log(error.response)
+              if (error.response) {
+                if (error.response.status === 500) {
+                  this.message = 'Already signed by ' + error.response.data.byUser
+                }
               }
             })
         } else {
