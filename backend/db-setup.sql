@@ -180,26 +180,7 @@ INSERT INTO products
 /* Projects */
 INSERT INTO projects
     (projectName, projectVersion, dateCreated, lastEdited, comment, approved, approvedBy) VALUES
-    ("3PP Management Tool", "1.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.", "0", ""),
-    ("3PP Management Tool", "2.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.", "0", ""),
-    ("3PP Management Tool", "3.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.", "0", ""),
-    ("3PP Management Tool", "4.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.", "0", ""),
-    ("3PP Management Tool", "5.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.", "0", ""),
-    ("3PP Management Tool", "6.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.", "0", ""),
-    ("3PP Management Tool", "7.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.", "0", ""),
-    ("3PP Management Tool", "8.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.", "0", ""),
-    ("3PP Management Tool", "9.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.", "0", ""),
-    ("3PP Management Tool", "10.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.", "0", ""),
-    ("3PP Management Tool", "11.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.", "0", ""),
-    ("3PP Management Tool", "12.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.", "0", ""),
-    ("3PP Management Tool", "13.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.", "0", ""),
-    ("3PP Management Tool", "14.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.", "0", ""),
-    ("3PP Management Tool", "15.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.", "0", ""),
-    ("3PP Management Tool", "16.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.", "0", ""),
-    ("3PP Management Tool", "17.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.", "0", ""),
-    ("3PP Management Tool", "18.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.", "0", ""),
-    ("3PP Management Tool", "19.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.", "0", ""),
-    ("3PP Management Tool", "20.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.", "0", "");
+    ("3PP Management Tool", "1.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.", "1", "");
 
 /* License Log */
 INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES
