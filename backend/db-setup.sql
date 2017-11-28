@@ -180,7 +180,7 @@ INSERT INTO products
 /* Projects */
 INSERT INTO projects
     (projectName, projectVersion, dateCreated, lastEdited, comment, approved, approvedBy) VALUES
-    ("3PP Management Tool", "1.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.", "1", "");
+    ("3PP Management Tool", "1.0", "2017-11-21", "2017-11-21", "License manager solution for SAAB.", "1", "Nils Nilsson");
 
 /* License Log */
 INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES
