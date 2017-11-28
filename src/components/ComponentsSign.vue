@@ -47,7 +47,6 @@
     },
     /* Fetches unsigned components from the database and puts them in components */
     mounted () {
-      const pendingURI = 'components/pending'
       axios.get(this.$baseAPI + 'components/pending')
         .then(response => {
           this.components = response.data
