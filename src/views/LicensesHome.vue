@@ -5,9 +5,18 @@
         <h2 class="subtitle is-4">Licenses</h2>
       </div>
     </div>
+    <div class="tabs is-centered">
+      <ul>
+        <li class="is-active" id="list" @click="tabClicked('list')"><a>Licenses</a></li>
+        <li id="add" @click="tabClicked('add')"><a>Add</a></li>
+      </ul>
+    </div>
     <div class="columns is-mobile is-centered">
-      <div class="column is-half-desktop is-three-quarters-tablet is-full-mobile">
+      <div v-if="active === 'list'" class="column is-half-desktop is-three-quarters-tablet is-full-mobile">
         <licenses-list></licenses-list>
+      </div>
+      <div v-if="active === 'add'" class="column is-half-desktop is-three-quarters-tablet is-full-mobile">
+        <licenses-add></licenses-add>
       </div>
     </div>
 
@@ -16,10 +25,32 @@
 
 <script>
   import LicensesList from '@/components/LicensesList'
+  import LicensesAdd from '@/components/LicensesAdd'
 
   export default {
     components: {
-      LicensesList
+      LicensesList,
+      LicensesAdd
+    },
+
+    mounted () {
+      if (this.$route.params.active) {
+        this.active = this.$route.params.active
+      }
+    },
+
+    data () {
+      return {
+        active: 'list'
+      }
+    },
+
+    methods: {
+      tabClicked (tab) {
+        document.getElementById(this.active).classList.remove('is-active')
+        this.active = tab
+        document.getElementById(tab).classList.add('is-active')
+      }
     }
   }
 </script>

@@ -15,24 +15,22 @@
 
     <!-- Table for picking licenses to bind to the component. Shows all approved
     licenses but becomes scrollable after reaching max-size (because of class="vertical-menu") -->
-    <div class="vertical-menu" style="max-height: 200px; height: auto">
-      <table>
-        <thead>
-        <tr>
-          <td></td>
-          <th>License</th>
-          <th>Version</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="license in licenses">
-          <td style="text-align: center"><input class="checkbox" type="checkbox" v-bind:value=license.id v-model.number="checkedLicenses"></td>
-          <td>{{ license.licenseName }}</td>
-          <td>{{ license.licenseVersion }}</td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
+    <table>
+      <thead>
+      <tr>
+        <td style="width: 25px"></td>
+        <th scope="col">License</th>
+        <th scope="col">Version</th>
+      </tr>
+      </thead>
+      <tbody class="tbodyadd">
+      <tr v-for="license in licenses">
+        <td style="width: 25px"><input class="checkbox" type="checkbox" v-bind:value=license.id v-model.number="checkedLicenses"></td>
+        <td scope="row" data-label="License">{{ license.licenseName }}</td>
+        <td scope="row" data-label="Version">{{ license.licenseVersion }}</td>
+      </tr>
+      </tbody>
+    </table>
     <!-- Field for searching for licenses. Uses "searchLicense"-method for searching -->
     <div class="field has-addons" style="padding-top: 15px">
       <div class="control">
@@ -50,10 +48,9 @@
       </div>
     </div>
 
-    <!-- Button for adding the component. Uses "addComponent"-function -->
     <div style="padding-top: 15px">
       <p class="control">
-        <a @click="addComponent()" class="button is-primary">Add component</a>
+        <a @click="addComponent()" class="button is-primary">Add Component</a>
       </p>
     </div>
   </div>
@@ -61,7 +58,9 @@
 
 <script>
   import axios from 'axios'
+
   export default {
+
     data () {
       return {
         licenses: [],
@@ -97,9 +96,13 @@
               this.componentName = null
               this.componentVersion = null
               this.componentComment = null
+              axios.get(this.$baseAPI + 'components')
+                .then(response => {
+                  this.components = response.data
+                })
             }
           })
-        this.$router.push({ name: 'components' })
+        this.$router.go()
       },
 
       /**
@@ -119,11 +122,6 @@
 
   tbody>tr:hover {
     cursor: pointer;
-  }
-  .vertical-menu {
-    width: 100%;
-    height: 150px;
-    overflow-y: auto;
   }
 
 </style>

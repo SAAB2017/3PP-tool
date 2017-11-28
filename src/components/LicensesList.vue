@@ -32,23 +32,13 @@
       </tbody>
     </table>
 
-
-
-    <div class="columns is-mobile is-centered">
-      <licenses-add-modal></licenses-add-modal>
-    </div>
   </div>
 </template>
 
 <script>
   import axios from 'axios'
-  import LicensesAddModal from '@/components/LicensesAddModal'
 
   export default {
-    components: {
-      LicensesAddModal
-    },
-
     data () {
       return {
         licenses: [],
