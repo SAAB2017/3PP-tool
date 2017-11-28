@@ -169,19 +169,30 @@ router.route('/:id')
       // precondition: License exists.
       let input = req.body
       if (input.id != null && input.comment != null) {
-        //Get licenses from the product
-        setLicenseComment(req, res, input)
+        getLicense(req, res, input.id, function(license) {
+          if (license != null) {
+            setLicenseLog(req, res, input, license.comment, function(returnValue) {
+              if (returnValue) {
+                //Get licenses from the product
+                setLicenseComment(req, res, input)
+              }
+            })
+          } else {
+            res.status(406).send("ERROR!")
+            res.error_id = "E09"
+          }
+        })
       } else {
         res.status(406).send("ERROR! ID or Comment was not provided.")
       }
       // postcondition: The comment of the license is changed.
     })
 
-
   /**
    * Changes the comment of a license.
-   * @param {Integer} id
-   * @param {String} comment
+   * @param {Object} req
+   * @param {Object} res
+   * @param {JSON} input
    */
   function setLicenseComment(req, res, input){
     let query = "UPDATE licenses SET comment = ? WHERE id = ?;"
@@ -203,8 +214,19 @@ router.route('/:id')
       // precondition: License exists.
       let input = req.body
       if (input.id != null && input.URL != null) {
-        //Get licenses from the product
-        setLicenseURL(req, res, input)
+        getLicense(req, res, input.id, function(license) {
+          if (license != null) {
+            setLicenseLog(req, res, input, license.URL, function(returnValue) {
+              if (returnValue) {
+                //Get licenses from the product
+                setLicenseURL(req, res, input)
+              }
+            })
+          } else {
+            res.status(406).send("ERROR!")
+            res.error_id = "E09"
+          }
+        })
       } else {
         res.status(406).send("ERROR! ID or URL was not provided.")
       }
@@ -214,8 +236,9 @@ router.route('/:id')
 
 /**
  * Changes the URL of a license.
- * @param {Integer} id
- * @param {String} URL
+ * @param {Object} req
+ * @param {Object} res
+ * @param {JSON} input
  */
 function setLicenseURL(req, res, input){
   let query = "UPDATE licenses SET URL = ? WHERE id = ?;"
@@ -231,6 +254,8 @@ function setLicenseURL(req, res, input){
 
 /**
  * Gets the log of a license.
+ * @param {Object} req
+ * @param {Object} res
  * @param {Integer} id
  */
 function getLicenseLog(req, res, id) {
@@ -249,6 +274,8 @@ function getLicenseLog(req, res, id) {
 
 /**
  * Gets the licenses connected with a product.
+ * @param {Object} req
+ * @param {Object} res
  * @param {Integer} id
  */
 function getLicensesFromProduct(req, res, id) {
@@ -268,6 +295,8 @@ function getLicensesFromProduct(req, res, id) {
 
 /**
  * Gets the licenses connected with a project.
+ * @param {Object} req
+ * @param {Object} res
  * @param {Integer} id
  */
 function getLicensesFromProject(req, res, id) {
@@ -285,4 +314,49 @@ function getLicensesFromProject(req, res, id) {
       res.json(rows)
   })
 }
+
+/**
+ * Gets the license.
+ * @param {Object} req
+ * @param {Object} res
+ * @param {Integer} id
+ * @param {Object} callback
+ */
+function getLicense(req, res, id, callback){
+  let query = "SELECT * from licenses WHERE id = ?;"
+
+  req.db.get(query, id, (error, row) =>{
+    if (error) {
+      // If there's an error then provide the error message and the different attributes that could have caused it.
+      res.send("ERROR! error message:" + error.message + ", query: " + query)
+    } else
+      callback(row)
+  })
+}
+
+/**
+ * Gets the license.
+ * @param {Object} req
+ * @param {Object} res
+ * @param {JSON} input
+ * @param {String} oldComment
+ * @param {boolean} callback
+ */
+function setLicenseLog(req, res, input, old, callback){
+  let query = "INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES (?, ?, ?);"
+  let note = ""
+  if (input.comment != null) {
+    note = "Comment changed from: " + old + " to: " + input.comment + "."
+  } else if (input.URL != null) {
+    note = "URL changed from: " + old + " to: " + input.URL + "."
+  }
+  req.db.run(query, [input.id, new Date().toLocaleDateString(), note], (error) => {
+    if(error){
+      // If there's an error then provide the error message and the different attributes that could have caused it.
+      res.send("ERROR! error message:" + error.message + ", query: " + query)
+    }else
+      callback(true)
+  })
+}
+
 module.exports = router
