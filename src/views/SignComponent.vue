@@ -100,6 +100,10 @@
           this.licenses = response.data
         })
       },
+
+      /**
+       * Approves the component and adds the approvers signature to the component
+       */
       signComponent () {
         if (this.component.approvedBy !== '' || this.component.approvedBy) {
           console.log(this.component.componentName)

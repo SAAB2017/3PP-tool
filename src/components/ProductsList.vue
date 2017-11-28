@@ -97,6 +97,9 @@
         this.$router.push({ name: 'products_id', params: { id: product.id } })
       },
 
+      /**
+       * Fetches all products from database
+       */
       getAllProducts () {
         axios.get(this.$baseAPI + 'products/')
           .then(response => {
@@ -104,6 +107,9 @@
           })
       },
 
+      /**
+       * Shows this.message for some time then fades it away and removes it.
+       */
       fade_out () {
         let msg = document.getElementById('message-text')
         let page = this

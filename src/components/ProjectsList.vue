@@ -97,6 +97,9 @@
         this.$router.push({ name: 'projects_id', params: { id: project.id } })
       },
 
+      /**
+       * Fetches all projects from database
+       */
       getAllProjects () {
         axios.get(this.$baseAPI + 'projects/')
           .then(response => {
@@ -104,6 +107,9 @@
           })
       },
 
+      /**
+       * Shows this.message for some time then fades it away and removes it.
+       */
       fade_out () {
         let msg = document.getElementById('message-text')
         let page = this

@@ -100,6 +100,10 @@
           this.licenses = response.data
         })
       },
+
+      /**
+       * Approves the project and adds the approvers signature to the project
+       */
       signProject () {
         if (this.project.approvedBy !== '' || this.project.approvedBy) {
           console.log(this.project.projectName)

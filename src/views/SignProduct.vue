@@ -100,6 +100,10 @@
           this.licenses = response.data
         })
       },
+
+      /**
+       * Approves the product and adds the approvers signature to the product
+       */
       signProduct () {
         if (this.product.approvedBy !== '' || this.product.approvedBy) {
           console.log(this.product.productName)
