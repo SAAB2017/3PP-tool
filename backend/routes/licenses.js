@@ -50,6 +50,7 @@ router.route('/add')
           console.log(error.message)
           res.status(500)
           res.send(error.message)
+          res.error_id = "E04"
         } else {
           let licenseID = 1
           const queryGetID = "SELECT MAX(id) AS 'id' FROM licenses"
@@ -160,7 +161,78 @@ router.route('/:id')
     })
   })
 
-//Get license log
+  // ----------------------------------------------------------------------------
+  // Methods for /comment
+  // ----------------------------------------------------------------------------
+  router.route('/comment')
+    .post((req, res) => {
+      // precondition: License exists.
+      let input = req.body
+      if (input.id != null && input.comment != null) {
+        //Get licenses from the product
+        setLicenseComment(req, res, input)
+      } else {
+        res.status(406).send("ERROR! ID or Comment was not provided.")
+      }
+      // postcondition: The comment of the license is changed.
+    })
+
+
+  /**
+   * Changes the comment of a license.
+   * @param {Integer} id
+   * @param {String} comment
+   */
+  function setLicenseComment(req, res, input){
+    let query = "UPDATE licenses SET comment = ? WHERE id = ?;"
+
+    req.db.all(query, [input.comment, input.id], (err, rows) => {
+      if (err) {
+        // If there's an error then provide the error message and the different attributes that could have caused it.
+        res.send("ERROR! error message:" + err.message + ", query: " + query)
+      } else
+        res.status(200).send("success");
+    })
+  }
+
+  // ----------------------------------------------------------------------------
+  // Methods for /URL
+  // ----------------------------------------------------------------------------
+  router.route('/URL')
+    .post((req, res) => {
+      // precondition: License exists.
+      let input = req.body
+      if (input.id != null && input.URL != null) {
+        //Get licenses from the product
+        setLicenseURL(req, res, input)
+      } else {
+        res.status(406).send("ERROR! ID or URL was not provided.")
+      }
+
+// postcondition: The URL of the license is changed.
+    })
+
+/**
+ * Changes the URL of a license.
+ * @param {Integer} id
+ * @param {String} URL
+ */
+function setLicenseURL(req, res, input){
+  let query = "UPDATE licenses SET URL = ? WHERE id = ?;"
+
+  req.db.all(query, [input.URL, input.id], (err, rows) => {
+    if (err) {
+      // If there's an error then provide the error message and the different attributes that could have caused it.
+      res.send("ERROR! error message:" + err.message + ", query: " + query)
+    } else
+      res.status(200).send("success");
+  })
+}
+
+/**
+ * Gets the log of a license.
+ * @param {Integer} id
+ */
 function getLicenseLog(req, res, id) {
   let query = "SELECT * FROM licenseLog WHERE licenseID = ?"
 
@@ -175,7 +247,10 @@ function getLicenseLog(req, res, id) {
   })
 }
 
-//Get licenses from product
+/**
+ * Gets the licenses connected with a product.
+ * @param {Integer} id
+ */
 function getLicensesFromProduct(req, res, id) {
 
   let query = "SELECT DISTINCT licenseID AS id , licenseName, licenseVersion, dateCreated, lastEdited, comment FROM licenses LEFT OUTER JOIN"
@@ -191,6 +266,10 @@ function getLicensesFromProduct(req, res, id) {
   })
 }
 
+/**
+ * Gets the licenses connected with a project.
+ * @param {Integer} id
+ */
 function getLicensesFromProject(req, res, id) {
 
   let query = "SELECT DISTINCT licenseID AS id , licenseName, licenseVersion, dateCreated, lastEdited, comment FROM licenses LEFT OUTER JOIN licensesInComponents ON licenses.id=licensesInComponents.licenseID"
