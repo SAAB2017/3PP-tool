@@ -68,7 +68,7 @@
        */
       displayComponent (component) {
         console.log(`Component id is ${component}`)
-        this.$router.push({ name: 'components_pending_id', params: { id: component } })
+        this.$router.push({ name: 'components_pending_id', params: { id: component.id } })
       }
     }
   }
