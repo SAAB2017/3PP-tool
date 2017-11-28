@@ -113,7 +113,7 @@
             .then(response => {
               if (response.status === 204) {
                 console.log(response.data)
-                this.message = 'Project signed'
+                this.$router.push({name: 'projects', params: {type: 'signed', sName: this.project.projectName, sVersion: this.project.projectVersion}})
               } else {
                 console.log('Error: Could not sign project')
                 this.message = response.data

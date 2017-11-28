@@ -113,7 +113,7 @@
             .then(response => {
               if (response.status === 204) {
                 console.log(response.data)
-                this.message = 'Product signed'
+                this.$router.push({name: 'products', params: {type: 'signed', sName: this.product.productName, sVersion: this.product.productVersion}})
               } else {
                 console.log('Error: Could not sign product')
                 this.message = response.data
