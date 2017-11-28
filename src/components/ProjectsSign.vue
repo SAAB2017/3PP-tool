@@ -68,7 +68,7 @@
        */
       displayProject (project) {
         console.log(`Project id is ${project}`)
-        this.$router.push({ name: 'projects_pending_id', params: { id: project } })
+        this.$router.push({ name: 'projects_pending_id', params: { id: project.id } })
       }
     }
   }
