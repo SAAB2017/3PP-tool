@@ -357,6 +357,51 @@ router.route('/log/:id')
 })
 
 // ----------------------------------------------------------------------------
+// Methods for /comment
+// ----------------------------------------------------------------------------
+router.route('/comment')
+  .post((req, res) => {
+    // precondition: Product exists.
+    let input = req.body
+    if (input.id != null && input.comment != null) {
+      getProduct(req, res, null, null, input.id, function (product) {
+        if (product != null) {
+          setProductLog(req, res, input, product.comment, function(returnValue) {
+            if (returnValue) {
+              // Get products from the product
+              setProductComment(req, res, input)
+            }
+          })
+        } else {
+          res.status(406).send("ERROR!")
+          res.error_id = "E09"
+        }
+      })
+    } else {
+      res.status(406).send("ERROR! ID or Comment was not provided.")
+    }
+    // postcondition: The comment of the product is changed.
+  })
+
+/**
+ * Changes the comment of a product.
+ * @param {Object} req
+ * @param {Object} res
+ * @param {JSON} input
+ */
+function setProductComment(req, res, input){
+  let query = "UPDATE products SET comment = ? WHERE id = ?;"
+
+  req.db.all(query, [input.comment, input.id], (err, rows) => {
+    if (err) {
+      // If there's an error then provide the error message and the different attributes that could have caused it.
+      res.send("ERROR! error message:" + err.message + ", query: " + query)
+    } else
+      res.status(200).send("success");
+  })
+}
+
+// ----------------------------------------------------------------------------
 //  Methods for /products/:id
 // ----------------------------------------------------------------------------
 router.route('/:id')
@@ -773,3 +818,28 @@ router.route('/search/:id')
       }
     })
   })
+
+/**
+ * Gets the product.
+ * @param {Object} req
+ * @param {Object} res
+ * @param {JSON} input
+ * @param {String} oldComment
+ * @param {boolean} callback
+ */
+function setProductLog(req, res, input, old, callback){
+  let query = "INSERT INTO productLog (productID, dateLogged, note) VALUES (?, ?, ?);"
+  let note = ""
+  if (input.comment != null) {
+    note = "Comment changed from: " + old + " to: " + input.comment + "."
+  } else if (input.URL != null) {
+    note = "URL changed from: " + old + " to: " + input.URL + "."
+  }
+  req.db.run(query, [input.id, new Date().toLocaleDateString(), note], (error) => {
+    if(error){
+      // If there's an error then provide the error message and the different attributes that could have caused it.
+      res.send("ERROR! error message:" + error.message + ", query: " + query)
+    }else
+      callback(true)
+  })
+}
