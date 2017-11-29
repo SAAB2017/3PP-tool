@@ -5,6 +5,7 @@
           <div class="columns is-mobile is-centered">
             <h1 class="has-text-left">License {{ license.id }}</h1>
           </div>
+          <p id="p-message" class="help subtitle is-6" style="text-align: center; padding-bottom: 15px">{{ message }}</p>
 
           <!-- Columns that is centered and multiline for support on lower resolution -->
           <div class="columns is-mobile is-centered is-multiline">
@@ -45,8 +46,7 @@
               <div class="field is-horizontal">
                 <label class="field-label label is-normal">URL</label>
                 <div class="control">
-                  <input v-if="license.URL" v-model="license.URL" class="input" type="text" readonly>
-                  <input v-else v-model="testURL" class="input" type="text" readonly>
+                  <input v-model="license.URL" class="input" type="text">
                 </div>
               </div>
             </div>
@@ -56,7 +56,13 @@
               <div class="field is-horizontal">
                 <label class="field-label label is-normal">Comment</label>
                 <div class="control" style="width: 100%">
-                  <textarea class="textarea" v-model="license.comment" readonly></textarea>
+                  <textarea class="textarea" v-model="license.comment"></textarea>
+                </div>
+              </div>
+              <!-- Button for updating the license values. Uses "updateComment"-function -->
+              <div class="field is-grouped is-grouped-right">
+                <div class="control">
+                  <button @click="updateLicense()" class="button is-primary">Update URL/comment</button>
                 </div>
               </div>
             </div>
@@ -228,6 +234,8 @@
       return {
         license: {},
         components: [],
+        origComment: '',
+        origURL: '',
         products: [],
         projects: [],
         message: '',
@@ -247,6 +255,8 @@
       axios.get(this.$baseAPI + 'licenses/' + this.$route.params.id)
         .then(response => {
           this.license = response.data
+          this.origComment = this.license.comment
+          this.origURL = this.license.URL
           this.fetchComponents()
           this.fetchProducts()
           this.fetchProjects()
@@ -333,6 +343,71 @@
       goTo (part) {
         let routeName = this.modalComp + 's_id'
         this.$router.push({name: routeName, params: {id: part.id}})
+      },
+
+      updateLicense () {
+        let msg = document.getElementById('p-message')
+        this.message = ''
+        if (this.origComment === this.license.comment && this.origURL === this.license.URL) {
+          msg.classList.remove('is-success')
+          msg.classList.add('is-danger')
+          this.message = 'Nothing to change, URL and comment not modified'
+          this.fade_out()
+        } else {
+          msg.classList.remove('is-danger')
+          msg.classList.add('is-success')
+          if (this.origComment !== this.license.comment) {
+            let data = {
+              id: this.license.id,
+              comment: this.license.comment
+            }
+
+            axios.post(this.$baseAPI + 'licenses/comment', data)
+              .then(response => {
+                this.origComment = this.license.comment
+                if (this.message) this.message += ', '
+                this.message += 'Comment updated'
+              })
+          }
+          if (this.origURL !== this.license.URL) {
+            let data = {
+              id: this.license.id,
+              URL: this.license.URL
+            }
+
+            axios.post(this.$baseAPI + 'licenses/URL', data)
+              .then(response => {
+                this.origURL = this.license.URL
+                if (this.message) this.message += ', '
+                this.message += 'URL updated'
+              })
+          }
+          this.fade_out()
+        }
+      },
+
+      /**
+       * Shows this.message for some time then fades it away and removes it.
+       */
+      fade_out () {
+        let msg = document.getElementById('p-message')
+        let page = this
+        let count = 1
+        let fadeEffect = setInterval(function () {
+          if (!msg.style.opacity) {
+            msg.style.opacity = 1
+          }
+          if (count < 0.1) {
+            page.message = ''
+            msg.style.opacity = 1
+            clearInterval(fadeEffect)
+          } else {
+            count -= 0.01
+            if (count < 0.2) {
+              msg.style.opacity -= 0.1
+            }
+          }
+        }, 100)
       }
     }
   }
