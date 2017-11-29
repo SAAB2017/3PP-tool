@@ -12,50 +12,62 @@
 
             <!-- Column that contains the name and version of the license. Also contains
              the update button -->
-            <div class="column is-one-quarter-desktop is-one-third-tablet is-5-mobile">
+            <div class="column is-one-quarter-desktop is-one-third-tablet is-10-mobile">
               <div class="field is-horizontal">
-                <label class="field-label label is-normal">Name</label>
-                <div class="control">
-                  <input v-model="license.licenseName" class="input" type="text" readonly>
+                <div class="field-label">
+                  <label class="label is-normal">Name:</label>
+                </div>
+                <div class="field-body">
+                  <label>{{ license.licenseName }}</label>
                 </div>
               </div>
 
               <div class="field is-horizontal">
-                <label class="field-label label is-normal">Version</label>
-                <div class="control">
-                  <input v-model="license.licenseVersion" class="input" type="text" readonly>
+                <div class="field-label">
+                  <label class="label is-normal">Version:</label>
+                </div>
+                <div class="field-body">
+                  <label>{{ license.licenseVersion }}</label>
                 </div>
               </div>
-            </div>
 
             <!-- Column that contains the date the license was created, the license type
              and the URL for the license -->
-            <div class="column is-one-quarter-desktop is-one-third-tablet is-5-mobile">
               <div class="field is-horizontal">
-                <label class="field-label label is-normal">Created</label>
-                <div class="control">
-                  <input v-model="license.dateCreated" class="input" type="text"  readonly>
+                <div class="field-label">
+                  <label class="label is-normal">Created:</label>
+                </div>
+                <div class="field-body">
+                  <label>{{ license.dateCreated }}</label>
                 </div>
               </div>
+
               <div class="field is-horizontal">
-                <label class="field-label label is-normal">Type</label>
-                <div class="control">
-                  <input v-model="license.licenseType" class="input" type="text" readonly>
+                <div class="field-label">
+                  <label class="label is-normal">Type:</label>
                 </div>
-              </div>
-              <div class="field is-horizontal">
-                <label class="field-label label is-normal">URL</label>
-                <div class="control">
-                  <input v-model="license.URL" class="input" type="text">
+                <div class="field-body">
+                  <label>{{ license.licenseType }}</label>
                 </div>
               </div>
             </div>
 
             <!-- Column that contains the comment for the license -->
-            <div class="column is-half-desktop is-two-thirds-tablet is-10-mobile">
+            <div class="column is-three-quarters-desktop is-two-thirds-tablet is-10-mobile">
               <div class="field is-horizontal">
-                <label class="field-label label is-normal">Comment</label>
-                <div class="control" style="width: 100%">
+                <div class="field-label">
+                  <label class="label is-normal">URL</label>
+                </div>
+                <div class="field-body">
+                  <input v-model="license.URL" class="input" type="text">
+                </div>
+              </div>
+
+              <div class="field is-horizontal">
+                <div class="field-label">
+                  <label class="label is-normal">Comment</label>
+                </div>
+                <div class="field-body">
                   <textarea class="textarea" v-model="license.comment"></textarea>
                 </div>
               </div>
@@ -73,10 +85,11 @@
 
             <!-- Table that shows which components this license is in -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
+              <h4>Components with license</h4>
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">Components with license</th>
+                  <th scope="col">Component</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
@@ -91,10 +104,11 @@
 
             <!-- Table that shows which products this license is in -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
+              <h4>Products with license</h4>
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">Products with license</th>
+                  <th scope="col">Product</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
@@ -109,10 +123,11 @@
 
             <!-- Table that shows which projects this license is in -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
+              <h4>Projects with license</h4>
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">Project with license</th>
+                  <th scope="col">Project</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
