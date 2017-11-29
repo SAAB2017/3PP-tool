@@ -12,41 +12,48 @@
 
             <!-- Column that contains the name and version of the product. Also contains
              the update button -->
-            <div class="column is-one-quarter-desktop is-one-third-tablet is-5-mobile">
+            <div class="column is-one-quarter-desktop is-two-thirds-tablet is-10-mobile">
               <div class="field is-horizontal">
-                <label class="field-label label is-normal">Name</label>
-                <div class="control">
-                  <input v-model="product.productName" class="input" type="text">
+                <div class="field-label">
+                  <label class="label is-normal">Name:</label>
+                </div>
+                <div class="field-body">
+                  <label>{{ product.productName }}</label>
                 </div>
               </div>
 
               <div class="field is-horizontal">
-                <label class="field-label label is-normal">Version</label>
-                <div class="control">
-                  <input v-model="product.productVersion" class="input" type="text">
+                <div class="field-label">
+                  <label class="label is-normal">Version:</label>
+                </div>
+                <div class="field-body">
+                  <label>{{ product.productVersion }}</label>
                 </div>
               </div>
-            </div>
 
-            <!-- Column that contains the date the product was created and the signature
-            for the person that approved it -->
-            <div class="column is-one-quarter-desktop is-one-third-tablet is-5-mobile">
+              <!-- Column that contains the date the product was created and the signature
+               for the person that approved it -->
               <div class="field is-horizontal">
-                <label class="field-label label is-normal">Created</label>
-                <div class="control">
-                  <input v-model="product.dateCreated" class="input" type="text"  readonly>
+                <div class="field-label">
+                  <label class="label is-normal">Created:</label>
+                </div>
+                <div class="field-body">
+                  <label>{{ product.dateCreated }}</label>
                 </div>
               </div>
+
               <div class="field is-horizontal">
-                <label class="field-label label is-normal">Approver</label>
-                <div class="control">
-                  <input v-model="product.approvedBy" class="input" type="text" readonly>
+                <div class="field-label">
+                  <label class="label is-normal">Approver:</label>
+                </div>
+                <div class="field-body">
+                  <label>{{ product.approvedBy }}</label>
                 </div>
               </div>
             </div>
 
             <!-- Column that contains the comment for the product -->
-            <div class="column is-half-desktop is-two-thirds-tablet is-10-mobile">
+            <div class="column is-three-quarters-desktop is-two-thirds-tablet is-10-mobile">
               <div class="field is-horizontal">
                 <label class="field-label label is-normal">Comment</label>
                 <div class="control" style="width: 100%">
@@ -67,10 +74,11 @@
 
             <!-- Table that shows which licenses is in this product -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
+              <h4>Licenses in product</h4>
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">Licenses in product</th>
+                  <th scope="col">License</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
@@ -85,10 +93,11 @@
 
             <!-- Table that shows which components is in this product -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
+              <h4>Components in product</h4>
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">Components in product</th>
+                  <th scope="col">Component</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
@@ -103,10 +112,11 @@
 
             <!-- Table that shows which projects this product is in -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
+              <h4>Projects with product</h4>
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">Projects with product</th>
+                  <th scope="col">Project</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
