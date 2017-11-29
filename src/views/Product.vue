@@ -5,6 +5,7 @@
           <div class="columns is-mobile is-centered">
             <h1 class="has-text-left">Product {{ product.id }}</h1>
           </div>
+          <p id="p-message" class="help subtitle is-6" style="text-align: center; padding-bottom: 15px">{{ message }}</p>
 
           <!-- Columns that is centered and multiline for support on lower resolution -->
           <div class="columns is-mobile is-centered is-multiline">
@@ -23,13 +24,6 @@
                 <label class="field-label label is-normal">Version</label>
                 <div class="control">
                   <input v-model="product.productVersion" class="input" type="text">
-                </div>
-              </div>
-              <p class="help is-success has-text-right">{{ message }}</p>
-              <!-- Button for updating the product values. Uses "updateProduct"-function -->
-              <div class="field is-grouped is-grouped-right">
-                <div class="control">
-                  <button @click="updateProduct()" class="button is-primary">Update</button>
                 </div>
               </div>
             </div>
@@ -57,6 +51,12 @@
                 <label class="field-label label is-normal">Comment</label>
                 <div class="control" style="width: 100%">
                   <textarea class="textarea" v-model="product.comment"></textarea>
+                </div>
+              </div>
+              <!-- Button for updating the product values. Uses "updateComment"-function -->
+              <div class="field is-grouped is-grouped-right">
+                <div class="control">
+                  <button @click="updateComment()" class="button is-primary">Update comment</button>
                 </div>
               </div>
             </div>
@@ -254,6 +254,7 @@
     data () {
       return {
         product: {},
+        origComment: '',
         licenses: [],
         components: [],
         projects: [],
@@ -277,6 +278,7 @@
       axios.get(this.$baseAPI + 'products/' + this.$route.params.id)
         .then(response => {
           this.product = response.data
+          this.origComment = this.product.comment
           this.fetchLicenses()
           this.fetchComponents()
           this.fetchProjects()
@@ -313,24 +315,56 @@
       /**
        * Update this product with new values
        */
-      updateProduct () {
-        let data = {
-          id: this.product.id,
-          product: this.product,
-          version: this.product.version,
-          comment: this.product.comment
-        }
+      updateComment () {
+        let msg = document.getElementById('p-message')
+        if (this.origComment === this.product.comment) {
+          msg.classList.remove('is-success')
+          msg.classList.add('is-danger')
+          // msg.style.opacity = 1
+          this.message = 'Old and new comment is the same'
+          this.fade_out()
+        } else {
+          let data = {
+            id: this.product.id,
+            comment: this.product.comment
+          }
 
-        axios.put(this.$baseAPI + 'products/' + this.product.id, data)
-          .then(response => {
-            if (response.status === '201') {
-              axios.get(this.$baseAPI + 'product/' + this.product.id)
-                .then(response => {
-                  this.message = 'Update sucessful'
-                  this.product = response.data
-                })
+          axios.post(this.$baseAPI + 'products/comment', data)
+            .then(response => {
+              msg.classList.remove('is-danger')
+              msg.classList.add('is-success')
+              // msg.style.opacity = 1
+              if (response.status === 200) {
+                this.origComment = this.product.comment
+                this.message = 'Comment updated'
+                this.fade_out()
+              }
+            })
+        }
+      },
+
+      /**
+       * Shows this.message for some time then fades it away and removes it.
+       */
+      fade_out () {
+        let msg = document.getElementById('p-message')
+        let page = this
+        let count = 1
+        let fadeEffect = setInterval(function () {
+          if (!msg.style.opacity) {
+            msg.style.opacity = 1
+          }
+          if (count < 0.1) {
+            page.message = ''
+            msg.style.opacity = 1
+            clearInterval(fadeEffect)
+          } else {
+            count -= 0.01
+            if (count < 0.2) {
+              msg.style.opacity -= 0.1
             }
-          })
+          }
+        }, 100)
       },
 
       showModal () {
