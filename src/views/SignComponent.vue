@@ -1,83 +1,70 @@
 <template>
   <div class="section">
     <div v-if="component" class="component">
+
       <div class="columns is-mobile is-centered">
-        <div class="column is-one-quarter-desktop is-one-third-tablet is-half-mobile">
-            <h2 class="subtitle is-4">{{ component.componentName }}</h2>
-        </div>
-      </div>
+        <div class="column is-half-desktop is-two-thirds-tablet is-full-mobile">
 
-      <div class="columns is-mobile is-centered is-multiline">
+          <h2 class="subtitle is-4" style="text-align: center">{{ component.componentName }}</h2>
 
-        <div class="column is-one-quarter-desktop is-two-thirds-tablet is-10-mobile">
+          <p class="help is-danger subtitle is-6" style="text-align: center; padding-bottom: 15px">{{ message }}</p>
+
+          <div class="columns is-mobile is-centered">
+            <div class="field is-horizontal">
+              <div class="control">
+                <input v-model="component.approvedBy" class="input" type="text" placeholder="Signature">
+              </div>
+              <div class="control">
+                <button @click="signComponent()" class="button is-primary">Sign</button>
+              </div>
+            </div>
+          </div>
 
           <div class="field is-horizontal">
-            <label class="field-label label is-normal" style="width: 20%">Version</label>
-            <div class="control" style="width: 80%">
+            <div class="field-label">
+              <label class="label is-normal">Version</label>
+            </div>
+            <div class="field-body">
               <input v-model="component.componentVersion" class="input" type="text" disabled>
             </div>
           </div>
 
           <div class="field is-horizontal">
-            <label class="field-label label is-normal" style="width: 20%">Created</label>
-            <div class="control" style="width: 80%">
+            <div class="field-label">
+              <label class="label is-normal">Created</label>
+            </div>
+            <div class="field-body">
               <input v-model="component.dateCreated" class="input" type="text"  disabled>
             </div>
           </div>
 
-        </div>
-
-        <div class="column is-half-desktop is-two-thirds-tablet is-10-mobile">
           <div class="field is-horizontal">
-            <label class="field-label label is-normal" style="width: 20%">Comment</label>
-            <div class="control" style="width: 80%">
-              <textarea class="textarea" v-model="component.comment"></textarea>
+            <div class="field-label">
+              <label class="label is-normal">Comment</label>
+            </div>
+            <div class="field-body">
+              <textarea class="textarea" v-model="component.comment" readonly></textarea>
             </div>
           </div>
+
+          <table class="table is-bordered">
+            <thead>
+            <tr>
+              <th scope="col">Licenses</th>
+              <th scope="col">Version</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="license in licenses">
+              <td scope="row" data-label="License">{{ license.licenseName }}</td>
+              <td scope="row" data-label="Version">{{ license.licenseVersion }}</td>
+            </tr>
+            </tbody>
+          </table>
+
         </div>
-
-        <div class="column is-one-quarter-desktop is-two-thirds-tablet is-10-mobile">
-
-            <div class="field is-horizontal">
-              <div class="vertical-menu" style="max-height: 200px">
-                <table class="table is-bordered">
-                  <thead>
-                  <tr>
-                    <th scope="col">Licenses</th>
-                    <th scope="col">Version</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr v-for="license in licenses">
-                    <td scope="row" data-label="License">{{ license.licenseName }}</td>
-                    <td scope="row" data-label="Version">{{ license.licenseVersion }}</td>
-                  </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-        </div>
-
-      </div>
-      <div class="columns is-mobile is-centered is-gapless">
-
-        <div class="column is-one-third-desktop is-half-tablet is-10-mobile">
-          <div class="field is-horizontal">
-            <label class="field-label label is-normal">Signature</label>
-            <div class="control">
-              <input v-model="component.approvedBy" class="input" type="text">
-            </div>
-            <div class="control">
-              <button @click="signComponent()" class="button is-primary">Sign</button>
-            </div>
-          </div>
-        </div>
-
       </div>
 
-      <div class="columns is-mobile is-centered">
-        <p class="help is-success has-text-right subtitle is-6">Component status: {{ message }}</p>
-      </div>
     </div>
     <div v-else>
       <h1>Component not found</h1>
@@ -99,27 +86,26 @@
     },
 
     mounted () {
-      const pendingURI = 'components/' + JSON.stringify({id: this.$route.params.id})
+      const pendingURI = 'components/' + this.$route.params.id
       axios.get(this.$baseAPI + pendingURI)
         .then(response => {
-          if (response.status === '404') {
-            console.log('Error requesting data.')
-          } else {
-            this.component = response.data[0]
-            this.message = ((this.component.approved === 0) ? 'Not signed' : 'Signed')
-            this.fetchLicenses()
-          }
+          this.component = response.data
+          this.fetchLicenses()
         })
     },
 
     methods: {
       fetchLicenses () {
-        axios.get(this.$baseAPI + 'licenses/licensesInComponent/' + JSON.stringify(this.$route.params.id)).then(response => {
+        axios.get(this.$baseAPI + 'licenses/licensesInComponent/' + this.$route.params.id).then(response => {
           this.licenses = response.data
         })
       },
+
+      /**
+       * Approves the component and adds the approvers signature to the component
+       */
       signComponent () {
-        if (this.component.approvedBy !== null || this.component.approvedBy) {
+        if (this.component.approvedBy !== '' || this.component.approvedBy) {
           console.log(this.component.componentName)
           let data = {
             id: this.component.id,
@@ -130,15 +116,19 @@
           axios.put(this.$baseAPI + 'components/approve', data)
             .then(response => {
               if (response.status === 204) {
-                axios.get(this.$baseAPI + 'components/' + JSON.stringify({id: this.$route.params.id}))
-                  .then(response => {
-                    console.log(response.data)
-                    this.message = 'Component signed'
-                    this.component = response.data[0]
-                  })
+                console.log(response.data)
+                this.message = 'Component signed'
               } else {
                 console.log('Error: Could not sign component')
-                this.message = 'Could not sign component'
+                this.message = response.data
+              }
+            })
+            .catch(error => {
+              console.log(error.response)
+              if (error.response) {
+                if (error.response.status === 500) {
+                  this.message = 'Already signed by ' + error.response.data.byUser
+                }
               }
             })
         } else {

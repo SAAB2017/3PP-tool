@@ -47,7 +47,6 @@
     },
     /* Fetches unsigned projects from the database and puts them in projects */
     mounted () {
-      const pendingURI = 'projects/pending'
       axios.get(this.$baseAPI + 'projects/pending')
         .then(response => {
           this.projects = response.data
@@ -68,7 +67,7 @@
        */
       displayProject (project) {
         console.log(`Project id is ${project}`)
-        this.$router.push({ name: 'projects_pending_id', params: { id: project } })
+        this.$router.push({ name: 'projects_pending_id', params: { id: project.id } })
       }
     }
   }

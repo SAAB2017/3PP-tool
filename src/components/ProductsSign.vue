@@ -47,7 +47,6 @@
     },
     /* Fetches unsigned products from the database and puts them in products */
     mounted () {
-      const pendingURI = 'products/pending'
       axios.get(this.$baseAPI + 'products/pending')
         .then(response => {
           this.products = response.data
@@ -68,7 +67,7 @@
        */
       displayProduct (product) {
         console.log(`Product id is ${product}`)
-        this.$router.push({ name: 'products_pending_id', params: { id: product } })
+        this.$router.push({ name: 'products_pending_id', params: { id: product.id } })
       }
     }
   }
