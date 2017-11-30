@@ -34,10 +34,10 @@
     <!-- Field for searching for products. Uses "searchProduct"-method for searching -->
     <div class="field has-addons" style="padding-top: 15px">
       <div class="control">
-        <input v-model="searchProducts" class="input" type="text" placeholder="Find a product">
+        <input v-on:keyup="searchProduct()" v-model="searchProducts" class="input" type="text" placeholder="Find a product">
       </div>
       <div class="control">
-        <a @click="searchProduct" class="button is-primary">Search</a>
+        <a @click="searchProduct()" class="button is-primary">Search</a>
       </div>
     </div>
 
@@ -67,15 +67,13 @@
         checkedProducts: [],
         projectName: '',
         projectVersion: '',
-        projectComment: ''
+        projectComment: '',
+        searchProducts: ''
       }
     },
     /* Fetches liceses from the database and puts them in products */
     mounted () {
-      axios.get(this.$baseAPI + 'products')
-        .then(response => {
-          this.products = response.data
-        })
+      this.getAllProducts()
     },
 
     methods: {
@@ -105,11 +103,32 @@
         this.$router.go()
       },
 
+      getAllProducts () {
+        axios.get(this.$baseAPI + 'products')
+          .then(response => {
+            this.products = response.data
+          })
+      },
+
       /**
        * Searches for liceses from the database matching the search-criteria
        */
       searchProduct () {
-        // TODO Implement method
+        if (this.searchProducts.length === 0) {
+          this.getAllProducts()
+          return
+        }
+        if (this.searchProducts !== 0 || this.searchProducts !== null || this.searchProducts !== '') {
+          axios.get(this.$baseAPI + 'products/search/' + this.searchProducts).then(response => {
+            if (response.data !== null) {
+              this.products = response.data
+            } else {
+              this.message = 'No product found!'
+            }
+          })
+        } else {
+          this.getAllProducts()
+        }
       }
     }
   }
