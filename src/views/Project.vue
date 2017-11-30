@@ -5,58 +5,65 @@
           <div class="columns is-mobile is-centered">
             <h1 class="has-text-left">Project {{ project.id }}</h1>
           </div>
+          <p id="p-message" class="help subtitle is-6" style="text-align: center; padding-bottom: 15px">{{ message }}</p>
 
           <!-- Columns that is centered and multiline for support on lower resolution -->
           <div class="columns is-mobile is-centered is-multiline">
 
             <!-- Column that contains the name and version of the project. Also contains
              the update button -->
-            <div class="column is-one-quarter-desktop is-one-third-tablet is-5-mobile">
+            <div class="column is-one-quarter-desktop is-two-thirds-tablet is-10-mobile">
               <div class="field is-horizontal">
-                <label class="field-label label is-normal">Name</label>
-                <div class="control">
-                  <input v-model="project.projectName" class="input" type="text">
+                <div class="field-label">
+                  <label class="label is-normal">Name:</label>
+                </div>
+                <div class="field-body">
+                  <label>{{ project.projectName }}</label>
                 </div>
               </div>
 
               <div class="field is-horizontal">
-                <label class="field-label label is-normal">Version</label>
-                <div class="control">
-                  <input v-model="project.projectVersion" class="input" type="text">
+                <div class="field-label">
+                  <label class="label is-normal">Version:</label>
+                </div>
+                <div class="field-body">
+                  <label>{{ project.projectVersion }}</label>
                 </div>
               </div>
-              <p class="help is-success has-text-right">{{ message }}</p>
-              <!-- Button for updating the project values. Uses "updateProject"-function -->
-              <div class="field is-grouped is-grouped-right">
-                <div class="control">
-                  <button @click="updateProject()" class="button is-primary">Update</button>
-                </div>
-              </div>
-            </div>
 
             <!-- Column that contains the date the product was created and the signature
              for the person that approved it -->
-            <div class="column is-one-quarter-desktop is-one-third-tablet is-5-mobile">
               <div class="field is-horizontal">
-                <label class="field-label label is-normal">Created</label>
-                <div class="control">
-                  <input v-model="project.dateCreated" class="input" type="text"  readonly>
+                <div class="field-label">
+                  <label class="label is-normal">Created:</label>
+                </div>
+                <div class="field-body">
+                  <label>{{ project.dateCreated }}</label>
                 </div>
               </div>
+
               <div class="field is-horizontal">
-                <label class="field-label label is-normal">Approver</label>
-                <div class="control">
-                  <input v-model="project.approvedBy" class="input" type="text" readonly>
+                <div class="field-label">
+                  <label class="label is-normal">Approver:</label>
+                </div>
+                <div class="field-body">
+                  <label>{{ project.approvedBy }}</label>
                 </div>
               </div>
             </div>
 
             <!-- Column that contains the comment for the product -->
-            <div class="column is-half-desktop is-two-thirds-tablet is-10-mobile">
+            <div class="column is-three-quarters-desktop is-two-thirds-tablet is-10-mobile">
               <div class="field is-horizontal">
                 <label class="field-label label is-normal">Comment</label>
                 <div class="control" style="width: 100%">
                   <textarea class="textarea" v-model="project.comment"></textarea>
+                </div>
+              </div>
+              <!-- Button for updating the project values. Uses "updateComment"-function -->
+              <div class="field is-grouped is-grouped-right">
+                <div class="control">
+                  <button @click="updateComment()" class="button is-primary">Update comment</button>
                 </div>
               </div>
             </div>
@@ -67,10 +74,11 @@
 
             <!-- Table that shows which licenses is in this project -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
+              <h4>Licenses in project</h4>
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">Licenses in project</th>
+                  <th scope="col">License</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
@@ -85,10 +93,11 @@
 
             <!-- Table that shows which components is in this project -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
+              <h4>Components in project</h4>
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">Components in project</th>
+                  <th scope="col">Component</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
@@ -103,10 +112,11 @@
 
             <!-- Table that shows which products is in this project -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
+              <h4>Products in project</h4>
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">Products in project</th>
+                  <th scope="col">Product</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
@@ -253,6 +263,7 @@
     data () {
       return {
         project: {},
+        origComment: '',
         licenses: [],
         components: [],
         products: [],
@@ -276,6 +287,7 @@
       axios.get(this.$baseAPI + 'projects/' + this.$route.params.id)
         .then(response => {
           this.project = response.data
+          this.origComment = this.project.comment
           this.fetchLicenses()
           this.fetchComponents()
           this.fetchProducts()
@@ -312,24 +324,56 @@
       /**
        * Update this product with new values
        */
-      updateProject () {
-        let data = {
-          id: this.project.id,
-          component: this.project.component,
-          version: this.project.version,
-          comment: this.project.comment
-        }
+      updateComment () {
+        let msg = document.getElementById('p-message')
+        if (this.origComment === this.project.comment) {
+          msg.classList.remove('is-success')
+          msg.classList.add('is-danger')
+          // msg.style.opacity = 1
+          this.message = 'Old and new comment is the same'
+          this.fade_out()
+        } else {
+          let data = {
+            id: this.project.id,
+            comment: this.project.comment
+          }
 
-        axios.put(this.$baseAPI + 'projects/' + this.project.id, data)
-          .then(response => {
-            if (response.status === '201') {
-              axios.get(this.$baseAPI + 'project/' + this.project.id)
-                .then(response => {
-                  this.message = 'Update sucessful'
-                  this.project = response.data
-                })
+          axios.post(this.$baseAPI + 'projects/comment', data)
+            .then(response => {
+              msg.classList.remove('is-danger')
+              msg.classList.add('is-success')
+             // msg.style.opacity = 1
+              if (response.status === 200) {
+                this.origComment = this.project.comment
+                this.message = 'Comment updated'
+                this.fade_out()
+              }
+            })
+        }
+      },
+
+      /**
+       * Shows this.message for some time then fades it away and removes it.
+       */
+      fade_out () {
+        let msg = document.getElementById('p-message')
+        let page = this
+        let count = 1
+        let fadeEffect = setInterval(function () {
+          if (!msg.style.opacity) {
+            msg.style.opacity = 1
+          }
+          if (count < 0.1) {
+            page.message = ''
+            msg.style.opacity = 1
+            clearInterval(fadeEffect)
+          } else {
+            count -= 0.01
+            if (count < 0.2) {
+              msg.style.opacity -= 0.1
             }
-          })
+          }
+        }, 100)
       },
 
       showModal () {

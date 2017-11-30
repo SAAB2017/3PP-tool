@@ -47,7 +47,6 @@
     },
     /* Fetches unsigned components from the database and puts them in components */
     mounted () {
-      const pendingURI = 'components/pending'
       axios.get(this.$baseAPI + 'components/pending')
         .then(response => {
           this.components = response.data
@@ -68,7 +67,7 @@
        */
       displayComponent (component) {
         console.log(`Component id is ${component}`)
-        this.$router.push({ name: 'components_pending_id', params: { id: component } })
+        this.$router.push({ name: 'components_pending_id', params: { id: component.id } })
       }
     }
   }
