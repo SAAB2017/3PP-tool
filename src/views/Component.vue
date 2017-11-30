@@ -432,12 +432,7 @@
 
       goTo (part) {
         let routeName = this.modalComp + 's_id'
-        // TODO If-else temporary until licenses.js updated (row 92, in /licensesInComponent/:id, SELECT licenseID, ... should be SELECT licenseID as id)
-        if (routeName === 'licenses_id'){
-          this.$router.push({ name: routeName, params: { id: part.licenseID } })
-        } else {
-          this.$router.push({name: routeName, params: {id: part.id}})
-        }
+        this.$router.push({name: routeName, params: {id: part.id}})
       }
     }
   }
