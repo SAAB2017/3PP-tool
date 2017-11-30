@@ -8,36 +8,39 @@
       <p class="help is-success subtitle is-6" style="text-align: center; padding-bottom: 15px">{{ message }}</p>
     </div>
 
-    <div class="field has-addons columns is-mobile is-centered" style="padding-top: 15px">
-      <div class="control">
-        <input v-on:keyup="searchProduct()" v-model="searchProducts" class="input" type="text" placeholder="Find a product">
-      </div>
-      <div class="control">
-        <button @click="searchProduct()" class="button is-primary">Search</button>
+    <div id="top-div-child" class="columns is-mobile is-centered">
+      <div id="top-search" class="field has-addons">
+        <div class="control">
+          <input v-on:keyup="searchProduct()" v-model="searchProducts" class="input" type="text" placeholder="Find a product">
+        </div>
+        <div class="control">
+          <button @click="searchProduct()" class="button is-primary">Search</button>
+        </div>
       </div>
     </div>
 
-    <table>
-      <thead>
-      <tr>
-        <th scope="col">Product</th>
-        <th scope="col">Version</th>
-        <th scope="col">Created</th>
-        <th scope="col">Last edited</th>
-      </tr>
-      </thead>
-      <tbody class="tbodyhome">
-      <tr v-for="product in products" @click="displayComponent(product)">
-        <td scope="row" data-label="Product">{{ product.productName }}</td>
-        <td scope="row" data-label="Version">{{ product.productVersion }}</td>
-        <td scope="row" data-label="Created">{{ product.dateCreated }}</td>
-        <td scope="row" data-label="Last edited">{{ product.lastEdited }}</td>
-      </tr>
-      </tbody>
-    </table>
+    <div id="table-div">
+      <table>
+        <thead>
+        <tr>
+          <th scope="col">Product</th>
+          <th scope="col">Version</th>
+          <th scope="col">Created</th>
+          <th scope="col">Last edited</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="product in products" @click="displayComponent(product)">
+          <td scope="row" data-label="Product">{{ product.productName }}</td>
+          <td scope="row" data-label="Version">{{ product.productVersion }}</td>
+          <td scope="row" data-label="Created">{{ product.dateCreated }}</td>
+          <td scope="row" data-label="Last edited">{{ product.lastEdited }}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
 
-    <!-- Field for searching for a product in the table. Uses "searchProduct"-method -->
-  </div>
+   </div>
 </template>
 
 <script>
@@ -134,7 +137,16 @@
 </script>
 
 <style scoped>
-  .products-list {
+  .table-fixed {
+    padding-top: 110px;
+  }
+
+  .search-fixed {
+    position: fixed;
+    top: 110px;
+  }
+
+  .projects-list {
     margin-bottom: 20px;
   }
 

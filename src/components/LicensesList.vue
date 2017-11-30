@@ -3,18 +3,21 @@
   <div class="licenses-list">
     <!-- Table that contains all signed licenses. Will grow to max-height and then
     become scrollable -->
-    <!-- Field for searching for a license in the table. Uses "searchLicense"-method -->
-    <div class="field has-addons columns is-mobile is-centered" style="padding-top: 15px">
-      <div class="control">
-        <input v-on:keyup="searchLicenses()" v-model="searchLicense" class="input" type="text" placeholder="Find a license">
-      </div>
-      <div class="control">
-        <a @click="searchLicenses()" class="button is-primary">Search</a>
+
+    <div id="top-div-child" class="columns is-mobile is-centered" style="padding-top: 20px">
+      <div id="top-search" class="field has-addons">
+        <div class="control">
+          <input v-on:keyup="searchLicense()" v-model="searchLicenses" class="input" type="text" placeholder="Find a product">
+        </div>
+        <div class="control">
+          <button @click="searchLicense()" class="button is-primary">Search</button>
+        </div>
       </div>
     </div>
 
-    <table>
-      <thead>
+    <div id="table-div">
+      <table>
+        <thead>
         <tr>
           <th scope="col">License</th>
           <th scope="col">Version</th>
@@ -22,17 +25,18 @@
           <th scope="col">Last edited</th>
         </tr>
       </thead>
-      <tbody class="tbodyhome">
+      <tbody>
         <tr v-for="license in licenses" @click="displayComponent(license)">
           <td scope="row" data-label="License">{{ license.licenseName }}</td>
           <td scope="row" data-label="Version">{{ license.licenseVersion }}</td>
           <td scope="row" data-label="Created">{{ license.dateCreated }}</td>
           <td scope="row" data-label="Last edited">{{ license.lastEdited }}</td>
         </tr>
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    </div>
 
-  </div>
+   </div>
 </template>
 
 <script>
@@ -44,7 +48,7 @@
         licenses: [],
         license: null,
         licenseVersion: null,
-        searchLicense: null
+        searchLicenses: null
       }
     },
 
@@ -64,13 +68,13 @@
           })
       },
 
-      searchLicenses () {
-        if (this.searchLicense.length === 0) {
+      searchLicense () {
+        if (this.searchLicenses.length === 0) {
           this.getAllLicenses()
           return
         }
-        if (this.searchLicense !== 0 || this.searchLicense !== null || this.searchLicense !== '') {
-          axios.get(this.$baseAPI + 'licenses/search/' + this.searchLicense).then(response => {
+        if (this.searchLicenses !== 0 || this.searchLicenses !== null || this.searchLicenses !== '') {
+          axios.get(this.$baseAPI + 'licenses/search/' + this.searchLicenses).then(response => {
             if (response.data != null) {
               this.licenses = response.data
             } else {
@@ -94,7 +98,16 @@
 </script>
 
 <style scoped>
-  .licenses-list {
+  .table-fixed {
+    padding-top: 110px;
+  }
+
+  .search-fixed {
+    position: fixed;
+    top: 110px;
+  }
+
+  .projects-list {
     margin-bottom: 20px;
   }
 

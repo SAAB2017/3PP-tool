@@ -1,36 +1,45 @@
 <!-- View for showing all unsigned projects -->
 <template>
-  <div class="projects-list">
-    <!-- Table that contains all unsigned projects. Will grow to max-height and then
-    become scrollable -->
-    <table>
-      <thead>
-      <tr>
-        <th scope="col">Project</th>
-        <th scope="col">Version</th>
-        <th scope="col">Created</th>
-        <th scope="col">Last edited</th>
-      </tr>
-      </thead>
-      <tbody class="tbodyhome">
-      <tr v-for="project in projects" @click="displayProject(project)">
-        <td scope="row" data-label="Project">{{ project.projectName }}</td>
-        <td scope="row" data-label="Version">{{ project.projectVersion }}</td>
-        <td scope="row" data-label="Created">{{ project.dateCreated }}</td>
-        <td scope="row" data-label="Last edited">{{ project.lastEdited }}</td>
-      </tr>
-      </tbody>
-    </table>
+  <div class="products-list">
 
-    <!-- Field for searching for a project in the table. Uses "searchProject"-method -->
-    <div class="field has-addons columns is-mobile is-centered" style="padding-top: 15px">
-      <div class="control">
-        <input v-model="searchProjects" class="input" type="text" placeholder="Find a project">
-      </div>
-      <div class="control">
-        <a @click="searchProject" class="button is-primary">Search</a>
+    <div id="message-text">
+      <p class="help is-success subtitle is-6" style="text-align: center; padding-bottom: 15px">{{ message }}</p>
+    </div>
+
+    <div id="top-div-child" class="columns is-mobile is-centered">
+      <div id="top-search" class="field has-addons">
+        <div class="control">
+          <input v-on:keyup="searchProject()" v-model="searchProducts" class="input" type="text" placeholder="Find a product">
+        </div>
+        <div class="control">
+          <button @click="searchProject()" class="button is-primary">Search</button>
+        </div>
       </div>
     </div>
+
+    <!-- Table that contains all unsigned products. Will grow to max-height and then
+    become scrollable -->
+    <div id="table-div">
+      <table>
+        <thead>
+        <tr>
+          <th scope="col">Project</th>
+          <th scope="col">Version</th>
+          <th scope="col">Created</th>
+          <th scope="col">Last edited</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="project in projects" @click="displayProject(project)">
+          <td scope="row" data-label="Project">{{ project.projectName }}</td>
+          <td scope="row" data-label="Version">{{ project.projectVersion }}</td>
+          <td scope="row" data-label="Created">{{ project.dateCreated }}</td>
+          <td scope="row" data-label="Last edited">{{ project.lastEdited }}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
   </div>
 </template>
 
@@ -42,23 +51,43 @@
       return {
         projects: [],
         project: null,
-        projectVersion: null
+        projectVersion: null,
+        searchProjects: ''
       }
     },
     /* Fetches unsigned projects from the database and puts them in projects */
     mounted () {
-      axios.get(this.$baseAPI + 'projects/pending')
-        .then(response => {
-          this.projects = response.data
-        })
+      this.getAllPending()
     },
 
     methods: {
+      getAllPending () {
+        axios.get(this.$baseAPI + 'projects/pending')
+          .then(response => {
+            this.projects = response.data
+          })
+      },
       /**
        * Searches for unsigned projects from the database matching the search-criteria
        */
       searchProject () {
         // TODO Implement method
+        if (this.searchProjects.length === 0) {
+          this.getAllPending()
+          return
+        }
+        if (this.searchProjects !== 0 || this.searchProjects !== null || this.searchProjects !== '') {
+          axios.get(this.$baseAPI + 'projects/search/' + this.searchProjects).then(response => {
+            console.log(response.data)
+            if (response.data != null) {
+              this.projects = response.data
+            } else {
+              this.message = 'No product found!'
+            }
+          })
+        } else {
+          this.getAllPending()
+        }
       },
 
       /**
@@ -74,7 +103,16 @@
 </script>
 
 <style scoped>
-  .projects-list {
+  .table-fixed {
+    padding-top: 110px;
+  }
+
+  .search-fixed {
+    position: fixed;
+    top: 110px;
+  }
+
+  .products-list {
     margin-bottom: 20px;
   }
 
