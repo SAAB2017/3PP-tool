@@ -28,7 +28,7 @@
       </tr>
       </thead>
       <tbody class="tbodyhome">
-      <tr v-for="comp in dispThing">
+      <tr v-for="comp in dispThing" @click="display(comp)">
 
         <td v-if="selected === 'products'" scope="row" data-label="Product">{{ comp.productName }}</td>
         <td v-if="selected === 'projects'" scope="row" data-label="Product">{{ comp.projectName }}</td>
@@ -88,10 +88,11 @@
       },
       /**
        * Opens the view for a specific product with id id.
-       * @param product The product to be viewed
+       * @param comp The product to be viewed
        */
-      displayComponent (product) {
-        // this.$router.push({ name: 'products_id', params: { id: product.id } })
+      display (comp) {
+        let push = this.selected + '_id'
+        this.$router.push({ name: push, params: { id: comp.id } })
       }
     }
   }
