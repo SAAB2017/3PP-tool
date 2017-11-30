@@ -65,7 +65,6 @@ d<!-- View for adding Licenses -->
           licenseType: this.licenseType,
           URL: this.licenseURL,
           comment: this.licenseComment
-          // TODO put components for add.
         }
 
         axios.post(this.$baseAPI + 'licenses/add', data)

@@ -34,10 +34,10 @@
     <!-- Field for searching for components. Uses "searchComponent"-method for searching -->
     <div class="field has-addons" style="padding-top: 15px">
       <div class="control">
-        <input v-model="searchComponents" class="input" type="text" placeholder="Find a component">
+        <input v-on:keyup="searchComponent()" v-model="searchComponents" class="input" type="text" placeholder="Find a component">
       </div>
       <div class="control">
-        <a @click="searchComponent" class="button is-primary">Search</a>
+        <a @click="searchComponent()" class="button is-primary">Search</a>
       </div>
     </div>
 
@@ -67,15 +67,13 @@
         checkedComponents: [],
         productName: '',
         productVersion: '',
-        productComment: ''
+        productComment: '',
+        searchComponents: ''
       }
     },
     /* Fetches liceses from the database and puts them in components */
     mounted () {
-      axios.get(this.$baseAPI + 'components')
-        .then(response => {
-          this.components = response.data
-        })
+      this.getAllComponents()
     },
 
     methods: {
@@ -105,11 +103,32 @@
         this.$router.go()
       },
 
+      getAllComponents () {
+        axios.get(this.$baseAPI + 'components')
+          .then(response => {
+            this.components = response.data
+          })
+      },
+
       /**
        * Searches for liceses from the database matching the search-criteria
        */
       searchComponent () {
-        // TODO Implement method
+        if (this.searchComponents.length === 0) {
+          this.getAllComponents()
+          return
+        }
+        if (this.searchComponents !== 0 || this.searchComponents !== null || this.searchComponents !== '') {
+          axios.get(this.$baseAPI + 'components/search/' + this.searchComponents).then(response => {
+            if (response.data != null) {
+              this.components = response.data
+            } else {
+              this.message = 'No component found!'
+            }
+          })
+        } else {
+          this.getAllComponents()
+        }
       }
     }
   }
