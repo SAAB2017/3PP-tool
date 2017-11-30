@@ -15,193 +15,9 @@ router.route('/')
     })
   })
 
-  .post((req, res) => {
-    let parametersText = []
-    let parameters = []
-    let correctInputProductName = req.body.productName
-    let correctInputProductVersion = req.body.productVersion
-    let correctInputId = req.body.id
-    let approved = [req.approved, req.approvedBy]
-
-    getUpdateProductParameters(req, parametersText, parameters, approved, function (returnValue) {
-      approved = returnValue[0]
-      parameters = returnValue[1]
-      parametersText = returnValue[2]
-    })
-
-    // Make sure that there is either an id provided or a productName and productVersion provided
-    if ((correctInputProductName !== null && correctInputProductVersion !== null) || correctInputId !== null) {
-      // Get the product if it exists
-      getProduct(req, res, correctInputProductName, correctInputProductVersion, correctInputId, function (product) {
-        // Make sure that row is not null and that an approved component can't be approved again by a diffrent person
-        if (product !== null && ((approved[0] === null && approved[1] === null) || ((product.approved === 1 && approved[0] === 0) || (product.approved !== 1 && approved[1] !== '')))) {
-          // update the product
-          updateProduct(req, res, correctInputProductName, correctInputProductVersion, correctInputId, parametersText, parameters, function (update) {
-            // get product
-            getProduct(req, res, correctInputProductName, correctInputProductVersion, correctInputId, function (product) {
-              insertUpdateIntoLog(req, res, product.id, approved)
-            })
-          })
-        } else {
-          // Else throw an error
-          let message
-          if (product !== null) {
-            message = {
-              'errorType': 'alreadySigned',
-              'byUser': '' + product.approvedBy
-              // "onTime": "1510062744"
-            }
-          } else {
-            message = {
-              'errorType': 'productDoesNotExist'
-            }
-          }
-          console.log(message)
-          res.status(500).send(message)
-        }
-      })
-    } else {
-      console.log('ERROR! Must insert either a correct id or a correct componentName and a correct componentVerison.')
-      res.status(500)
-      res.send('ERROR! Must insert either a correct id or a correct componentName and a correct componentVerison.')
-    }
-  })
-
-  // TODO - implement
-  .put((req, res) => {
-    let parametersText = []
-    let parameters = []
-
-    let correctInputProductName = req.body.productName
-    let correctInputProductVersion = req.body.productVersion
-    let correctInputComponentID = req.body.componentID
-    let correctInputId = req.body.id
-
-    // Get the correct parameters
-    getInsertProductParameters(req, parametersText, parameters, function (returnValue) {
-      parametersText = returnValue[0]
-      parameters = returnValue[1]
-    })
-
-    // Make sure the necessary parameters are provided to insert a new product.
-    if (correctInputProductName !== null && correctInputProductVersion !== null && correctInputComponentID === null) {
-      // insert the new product
-      insertNewProduct(req, res, parametersText, parameters, function (returnValue) {
-        // Get the product so that the id can be extracted
-        getProduct(req, res, correctInputProductName, correctInputProductVersion, null, function (product) {
-          insertProductLog(req, res, product.id, 'Product created.',
-          function (returnValue) {
-            res.status(201)
-            res.send('Success!')
-          })
-        })
-      })
-    } else if ((correctInputProductName !== null && correctInputProductVersion !== null) || (correctInputId !== null && correctInputComponentID !== null)) {
-      // Make sure the necessary parameters are provided to insert a new license into the product.
-      // Get the product so that the id can be extracted
-      getProduct(req, res, correctInputProductName, correctInputProductVersion, correctInputId, function (product) {
-        if (product === null) {
-          let message = {
-            'errorType': 'componentDoesNotExist'
-          }
-          console.log(message)
-          res.status(500).send(message)
-        } else {
-          // Insert the provided component into the product
-          insertComponentIntoProduct(req, res, correctInputComponentID, product.id, function () {
-            // Get the component that was inserted
-            getComponent(req, res, null, null, correctInputComponentID, function (component) {
-              if (component === null) {
-                let message = {
-                  'errorType': 'componentDoesNotExist'
-                }
-                console.log(message)
-                res.status(500).send(message)
-              } else {
-                // Create a log of the component added to the product
-                insertProductLog(req, res, product.id, 'Added component: ' + component.componentName + ' v' + component.componentVersion + '.',
-                  function (returnValue) {
-                    updateProduct(req, res, null, null, product.id, ['approved', 'approvedBy'], ['0', ''])
-                  })
-              }
-            })
-          })
-        }
-      })
-    } else {
-      res.status(500)
-      res.send("ERROR: productName or productVersion or id wasn't provided.")
-    }
-  })
-
-  // TODO - implement
-  .delete((req, res) => {
-    res.status(501)
-    res.send('Method not implemented')
-  })
-
-  // ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Methods for /products/approve
 // ----------------------------------------------------------------------------
-
-function validateRequest (product, approved) {
-  return ((approved[0] === null && approved[1] === null) || ((product.approved === 1 && approved[0] === 0) || (product.approved !== 1 && approved[1] !== '')))
-}
-
-function getCorrectApproved (input) {
-  let approved = [null, null]
-
-  if (input.hasOwnProperty('approved')) {
-    if (input.approved === 0 && approved[1] === null) {
-      approved[1] = ''
-    }
-    approved[0] = input.approved
-  }
-
-  if (input.hasOwnProperty('approvedBy')) {
-    if (input.approvedBy !== '') {
-      approved[0] = 1
-      approved[1] = input.approvedBy
-    }
-  }
-
-  // logic for correct approve/approvedBy
-  if (approved[0] !== null) {
-    if (approved === 0 && approved[1] === null) {
-      approved[1] = ''
-    } else if (approved === 1 && approved[1] === null) {
-      approved[0] = null
-    }
-  }
-  return approved
-}
-
-router.route('/pending')
-  .get((req, res) => {
-    req.db.all('SELECT * FROM products where approved=0', (err, rows) => {
-      if (err) {
-        console.log(err)
-      } else {
-        console.log(rows)
-        res.json(rows)
-      }
-    })
-  })
-
-// ----------------------------------------------------------------------------
-//  Methods for /products/productsWithComponent/:id
-// ----------------------------------------------------------------------------
-router.route('/productsWithComponent/:id')
-  .get((req, res) => {
-    // precondition: component exists and is connected with atleast one product.
-    let input = req.params.id
-    if (input !== null) {
-      // Get products connected to the component
-      getProductsWithComponent(req, res, input)
-    }
-    // postcondition: products with the components connected to it.
-  })
-
 router.route('/approve')
   .put((req, res) => {
     // precondition: check that id === OK, signature === OK and that the product hasn't yet been signed
@@ -231,6 +47,77 @@ router.route('/approve')
     // postcondition: product approved, signed and logged
   })
 
+/**
+ * Get validated.
+ * @param {JSON} product
+ * @param {Array} approved
+ * @return {Boolean}
+ */
+function validateRequest (product, approved) {
+  return ((approved[0] === null && approved[1] === null) || ((product.approved === 1 && approved[0] === 0) || (product.approved !== 1 && approved[1] !== '')))
+}
+
+/**
+ * Get approved.
+ * @param {JSON} input
+ * @return {Array} approved
+ */
+function getCorrectApproved (input) {
+  let approved = [null, null]
+
+  if (input.hasOwnProperty('approved')) {
+    if (input.approved === 0 && approved[1] === null) {
+      approved[1] = ''
+    }
+    approved[0] = input.approved
+  }
+
+  if (input.hasOwnProperty('approvedBy')) {
+    if (input.approvedBy !== '') {
+      approved[0] = 1
+      approved[1] = input.approvedBy
+    }
+  }
+
+  // logic for correct approve/approvedBy
+  if (approved[0] !== null) {
+    if (approved === 0 && approved[1] === null) {
+      approved[1] = ''
+    } else if (approved === 1 && approved[1] === null) {
+      approved[0] = null
+    }
+  }
+  return approved
+}
+
+// ----------------------------------------------------------------------------
+//  Methods for /products/pending
+// ----------------------------------------------------------------------------
+router.route('/pending')
+  .get((req, res) => {
+    req.db.all('SELECT * FROM products where approved=0', (err, rows) => {
+      if (err) {
+        console.log(err)
+      } else {
+        res.json(rows)
+      }
+    })
+  })
+
+// ----------------------------------------------------------------------------
+//  Methods for /products/productsWithComponent/:id
+// ----------------------------------------------------------------------------
+router.route('/productsWithComponent/:id')
+  .get((req, res) => {
+    // precondition: component exists and is connected with atleast one product.
+    let input = req.params.id
+    if (input !== null) {
+      // Get products connected to the component
+      getProductsWithComponent(req, res, input)
+    }
+    // postcondition: products with the components connected to it.
+  })
+
 // ----------------------------------------------------------------------------
 //  Methods for /products/add
 // ----------------------------------------------------------------------------
@@ -244,13 +131,13 @@ router.route('/add')
         console.log('Error acquiring lock on database: ' + err.message)
       } else {
         addProduct(input, (query) => {
-          console.log(query)
           req.db.run(query, (err) => {
             if (err) {
               console.log(err.message)
               res.status(500)
               req.db.run('rollback')
               res.send('ERROR! error message:' + err.message + ', query: ' + query)
+              res.error_id = "E03"
             } else {
               getProduct(req, res, input.productName, input.productVersion, null, function (product) {
                 insertProductLog(req, res, product.id, 'Product created.',
@@ -278,6 +165,11 @@ router.route('/add')
     // postcondition: product created and logged.
   })
 
+/**
+ * Get product
+ * @param {JSON} product
+ * @param {String} cb
+ */
 function addProduct (product, cb) {
   let date = new Date().toLocaleDateString()
   const query = `INSERT INTO products (productName, productVersion, dateCreated, lastEdited, comment, approved) VALUES ('${product.productName}','${product.productVersion}','${date}','${date}','${product.comment}', '0')`
@@ -424,27 +316,23 @@ router.route('/:id')
     })
   })
 
-  .post((req, res) => {
-    res.status(405)
-    res.send('Method not allowed')
-  })
+// ----------------------------------------------------------------------------
+//  Methods for /products/search/:id
+// ----------------------------------------------------------------------------
 
-  // TODO - implement
-  .put((req, res) => {
-    res.status(501)
-    res.send('Method not implemented')
-  })
-
-  .delete((req, res) => {
-    let query = 'DELETE FROM products WHERE id = ?'
-    let id = req.params.id
-
-    req.db.get(query, [id], (err, row) => {
+router.route('/search/:id')
+  .get((req, res) => {
+    // precondition: parameter is wellformed
+    const query = `select * from products where productName LIKE "%${req.params.id}%"`
+    req.db.all(query, (err, rows) => {
       if (err) {
         console.log(err)
+        res.status(404)
+        res.send('ERROR! error message:' + err.message + ', query: ' + query)
+      } else {
+        res.status(200)
+        res.json(rows)
       }
-      res.status(200)
-      res.send('product deleted')
     })
   })
 
@@ -474,92 +362,15 @@ function getProductFromParameters (req, res, input, parametersText, parameters) 
 }
 */
 
-// Get parameters
-function getInsertProductParameters (req, parametersText, parameters, callback) {
-  let date = [false, false]
-
-  // Check if productName was provided
-  if (req.body.hasOwnProperty('productName')) {
-    parameters.push(req.body.productName)
-    parametersText.push('productName')
-  }
-  // Check if productVersion was provided
-  if (req.body.hasOwnProperty('productVersion')) {
-    parameters.push(req.body.productVersion)
-    parametersText.push('productVersion')
-  }
-  // Check if dateCreated was provided
-  if (req.body.hasOwnProperty('dateCreated')) {
-    parameters.push(new Date().toLocaleDateString())
-    parametersText.push('dateCreated')
-    date[0] = true
-  }
-  // Check if lastEdited was provided
-  if (req.body.hasOwnProperty('lastEdited')) {
-    parameters.push(new Date().toLocaleDateString())
-    parametersText.push('lastEdited')
-    date[1] = true
-  }
-  // Check if comment was provided
-  if (req.body.hasOwnProperty('comment')) {
-    parameters.push(req.body.comment)
-    parametersText.push('comment')
-  }
-  // Set approved/approvedBy as default values
-  parameters.push(0)
-  parametersText.push('approved')
-  parameters.push('')
-  parametersText.push('approvedBy')
-
-  // If dateCreated wasn't provided then provide it
-  if (!date[0]) {
-    parametersText.push('dateCreated')
-    parameters.push(new Date().toLocaleDateString())
-  }
-  // If lastEdited wasn't provided then provide it
-  if (!date[1]) {
-    parametersText.push('lastEdited')
-    parameters.push(new Date().toLocaleDateString())
-  }
-  let obj = [parametersText, parameters]
-  callback(obj)
-}
-
-// Insert product
-function insertNewProduct (req, res, parametersText, parameters, callback) {
-  let query = 'INSERT INTO products ( '
-
-  // Construct the remaining SQL query
-  for (let j = 0; j < 2; j++) {
-    let first = false
-    for (let i = 0; i < parametersText.length; i++) {
-      if (!first) {
-        first = true
-        if (j === 0) query += parametersText[i]
-        else query += '?'
-      } else {
-        if (j === 0) query += ', ' + parametersText[i]
-        else query += ', ?'
-      }
-    }
-    if (j === 0) {
-      query += ') VALUES ('
-    } else query += ');'
-  }
-
-  req.db.run(query, parameters, (error) => {
-    if (error) {
-      console.log(error.message)
-      res.status(500)
-      res.send('ERROR! error message:' + error.message + ', query: ' + query + ', parameters: ' + parameters)
-    } else {
-      let t = true
-      callback(t)
-    }
-  })
-}
-
-// Get product
+/**
+ * Get product
+ * @param {Object} req
+ * @param {Object} res
+ * @param {String} productName
+ * @param {String} productVersion
+ * @param {Integer} id
+ * @param {JSON} callback
+ */
 function getProduct (req, res, productName, productVersion, id, callback) {
   let query = 'SELECT * FROM products'
   let parameters = []
@@ -585,7 +396,15 @@ function getProduct (req, res, productName, productVersion, id, callback) {
   })
 }
 
-// Get Component
+/**
+ * Get component
+ * @param {Object} req
+ * @param {Object} res
+ * @param {String} componentName
+ * @param {String} componentVersion
+ * @param {Integer} id
+ * @param {JSON} callback
+ */
 function getComponent (req, res, componentName, componentVersion, id, callback) {
   let query = 'SELECT * FROM components'
   let parameters = []
@@ -611,7 +430,14 @@ function getComponent (req, res, componentName, componentVersion, id, callback) 
   })
 }
 
-// Insert a new row into productLog
+/**
+ * Insert a new row into productLog
+ * @param {Object} req
+ * @param {Object} res
+ * @param {Integer} id
+ * @param {String} text
+ * @param {Boolean} callback
+ */
 function insertProductLog (req, res, id, text, callback) {
   let parametersLog = [id, new Date().toLocaleDateString(), text]
   let queryLog = 'INSERT INTO productLog (productID, dateLogged, note) VALUES (?, ?, ?);'
@@ -627,7 +453,17 @@ function insertProductLog (req, res, id, text, callback) {
   })
 }
 
-// Update the product
+/**
+ * Update the product
+ * @param {Object} req
+ * @param {Object} res
+ * @param {String} productName
+ * @param {String} productVersion
+ * @param {Integer} id
+ * @param {Array} parametersText
+ * @param {Array} parameters
+ * @param {Boolean} callback
+ */
 function updateProduct (req, res, productName, productVersion, id, parametersText, parameters, callback) {
   let query = 'UPDATE products SET '
 
@@ -664,7 +500,14 @@ function updateProduct (req, res, productName, productVersion, id, parametersTex
   })
 }
 
-// insert a component into a product
+/**
+ * Insert a component into a product
+ * @param {Object} req
+ * @param {Object} res
+ * @param {Integer} componentID
+ * @param {Integer} productID
+ * @param {Boolean} callback
+ */
 function insertComponentIntoProduct (req, res, componentID, productID, callback) {
   // Insert the component as a component of the component
   let query = 'INSERT INTO componentsInProducts ( componentID, productID) VALUES (?, ?);'
@@ -674,6 +517,7 @@ function insertComponentIntoProduct (req, res, componentID, productID, callback)
       console.log(error.message)
       res.status(500)
       res.send(error.message)
+      res.error_id = "E07"
     } else {
       let t = true
       callback(t)
@@ -681,62 +525,13 @@ function insertComponentIntoProduct (req, res, componentID, productID, callback)
   })
 }
 
-// Get parameters
-function getUpdateProductParameters (req, parametersText, parameters, approved, callback) {
-  let date = false
-
-  if (req.body.hasOwnProperty('approved')) {
-    if (req.body.approved === 0 && approved[1] === null) {
-      approved[1] = ''
-    }
-    approved[0] = req.body.approved
-  }
-
-  if (req.body.hasOwnProperty('approvedBy')) {
-    if (req.body.approvedBy !== '') {
-      approved[0] = 1
-      approved[1] = req.body.approvedBy
-    }
-  }
-
-  if (req.body.hasOwnProperty('lastEdited')) {
-    parameters.push(new Date().toLocaleDateString())
-    parametersText.push('lastEdited')
-    date = true
-  }
-
-  if (req.body.hasOwnProperty('comment')) {
-    parameters.push(req.body.comment)
-    parametersText.push('comment')
-  }
-
-  // logic for correct approve/approveBy
-  if (approved[0] !== null) {
-    if (approved === 0 && approved[1] === null) {
-      approved[1] = ''
-    } else if (approved === 1 && approved[1] === null) {
-      approved[0] = null
-    }
-  }
-
-  // Insert approved and approvedBy if it passed the logic check
-  if (approved[0] !== null && approved[1] !== null) {
-    parametersText.push('approved')
-    parameters.push(approved[0])
-    parametersText.push('approvedBy')
-    parameters.push(approved[1])
-  }
-
-  // If lastEdited wasn't provided then provide it
-  if (!date) {
-    parametersText.push('lastEdited')
-    parameters.push(new Date().toLocaleDateString())
-  }
-  let obj = [approved, parameters, parametersText]
-  callback(obj)
-}
-
-// Insert the update into the ProductLog
+/**
+ * Insert the update into the ProductLog
+ * @param {Object} req
+ * @param {Object} res
+ * @param {Integer} correctInputId
+ * @param {Array} approved
+ */
 function insertUpdateIntoLog (req, res, correctInputId, approved) {
   // If approve has changed then log it
   if (req.body.hasOwnProperty('approved')) {
@@ -761,7 +556,12 @@ function insertUpdateIntoLog (req, res, correctInputId, approved) {
   res.send('Success!')
 }
 
-// Get products in project
+/**
+ * Get products in project
+ * @param {Object} req
+ * @param {Object} res
+ * @param {Integer} id
+ */
 function getproductsFromProject (req, res, id) {
   let query = 'SELECT productID AS id, productName, productVersion, dateCreated, lastEdited, comment, approved, approvedBy FROM products LEFT OUTER JOIN productsInProjects ON products.id=productsInProjects.productID'
 
@@ -775,7 +575,12 @@ function getproductsFromProject (req, res, id) {
   })
 }
 
-// Get products connected to license
+/**
+ * Get products connected to license
+ * @param {Object} req
+ * @param {Object} res
+ * @param {Integer} id
+ */
 function getProductsWithLicense (req, res, id) {
   let query = 'SELECT DISTINCT productID AS id, productName, productVersion, dateCreated, lastEdited, comment FROM products LEFT OUTER JOIN componentsInProducts ON products.id=componentsInProducts.productID' +
               ' LEFT OUTER JOIN licensesInComponents ON licensesInComponents.componentID=componentsInProducts.componentID'
@@ -790,7 +595,12 @@ function getProductsWithLicense (req, res, id) {
   })
 }
 
-// Get products connected to component
+/**
+ * Get products connected to component
+ * @param {Object} req
+ * @param {Object} res
+ * @param {Integer} id
+ */
 function getProductsWithComponent (req, res, id) {
   let query = 'SELECT DISTINCT productID AS id, productName, productVersion, dateCreated, lastEdited, comment FROM products LEFT OUTER JOIN componentsInProducts ON products.id=componentsInProducts.productID'
 
@@ -801,34 +611,10 @@ function getProductsWithComponent (req, res, id) {
       // If there's an error then provide the error message and the different attributes that could have caused it.
       res.send('ERROR! error message:' + err.message + ', query: ' + query)
     } else {
-      console.log('WADASAD')
-      console.log(rows)
       res.send(rows)
     }
   })
 }
-
-// ----------------------------------------------------------------------------
-//  Methods for /products/search/:id
-// ----------------------------------------------------------------------------
-
-router.route('/search/:id')
-  .get((req, res) => {
-    // precondition: parameter is wellformed
-    const query = `select * from products where productName LIKE "%${req.params.id}%"`
-    console.log(query)
-    req.db.all(query, (err, rows) => {
-      if (err) {
-        console.log(err)
-        res.status(404)
-        res.send('ERROR! error message:' + err.message + ', query: ' + query)
-      } else {
-        res.status(200)
-        console.log(rows)
-        res.json(rows)
-      }
-    })
-  })
 
 /**
  * Gets the product.
@@ -843,8 +629,6 @@ function setProductLog (req, res, input, old, callback) {
   let note = ''
   if (input.comment !== null) {
     note = 'Comment changed from: ' + old + ' to: ' + input.comment + '.'
-  } else if (input.URL !== null) {
-    note = 'URL changed from: ' + old + ' to: ' + input.URL + '.'
   }
   req.db.run(query, [input.id, new Date().toLocaleDateString(), note], (error) => {
     if (error) {

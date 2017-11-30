@@ -34,10 +34,10 @@
     <!-- Field for searching for licenses. Uses "searchLicense"-method for searching -->
     <div class="field has-addons" style="padding-top: 15px">
       <div class="control">
-        <input v-model="searchLicenses" class="input" type="text" placeholder="Find a license">
+        <input v-on:keyup="searchLicenses()" v-model="searchLicense" class="input" type="text" placeholder="Find a license">
       </div>
       <div class="control">
-        <a @click="searchLicense" class="button is-primary">Search</a>
+        <a @click="searchLicenses()" class="button is-primary">Search</a>
       </div>
     </div>
 
@@ -67,15 +67,13 @@
         checkedLicenses: [],
         componentName: '',
         componentVersion: '',
-        componentComment: ''
+        componentComment: '',
+        searchLicense: ''
       }
     },
     /* Fetches liceses from the database and puts them in licenses */
     mounted () {
-      axios.get(this.$baseAPI + 'licenses')
-        .then(response => {
-          this.licenses = response.data
-        })
+      this.getAllLicenses()
     },
 
     methods: {
@@ -105,11 +103,31 @@
         this.$router.go()
       },
 
+      getAllLicenses () {
+        axios.get(this.$baseAPI + 'licenses')
+          .then(response => {
+            this.licenses = response.data
+          })
+      },
       /**
        * Searches for liceses from the database matching the search-criteria
        */
-      searchLicense () {
-        // TODO Implement method
+      searchLicenses () {
+        if (this.searchLicense.length === 0) {
+          this.getAllLicenses()
+          return
+        }
+        if (this.searchLicense !== 0 || this.searchLicense !== null || this.searchLicense !== '') {
+          axios.get(this.$baseAPI + 'licenses/search/' + this.searchLicense).then(response => {
+            if (response.data !== null) {
+              this.licenses = response.data
+            } else {
+              this.message = 'No component found!'
+            }
+          })
+        } else {
+          this.getAllLicenses()
+        }
       }
     }
   }

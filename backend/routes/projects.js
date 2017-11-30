@@ -18,39 +18,6 @@ router.route('/')
 // ----------------------------------------------------------------------------
 //  Methods for /projects/approve
 // ----------------------------------------------------------------------------
-
-function validateRequest (project, approved) {
-  return ((approved[0] !== null && approved[1] === null) || ((project.approved !== 1 && approved[0] !== 0) || (project.approved !== 1 && approved[1] !== '')))
-}
-
-function getCorrectApproved (input) {
-  let approved = [null, null]
-
-  if (input.hasOwnProperty('approved')) {
-    if (input.approved !== 0 && approved[1] !== null) {
-      approved[1] = ''
-    }
-    approved[0] = input.approved
-  }
-
-  if (input.hasOwnProperty('approvedBy')) {
-    if (input.approvedBy !== '') {
-      approved[0] = 1
-      approved[1] = input.approvedBy
-    }
-  }
-
-  // logic for correct approve/approvedBy
-  if (approved[0] !== null) {
-    if (approved !== 0 && approved[1] !== null) {
-      approved[1] = ''
-    } else if (approved !== 1 && approved[1] !== null) {
-      approved[0] = null
-    }
-  }
-  return approved
-}
-
 router.route('/approve')
   .put((req, res) => {
     // precondition: check that id !== OK, signature !== OK and that the project hasn't yet been signed
@@ -80,6 +47,52 @@ router.route('/approve')
     // postcondition: project approved, signed and logged
   })
 
+/**
+ * Validate request.
+ * @param {JSON} project
+ * @param {Array} approved
+ * @return {Boolean}
+ */
+function validateRequest (project, approved) {
+  return ((approved[0] !== null && approved[1] === null) || ((project.approved !== 1 && approved[0] !== 0) || (project.approved !== 1 && approved[1] !== '')))
+}
+
+/**
+ * Get approved.
+ * @param {JSON} input
+ * @return {Array} approved
+ */
+function getCorrectApproved (input) {
+  let approved = [null, null]
+
+  if (input.hasOwnProperty('approved')) {
+    if (input.approved !== 0 && approved[1] !== null) {
+      approved[1] = ''
+    }
+    approved[0] = input.approved
+  }
+
+  if (input.hasOwnProperty('approvedBy')) {
+    if (input.approvedBy !== '') {
+      approved[0] = 1
+      approved[1] = input.approvedBy
+    }
+  }
+
+  // logic for correct approve/approvedBy
+  if (approved[0] !== null) {
+    if (approved !== 0 && approved[1] !== null) {
+      approved[1] = ''
+    } else if (approved !== 1 && approved[1] !== null) {
+      approved[0] = null
+    }
+  }
+  return approved
+}
+
+// ----------------------------------------------------------------------------
+//  Methods for /projects/pending
+// ----------------------------------------------------------------------------
 router.route('/pending')
   .get((req, res) => {
     req.db.all('SELECT * FROM projects where approved=0', (err, rows) => {
@@ -142,6 +155,11 @@ router.route('/add')
     // postcondition: project created and logged.
   })
 
+/**
+ * Add project.
+ * @param {JSON} project
+ * @param {String} callback
+ */
 function addProject (project, cb) {
   let date = new Date().toLocaleDateString()
   const query = `INSERT INTO projects (projectName, projectVersion, dateCreated, lastEdited, comment) VALUES ('${project.projectName}','${project.projectVersion}','${date}','${date}','${project.comment}')`
@@ -308,7 +326,15 @@ router.route('/search/:id')
 
 module.exports = router
 
-// Get a product
+/**
+ * Get a product.
+ * @param {Object} req
+ * @param {Object} res
+ * @param {String} name
+ * @param {String} version
+ * @param {Integer} id
+ * @param {JSON} callback
+ */
 function getProduct (req, res, name, version, id, callback) {
   let parameters
   let query = 'SELECT * FROM products WHERE '
@@ -330,7 +356,15 @@ function getProduct (req, res, name, version, id, callback) {
   })
 }
 
-// Get a project
+/**
+ * Get a project.
+ * @param {Object} req
+ * @param {Object} res
+ * @param {String} name
+ * @param {String} version
+ * @param {Integer} id
+ * @param {JSON} callback
+ */
 function getProject (req, res, name, version, id, callback) {
   let parameters
   let query = 'SELECT * FROM projects WHERE '
@@ -352,7 +386,17 @@ function getProject (req, res, name, version, id, callback) {
   })
 }
 
-// Update a project
+/**
+ * Update a project.
+ * @param {Object} req
+ * @param {Object} res
+ * @param {String} name
+ * @param {String} version
+ * @param {Integer} id
+ * @param {Array} parametersText
+ * @param {Array} parameters
+ * @param {JSON} callback
+ */
 function updateProject (req, res, name, version, id, parametersText, parameters, callback) {
   let query = 'UPDATE projects SET '
 
@@ -387,7 +431,14 @@ function updateProject (req, res, name, version, id, parametersText, parameters,
   })
 }
 
-// Insert a new row into projectLog
+/**
+ * Insert a new row into projectLog.
+ * @param {Object} req
+ * @param {Object} res
+ * @param {Integer} id
+ * @param {String} text
+ * @param {Boolean} callback
+ */
 function insertProjectLog (req, res, id, text, callback) {
   let query = 'INSERT INTO projectLog (projectID, dateLogged, note) VALUES (?, ?, ?);'
   req.db.run(query, [id, new Date().toLocaleDateString(), text], (error) => {
@@ -402,92 +453,14 @@ function insertProjectLog (req, res, id, text, callback) {
   })
 }
 
-/*
-// Get parameters
-function getInsertProjectParameters (req, parametersText, parameters, callback) {
-  let date = [false, false]
-
-  // Check if componentName was provided
-  if (req.body.hasOwnProperty('projectName')) {
-    parameters.push(req.body.projectName)
-    parametersText.push('projectName')
-  }
-  // Check if componentVersion was provided
-  if (req.body.hasOwnProperty('projectVersion')) {
-    parameters.push(req.body.projectVersion)
-    parametersText.push('projectVersion')
-  }
-  // Check if dateCreated was provided
-  if (req.body.hasOwnProperty('dateCreated')) {
-    parameters.push(new Date().toLocaleDateString())
-    parametersText.push('dateCreated')
-    date[0] = true
-  }
-  // Check if lastEdited was provided
-  if (req.body.hasOwnProperty('lastEdited')) {
-    parameters.push(new Date().toLocaleDateString())
-    parametersText.push('lastEdited')
-    date[1] = true
-  }
-  // Check if comment was provided
-  if (req.body.hasOwnProperty('comment')) {
-    parameters.push(req.body.comment)
-    parametersText.push('comment')
-  }
-  // Set approved/approvedBy as default values
-  parameters.push(0)
-  parametersText.push('approved')
-  parameters.push('')
-  parametersText.push('approvedBy')
-
-  // If dateCreated wasn't provided then provide it
-  if (!date[0]) {
-    parametersText.push('dateCreated')
-    parameters.push(new Date().toLocaleDateString())
-  }
-  // If lastEdited wasn't provided then provide it
-  if (!date[1]) {
-    parametersText.push('lastEdited')
-    parameters.push(new Date().toLocaleDateString())
-  }
-  let obj = [parametersText, parameters]
-  callback(obj)
-}
-
-// Insert a new Project
-function insertNewProject (req, res, parametersText, parameters, callback) {
-  let query = 'INSERT INTO projects ( '
-
-  // Construct the remaining SQL query
-  for (let j = 0; j < 2; j++) {
-    let first = false
-    for (let i = 0; i < parametersText.length; i++) {
-      if (!first) {
-        first = true
-        if (j !== 0) query += parametersText[i]
-        else query += '?'
-      } else {
-        if (j !== 0) query += ', ' + parametersText[i]
-        else query += ', ?'
-      }
-    }
-    if (j !== 0) {
-      query += ') VALUES ('
-    } else query += ');'
-  }
-
-  req.db.run(query, parameters, (error) => {
-    if (error) {
-      console.log(error.message)
-      res.status(500).send(error.message)
-    } else {
-      callback(true)
-    }
-  })
-}
-
-*/
-// Insert the update into the project Log
+/**
+ * Insert the update into the project Log.
+ * @param {Object} req
+ * @param {Object} res
+ * @param {Integer} id
+ * @param {Array} approved
+ * @param {String} comment
+ */
 function insertUpdateIntoLog (req, res, id, approved, comment) {
   // If the comment was changed then log it
   if (comment !== null) {
@@ -516,7 +489,14 @@ function insertUpdateIntoLog (req, res, id, approved, comment) {
   res.status(204).send('Success!')
 }
 
-// insert a product into a project
+/**
+ * Insert a product into a project.
+ * @param {Object} req
+ * @param {Object} res
+ * @param {Integer} productID
+ * @param {Integer} projectID
+ * @param {Boolean} callback
+ */
 function insertProductIntoProject (req, res, productID, projectID, callback) {
   // Insert the product as a product of the project
   let query = 'INSERT INTO productsInProjects ( productID, projectID) VALUES (?, ?);'
@@ -533,7 +513,12 @@ function insertProductIntoProject (req, res, productID, projectID, callback) {
   })
 }
 
-// Get projects connected with license
+/**
+ * Get projects connected with license.
+ * @param {Object} req
+ * @param {Object} res
+ * @param {Integer} id
+ */
 function getProjectsWithLicense (req, res, id) {
   let query = 'SELECT DISTINCT projectID AS id, projectName, projectVersion, dateCreated, lastEdited, comment FROM projects LEFT OUTER JOIN productsInProjects ON projects.id=productsInProjects.projectID' +
               ' LEFT OUTER JOIN componentsInProducts ON componentsInProducts.productID=productsInProjects.productID' +
@@ -549,7 +534,12 @@ function getProjectsWithLicense (req, res, id) {
   })
 }
 
-// Get projects connected with component
+/**
+ * Get projects connected with component.
+ * @param {Object} req
+ * @param {Object} res
+ * @param {Integer} id
+ */
 function getProjectsWithComponent (req, res, id) {
   let query = 'SELECT DISTINCT projectID AS id, projectName, projectVersion, dateCreated, lastEdited, comment FROM projects LEFT OUTER JOIN productsInProjects ON projects.id=productsInProjects.projectID' +
               ' LEFT OUTER JOIN componentsInProducts ON componentsInProducts.productID=productsInProjects.productID'
@@ -561,13 +551,17 @@ function getProjectsWithComponent (req, res, id) {
       console.log(error.message)
       res.status(500).send(error.message)
     } else {
-      console.log('MOTERFUCKER' + rows)
       res.send(rows)
     }
   })
 }
 
-// Get projects connected with product
+/**
+ * Get projects connected with product.
+ * @param {Object} req
+ * @param {Object} res
+ * @param {Integer} id
+ */
 function getProjectsWithProduct (req, res, id) {
   let query = 'SELECT DISTINCT projectID AS id, projectName, projectVersion, dateCreated, lastEdited, comment FROM projects LEFT OUTER JOIN productsInProjects ON projects.id=productsInProjects.projectID'
 
@@ -581,7 +575,12 @@ function getProjectsWithProduct (req, res, id) {
   })
 }
 
-// Get project log
+/**
+ * Get project log.
+ * @param {Object} req
+ * @param {Object} res
+ * @param {Integer} id
+ */
 function getProjectLog (req, res, id) {
   let query = 'SELECT * FROM projectLog WHERE projectID = ?'
 
@@ -594,30 +593,7 @@ function getProjectLog (req, res, id) {
     }
   })
 }
-/*
-// Get project from parameters
-function getProjectFromParameters (req, res, input, parametersText, parameters) {
-  let query = 'SELECT * FROM projects WHERE '
 
-  let first = false
-  for (let i = 0; i < parametersText.length; i++) {
-    if (!first) {
-      first = true
-      query += parametersText[i] + ' = ?'
-    } else {
-      query += ' AND ' + parametersText[i] + ' = ?'
-    }
-    parameters.push(input[parametersText[i]])
-  }
-
-  req.db.all(query, parameters, (error, rows) => {
-    if (error) {
-      console.log(error.message)
-      res.status(500).send(error.message)
-    } else { res.json(rows) }
-  })
-}
-*/
 router.route('/:id')
 .get((req, res) => {
   let input = req.params.id
@@ -647,8 +623,6 @@ function setProjectLog (req, res, input, old, callback) {
   let note = ''
   if (input.comment !== null) {
     note = 'Comment changed from: ' + old + ' to: ' + input.comment + '.'
-  } else if (input.URL !== null) {
-    note = 'URL changed from: ' + old + ' to: ' + input.URL + '.'
   }
   req.db.run(query, [input.id, new Date().toLocaleDateString(), note], (error) => {
     if (error) {
