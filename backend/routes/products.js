@@ -99,7 +99,6 @@ router.route('/pending')
       if (err) {
         console.log(err)
       } else {
-        console.log(rows)
         res.json(rows)
       }
     })
@@ -132,7 +131,6 @@ router.route('/add')
         console.log('Error acquiring lock on database: ' + err.message)
       } else {
         addProduct(input, (query) => {
-          console.log(query)
           req.db.run(query, (err) => {
             if (err) {
               console.log(err.message)
@@ -326,7 +324,6 @@ router.route('/search/:id')
   .get((req, res) => {
     // precondition: parameter is wellformed
     const query = `select * from products where productName LIKE "%${req.params.id}%"`
-    console.log(query)
     req.db.all(query, (err, rows) => {
       if (err) {
         console.log(err)
@@ -334,7 +331,6 @@ router.route('/search/:id')
         res.send('ERROR! error message:' + err.message + ', query: ' + query)
       } else {
         res.status(200)
-        console.log(rows)
         res.json(rows)
       }
     })
@@ -615,8 +611,6 @@ function getProductsWithComponent (req, res, id) {
       // If there's an error then provide the error message and the different attributes that could have caused it.
       res.send('ERROR! error message:' + err.message + ', query: ' + query)
     } else {
-      console.log('WADASAD')
-      console.log(rows)
       res.send(rows)
     }
   })
@@ -635,8 +629,6 @@ function setProductLog (req, res, input, old, callback) {
   let note = ''
   if (input.comment !== null) {
     note = 'Comment changed from: ' + old + ' to: ' + input.comment + '.'
-  } else if (input.URL !== null) {
-    note = 'URL changed from: ' + old + ' to: ' + input.URL + '.'
   }
   req.db.run(query, [input.id, new Date().toLocaleDateString(), note], (error) => {
     if (error) {
