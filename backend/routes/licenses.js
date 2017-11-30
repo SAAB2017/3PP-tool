@@ -93,7 +93,7 @@ router.route('/licensesInComponent/:id')
   .get((req, res) => {
     let componentID = req.params.id
     console.log(componentID)
-    let query = `SELECT licenseID, licenseName, licenseVersion, dateCreated, lastEdited, comment, URL FROM  licenses INNER JOIN licensesInComponents ON licenses.id=licensesInComponents.licenseID WHERE 
+    let query = `SELECT licenseID as id, licenseName, licenseVersion, dateCreated, lastEdited, comment, URL FROM  licenses INNER JOIN licensesInComponents ON licenses.id=licensesInComponents.licenseID WHERE 
     componentID=${componentID}`
     req.db.all(query, (err, rows) => {
       if (err) {
