@@ -3,26 +3,24 @@
   <div class="components-list">
     <!-- Table that contains all unsigned components. Will grow to max-height and then
     become scrollable -->
-    <div class="vertical-menu" style="max-height: 600px; min-width: 420px">
-      <table class="table is-bordered">
-        <thead>
-        <tr>
-          <th width="45%">Component</th>
-          <th width=15%>Version</th>
-          <th width="20%">Created</th>
-          <th width="20%">Last edited</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="component in components" @click="displayComponent(component.id)">
-          <td>{{ component.componentName}}</td>
-          <td>{{ component.componentVersion }}</td>
-          <td>{{ component.dateCreated }}</td>
-          <td>{{ component.lastEdited }}</td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
+    <table>
+      <thead>
+      <tr>
+        <th scope="col">Component</th>
+        <th scope="col">Version</th>
+        <th scope="col">Created</th>
+        <th scope="col">Last edited</th>
+      </tr>
+      </thead>
+      <tbody class="tbodyhome">
+      <tr v-for="component in components" @click="displayComponent(component)">
+        <td scope="row" data-label="Component">{{ component.componentName }}</td>
+        <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
+        <td scope="row" data-label="Created">{{ component.dateCreated }}</td>
+        <td scope="row" data-label="Last edited">{{ component.lastEdited }}</td>
+      </tr>
+      </tbody>
+    </table>
 
     <!-- Field for searching for a component in the table. Uses "searchComponent"-method -->
     <div class="field has-addons columns is-mobile is-centered" style="padding-top: 15px">
@@ -49,8 +47,7 @@
     },
     /* Fetches unsigned components from the database and puts them in components */
     mounted () {
-      const pendingURI = 'components/' + JSON.stringify({approved: 0})
-      axios.get(this.$baseAPI + pendingURI)
+      axios.get(this.$baseAPI + 'components/pending')
         .then(response => {
           this.components = response.data
         })
@@ -70,7 +67,7 @@
        */
       displayComponent (component) {
         console.log(`Component id is ${component}`)
-        this.$router.push({ name: 'components_pending_id', params: { id: component } })
+        this.$router.push({ name: 'components_pending_id', params: { id: component.id } })
       }
     }
   }
@@ -83,9 +80,5 @@
 
   tbody>tr:hover {
     cursor: pointer;
-  }
-  .vertical-menu {
-    width: 100%;
-    overflow-y: auto;
   }
 </style>

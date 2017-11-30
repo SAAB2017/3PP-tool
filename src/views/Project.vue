@@ -5,58 +5,65 @@
           <div class="columns is-mobile is-centered">
             <h1 class="has-text-left">Project {{ project.id }}</h1>
           </div>
+          <p id="p-message" class="help subtitle is-6" style="text-align: center; padding-bottom: 15px">{{ message }}</p>
 
           <!-- Columns that is centered and multiline for support on lower resolution -->
           <div class="columns is-mobile is-centered is-multiline">
 
             <!-- Column that contains the name and version of the project. Also contains
              the update button -->
-            <div class="column is-one-quarter-desktop is-one-third-tablet is-5-mobile">
+            <div class="column is-one-quarter-desktop is-two-thirds-tablet is-10-mobile">
               <div class="field is-horizontal">
-                <label class="field-label label is-normal">Name</label>
-                <div class="control">
-                  <input v-model="project.projectName" class="input" type="text">
+                <div class="field-label">
+                  <label class="label is-normal">Name:</label>
+                </div>
+                <div class="field-body">
+                  <label>{{ project.projectName }}</label>
                 </div>
               </div>
 
               <div class="field is-horizontal">
-                <label class="field-label label is-normal">Version</label>
-                <div class="control">
-                  <input v-model="project.projectVersion" class="input" type="text">
+                <div class="field-label">
+                  <label class="label is-normal">Version:</label>
+                </div>
+                <div class="field-body">
+                  <label>{{ project.projectVersion }}</label>
                 </div>
               </div>
-              <p class="help is-success has-text-right">{{ message }}</p>
-              <!-- Button for updating the project values. Uses "updateProject"-function -->
-              <div class="field is-grouped is-grouped-right">
-                <div class="control">
-                  <button @click="updateProject()" class="button is-primary">Update</button>
-                </div>
-              </div>
-            </div>
 
             <!-- Column that contains the date the product was created and the signature
              for the person that approved it -->
-            <div class="column is-one-quarter-desktop is-one-third-tablet is-5-mobile">
               <div class="field is-horizontal">
-                <label class="field-label label is-normal">Created</label>
-                <div class="control">
-                  <input v-model="project.dateCreated" class="input" type="text"  readonly>
+                <div class="field-label">
+                  <label class="label is-normal">Created:</label>
+                </div>
+                <div class="field-body">
+                  <label>{{ project.dateCreated }}</label>
                 </div>
               </div>
+
               <div class="field is-horizontal">
-                <label class="field-label label is-normal">Approver</label>
-                <div class="control">
-                  <input v-model="project.approvedBy" class="input" type="text" readonly>
+                <div class="field-label">
+                  <label class="label is-normal">Approver:</label>
+                </div>
+                <div class="field-body">
+                  <label>{{ project.approvedBy }}</label>
                 </div>
               </div>
             </div>
 
             <!-- Column that contains the comment for the product -->
-            <div class="column is-half-desktop is-two-thirds-tablet is-10-mobile">
+            <div class="column is-three-quarters-desktop is-two-thirds-tablet is-10-mobile">
               <div class="field is-horizontal">
                 <label class="field-label label is-normal">Comment</label>
                 <div class="control" style="width: 100%">
                   <textarea class="textarea" v-model="project.comment"></textarea>
+                </div>
+              </div>
+              <!-- Button for updating the project values. Uses "updateComment"-function -->
+              <div class="field is-grouped is-grouped-right">
+                <div class="control">
+                  <button @click="updateComment()" class="button is-primary">Update comment</button>
                 </div>
               </div>
             </div>
@@ -67,15 +74,16 @@
 
             <!-- Table that shows which licenses is in this project -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
+              <h4>Licenses in project</h4>
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">Licenses in project</th>
+                  <th scope="col">License</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="license in licenses">
+                <tr v-for="license in licenses" @click="displayLicense(license)">
                   <td scope="row" data-label="License">{{ license.licenseName }}</td>
                   <td scope="row" data-label="Version">{{ license.licenseVersion }}</td>
                 </tr>
@@ -85,15 +93,16 @@
 
             <!-- Table that shows which components is in this project -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
+              <h4>Components in project</h4>
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">Components in project</th>
+                  <th scope="col">Component</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="com in components">
+                <tr v-for="com in components" @click="displayComponent(com)">
                   <td scope="row" data-label="Component">{{ com.componentName }}</td>
                   <td scope="row" data-label="Version">{{ com.componentVersion }}</td>
                 </tr>
@@ -103,15 +112,16 @@
 
             <!-- Table that shows which products is in this project -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
+              <h4>Products in project</h4>
               <table>
                 <thead>
                 <tr>
-                  <th scope="col">Products in project</th>
+                  <th scope="col">Product</th>
                   <th scope="col">Version</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="product in products">
+                <tr v-for="product in products" @click="displayProduct(product)">
                   <td scope="row" data-label="Product">{{ product.productName }}</td>
                   <td scope="row" data-label="Version">{{ product.productVersion }}</td>
                 </tr>
@@ -130,6 +140,118 @@
             </div>
           </div>
         </div>
+
+    <div class="modal" id="modalWindow">
+      <div class="modal-background" @click="closeModal()"></div>
+      <div class="modal-card" style="text-align: center">
+
+        <header class="modal-card-head">
+          <p class="modal-card-title"> {{ modalName }} </p>
+          <button class="delete" aria-label="close" @click="closeModal()"></button>
+        </header>
+
+        <section class="modal-card-body">
+
+          <div class="field is-horizontal" style="padding-right: 30px">
+            <div class="field-label">
+              <label class="label is-normal">Name</label>
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="control">
+                  <input v-model="modalName" class="input" type="text" readonly>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field is-horizontal" style="padding-right: 30px">
+            <div class="field-label">
+              <label class="label is-normal">Version</label>
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="control">
+                  <input v-model="modalVersion" class="input" type="text" readonly>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field is-horizontal" style="padding-right: 30px">
+            <div class="field-label">
+              <label class="label is-normal">Created</label>
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="control">
+                  <input v-model="modalCreated" class="input" type="text" readonly>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="modalComp != 'license'" class="field is-horizontal" style="padding-right: 30px">
+            <div class="field-label">
+              <label class="label is-normal">Approver</label>
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="control">
+                  <input v-model="modalApprover" class="input" type="text" readonly>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="modalComp === 'license'" class="field is-horizontal" style="padding-right: 30px">
+            <div class="field-label">
+              <label class="label is-normal">Type</label>
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="control">
+                  <input v-model="modalType" class="input" type="text" readonly>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="modalComp === 'license'" class="field is-horizontal" style="padding-right: 30px">
+            <div class="field-label">
+              <label class="label is-normal">URL</label>
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="control">
+                  <input v-model="modalURL" class="input" type="text" readonly>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field is-horizontal" style="padding-right: 30px">
+            <div class="field-label">
+              <label class="label is-normal">Comment</label>
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="control">
+                  <textarea v-model="modalComment" class="textarea" readonly/>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <footer class="modal-card-foot" style="justify-content: center">
+          <button @click="goTo(modalComponent)" class="button is-success">Go to {{ modalComp }} </button>
+        </footer>
+
+
+      </div>
+    </div>
   </div>
 </template>
 
@@ -141,10 +263,20 @@
     data () {
       return {
         project: {},
+        origComment: '',
         licenses: [],
         components: [],
         products: [],
-        message: ''
+        message: '',
+        modalComponent: {},
+        modalComp: '',
+        modalName: '',
+        modalVersion: '',
+        modalCreated: '',
+        modalApprover: '',
+        modalComment: '',
+        modalType: '',
+        modalURL: ''
       }
     },
 
@@ -155,6 +287,7 @@
       axios.get(this.$baseAPI + 'projects/' + this.$route.params.id)
         .then(response => {
           this.project = response.data
+          this.origComment = this.project.comment
           this.fetchLicenses()
           this.fetchComponents()
           this.fetchProducts()
@@ -191,24 +324,114 @@
       /**
        * Update this product with new values
        */
-      updateProject () {
-        let data = {
-          id: this.project.id,
-          component: this.project.component,
-          version: this.project.version,
-          comment: this.project.comment
-        }
+      updateComment () {
+        let msg = document.getElementById('p-message')
+        if (this.origComment === this.project.comment) {
+          msg.classList.remove('is-success')
+          msg.classList.add('is-danger')
+          // msg.style.opacity = 1
+          this.message = 'Old and new comment is the same'
+          this.fade_out()
+        } else {
+          let data = {
+            id: this.project.id,
+            comment: this.project.comment
+          }
 
-        axios.put(this.$baseAPI + 'projects/' + this.project.id, data)
-          .then(response => {
-            if (response.status === '201') {
-              axios.get(this.$baseAPI + 'project/' + this.project.id)
-                .then(response => {
-                  this.message = 'Update sucessful'
-                  this.project = response.data
-                })
+          axios.post(this.$baseAPI + 'projects/comment', data)
+            .then(response => {
+              msg.classList.remove('is-danger')
+              msg.classList.add('is-success')
+             // msg.style.opacity = 1
+              if (response.status === 200) {
+                this.origComment = this.project.comment
+                this.message = 'Comment updated'
+                this.fade_out()
+              }
+            })
+        }
+      },
+
+      /**
+       * Shows this.message for some time then fades it away and removes it.
+       */
+      fade_out () {
+        let msg = document.getElementById('p-message')
+        let page = this
+        let count = 1
+        let fadeEffect = setInterval(function () {
+          if (!msg.style.opacity) {
+            msg.style.opacity = 1
+          }
+          if (count < 0.1) {
+            page.message = ''
+            msg.style.opacity = 1
+            clearInterval(fadeEffect)
+          } else {
+            count -= 0.01
+            if (count < 0.2) {
+              msg.style.opacity -= 0.1
             }
-          })
+          }
+        }, 100)
+      },
+
+      showModal () {
+        let d = document.getElementById('modalWindow')
+        d.classList.add('is-active')
+      },
+
+      closeModal () {
+        let d = document.getElementById('modalWindow')
+        d.classList.remove('is-active')
+        this.modalComp = ''
+        this.modalName = ''
+        this.modalVersion = ''
+        this.modalCreated = ''
+        this.modalApprover = ''
+        this.modalComment = ''
+        this.modalType = ''
+        this.modalURL = ''
+        this.modalComponent = {}
+      },
+
+      displayLicense (license) {
+        this.modalComponent = license
+        this.modalComp = 'license'
+        this.modalName = license.licenseName
+        this.modalVersion = license.licenseVersion
+        this.modalCreated = license.dateCreated
+        this.modalComment = license.comment
+        this.modalType = license.licenseType
+        this.modalURL = license.URL
+        this.showModal()
+      },
+
+      displayComponent (component) {
+        this.modalComponent = component
+        this.modalComp = 'component'
+        this.modalName = component.componentName
+        this.modalVersion = component.componentVersion
+        this.modalCreated = component.dateCreated
+        this.modalComment = component.comment
+        this.modalApprover = component.approvedBy
+        this.showModal()
+      },
+
+      displayProduct (product) {
+        this.modalComponent = product
+        this.modalComp = 'product'
+        this.modalName = product.productName
+        this.modalVersion = product.productVersion
+        this.modalCreated = product.dateCreated
+        this.modalComment = product.comment
+        this.modalApprover = product.approvedBy
+        this.showModal()
+      },
+
+      goTo (part) {
+        let routeName = this.modalComp + 's_id'
+        this.$router.push({name: routeName, params: {id: part.id}})
       }
     }
   }

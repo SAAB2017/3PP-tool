@@ -1,6 +1,6 @@
 <!-- View for adding Projects -->
 <template>
-  <div class="component-list">
+  <div class="project-list">
     <!-- Fields for adding name and version to the project -->
     <div class="field">
       <p class="control">
@@ -15,31 +15,29 @@
 
     <!-- Table for picking products to bind to the project. Shows all approved
     products but becomes scrollable after reaching max-size (because of class="vertical-menu") -->
-    <div class="vertical-menu" style="max-height: 200px; height: auto">
-      <table>
-        <thead>
-        <tr>
-          <td></td>
-          <th>Project</th>
-          <th>Version</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="product in products">
-          <td style="text-align: center"><input class="checkbox" type="checkbox" v-bind:value=product.id v-model.number="checkedProducts"></td>
-          <td>{{ product.productName }}</td>
-          <td>{{ product.productVersion }}</td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
+    <table>
+      <thead>
+      <tr>
+        <td style="width: 25px"></td>
+        <th scope="col">Product</th>
+        <th scope="col">Version</th>
+      </tr>
+      </thead>
+      <tbody class="tbodyadd">
+      <tr v-for="product in products">
+        <td style="width: 25px"><input class="checkbox" type="checkbox" v-bind:value=product.id v-model.number="checkedProducts"></td>
+        <td scope="row" data-label="Product">{{ product.productName }}</td>
+        <td scope="row" data-label="Version">{{ product.productVersion }}</td>
+      </tr>
+      </tbody>
+    </table>
     <!-- Field for searching for products. Uses "searchProduct"-method for searching -->
     <div class="field has-addons" style="padding-top: 15px">
       <div class="control">
-        <input v-model="searchProducts" class="input" type="text" placeholder="Find a product">
+        <input v-on:keyup="searchProduct()" v-model="searchProducts" class="input" type="text" placeholder="Find a product">
       </div>
       <div class="control">
-        <a @click="searchProduct" class="button is-primary">Search</a>
+        <a @click="searchProduct()" class="button is-primary">Search</a>
       </div>
     </div>
 
@@ -50,10 +48,9 @@
       </div>
     </div>
 
-    <!-- Button for adding the project. Uses "addProject"-function -->
     <div style="padding-top: 15px">
       <p class="control">
-        <a @click="addProject()" class="button is-primary">Add project</a>
+        <a @click="addProject()" class="button is-primary">Add Project</a>
       </p>
     </div>
   </div>
@@ -61,22 +58,22 @@
 
 <script>
   import axios from 'axios'
+
   export default {
+
     data () {
       return {
         products: [],
         checkedProducts: [],
         projectName: '',
         projectVersion: '',
-        projectComment: ''
+        projectComment: '',
+        searchProducts: ''
       }
     },
-    /* Fetches products from the database and puts them in products */
+    /* Fetches liceses from the database and puts them in products */
     mounted () {
-      axios.get(this.$baseAPI + 'products')
-        .then(response => {
-          this.products = response.data
-        })
+      this.getAllProducts()
     },
 
     methods: {
@@ -94,37 +91,56 @@
         axios.post(this.$baseAPI + 'projects/add', data)
           .then(response => {
             if (response.responseData.status === 'success') {
-              this.projectName = ''
-              this.projectVersion = ''
-              this.projectComment = ''
-              this.checkedProducts = []
+              this.projectName = null
+              this.projectVersion = null
+              this.projectComment = null
+              axios.get(this.$baseAPI + 'projects')
+                .then(response => {
+                  this.projects = response.data
+                })
             }
           })
-        this.$router.push({ name: 'projects' })
+        this.$router.go()
+      },
+
+      getAllProducts () {
+        axios.get(this.$baseAPI + 'products')
+          .then(response => {
+            this.products = response.data
+          })
       },
 
       /**
-       * Searches for products from the database matching the search-criteria
+       * Searches for liceses from the database matching the search-criteria
        */
       searchProduct () {
-        // TODO implement method
+        if (this.searchProducts.length === 0) {
+          this.getAllProducts()
+          return
+        }
+        if (this.searchProducts !== 0 || this.searchProducts !== null || this.searchProducts !== '') {
+          axios.get(this.$baseAPI + 'products/search/' + this.searchProducts).then(response => {
+            if (response.data !== null) {
+              this.products = response.data
+            } else {
+              this.message = 'No product found!'
+            }
+          })
+        } else {
+          this.getAllProducts()
+        }
       }
     }
   }
 </script>
 
 <style scoped>
-  .component-list {
+  .project-list {
     margin-bottom: 30px;
   }
 
   tbody>tr:hover {
     cursor: pointer;
-  }
-  .vertical-menu {
-    width: 100%;
-    height: 150px;
-    overflow-y: auto;
   }
 
 </style>

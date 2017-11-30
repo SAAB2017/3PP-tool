@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "node build/dev-server.js",
-    "start": "npm run dev",
+    "start": "npm run backend & npm run front",
     "build": "node build/build.js",
     "backend": "node backend/server.js",
     "watch": "start npm-watch backend && npm run dev",
@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "axios": "^0.17.0",
-    "bulma": "^0.6.0",
+    "bulma": "^0.6.1",
     "cors": "^2.8.4",
     "es6-promise": "^4.1.1",
     "font-awesome": "^4.7.0",

@@ -16,6 +16,17 @@ Formatet är baserat på [Keep a Changelog] och detta projekt följer [Semantic 
 
 ## [Ej utgiven]
 
+## [0.4.0] - 2017-11-30
+### Tillagt
+- Lagt till flikar för navigering.
+- Lagt till i API: /licenses/URL samt /licenses/comment samt ^/pending
+### Ändrat
+- Korrigert smärre kosmetiska ingrepp i WUI.
+- Bulma uppdaterad från version 0.6.0 till version 0.6.1.
+- SQL-filen innehållandes demostrationsinnehåll har uppdaterats.
+### Borttaget
+- Drop-down i navigeringsmenyn har tagit bort och ersätts av tabbar i kroppnavigeringen.
+
 ## [0.3.0] – 2017-11-22
 ### Tillagt
 - Sökning för komponenter genom dess namn
@@ -73,7 +84,8 @@ Formatet är baserat på [Keep a Changelog] och detta projekt följer [Semantic 
 - Licensöversikt som ger en överblick över licenser i databasen
 - Möjliggörande att lägga till nya licenser, komponenter samt projekt i databasen
 
-[Ej utgiven]: https://github.com/SAAB2017/3PP-tool/compare/v0.3.0...HEAD
+[Ej utgiven]: https://github.com/SAAB2017/3PP-tool/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/SAAB2017/3PP-tool/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/SAAB2017/3PP-tool/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/SAAB2017/3PP-tool/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/SAAB2017/3PP-tool/compare/v0.1.0...v0.2.0
