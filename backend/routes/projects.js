@@ -162,7 +162,7 @@ router.route('/add')
  */
 function addProject (project, cb) {
   let date = new Date().toLocaleDateString()
-  const query = `INSERT INTO projects (projectName, projectVersion, dateCreated, lastEdited, comment) VALUES ('${project.projectName}','${project.projectVersion}','${date}','${date}','${project.comment}')`
+  const query = `INSERT INTO projects (projectName, projectVersion, dateCreated, lastEdited, comment, approved, approvedBy) VALUES ('${project.projectName}','${project.projectVersion}','${date}','${date}','${project.comment}',0,'')`
   cb(query)
 }
 
