@@ -48,6 +48,11 @@
       window.addEventListener('scroll', this.fix_top)
     },
 
+    beforeDestroy () {
+      this.active = ''
+      window.removeEventListener('scroll', this.fix_top)
+    },
+
     data () {
       return {
         active: 'list'
