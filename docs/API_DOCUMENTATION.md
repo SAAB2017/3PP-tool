@@ -31,9 +31,13 @@ Alla anrop returneras som **JSON**.
 
 Returnerar alla licenser som finns i databasen i form av JSON objekt.
 
-### URL: http://localhost:3000/licenses
+### URL
 
-### Method: GET
+/licenses
+
+### Method
+
+GET
 
 ### URL Params
 
@@ -66,9 +70,13 @@ axios.get('/licenses/')
 
 ## Show all licenses in a component.
 
-### URL: /licenses/licensesInComponent/:id
+### URL
 
-### Method: GET
+/licenses/licensesInComponent/:id
+
+### Method
+
+GET
 
 ### URL Params
 
@@ -109,9 +117,13 @@ axios.get('/licenses/licensesInComponent/1')
 
 ## Get the license's log.
 
-### URL: /licenses/log/:id
+### URL
 
-### Method: GET
+/licenses/log/:id
+
+### Method
+
+GET
 
 ### URL Params
 
@@ -148,9 +160,13 @@ axios.get('/licenses/log/1')
 
 ## Get the licenses associated with a product.
 
-### URL: /licenses/licensesInProduct/:id
+### URL
 
-### Method: GET
+/licenses/licensesInProduct/:id
+
+### Method
+
+GET
 
 ### URL Params
 
@@ -189,9 +205,13 @@ axios.get('/licenses/licensesInProduct/1')
 
 ## Get the licenses associated with a project.
 
-### URL: /licenses/licensesInProject/:id
+### URL
 
-### Method: GET
+/licenses/licensesInProject/:id
+
+### Method
+
+GET
 
 ### URL Params
 
@@ -230,9 +250,13 @@ axios.get('/licenses/licensesInProject/1')
 
 ## Gets a specific license from its id.
 
-### URL: /licenses/:id
+### URL
 
-### Method: GET
+/licenses/:id
+
+### Method
+
+GET
 
 ### URL Params
 
@@ -271,20 +295,15 @@ axios.get('/licenses/1')
 }
 ```
 
-## POST /licenses/add
-
-Givet parametrar som JSON objekt i BODY; lägger till en licens. Om operationen lyckas returneras ett JSON objekt.
-
-### Exempel på anrop:
-```bash
-http://localhost:3000/licenses/add
-```
-
 ## Add a new license.
 
-### URL: /licenses/add
+### URL
 
-### Method: POST
+/licenses/add
+
+### Method
+
+POST
 
 ### Data Params
 
@@ -356,9 +375,13 @@ axios.post('/licenses/add', data)
 
 ## Search for a license based on its name.
 
-### URL: /licenses/search/:params
+### URL
 
-### Method: GET
+/licenses/search/:params
+
+### Method
+
+GET
 
 ### URL Params
 
