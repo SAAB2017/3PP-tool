@@ -88,6 +88,7 @@ Example: id = 1
 ### Success Response
 
 Code: 200
+
 Content:
 ```bash
 {
@@ -135,6 +136,7 @@ Example: id = 1
 ### Success Response
 
 Code: 200
+
 Content:
 ```bash
 {
@@ -178,6 +180,7 @@ Example: id = 1
 ### Success Response
 
 Code: 200
+
 Content:
 ```bash
 {
@@ -223,6 +226,7 @@ Example: id = 1
 ### Success Response
 
 Code: 200
+
 Content:
 ```bash
 {
@@ -268,6 +272,7 @@ Example: id = 1
 ### Success Response
 
 Code: 200
+
 Content:
 ```bash
 {
@@ -335,6 +340,7 @@ Example:
 ### Success Response
 
 Code: 201
+
 Content:
 ```bash
 {
@@ -345,6 +351,7 @@ Content:
 ### Error Response
 
 Code: 500
+
 Content:
 ```bash
 {
@@ -393,6 +400,7 @@ Example: params = GNU AGPL
 ### Success Response
 
 Code: 200
+
 Content:
 ```bash
 {
