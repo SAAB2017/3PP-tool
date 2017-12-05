@@ -46,6 +46,50 @@ router.route('/')
   })
 
 // ----------------------------------------------------------------------------
+// Methods for /comment
+// ----------------------------------------------------------------------------
+router.route('/comment')
+  .post((req, res) => {
+    // precondition: Component exists.
+    let input = req.body
+    if (input.id !== null && input.comment !== null) {
+      getComponent(req, res, null, null, input.id, function (component) {
+        if (component !== null) {
+          setComponentLog(req, res, input, component.comment, function (returnValue) {
+            if (returnValue) {
+              // Get components from the component
+              setComponentComment(req, res, input)
+            }
+          })
+        } else {
+          res.status(406).send('ERROR!')
+          res.error_id = 'E09'
+        }
+      })
+    } else {
+      res.status(406).send('ERROR! ID or Comment was not provided.')
+    }
+    // postcondition: The comment of the component is changed.
+  })
+
+/**
+ * Changes the comment of a component.
+ * @param {Object} req
+ * @param {Object} res
+ * @param {JSON} input
+ */
+function setComponentComment (req, res, input) {
+  let query = 'UPDATE components SET comment = ? WHERE id = ?;'
+
+  req.db.all(query, [input.comment, input.id], (err, rows) => {
+    if (err) {
+      // If there's an error then provide the error message and the different attributes that could have caused it.
+      res.send('ERROR! error message:' + err.message + ', query: ' + query)
+    } else { res.status(200).send('success') }
+  })
+}
+
+// ----------------------------------------------------------------------------
 //  Methods for /components/approve
 // ----------------------------------------------------------------------------
 
@@ -538,5 +582,29 @@ function getComponentLog(req, res, id){
   })
 }
 
+/**
+ * Gets the product.
+ * @param {Object} req
+ * @param {Object} res
+ * @param {JSON} input
+ * @param {String} old
+ * @param {boolean} callback
+ */
+function setComponentLog (req, res, input, old, callback) {
+  let query = 'INSERT INTO componentLog (componentID, dateLogged, note) VALUES (?, ?, ?);'
+  let note = ''
+  if (input.comment !== null) {
+    note = 'Comment changed from: ' + old + ' to: ' + input.comment + '.'
+  }
+  req.db.run(query, [input.id, new Date().toLocaleDateString(), note], (error) => {
+    if (error) {
+      // If there's an error then provide the error message and the different attributes that could have caused it.
+      res.send('ERROR! error message:' + error.message + ', query: ' + query)
+    } else {
+      let t = true
+      callback(t)
+    }
+  })
+}
 
 module.exports = router

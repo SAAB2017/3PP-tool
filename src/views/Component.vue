@@ -1,145 +1,146 @@
 <!-- View for showing information about and updating a component -->
 <template>
   <div class="section">
-        <div v-if="component" class="component">
-          <div class="columns is-mobile is-centered">
-            <h1 class="has-text-left">{{ component.componentName }}</h1>
-          </div>
-          <p id="p-message" class="help subtitle is-6" style="text-align: center; padding-bottom: 15px">{{ message }}</p>
+    <div v-if="component" class="component">
+      <div class="columns is-mobile is-centered">
+        <h1 class="has-text-left">{{ component.componentName }}</h1>
+      </div>
+      <p id="p-message" class="help subtitle is-6" style="text-align: center; padding-bottom: 15px">{{ message }}</p>
 
-          <!-- Columns that is centered and multiline for support on lower resolution -->
-          <div class="columns is-mobile is-centered is-multiline">
+      <!-- Columns that is centered and multiline for support on lower resolution -->
+      <div class="columns is-mobile is-centered is-multiline">
 
-            <!-- Column that contains the name and version of the component. Also contains
-             the update button -->
-            <div class="column is-one-quarter-desktop is-two-thirds-tablet is-10-mobile">
-              <div class="field is-horizontal">
-                <div class="field-label">
-                  <label class="label is-normal">Name:</label>
-                </div>
-                <div class="field-body">
-                  <label>{{ component.componentName }}</label>
-                </div>
-              </div>
-
-              <div class="field is-horizontal">
-                <div class="field-label">
-                  <label class="label is-normal">Version:</label>
-                </div>
-                <div class="field-body">
-                  <label>{{ component.componentVersion }}</label>
-                </div>
-              </div>
-
-              <!-- Column that contains the date the product was created and the signature
-               for the person that approved it -->
-              <div class="field is-horizontal">
-                <div class="field-label">
-                  <label class="label is-normal">Created:</label>
-                </div>
-                <div class="field-body">
-                  <label>{{ component.dateCreated }}</label>
-                </div>
-              </div>
-
-              <div class="field is-horizontal">
-                <div class="field-label">
-                  <label class="label is-normal">Approver:</label>
-                </div>
-                <div class="field-body">
-                  <label>{{ component.approvedBy }}</label>
-                </div>
-              </div>
+        <!-- Column that contains the name and version of the component. Also contains
+         the update button -->
+        <div class="column is-one-quarter-desktop is-two-thirds-tablet is-10-mobile">
+          <div class="field is-horizontal">
+            <div class="field-label">
+              <label class="label is-normal">Name:</label>
             </div>
-
-            <!-- Column that contains the comment for the product -->
-            <div class="column is-three-quarters-desktop is-two-thirds-tablet is-10-mobile">
-              <div class="field is-horizontal">
-                <label class="field-label label is-normal">Comment</label>
-                <div class="control" style="width: 100%">
-                  <textarea class="textarea" v-model="component.comment"></textarea>
-                </div>
-              </div>
-              <!-- Button for updating the component values. Uses "updateComment"-function -->
-              <div class="field is-grouped is-grouped-right">
-                <div class="control">
-                  <button @click="updateComment()" class="button is-primary">Update comment</button>
-                </div>
-              </div>
+            <div class="field-body">
+              <label>{{ component.componentName }}</label>
             </div>
           </div>
 
-          <!-- Columns that contains tables -->
-          <div class="columns is-mobile is-centered is-multiline">
-
-            <!-- Table that shows which licenses is in this component -->
-            <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
-              <h4>Licenses in component</h4>
-              <table>
-                <thead>
-                <tr>
-                  <th scope="col">License</th>
-                  <th scope="col">Version</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="license in licenses" @click="displayLicense(license)">
-                  <td scope="row" data-label="License"> {{ license.licenseName }}</td>
-                  <td scope="row" data-label="Version">{{ license.licenseVersion }}</td>
-                </tr>
-                </tbody>
-              </table>
+          <div class="field is-horizontal">
+            <div class="field-label">
+              <label class="label is-normal">Version:</label>
             </div>
-
-            <!-- Table that shows which products this component is in -->
-            <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
-              <h4>Products with component</h4>
-              <table>
-                <thead>
-                <tr>
-                  <th scope="col">Product</th>
-                  <th scope="col">Version</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="p in products" @click="displayProduct(p)">
-                  <td scope="row" data-label="Product"> {{ p.productName }}</td>
-                  <td scope="row" data-label="Version">{{ p.productVersion }}</td>
-                </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <!-- Table that shows which projects this components is in -->
-            <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
-              <h4>Projects with component</h4>
-              <table>
-                <thead>
-                <tr>
-                  <th scope="col">Project</th>
-                  <th scope="col">Version</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="pro in projects" @click="displayProject(pro)">
-                  <td scope="row" data-label="Project"> {{ pro.projectName }}</td>
-                  <td scope="row" data-label="Version">{{ pro.projectVersion }}</td>
-                </tr>
-                </tbody>
-              </table>
+            <div class="field-body">
+              <label>{{ component.componentVersion }}</label>
             </div>
           </div>
 
-        </div>
-        <!-- If no component with id id is found -->
-        <div v-else>
-          <div class="columns">
-            <div class="column is-3">
-              <h1>Component not found</h1>
-              <p>No component with ID {{ id }}</p>
+          <!-- Column that contains the date the component was created and the signature
+           for the person that approved it -->
+          <div class="field is-horizontal">
+            <div class="field-label">
+              <label class="label is-normal">Created:</label>
+            </div>
+            <div class="field-body">
+              <label>{{ component.dateCreated }}</label>
+            </div>
+          </div>
+
+          <div class="field is-horizontal">
+            <div class="field-label">
+              <label class="label is-normal">Approver:</label>
+            </div>
+            <div class="field-body">
+              <label>{{ component.approvedBy }}</label>
             </div>
           </div>
         </div>
+
+        <!-- Column that contains the comment for the component -->
+        <div class="column is-three-quarters-desktop is-two-thirds-tablet is-10-mobile">
+          <div class="field is-horizontal">
+            <label class="field-label label is-normal">Comment</label>
+            <div class="control" style="width: 100%">
+              <textarea class="textarea" v-model="component.comment"></textarea>
+            </div>
+          </div>
+          <!-- Button for updating the component values. Uses "updateComment"-function -->
+          <div class="field is-grouped is-grouped-right">
+            <div class="control">
+              <button @click="updateComment()" class="button is-primary">Update comment</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columns that contains tables -->
+      <div class="columns is-mobile is-centered is-multiline">
+
+        <!-- Table that shows which licenses is in this component -->
+        <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
+          <h4>Licenses in component</h4>
+          <table>
+            <thead>
+            <tr>
+              <th scope="col">License</th>
+              <th scope="col">Version</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="lic in licenses" @click="displayLicense(lic)">
+              <td scope="row" data-label="License">{{ lic.licenseName }}</td>
+              <td scope="row" data-label="Version">{{ lic.licenseVersion }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table that shows which components is in this component -->
+        <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
+          <h4>Products with component</h4>
+          <table>
+            <thead>
+            <tr>
+              <th scope="col">Product</th>
+              <th scope="col">Version</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="prod in products" @click="displayProduct(prod)">
+              <td scope="row" data-label="Component">{{ prod.productName }}</td>
+              <td scope="row" data-label="Version">{{ prod.productVersion }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table that shows which projects this product is in -->
+        <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
+          <h4>Projects with component</h4>
+          <table>
+            <thead>
+            <tr>
+              <th scope="col">Project</th>
+              <th scope="col">Version</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="project in projects" @click="displayProject(project)">
+              <td scope="row" data-label="Project">{{ project.projectName }}</td>
+              <td scope="row" data-label="Version">{{ project.projectVersion }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- If no product with id id is found -->
+    <div v-else>
+      <div class="columns">
+        <div class="column is-3">
+          <h1>Product not found</h1>
+          <p>No product with ID {{ id }}</p>
+        </div>
+      </div>
+    </div>
 
     <div class="modal" id="modalWindow">
       <div class="modal-background" @click="closeModal()"></div>
@@ -152,102 +153,102 @@
 
         <section class="modal-card-body">
 
-            <div class="field is-horizontal" style="padding-right: 30px">
-              <div class="field-label">
-                <label class="label is-normal">Name</label>
-              </div>
-              <div class="field-body">
-                <div class="field">
-                  <div class="control">
-                    <input v-model="modalName" class="input" type="text" readonly>
-                  </div>
+          <div class="field is-horizontal" style="padding-right: 30px">
+            <div class="field-label">
+              <label class="label is-normal">Name</label>
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="control">
+                  <input v-model="modalName" class="input" type="text" readonly>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div class="field is-horizontal" style="padding-right: 30px">
-              <div class="field-label">
-                <label class="label is-normal">Version</label>
-              </div>
-              <div class="field-body">
-                <div class="field">
-                  <div class="control">
-                    <input v-model="modalVersion" class="input" type="text" readonly>
-                  </div>
+          <div class="field is-horizontal" style="padding-right: 30px">
+            <div class="field-label">
+              <label class="label is-normal">Version</label>
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="control">
+                  <input v-model="modalVersion" class="input" type="text" readonly>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div class="field is-horizontal" style="padding-right: 30px">
-              <div class="field-label">
-                <label class="label is-normal">Created</label>
-              </div>
-              <div class="field-body">
-                <div class="field">
-                  <div class="control">
-                    <input v-model="modalCreated" class="input" type="text" readonly>
-                  </div>
+          <div class="field is-horizontal" style="padding-right: 30px">
+            <div class="field-label">
+              <label class="label is-normal">Created</label>
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="control">
+                  <input v-model="modalCreated" class="input" type="text" readonly>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div v-if="modalComp != 'license'" class="field is-horizontal" style="padding-right: 30px">
-              <div class="field-label">
-                <label class="label is-normal">Approver</label>
-              </div>
-              <div class="field-body">
-                <div class="field">
-                  <div class="control">
-                    <input v-model="modalApprover" class="input" type="text" readonly>
-                  </div>
+          <div v-if="modalComp != 'license'" class="field is-horizontal" style="padding-right: 30px">
+            <div class="field-label">
+              <label class="label is-normal">Approver</label>
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="control">
+                  <input v-model="modalApprover" class="input" type="text" readonly>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div v-if="modalComp === 'license'" class="field is-horizontal" style="padding-right: 30px">
-              <div class="field-label">
-                <label class="label is-normal">Type</label>
-              </div>
-              <div class="field-body">
-                <div class="field">
-                  <div class="control">
-                    <input v-model="modalType" class="input" type="text" readonly>
-                  </div>
+          <div v-if="modalComp === 'license'" class="field is-horizontal" style="padding-right: 30px">
+            <div class="field-label">
+              <label class="label is-normal">Type</label>
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="control">
+                  <input v-model="modalType" class="input" type="text" readonly>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div v-if="modalComp === 'license'" class="field is-horizontal" style="padding-right: 30px">
-              <div class="field-label">
-                <label class="label is-normal">URL</label>
-              </div>
-              <div class="field-body">
-                <div class="field">
-                  <div class="control">
-                    <input v-model="modalURL" class="input" type="text" readonly>
-                  </div>
+          <div v-if="modalComp === 'license'" class="field is-horizontal" style="padding-right: 30px">
+            <div class="field-label">
+              <label class="label is-normal">URL</label>
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="control">
+                  <input v-model="modalURL" class="input" type="text" readonly>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div class="field is-horizontal" style="padding-right: 30px">
-              <div class="field-label">
-                <label class="label is-normal">Comment</label>
-              </div>
-              <div class="field-body">
-                <div class="field">
-                  <div class="control">
-                    <textarea v-model="modalComment" class="textarea" readonly/>
-                  </div>
+          <div class="field is-horizontal" style="padding-right: 30px">
+            <div class="field-label">
+              <label class="label is-normal">Comment</label>
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="control">
+                  <textarea v-model="modalComment" class="textarea" readonly/>
                 </div>
               </div>
             </div>
+          </div>
 
         </section>
 
         <footer class="modal-card-foot" style="justify-content: center">
-        <button @click="goTo(modalComponent)" class="button is-success">Go to {{ modalComp }} </button>
-      </footer>
+          <button @click="goTo(modalComponent)" class="button is-success">Go to {{ modalComp }} </button>
+        </footer>
 
 
       </div>
@@ -281,7 +282,7 @@
     },
 
     /* Fetch the component with id from database and add to component,
-     * then fetch licenses, components and products
+     * then fetch licenses, products and projects
      */
     mounted () {
       axios.get(this.$baseAPI + 'components/' + this.$route.params.id)
@@ -296,7 +297,7 @@
 
     methods: {
       /**
-       * Fetch all licenses that is in this component
+       * Fetch all licenses that is in this product
        */
       fetchLicenses () {
         axios.get(this.$baseAPI + 'licenses/licensesInComponent/' + this.$route.params.id).then(response => {
@@ -305,7 +306,7 @@
       },
 
       /**
-       * Fetch all products that contains this component
+       * Fetch all components that is in this product
        */
       fetchProducts () {
         axios.get(this.$baseAPI + 'products/productsWithComponent/' + this.$route.params.id).then(response => {
@@ -314,7 +315,7 @@
       },
 
       /**
-       * Fetch all project that contains this component
+       * Fetch all projects that contains this product
        */
       fetchProjects () {
         axios.get(this.$baseAPI + 'projects/projectsWithComponent/' + this.$route.params.id).then(response => {
@@ -322,11 +323,10 @@
         })
       },
       /**
-       * Update this component with new values
+       * Update this product with new values
        */
       updateComment () {
-        // TODO Uncomment when components/comment is implemented
-        /* let msg = document.getElementById('p-message')
+        let msg = document.getElementById('p-message')
         if (this.origComment === this.component.comment) {
           msg.classList.remove('is-success')
           msg.classList.add('is-danger')
@@ -350,7 +350,7 @@
                 this.fade_out()
               }
             })
-        } */
+        }
       },
 
       /**
