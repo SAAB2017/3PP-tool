@@ -18,11 +18,11 @@
     <div id="table-div">
       <table>
         <thead>
-        <tr>
-          <th scope="col">License</th>
-          <th scope="col">Version</th>
-          <th scope="col">Created</th>
-          <th scope="col">Last edited</th>
+        <tr style="background-color: white">
+          <th scope="col" @click="sortName()">License</th>
+          <th scope="col" @click="sortVersion()">Version</th>
+          <th scope="col" @click="sortCreated()">Created</th>
+          <th scope="col" @click="sortEdited()">Last edited</th>
         </tr>
       </thead>
       <tbody>
@@ -48,7 +48,9 @@
         licenses: [],
         license: null,
         licenseVersion: null,
-        searchLicenses: null
+        searchLicenses: null,
+        sorted: '',
+        reverse: 1
       }
     },
 
@@ -92,6 +94,86 @@
        */
       displayComponent (license) {
         this.$router.push({ name: 'licenses_id', params: { id: license.id } })
+      },
+
+      sortName () {
+        if (this.sorted !== 'name') {
+          this.sorted = 'name'
+          this.reverse = 1
+        }
+        let t = this
+        this.licenses.sort(function (a, b) {
+          let lFirst = a.licenseName.toLowerCase()
+          let lSecond = b.licenseName.toLowerCase()
+          if (lFirst < lSecond) {
+            return -1 * t.reverse
+          }
+          if (lFirst > lSecond) {
+            return 1 * t.reverse
+          }
+          return 0
+        })
+        this.reverse *= -1
+      },
+
+      sortVersion () {
+        if (this.sorted !== 'version') {
+          this.sorted = 'version'
+          this.reverse = 1
+        }
+        let t = this
+        this.licenses.sort(function (a, b) {
+          let lFirst = a.licenseVersion.toLowerCase()
+          let lSecond = b.licenseVersion.toLowerCase()
+          if (lFirst < lSecond) {
+            return -1 * t.reverse
+          }
+          if (lFirst > lSecond) {
+            return 1 * t.reverse
+          }
+          return 0
+        })
+        this.reverse *= -1
+      },
+
+      sortCreated () {
+        if (this.sorted !== 'created') {
+          this.sorted = 'created'
+          this.reverse = 1
+        }
+        let t = this
+        this.licenses.sort(function (a, b) {
+          let lFirst = a.dateCreated.toLowerCase()
+          let lSecond = b.dateCreated.toLowerCase()
+          if (lFirst < lSecond) {
+            return -1 * t.reverse
+          }
+          if (lFirst > lSecond) {
+            return 1 * t.reverse
+          }
+          return 0
+        })
+        this.reverse *= -1
+      },
+
+      sortEdited () {
+        if (this.sorted !== 'created') {
+          this.sorted = 'created'
+          this.reverse = 1
+        }
+        let t = this
+        this.licenses.sort(function (a, b) {
+          let lFirst = a.lastEdited.toLowerCase()
+          let lSecond = b.lastEdited.toLowerCase()
+          if (lFirst < lSecond) {
+            return -1 * t.reverse
+          }
+          if (lFirst > lSecond) {
+            return 1 * t.reverse
+          }
+          return 0
+        })
+        this.reverse *= -1
       }
     }
   }
@@ -109,6 +191,16 @@
 
   .projects-list {
     margin-bottom: 20px;
+  }
+  tr {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  th:hover {
+    cursor: pointer;
+    background-color: lightgray;
   }
 
   tbody>tr:hover {
