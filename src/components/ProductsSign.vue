@@ -22,11 +22,11 @@
     <div id="table-div">
       <table>
         <thead>
-        <tr>
-          <th scope="col">Product</th>
-          <th scope="col">Version</th>
-          <th scope="col">Created</th>
-          <th scope="col">Last edited</th>
+        <tr style="background-color: white">
+          <th scope="col" @click="sortName()">Product</th>
+          <th scope="col" @click="sortVersion()">Version</th>
+          <th scope="col" @click="sortCreated()">Created</th>
+          <th scope="col" @click="sortEdited()">Last edited</th>
         </tr>
         </thead>
         <tbody>
@@ -52,7 +52,9 @@
         products: [],
         product: null,
         productVersion: null,
-        searchProducts: ''
+        searchProducts: '',
+        sorted: '',
+        reverse: 1
       }
     },
     /* Fetches unsigned products from the database and puts them in products */
@@ -97,6 +99,86 @@
       displayProduct (product) {
         console.log(`Product id is ${product}`)
         this.$router.push({ name: 'products_pending_id', params: { id: product.id } })
+      },
+
+      sortName () {
+        if (this.sorted !== 'name') {
+          this.sorted = 'name'
+          this.reverse = 1
+        }
+        let t = this
+        this.products.sort(function (a, b) {
+          let lFirst = a.productName.toLowerCase()
+          let lSecond = b.productName.toLowerCase()
+          if (lFirst < lSecond) {
+            return -1 * t.reverse
+          }
+          if (lFirst > lSecond) {
+            return 1 * t.reverse
+          }
+          return 0
+        })
+        this.reverse *= -1
+      },
+
+      sortVersion () {
+        if (this.sorted !== 'version') {
+          this.sorted = 'version'
+          this.reverse = 1
+        }
+        let t = this
+        this.products.sort(function (a, b) {
+          let lFirst = a.productVersion.toLowerCase()
+          let lSecond = b.productVersion.toLowerCase()
+          if (lFirst < lSecond) {
+            return -1 * t.reverse
+          }
+          if (lFirst > lSecond) {
+            return 1 * t.reverse
+          }
+          return 0
+        })
+        this.reverse *= -1
+      },
+
+      sortCreated () {
+        if (this.sorted !== 'created') {
+          this.sorted = 'created'
+          this.reverse = 1
+        }
+        let t = this
+        this.products.sort(function (a, b) {
+          let lFirst = a.dateCreated.toLowerCase()
+          let lSecond = b.dateCreated.toLowerCase()
+          if (lFirst < lSecond) {
+            return -1 * t.reverse
+          }
+          if (lFirst > lSecond) {
+            return 1 * t.reverse
+          }
+          return 0
+        })
+        this.reverse *= -1
+      },
+
+      sortEdited () {
+        if (this.sorted !== 'created') {
+          this.sorted = 'created'
+          this.reverse = 1
+        }
+        let t = this
+        this.products.sort(function (a, b) {
+          let lFirst = a.lastEdited.toLowerCase()
+          let lSecond = b.lastEdited.toLowerCase()
+          if (lFirst < lSecond) {
+            return -1 * t.reverse
+          }
+          if (lFirst > lSecond) {
+            return 1 * t.reverse
+          }
+          return 0
+        })
+        this.reverse *= -1
       }
     }
   }
@@ -110,6 +192,16 @@
   .search-fixed {
     position: fixed;
     top: 110px;
+  }
+  tr {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  th:hover {
+    cursor: pointer;
+    background-color: lightgray;
   }
 
   .products-list {
