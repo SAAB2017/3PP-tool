@@ -1,48 +1,93 @@
+let initPayload = require('./payloadConfig')
 var express = require('express')
 var router = express.Router()
 
 // ----------------------------------------------------------------------------
 //  Methods for /components
 // ----------------------------------------------------------------------------
-router.route('/')
+/**
+ *
+ * @param db - the sqlite3 database to connect to
+ * @param offset - offset into the database table
+ * @param amount - amount of objects to retrieve
+ * @param response - response object, given to you from the initPayload() function
+ * @param setLinksCB - callback used to set the context-data of the response object.
+ */
+function getLinkData (db, offset, amount, response, signed, setLinksCB) {
+  // FIXME: getTotal(req, response) doesn't work because of the async nature of calls to sqlite3
+  const pageCountQuery = (signed) ? `select count(*) as count from components where approved=1` : `select count(*) as count from components where approved=0`
+  console.log(pageCountQuery)
+  db.get(pageCountQuery, (err, row) => {
+    if (err) {
+      console.log(err)
+      response = initPayload()
+      response.error.message.push('Could not get element count from database.')
+      response.errorflag = true
+      response.meta.count = 0
+    } else {
+      // response.meta.count = Number.isSafeInteger(row.count) ? row.count : 0
+      // Object.assign(response.meta, meta)
+      response.meta.count = row.count
+      console.log("Total is: " + row.count)
+      // if these parameters are malformed, the response defaults to the first 30 items (0, 30)
 
-  .get((req, res) => {
-    let currentPage = 0
-    if (typeof req.query.totalElements !== 'undefined') {
-      const pageCountQuery = `select count(*) as rowCount from components`
-      req.db.all(pageCountQuery, (err, rows) => {
-        if (err) {
-          console.log(err)
-        } else {
-          res.json(rows[0])
+      if (isNaN(offset) || isNaN(amount)) {
+        let links = {
+          prev: 0,
+          current: 0,
+          next: (0 + amount) < response.meta.count ? amount : 0
         }
-      })
-      return
+        console.log("Next " + links.next)
+        response.errorflag = true
+        response.error.message.push('Illegal query parameters passed')
+        setLinksCB(links)
+      } else if (Number.isSafeInteger(offset) && Number.isSafeInteger(amount)) {
+        let links = {
+          prev: (offset - amount) > 0 ? (offset - amount) : 0,
+          current: offset,
+          next: (offset + amount) < response.meta.count ? (offset + amount) : (response.meta.count)
+        }
+        console.log("Next is a num and is: " + links.next)
+        setLinksCB(links)
+      }
     }
-    if (typeof req.query.page !== 'undefined' && typeof req.query.amount !== 'undefined') {
-      currentPage = +req.query.page
-      const amount = +req.query.amount
-      let offset = (currentPage) * amount
-      const query = `SELECT * FROM components ORDER BY components.componentName LIMIT ${offset}, ${amount}`
-      console.log(query)
+  })
+}
+
+router.route('/')
+  .get((req, res) => {
+    // if these parameters are malformed, the response defaults to the first 30 items (0, 30)
+    let response = initPayload()
+    let offset = parseInt(+req.query.offset) || 0
+    let amount = parseInt(+req.query.amount) || 5
+    // exempel på route /components med query:
+    // /components/?offset=250&amount=25
+    // ?-tecknet berättar att det som kommer efter är query-strängen,
+    // dessa parametrar finns i req.query (req skickas med i .get((req...
+    getLinkData(req.db, offset, amount, response, true, (links) => {
+      response.links = {
+        prev: `?offset=${links.prev}&amount=${amount}`,
+        current: `?offset=${links.current}&amount=${amount}`,
+        next: `?offset=${links.next}&amount=${amount}`
+      }
+    })
+    if (!response.errorflag) {
+      // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
+      const query = `SELECT * FROM components where approved=1 LIMIT ${offset}, ${amount}`
       req.db.all(query, (err, rows) => {
         if (err) {
-          console.log(err)
+          response.error.message = [...err]
+          response.error.status = 'ERROR'
+          response.error.errorflag = true
+          res.json(response)
         } else {
-          res.json(rows)
+          response.items = rows
+          res.json(response)
         }
-      })
-    } else {
-      console.log("Motherfucker")
-      req.db.all('SELECT * FROM components', (err, rows) => {
-        if (err) {
-          console.log(err)
-        } else {
-          res.json(rows)
-        }
+        // = rows
+        response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
       })
     }
-
   })
 
 // ----------------------------------------------------------------------------
@@ -93,12 +138,12 @@ function setComponentComment (req, res, input) {
 //  Methods for /components/approve
 // ----------------------------------------------------------------------------
 
-function validateRequest(component, approved) {
-  console.log("Validating data")
+function validateRequest (component, approved) {
+  console.log('Validating data')
   return ((approved[0] == null && approved[1] == null) || ((component.approved == 1 && approved[0] == 0) || (component.approved != 1 && approved[1] != '')))
 }
 
-function getCorrectApproved(input) {
+function getCorrectApproved (input) {
   let approved = [null, null]
 
   if (input.hasOwnProperty('approved')) {
@@ -115,7 +160,7 @@ function getCorrectApproved(input) {
     }
   }
 
-  //logic for correct approve/approvedBy
+  // logic for correct approve/approvedBy
   if (approved[0] != null) {
     if (approved == 0 && approved[1] == null) {
       approved[1] = ''
@@ -126,14 +171,12 @@ function getCorrectApproved(input) {
   return approved
 }
 
-
 router.route('/pending')
   .get((req, res) => {
-    req.db.all("SELECT * FROM components where approved=0", (err, rows) => {
+    req.db.all('SELECT * FROM components where approved=0', (err, rows) => {
       if (err) {
         console.log(err)
       } else {
-        console.log(rows)
         res.json(rows)
       }
     })
@@ -145,23 +188,21 @@ router.route('/approve')
     const input = req.body
     let approved = getCorrectApproved(input)
 
-    //Get component to make sure that it is not approved already
+    // Get component to make sure that it is not approved already
     getComponent(req, res, null, null, input.id, function (component) {
-      //Make sure that row is not null and that an approved component can't be approved again by a diffrent person
+      // Make sure that row is not null and that an approved component can't be approved again by a diffrent person
       if (component != null && input.id != null && validateRequest(component, approved)) {
-
-        //update the component
+        // update the component
         updateComponent(req, res, null, null, input.id, ['approved', 'approvedBy'], approved, function () {
           insertUpdateIntoLog(req, res, component.id, approved)
         })
-
-      }//Else throw an error
+      }// Else throw an error
       else {
         let message
         message = {
-          "errorType": "alreadySigned",
-          "byUser": "" + component.approvedBy
-          //"onTime": "1510062744"
+          'errorType': 'alreadySigned',
+          'byUser': '' + component.approvedBy
+          // "onTime": "1510062744"
         }
         console.log(message)
         res.status(500).send(message)
@@ -184,11 +225,11 @@ router.route('/add')
             console.log(error.message)
             res.status(500)
             req.db.run('rollback')
-            res.send("ERROR! error message:" + error.message + ", query: " + query)
+            res.send('ERROR! error message:' + error.message + ', query: ' + query)
           } else {
             // Get the component so that the id can be extracted
             getComponent(req, res, req.body.componentName, req.body.componentVersion, null, function (component) {
-              insertComponentLog(req, res, component.id, "Component created.",
+              insertComponentLog(req, res, component.id, 'Component created.',
                 function (returnValue) {
                   licenses.forEach((license) => insertLicenseIntoComponent(req, res, license, component.id, (succeeded) => {
                     if (!succeeded) {
@@ -198,7 +239,7 @@ router.route('/add')
                     }
                   }))
                   req.db.run('commit')
-                  res.status(201).send("Success!")
+                  res.status(201).send('Success!')
                 })
             })
           }
@@ -223,23 +264,23 @@ router.route('/connectLicenseWithComponent')
     const input = req.body
 
     if (input.licenseID != null && input.componentID != null) {
-      //Insert the provided license into the component
+      // Insert the provided license into the component
       insertLicenseIntoComponent(req, res, input.licenseID, input.componentID, function (returnValue) {
-        //Get the license that was inserted
+        // Get the license that was inserted
         getLicense(req, res, null, null, input.licenseID, function (license) {
           if (license == null) {
             message = {
-              "errorType": "licenseDoesNotExist"
+              'errorType': 'licenseDoesNotExist'
             }
             console.log(message)
             res.status(500).send(message)
           } else {
-            //Create a log of the license added to the component
-            insertComponentLog(req, res, input.componentID, "Added license: " + license.licenseName + " v" + license.licenseVersion + ".",
+            // Create a log of the license added to the component
+            insertComponentLog(req, res, input.componentID, 'Added license: ' + license.licenseName + ' v' + license.licenseVersion + '.',
               function (returnValue) {
                 updateComponent(req, res, null, null, input.componentID, ['approved', 'approvedBy'], ['0', ''], function (returnValue) {
-                  res.status(200).send("Success")
-                });
+                  res.status(200).send('Success')
+                })
               })
           }
         })
@@ -256,7 +297,7 @@ router.route('/componentsInProduct/:id')
     // precondition: product exists and it has components connected to it..
     let input = req.params.id
     if (input != null) {
-      //Get components from the product
+      // Get components from the product
       getComponentsFromProduct(req, res, input)
     }
     // postcondition: components connected to the product.
@@ -271,7 +312,7 @@ router.route('/componentsInProject/:id')
     let input = req.params.id
 
     if (input != null) {
-      //Get components from the product
+      // Get components from the product
       getComponentsFromProject(req, res, input)
     }
     // postcondition: components connected to the project.
@@ -286,7 +327,7 @@ router.route('/componentsWithLicense/:id')
   let input = req.params.id
 
   if (input != null) {
-    //Get components from the product
+    // Get components from the product
     getComponentsWithLicense(req, res, input)
   }
   // postcondition: components with license connected to it.
@@ -300,14 +341,14 @@ router.route('/log/:id')
   // precondition: component exists.
   let input = req.params.id
   if (input != null) {
-    //Get the component log
+    // Get the component log
     getComponentLog(req, res, input)
   }
   // postcondition: the log entries of the component
 })
 
-function validateSearchParameter(params) {
-  return true;
+function validateSearchParameter (params) {
+  return true
 }
 
 // ----------------------------------------------------------------------------
@@ -323,7 +364,7 @@ router.route('/search/:id')
       if (err) {
         console.log(err)
         res.status(404)
-        res.send("ERROR! error message:" + err.message + ", query: " + query)
+        res.send('ERROR! error message:' + err.message + ', query: ' + query)
       } else {
         res.status(200)
         console.log(rows)
@@ -345,7 +386,7 @@ router.route('/:id')
       if (err) {
         console.log(err)
         res.status(404)
-        res.send("ERROR! error message:" + err.message + ", query: " + query)
+        res.send('ERROR! error message:' + err.message + ', query: ' + query)
       } else {
         res.status(200)
         res.json(row)
@@ -353,15 +394,15 @@ router.route('/:id')
     })
   })
 
-function getComponent(req, res, componentName, componentVersion, id, callback) {
-  let query = "SELECT * FROM components"
+function getComponent (req, res, componentName, componentVersion, id, callback) {
+  let query = 'SELECT * FROM components'
   let parameters = []
   if (componentName != null && componentVersion != null) {
-    query += " WHERE componentName = ? AND componentVersion = ?;"
+    query += ' WHERE componentName = ? AND componentVersion = ?;'
     parameters.push(componentName)
     parameters.push(componentVersion)
   } else if (id != null) {
-    query += " WHERE id = ?;"
+    query += ' WHERE id = ?;'
     parameters.push(id)
   }
 
@@ -369,33 +410,32 @@ function getComponent(req, res, componentName, componentVersion, id, callback) {
     if (error) {
       console.log(error.message)
       res.status(500)
-      res.send("ERROR! error message:" + error.message + ", query: " + query + ", parameters: " + parameters)
+      res.send('ERROR! error message:' + error.message + ', query: ' + query + ', parameters: ' + parameters)
     } else {
       if (row != null) {
-        callback(row);
-      } else callback(null);
+        callback(row)
+      } else callback(null)
     }
   })
 }
 
-//Get component in product
-function getComponentsFromProduct(req, res, id) {
-  let query = "SELECT componentID AS id , componentName, componentVersion, dateCreated, lastEdited, comment, approved, approvedBy "
-    + "FROM "
-    + "components "
-    + "INNER JOIN "
-    + "componentsInProducts "
-    + "ON "
-    + "components.id=componentsInProducts.componentID "
-    + "WHERE "
+// Get component in product
+function getComponentsFromProduct (req, res, id) {
+  let query = 'SELECT componentID AS id , componentName, componentVersion, dateCreated, lastEdited, comment, approved, approvedBy ' +
+    'FROM ' +
+    'components ' +
+    'INNER JOIN ' +
+    'componentsInProducts ' +
+    'ON ' +
+    'components.id=componentsInProducts.componentID ' +
+    'WHERE '
 
-  query += "productID = ?;"
-
+  query += 'productID = ?;'
 
   req.db.all(query, [id], (err, rows) => {
     if (err) {
       // If there's an error then provide the error message and the different attributes that could have caused it.
-      res.send("ERROR! error message:" + err.message + ", query: " + query)
+      res.send('ERROR! error message:' + err.message + ', query: ' + query)
     } else {
       console.log(rows)
       res.json(rows)
@@ -403,69 +443,66 @@ function getComponentsFromProduct(req, res, id) {
   })
 }
 
-//Get component in project
-function getComponentsFromProject(req, res, id) {
-  let query = "SELECT DISTINCT componentID AS id, componentName, componentVersion, dateCreated, lastEdited, comment, approved, approvedBy FROM components LEFT OUTER JOIN componentsInProducts ON components.id=componentsInProducts.componentID" +
-  " LEFT OUTER JOIN productsInProjects ON productsInProjects.productID=componentsInProducts.productID WHERE "
+// Get component in project
+function getComponentsFromProject (req, res, id) {
+  let query = 'SELECT DISTINCT componentID AS id, componentName, componentVersion, dateCreated, lastEdited, comment, approved, approvedBy FROM components LEFT OUTER JOIN componentsInProducts ON components.id=componentsInProducts.componentID' +
+  ' LEFT OUTER JOIN productsInProjects ON productsInProjects.productID=componentsInProducts.productID WHERE '
 
-query += "projectID = ?;"
-
+  query += 'projectID = ?;'
 
   req.db.all(query, [id], (err, rows) => {
     if (err) {
       // If there's an error then provide the error message and the different attributes that could have caused it.
-      res.send("ERROR! error message:" + err.message + ", query: " + query)
-    } else
-      res.send(rows)
+      res.send('ERROR! error message:' + err.message + ', query: ' + query)
+    } else { res.send(rows) }
   })
 }
 
-//Get components with license
-function getComponentsWithLicense(req, res, id) {
-  let query = "SELECT componentID AS id , componentName, componentVersion, dateCreated, lastEdited, comment, approved, approvedBy "
-    + "FROM "
-    + "components "
-    + "INNER JOIN "
-    + "licensesInComponents "
-    + "ON "
-    + "components.id=licensesInComponents.componentID "
-    + "WHERE "
+// Get components with license
+function getComponentsWithLicense (req, res, id) {
+  let query = 'SELECT componentID AS id , componentName, componentVersion, dateCreated, lastEdited, comment, approved, approvedBy ' +
+    'FROM ' +
+    'components ' +
+    'INNER JOIN ' +
+    'licensesInComponents ' +
+    'ON ' +
+    'components.id=licensesInComponents.componentID ' +
+    'WHERE '
 
-  query += "licenseID = ?;"
-
+  query += 'licenseID = ?;'
 
   req.db.all(query, [id], (err, rows) => {
     if (err) {
       // If there's an error then provide the error message and the different attributes that could have caused it.
-      res.send("ERROR! error message:" + err.message + ", query: " + query)
+      res.send('ERROR! error message:' + err.message + ', query: ' + query)
     } else {
       res.json(rows)
     }
   })
 }
 
-//Update the component
-function updateComponent(req, res, componentName, componentVersion, id, parametersText, parameters, callback) {
-  let query = "UPDATE components SET "
+// Update the component
+function updateComponent (req, res, componentName, componentVersion, id, parametersText, parameters, callback) {
+  let query = 'UPDATE components SET '
 
-  //Construct the remaining SQL query
-  let first = false;
+  // Construct the remaining SQL query
+  let first = false
   for (let i = 0; i < parametersText.length; i++) {
     if (!first) {
       first = true
-      query += parametersText[i] + " = ?"
+      query += parametersText[i] + ' = ?'
     } else {
-      query += ", " + parametersText[i] + " = ?"
+      query += ', ' + parametersText[i] + ' = ?'
     }
   }
 
-  //Check if either componentName/componentVersion or id was provided and use them one find the row to alter
+  // Check if either componentName/componentVersion or id was provided and use them one find the row to alter
   if (componentName != null && componentVersion != null) {
-    query += " WHERE componentName = ? AND componentVersion = ?;"
+    query += ' WHERE componentName = ? AND componentVersion = ?;'
     parameters.push(componentName)
     parameters.push(componentVersion)
   } else if (id != null) {
-    query += " WHERE id = ?;"
+    query += ' WHERE id = ?;'
     parameters.push(id)
   }
 
@@ -473,17 +510,17 @@ function updateComponent(req, res, componentName, componentVersion, id, paramete
     if (error) {
       console.log(error.message)
       res.status(500)
-      res.send("ERROR! error message:" + error.message + ", query: " + query + ", parameters: " + parameters)
+      res.send('ERROR! error message:' + error.message + ', query: ' + query + ', parameters: ' + parameters)
     } else {
       callback(true)
     }
   })
 }
 
-//insert a license into a component
-function insertLicenseIntoComponent(req, res, licenseID, componentID, callback) {
-  //Insert the license as a license of the component
-  let query = "INSERT INTO licensesInComponents ( licenseID, componentID) VALUES (?, ?);"
+// insert a license into a component
+function insertLicenseIntoComponent (req, res, licenseID, componentID, callback) {
+  // Insert the license as a license of the component
+  let query = 'INSERT INTO licensesInComponents ( licenseID, componentID) VALUES (?, ?);'
   let parameters = [licenseID, componentID]
   req.db.run(query, parameters, (error) => {
     if (error) {
@@ -491,21 +528,21 @@ function insertLicenseIntoComponent(req, res, licenseID, componentID, callback) 
       res.status(500)
       res.send(error.message)
     } else {
-      callback(true);
+      callback(true)
     }
   })
 }
 
-//Get a license
-function getLicense(req, res, licenseName, licenseVersion, id, callback) {
-  let query = "SELECT * FROM licenses"
+// Get a license
+function getLicense (req, res, licenseName, licenseVersion, id, callback) {
+  let query = 'SELECT * FROM licenses'
   let parameters = []
   if (licenseName != null && licenseVersion != null) {
-    query += " WHERE licenseName = ? AND licenseVersion = ?;"
+    query += ' WHERE licenseName = ? AND licenseVersion = ?;'
     parameters.push(licenseName)
     parameters.push(licenseVersion)
   } else if (id != null) {
-    query += " WHERE id = ?;"
+    query += ' WHERE id = ?;'
     parameters.push(id)
   }
 
@@ -513,63 +550,62 @@ function getLicense(req, res, licenseName, licenseVersion, id, callback) {
     if (error) {
       console.log(error.message)
       res.status(500)
-      res.send("ERROR! error message:" + error.message + ", query: " + query + ", parameters: " + parameters)
+      res.send('ERROR! error message:' + error.message + ', query: ' + query + ', parameters: ' + parameters)
     } else {
       if (row != null) {
-        callback(row);
-      } else callback(null);
+        callback(row)
+      } else callback(null)
     }
   })
 }
 
-//Insert a new row into componentLog
-function insertComponentLog(req, res, id, text, callback) {
+// Insert a new row into componentLog
+function insertComponentLog (req, res, id, text, callback) {
   let parametersLog = [id, new Date().toLocaleDateString(), text]
-  let queryLog = "INSERT INTO componentLog (componentID, dateLogged, note) VALUES (?, ?, ?);"
+  let queryLog = 'INSERT INTO componentLog (componentID, dateLogged, note) VALUES (?, ?, ?);'
   req.db.run((queryLog), parametersLog, (error) => {
     if (error) {
       console.log(error.message)
       res.status(500)
       res.send(error.message)
     } else {
-      callback(true);
+      callback(true)
     }
   })
 }
 
-//Insert the update into the ComponentLog
-function insertUpdateIntoLog(req, res, correctInputId, approved, comment) {
-
-  //If the comment was changed then log it
-  if(comment != null){
-    insertComponentLog(req, res, correctInputId, "Comment was changed to: " + comment + ".", function (log) {
+// Insert the update into the ComponentLog
+function insertUpdateIntoLog (req, res, correctInputId, approved, comment) {
+  // If the comment was changed then log it
+  if (comment != null) {
+    insertComponentLog(req, res, correctInputId, 'Comment was changed to: ' + comment + '.', function (log) {
     })
   }
-  //If approve has changed then log it
+  // If approve has changed then log it
   if (req.body.hasOwnProperty('approved')) {
     if (approved[0] == 0) {
-      insertComponentLog(req, res, correctInputId, "Component changed to not approved.", function (log) {
+      insertComponentLog(req, res, correctInputId, 'Component changed to not approved.', function (log) {
       })
     } else if (approved[0] == 1) {
-      insertComponentLog(req, res, correctInputId, "Component changed to approved by " + approved[1] + ".", function (log) {
+      insertComponentLog(req, res, correctInputId, 'Component changed to approved by ' + approved[1] + '.', function (log) {
       })
     }
-  }//If approveBy has changed then log it
+  }// If approveBy has changed then log it
   else if (req.body.hasOwnProperty('approvedBy')) {
     if (approved[1] == '') {
-      insertProductLog(req, res, correctInputId, "Component changed to not approved.", function (log) {
+      insertProductLog(req, res, correctInputId, 'Component changed to not approved.', function (log) {
       })
     } else if (approved[1] != '') {
-      insertComponentLog(req, res, correctInputId, "Component changed to approved by " + approved[1] + ".", function (log) {
+      insertComponentLog(req, res, correctInputId, 'Component changed to approved by ' + approved[1] + '.', function (log) {
       })
     }
   }
   res.status(204).send('success')
 }
 
-//Get component log
-function getComponentLog(req, res, id){
-  let query = "SELECT * FROM componentLog WHERE componentID = ?"
+// Get component log
+function getComponentLog (req, res, id) {
+  let query = 'SELECT * FROM componentLog WHERE componentID = ?'
 
   req.db.all(query, [id], (error, rows) => {
     if (error) {

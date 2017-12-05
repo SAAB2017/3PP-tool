@@ -1,4 +1,21 @@
 <!-- View for showing all signed components -->
+
+<style>
+  .component-fade-enter-active, .component-fade-leave-active {
+    transition: opacity .3s ease;
+  }
+  .component-fade-enter, .component-fade-leave-to
+    /* .component-fade-leave-active below version 2.1.8 */ {
+    opacity: 0;
+  }
+  .list-enter-active, .list-leave-active {
+    transition: all 1s;
+  }
+  .list-enter, .list-leave-to /* .list-leave-active below version 2.1.8 */ {
+    opacity: 0;
+  }
+</style>
+
 <template>
   <div class="components-list">
     <!-- Table that contains all signed components. Will grow to max-height and then
@@ -30,12 +47,20 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="component in components" @click="displayComponent(component)">
-          <td scope="row" data-label="Component">{{ component.componentName }}</td>
-          <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
-          <td scope="row" data-label="Created">{{ component.dateCreated }}</td>
-          <td scope="row" data-label="Last edited">{{ component.lastEdited }}</td>
+        <transition-group name="list" appear>
+          <tr v-for="component in components" @click="displayComponent(component)" v-bind:key="component" class="list-item">
+            <td scope="row" data-label="Component">{{ component.componentName }}</td>
+            <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
+            <td scope="row" data-label="Created">{{ component.dateCreated }}</td>
+            <td scope="row" data-label="Last edited">{{ component.lastEdited }}</td>
+          </tr>
+        </transition-group>
+
+        <tr v-if="showPaginatorClick">
+          <div id="paginator" style="text-align: center;" @click="getNext()"> Hämta fler </div>
         </tr>
+
+
         </tbody>
       </table>
     </div>
@@ -55,7 +80,13 @@
         componentVersion: null,
         message: '',
         sorted: '',
-        reverse: 1
+        reverse: 1,
+        showPaginatorClick: true,
+        payload: {
+          links: {
+            next: '?offset=0&amount=5' // first "page"/segment/increment to retrieve
+          }
+        }
       }
     },
 
@@ -67,7 +98,7 @@
         this.$route.params.type = ''
         console.log(this.message)
       }
-      this.getAllComponents()
+      this.getNext()
       this.fade_out()
     },
 
@@ -77,10 +108,11 @@
        */
       searchComponent () {
         if (this.searchComponents.length === 0) {
-          this.getAllComponents()
+          this.payload.links.next = ''
+          this.getNext()
           return
         }
-        if (this.searchComponents !== 0 || this.searchComponents !== null || this.searchComponents !== '') {
+        if ((this.searchComponents !== 0) && (this.searchComponents !== null) && (this.searchComponents !== '')) {
           axios.get(this.$baseAPI + 'components/search/' + this.searchComponents).then(response => {
             console.log(response.data)
             if (response.data != null) {
@@ -90,7 +122,7 @@
             }
           })
         } else {
-          this.getAllComponents()
+          this.getFromBeginning()
         }
       },
 
@@ -105,10 +137,17 @@
       /**
        * Fetches all components from database
        */
-      getAllComponents () {
-        axios.get(this.$baseAPI + 'components/')
+
+      getNext () {
+        console.log("components/" + this.payload.links.next)
+        axios.get(this.$baseAPI + 'components/' + this.payload.links.next)
           .then(response => {
-            this.components = response.data
+            this.payload = response.data
+            console.log(response.data.items)
+            this.components = [...this.components, ...this.payload.items]
+            if (this.components.length === this.payload.meta.count) {
+              this.showPaginatorClick = null
+            }
           })
       },
 
