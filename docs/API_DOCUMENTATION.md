@@ -1,8 +1,8 @@
 ---
-Titel: API dokumentation
+Title: API documentation
 Version: 0.1.0
 ---
-# API dokumentation
+# API documentation
 
 ### Alla API-förfrågningar påbörjas med
 
@@ -27,76 +27,404 @@ Alla anrop returneras som **JSON**.
 
 # Licenses
 
-## GET /licenses
+## Show all licenses
 
-Returnerar alla licenser som finns i databasen i form av JSON objekt.
+### URL
 
-### Exempel på anrop:
+/licenses
+
+### Method
+
+GET
+
+### URL Params
+
+Required: None
+
+### Success Response
+
+Code: 200
+
+Content:
 ```bash
-http://localhost:3000/licenses
+{
+"id" : 1,
+"licenseName" : "GNU AGPL",
+"licenseVersion" : "3.0",
+"dateCreated" : "2017-10-01",
+"lastEdited" : "2017-10-01",
+"URL" : "https://www.gnu.org/licenses/agpl-3.0.en.html",
+"comment" : "GNU Affero General Public License",
+"licenseType" : "Open source license"
+}
 ```
 
-## GET /licenses/licensesInComponent/:id
-
-Givet ett komponent id inskickat som JSON objekt; Returnerar de licenser som är kopplade till komponenten i form av JSON objekt.
-
-### Exempel på anrop:
+### Sample Call
 ```bash
-http://localhost:3000/licenses/licensesInComponent/{"id":"1"}
+axios.get('/licenses/')
+  .then(response => {
+  response.data
+}
 ```
 
-## GET /licenses/log/:id
+## Show all licenses in a component.
 
-Givet ett licens id inskickat som JSON objekt; Returnerar loggen för licensen i form av JSON objekt.
+### URL
 
-### Exempel på anrop:
+/licenses/licensesInComponent/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
 ```bash
-http://localhost:3000/licenses/log/{"id":"1"}
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```bash
+{
+"id" : 1,
+"licenseName" : "GNU AGPL",
+"licenseVersion" : "3.0",
+"dateCreated" : "2017-10-01",
+"lastEdited" : "2017-10-01",
+"URL" : "https://www.gnu.org/licenses/agpl-3.0.en.html",
+"comment" : "GNU Affero General Public License",
+"licenseType" : "Open source license"
+}
 ```
 
-## GET /licenses/licensesInProduct/:id
+### Error Response
 
-Givet ett produkt id inskickat som JSON objekt; Returnerar de licenser som är kopplade till produkten i form av JSON objekt.
+TODO
 
-### Exempel på anrop:
+### Sample Call
 ```bash
-http://localhost:3000/licenses/licensesInProduct/{"id":"1"}
+axios.get('/licenses/licensesInComponent/1')
+  .then(response => {
+  response.data
+}
 ```
 
-## GET /licenses/licensesInProject/:id
+## Get the license's log.
 
-Givet ett projekt id inskickat som JSON objekt; Returnerar de licenser som är kopplade till projektet i form av JSON objekt.
+### URL
 
-### Exempel på anrop:
+/licenses/log/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
 ```bash
-http://localhost:3000/licenses/licensesInProject/{"id":"1"}
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```bash
+{
+"id" : 1,
+"licenseID" : 1,
+"dateLogged" : 0,
+"note" : "License created."
+}
 ```
 
-## GET /licenses/:id
+### Error Response
 
-Givet ett licens id inskickat som en siffra; Returnerar de licenser som är kopplade till projektet i form av JSON objekt.
+TODO
 
-### Exempel på anrop:
+### Sample Call
 ```bash
-http://localhost:3000/licenses/1
+axios.get('/licenses/log/1')
+  .then(response => {
+  response.data
+}
 ```
 
-## POST /licenses/add
+## Get the licenses associated with a product.
 
-Givet parametrar som JSON objekt i BODY; lägger till en licens. Om operationen lyckas returneras ett JSON objekt.
+### URL
 
-### Exempel på anrop:
+/licenses/licensesInProduct/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
 ```bash
-http://localhost:3000/licenses/add
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```bash
+{
+"id" : 9,
+"licenseName" : "BSD 3-clause",
+"licenseVersion" : "1.0",
+"dateCreated" : "2017-11-01",
+"lastEdited" : "2017-11-01",
+"comment" : null
+}
 ```
 
-## GET /licenses/search/:params
+### Error Response
 
-Givet parametrar som JSON objekt i URL; söker baserat på parametrarna. Om operationen lyckas returneras ett JSON objekt med licensen.
+TODO
 
-### Exempel på anrop:
+### Sample Call
 ```bash
-http://localhost:3000/licenses/search/{"licenseName":"licens"}
+axios.get('/licenses/licensesInProduct/1')
+  .then(response => {
+  response.data
+}
+```
+
+## Get the licenses associated with a project.
+
+### URL
+
+/licenses/licensesInProject/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```bash
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```bash
+{
+"id" : 9,
+"licenseName" : "BSD 3-clause",
+"licenseVersion" : "1.0",
+"dateCreated" : "2017-11-01",
+"lastEdited" : "2017-11-01",
+"comment" : null
+}
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```bash
+axios.get('/licenses/licensesInProject/1')
+  .then(response => {
+  response.data
+}
+```
+
+## Gets a specific license from its id.
+
+### URL
+
+/licenses/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```bash
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```bash
+{
+"id" : 1,
+"licenseName" : "GNU AGPL",
+"licenseVersion" : "3.0",
+"dateCreated" : "2017-10-01",
+"lastEdited" : "2017-10-01",
+"URL" : "https://www.gnu.org/licenses/agpl-3.0.en.html",
+"comment" : "GNU Affero General Public License",
+"licenseType" : "Open source license"
+}
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```bash
+axios.get('/licenses/1')
+  .then(response => {
+  response.data
+}
+```
+
+## Add a new license.
+
+### URL
+
+/licenses/add
+
+### Method
+
+POST
+
+### Data Params
+
+Example:
+```bash
+{
+  licenseName : [String],
+  licenseVersion : [String],
+  dateCreated : [String],
+  lastEdited : [String],
+  URL : [String],
+  comment : [String],
+  licenseType : [String]
+}
+```
+
+Example:
+```bash
+{
+  licenseName : "New License",
+  licenseVersion : "1.0",
+  dateCreated : "2017-12-05",
+  lastEdited : "2017-12-05",
+  URL : "http://www.example.com",
+  comment : "This is a comment.",
+  licenseType : "Type of license."
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```bash
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+```bash
+{
+  error_id : "E04"
+}
+```
+
+
+### Sample Call
+```bash
+let data = '{
+              licenseName : "New License",
+              licenseVersion : "1.0",
+              dateCreated : "2017-12-05",
+              lastEdited : "2017-12-05",
+              URL : "http://www.example.com",
+              comment : "This is a comment.",
+              licenseType : "Type of license."
+            }'
+
+axios.post('/licenses/add', data)
+  .then(response => {
+  response
+})
+
+```
+
+## Search for a license based on its name.
+
+### URL
+
+/licenses/search/:params
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```bash
+params = String
+```
+Example: params = GNU AGPL
+
+### Success Response
+
+Code: 200
+
+Content:
+```bash
+{
+"id" : 1,
+"licenseName" : "GNU AGPL",
+"licenseVersion" : "3.0",
+"dateCreated" : "2017-10-01",
+"lastEdited" : "2017-10-01",
+"URL" : "https://www.gnu.org/licenses/agpl-3.0.en.html",
+"comment" : "GNU Affero General Public License",
+"licenseType" : "Open source license"
+}
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```bash
+axios.get('/licenses/search/GNU AGPL')
+  .then(response => {
+  response.data
+}
 ```
 
 # Components
