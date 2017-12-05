@@ -29,8 +29,6 @@ Alla anrop returneras som **JSON**.
 
 ## Show all licenses
 
-Returnerar alla licenser som finns i databasen i form av JSON objekt.
-
 ### URL
 
 /licenses
@@ -46,6 +44,7 @@ Required: None
 ### Success Response
 
 Code: 200
+
 Content:
 ```bash
 {
