@@ -1,10 +1,10 @@
 # Förändringslogg
 Alla anmärkningsvärda ändringar i projektet kommer att dokumenteras i den här filen.
 
-Formatet är baserat på [Keep a Changelog] och detta projekt följer [Semantic Versioning].
+Formatet är baserat på [Håll en ändringslogg] och detta projekt följer [Semantisk versionshantering].
 
-[Keep a Changelog]: http://keepachangelog.com/en/1.0.0/
-[Semantic Versioning]: http://semver.org/spec/v2.0.0.html
+[Håll en ändringslogg]: http://keepachangelog.com/sv/1.0.0/
+[Semantisk versionshantering]: https://semver.org/lang/sv/spec/v2.0.0.html
 
 ### Förändringtyper
 - Tillagt (added) - för nya funktioner
