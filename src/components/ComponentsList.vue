@@ -156,6 +156,16 @@
         axios.get(this.$baseAPI + 'components/' + this.payload.links.next)
           .then(response => {
             this.payload = response.data
+            // FIXME: TODO: ta bort nedanstående, endast debug-info
+        {
+        console.log('response.links = {')
+          for (let a in response.data.links) {
+         // console.log(a + ': ' + respoonse.links[a] + ',')
+         console.log(a + ":" + response.data.links[a])
+          }
+        console.log('}')
+        }
+        // FIXME: TODO: TA BORT OVANSTÅENDE
             this.components = [...this.components, ...this.payload.items]
             if (this.components.length === this.payload.meta.count) {
               this.showPaginatorClick = null

@@ -2,6 +2,9 @@ let [initPayload] = require('./payloadConfig')
 var express = require('express')
 var router = express.Router()
 
+// ===========================
+// Methods for /components/search/:id
+// ===========================
 router.route('/search/:id')
   .get((req, res) => {
     // precondition: parameter is wellformed
@@ -40,6 +43,9 @@ router.route('/search/:id')
     }
   })
 
+// ===========================
+// Methods for searching, /components/search/:id
+// ===========================
 router.route('/pending/search/:id')
   .get((req, res) => {
     // precondition: parameter is wellformed
@@ -79,18 +85,13 @@ router.route('/pending/search/:id')
 // ----------------------------------------------------------------------------
 //  Methods for /components
 // ----------------------------------------------------------------------------
-
-function setCountQuery() {
-
-}
-
 /**
- *
+ * setLinksCB is a call back
  * @param db - the sqlite3 database to connect to
  * @param offset - offset into the database table
  * @param amount - amount of objects to retrieve
  * @param response - response object, given to you from the initPayload() function
- * @param setLinksCB - callback used to set the context-data of the response object.
+ * @param setLinksCB - callback used to set the context-data of the response object. (the links-part, of the payload-object)
  */
 function getLinkData (db, offset, amount, response, pageQuery, setLinksCB) {
   // FIXME: getTotal(req, response) doesn't work because of the async nature of calls to sqlite3
@@ -157,6 +158,7 @@ router.route('/')
         next: `?offset=${links.next}&amount=${amount}`
       }
     })
+
     if (!response.errorflag) {
       // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
       const query = `SELECT * FROM components where approved=1 LIMIT ${offset}, ${amount}`
@@ -173,6 +175,7 @@ router.route('/')
         }
         // = rows
       })
+
     }
   })
 
@@ -257,9 +260,12 @@ function getCorrectApproved (input) {
   return approved
 }
 
+
+// ----------------------------------------------------------------------------
+//  Methods for /components/pending
+// ----------------------------------------------------------------------------
 router.route('/pending')
   .get((req, res) => {
-    console.log('Called /pending')
     let response = initPayload()
     let offset = parseInt(+req.query.offset) || 0
     let amount = parseInt(+req.query.amount) || response.links.getDefaultAmount()
@@ -293,6 +299,10 @@ router.route('/pending')
     }
   })
 
+
+// ----------------------------------------------------------------------------
+//  Methods for /components/approve
+// ----------------------------------------------------------------------------
 router.route('/approve')
   .put((req, res) => {
     // precondition: check that id == OK, signature == OK and that component hasn't yet been signed

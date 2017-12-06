@@ -7,10 +7,7 @@ function initPayload () {
     links: {
       prev: '',
       current: `?offset=0&amount=${3}`,
-      next: `?offset=0&amount=${3}`,
-      getDefaultAmount: function () {
-        return 25
-      }
+      next: `?offset=0&amount=${3}`
     },
     meta: {
       current: 0,
@@ -19,6 +16,9 @@ function initPayload () {
     errors: {
       message: [],
       status: 'OK'
+    },
+    getDefaultAmount: function () {
+      return 25
     },
     errorflag: false
   }
