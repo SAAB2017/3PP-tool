@@ -5,6 +5,7 @@ var router = express.Router()
 router.route('/search/:id')
   .get((req, res) => {
     // precondition: parameter is wellformed
+    console.log('Called /search with the id: ' + req.params.id)
     let response = initPayload()
     let offset = parseInt(+req.query.offset) || 0
     let amount = parseInt(+req.query.amount) || 5
@@ -42,6 +43,8 @@ router.route('/search/:id')
 router.route('/pending/search/:id')
   .get((req, res) => {
     // precondition: parameter is wellformed
+    console.log('Called /pending/search with id: ' + req.params.id);
+    
     let response = initPayload()
     let offset = parseInt(+req.query.offset) || 0
     let amount = parseInt(+req.query.amount) || 5
@@ -257,6 +260,7 @@ function getCorrectApproved (input) {
 
 router.route('/pending')
   .get((req, res) => {
+    console.log('Called /pending')
     let response = initPayload()
     let offset = parseInt(+req.query.offset) || 0
     let amount = parseInt(+req.query.amount) || response.links.getDefaultAmount()
@@ -721,13 +725,12 @@ function setComponentLog (req, res, input, old, callback) {
 }
 
 // ----------------------------------------------------------------------------
-//  Methods for /components/:id
+//  Methods for /components/component/:id
 // ----------------------------------------------------------------------------
 router.route('/component/:id')
 
 // In order to search; send in a JSON object with the applicable parameters.
   .get((req, res) => {
-    console.log("Cunt")
     let input = req.params.id
     const query = `SELECT * FROM components WHERE id=${input}`
     req.db.get(query, (err, row) => {

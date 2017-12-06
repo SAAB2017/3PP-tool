@@ -57,7 +57,7 @@
         </transition-group>
 
         <tr v-if="showPaginatorClick">
-          <div id="paginator" style="text-align: center;" @click="getMore()"> Hämta fler </div>
+          <div id="paginator" style="text-align: center;" @click="getMore()"><a class="button is-primary">Primary</a></div>
         </tr>
 
 
@@ -83,13 +83,9 @@
         reverse: 1,
         showPaginatorClick: true,
         searching: false,
-        payload: {
-          links: {
-            next: '?offset=0&amount=5' // first "page"/segment/increment to retrieve
-          }
+        payload: null,
         }
-      }
-    },
+      },
 
     /* Fetches signed components from the database and puts them in components */
     mounted () {
@@ -170,7 +166,6 @@
       },
 
       getNextSearchQuery () {
-        console.log("next search is ran on : " + this.searchComponents)
         axios.get(this.$baseAPI + 'components/search/' + this.searchComponents + '/' + this.payload.links.next)
           .then(response => {
             this.payload = response.data

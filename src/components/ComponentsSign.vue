@@ -40,7 +40,7 @@
         </transition-group>
 
         <tr v-if="showPaginatorClick">
-          <div id="paginator" style="text-align: center;" @click="getMore()"> Hämta fler </div>
+          <div id="paginator" style="text-align: center;" @click="getMore()"><a class="button is-primary">Primary</a></div>
         </tr>
 
         </tbody>
@@ -64,16 +64,13 @@
         reverse: 1,
         showPaginatorClick: true,
         searching: false,
-        payload: {
-          links: {
-            next: '?offset=0&amount=5' // first "page"/segment/increment to retrieve
-          }
-        }
+        payload: null
       }
     },
     /* Fetches unsigned components from the database and puts them in components */
     mounted () {
       // TODO: getNext()
+      this.$initPayload()
       this.getNext()
     },
 
