@@ -70,7 +70,7 @@
     /* Fetches unsigned components from the database and puts them in components */
     mounted () {
       // TODO: getNext()
-      this.$initPayload()
+      this.payload = this.$initPayload()
       this.getNext()
     },
 
