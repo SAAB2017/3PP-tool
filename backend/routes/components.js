@@ -43,8 +43,7 @@ router.route('/search/:id')
 router.route('/pending/search/:id')
   .get((req, res) => {
     // precondition: parameter is wellformed
-    console.log('Called /pending/search with id: ' + req.params.id);
-    
+    console.log('Called /pending/search with id: ' + req.params.id)
     let response = initPayload()
     let offset = parseInt(+req.query.offset) || 0
     let amount = parseInt(+req.query.amount) || 5
@@ -459,21 +458,9 @@ router.route('/log/:id')
   // postcondition: the log entries of the component
 })
 
-function validateSearchParameter (params) {
-  return true
-}
-
 // ----------------------------------------------------------------------------
 //  Methods for /components/search/:id
 // ---------------------------------------------------------------------------_
-
-
-/*
-router.route('/pending/search/:id').get(
-  (req, res) => {
-
-  })
-*/
 
 function getComponent (req, res, componentName, componentVersion, id, callback) {
   let query = 'SELECT * FROM components'

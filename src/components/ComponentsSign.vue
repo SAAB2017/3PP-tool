@@ -147,7 +147,7 @@
        * @param component The component to be signed
        */
       displayComponent (component) {
-        console.log(`Component id is ${component}`)
+        console.log(`Component id is ${component.id}`)
         this.$router.push({ name: 'components_pending_id', params: { id: component.id } })
       },
 
