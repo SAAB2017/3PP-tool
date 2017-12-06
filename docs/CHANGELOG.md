@@ -16,7 +16,7 @@ Formatet är baserat på [Håll en ändringslogg] och detta projekt följer [Sem
 
 ## [Ej utgiven]
 
-## [0.5.0] - 2017-11-30
+## [0.5.0] - 2017-12-06
 
 ### Tillagt
 - Ny förbättrad översikt har lagts till
