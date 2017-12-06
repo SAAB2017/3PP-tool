@@ -3,36 +3,40 @@
   <div class="licenses-list">
     <!-- Table that contains all signed licenses. Will grow to max-height and then
     become scrollable -->
-    <!-- Field for searching for a license in the table. Uses "searchLicense"-method -->
-    <div class="field has-addons columns is-mobile is-centered" style="padding-top: 15px">
-      <div class="control">
-        <input v-on:keyup="searchLicenses()" v-model="searchLicense" class="input" type="text" placeholder="Find a license">
-      </div>
-      <div class="control">
-        <a @click="searchLicenses()" class="button is-primary">Search</a>
+
+    <div id="top-div-child" class="columns is-mobile is-centered" style="padding-top: 20px">
+      <div id="top-search" class="field has-addons">
+        <div class="control">
+          <input v-on:keyup="searchLicense()" v-model="searchLicenses" class="input" type="text" placeholder="Find a product">
+        </div>
+        <div class="control">
+          <button @click="searchLicense()" class="button is-primary">Search</button>
+        </div>
       </div>
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">License</th>
-          <th scope="col">Version</th>
-          <th scope="col">Created</th>
-          <th scope="col">Last edited</th>
+    <div id="table-div">
+      <table>
+        <thead>
+        <tr style="background-color: white">
+          <th scope="col" @click="sortName()">License</th>
+          <th scope="col" @click="sortVersion()">Version</th>
+          <th scope="col" @click="sortCreated()">Created</th>
+          <th scope="col" @click="sortEdited()">Last edited</th>
         </tr>
       </thead>
-      <tbody class="tbodyhome">
+      <tbody>
         <tr v-for="license in licenses" @click="displayComponent(license)">
           <td scope="row" data-label="License">{{ license.licenseName }}</td>
           <td scope="row" data-label="Version">{{ license.licenseVersion }}</td>
           <td scope="row" data-label="Created">{{ license.dateCreated }}</td>
           <td scope="row" data-label="Last edited">{{ license.lastEdited }}</td>
         </tr>
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    </div>
 
-  </div>
+   </div>
 </template>
 
 <script>
@@ -44,7 +48,9 @@
         licenses: [],
         license: null,
         licenseVersion: null,
-        searchLicense: null
+        searchLicenses: null,
+        sorted: '',
+        reverse: 1
       }
     },
 
@@ -64,13 +70,13 @@
           })
       },
 
-      searchLicenses () {
-        if (this.searchLicense.length === 0) {
+      searchLicense () {
+        if (this.searchLicenses.length === 0) {
           this.getAllLicenses()
           return
         }
-        if (this.searchLicense !== 0 || this.searchLicense !== null || this.searchLicense !== '') {
-          axios.get(this.$baseAPI + 'licenses/search/' + this.searchLicense).then(response => {
+        if (this.searchLicenses !== 0 || this.searchLicenses !== null || this.searchLicenses !== '') {
+          axios.get(this.$baseAPI + 'licenses/search/' + this.searchLicenses).then(response => {
             if (response.data != null) {
               this.licenses = response.data
             } else {
@@ -88,14 +94,113 @@
        */
       displayComponent (license) {
         this.$router.push({ name: 'licenses_id', params: { id: license.id } })
+      },
+
+      sortName () {
+        if (this.sorted !== 'name') {
+          this.sorted = 'name'
+          this.reverse = 1
+        }
+        let t = this
+        this.licenses.sort(function (a, b) {
+          let lFirst = a.licenseName.toLowerCase()
+          let lSecond = b.licenseName.toLowerCase()
+          if (lFirst < lSecond) {
+            return -1 * t.reverse
+          }
+          if (lFirst > lSecond) {
+            return 1 * t.reverse
+          }
+          return 0
+        })
+        this.reverse *= -1
+      },
+
+      sortVersion () {
+        if (this.sorted !== 'version') {
+          this.sorted = 'version'
+          this.reverse = 1
+        }
+        let t = this
+        this.licenses.sort(function (a, b) {
+          let lFirst = a.licenseVersion.toLowerCase()
+          let lSecond = b.licenseVersion.toLowerCase()
+          if (lFirst < lSecond) {
+            return -1 * t.reverse
+          }
+          if (lFirst > lSecond) {
+            return 1 * t.reverse
+          }
+          return 0
+        })
+        this.reverse *= -1
+      },
+
+      sortCreated () {
+        if (this.sorted !== 'created') {
+          this.sorted = 'created'
+          this.reverse = 1
+        }
+        let t = this
+        this.licenses.sort(function (a, b) {
+          let lFirst = a.dateCreated.toLowerCase()
+          let lSecond = b.dateCreated.toLowerCase()
+          if (lFirst < lSecond) {
+            return -1 * t.reverse
+          }
+          if (lFirst > lSecond) {
+            return 1 * t.reverse
+          }
+          return 0
+        })
+        this.reverse *= -1
+      },
+
+      sortEdited () {
+        if (this.sorted !== 'created') {
+          this.sorted = 'created'
+          this.reverse = 1
+        }
+        let t = this
+        this.licenses.sort(function (a, b) {
+          let lFirst = a.lastEdited.toLowerCase()
+          let lSecond = b.lastEdited.toLowerCase()
+          if (lFirst < lSecond) {
+            return -1 * t.reverse
+          }
+          if (lFirst > lSecond) {
+            return 1 * t.reverse
+          }
+          return 0
+        })
+        this.reverse *= -1
       }
     }
   }
 </script>
 
 <style scoped>
-  .licenses-list {
+  .table-fixed {
+    padding-top: 110px;
+  }
+
+  .search-fixed {
+    position: fixed;
+    top: 110px;
+  }
+
+  .projects-list {
     margin-bottom: 20px;
+  }
+  tr {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  th:hover {
+    cursor: pointer;
+    background-color: lightgray;
   }
 
   tbody>tr:hover {

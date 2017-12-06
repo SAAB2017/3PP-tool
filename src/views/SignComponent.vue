@@ -117,7 +117,7 @@
             .then(response => {
               if (response.status === 204) {
                 console.log(response.data)
-                this.message = 'Component signed'
+                this.$router.push({name: 'components', params: {type: 'signed', sName: this.component.componentName, sVersion: this.component.componentVersion}})
               } else {
                 console.log('Error: Could not sign component')
                 this.message = response.data

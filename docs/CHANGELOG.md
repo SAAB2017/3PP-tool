@@ -1,10 +1,10 @@
 # Förändringslogg
 Alla anmärkningsvärda ändringar i projektet kommer att dokumenteras i den här filen.
 
-Formatet är baserat på [Keep a Changelog] och detta projekt följer [Semantic Versioning].
+Formatet är baserat på [Håll en ändringslogg] och detta projekt följer [Semantisk versionshantering].
 
-[Keep a Changelog]: http://keepachangelog.com/en/1.0.0/
-[Semantic Versioning]: http://semver.org/spec/v2.0.0.html
+[Håll en ändringslogg]: http://keepachangelog.com/sv/1.0.0/
+[Semantisk versionshantering]: https://semver.org/lang/sv/spec/v2.0.0.html
 
 ### Förändringtyper
 - Tillagt (added) - för nya funktioner
@@ -17,12 +17,12 @@ Formatet är baserat på [Keep a Changelog] och detta projekt följer [Semantic 
 ## [Ej utgiven]
 
 ## [0.5.0] - 2017-11-30
+
 ### Tillagt
 - Ny förbättrad översikt har lagts till
 - Införd paginering
 - Dynamisk uppdatering av sidotitlar
 - Förbättrad användarbarhet beträffande tabbar och sökrutor vid scrollning
-- Införd sortering genom klick
 
 ### Ändrat
 - Anpassad ursprunglig kod till den nya översikten som introducerats i nuvarande version
@@ -111,7 +111,8 @@ Formatet är baserat på [Keep a Changelog] och detta projekt följer [Semantic 
 - Licensöversikt som ger en överblick över licenser i databasen
 - Möjliggörande att lägga till nya licenser, komponenter samt projekt i databasen
 
-[Ej utgiven]: https://github.com/SAAB2017/3PP-tool/compare/v0.4.0...HEAD
+[Ej utgiven]: https://github.com/SAAB2017/3PP-tool/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/SAAB2017/3PP-tool/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/SAAB2017/3PP-tool/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/SAAB2017/3PP-tool/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/SAAB2017/3PP-tool/compare/v0.2.0...v0.2.1
