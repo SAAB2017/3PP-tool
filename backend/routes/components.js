@@ -1,10 +1,87 @@
-let initPayload = require('./payloadConfig')
+let [initPayload] = require('./payloadConfig')
 var express = require('express')
 var router = express.Router()
 
+router.route('/search/:id')
+  .get((req, res) => {
+    // precondition: parameter is wellformed
+    let response = initPayload()
+    let offset = parseInt(+req.query.offset) || 0
+    let amount = parseInt(+req.query.amount) || 5
+    getLinkData(req.db, offset, amount, response, `select count(*) as count from components where componentName LIKE '%${req.params.id}%' AND approved=1`, (links) => {
+      response.links = {
+        prev: `?offset=${links.prev}&amount=${amount}`,
+        current: `?offset=${links.current}&amount=${amount}`,
+        next: `?offset=${links.next}&amount=${amount}`
+      }
+      // for (let a in response.links) { console.log(response.links[a]) }
+    })
+    if (!response.errorflag) {
+      // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
+      const query = `SELECT * FROM components where componentName LIKE '%${req.params.id}%' AND approved=1 LIMIT ${offset}, ${amount}`
+      req.db.all(query, (err, rows) => {
+        if (err) {
+          let errormessage = 'ERROR! error message:' + err.message + ', query: ' + query
+          response.errors.message = [errormessage]
+          response.errors.status = 'ERROR'
+          response.errors.errorflag = true
+          console.log(err)
+          res.status(404)
+          res.json(response)
+        } else {
+          response.items = rows
+          res.status(200)
+          response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
+          res.json(response)
+        }
+        // = rows
+      })
+    }
+  })
+
+router.route('/pending/search/:id')
+  .get((req, res) => {
+    // precondition: parameter is wellformed
+    let response = initPayload()
+    let offset = parseInt(+req.query.offset) || 0
+    let amount = parseInt(+req.query.amount) || 5
+    getLinkData(req.db, offset, amount, response, `select count(*) as count from components where componentName LIKE '%${req.params.id}%' AND approved=0`, (links) => {
+      response.links = {
+        prev: `?offset=${links.prev}&amount=${amount}`,
+        current: `?offset=${links.current}&amount=${amount}`,
+        next: `?offset=${links.next}&amount=${amount}`
+      }
+      // for (let a in response.links) { console.log(response.links[a]) }
+    })
+    if (!response.errorflag) {
+      // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
+      const query = `SELECT * FROM components where componentName LIKE '%${req.params.id}%' AND approved=0 LIMIT ${offset}, ${amount}`
+      req.db.all(query, (err, rows) => {
+        if (err) {
+          let errormessage = 'ERROR! error message:' + err.message + ', query: ' + query
+          response.errors.message = [errormessage]
+          response.errors.status = 'ERROR'
+          response.errors.errorflag = true
+          console.log(err)
+          res.status(404)
+          res.json(response)
+        } else {
+          response.items = rows
+          res.status(200)
+          response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
+          res.json(response)
+        }
+      })
+    }
+  })
 // ----------------------------------------------------------------------------
 //  Methods for /components
 // ----------------------------------------------------------------------------
+
+function setCountQuery() {
+
+}
+
 /**
  *
  * @param db - the sqlite3 database to connect to
@@ -13,12 +90,15 @@ var router = express.Router()
  * @param response - response object, given to you from the initPayload() function
  * @param setLinksCB - callback used to set the context-data of the response object.
  */
-function getLinkData (db, offset, amount, response, signed, setLinksCB) {
+function getLinkData (db, offset, amount, response, pageQuery, setLinksCB) {
   // FIXME: getTotal(req, response) doesn't work because of the async nature of calls to sqlite3
-  const pageCountQuery = (signed) ? `select count(*) as count from components where approved=1` : `select count(*) as count from components where approved=0`
-  console.log(pageCountQuery)
-  db.get(pageCountQuery, (err, row) => {
+  // const pageCountQuery = (signed) ? `select count(*) as count from components where approved=1` : `select count(*) as count from components where approved=0`
+  // console.log(pageCountQuery)
+  console.log("Trying to execute query: " + pageQuery)
+  db.get(pageQuery, (err, row) => {
     if (err) {
+      // console.log("ERROR: " + err.message)
+      console.log("Error:")
       console.log(err)
       response = initPayload()
       response.error.message.push('Could not get element count from database.')
@@ -28,27 +108,30 @@ function getLinkData (db, offset, amount, response, signed, setLinksCB) {
       // response.meta.count = Number.isSafeInteger(row.count) ? row.count : 0
       // Object.assign(response.meta, meta)
       response.meta.count = row.count
-      console.log("Total is: " + row.count)
+      console.log(response.meta.count)
       // if these parameters are malformed, the response defaults to the first 30 items (0, 30)
-
-      if (isNaN(offset) || isNaN(amount)) {
-        let links = {
-          prev: 0,
-          current: 0,
-          next: (0 + amount) < response.meta.count ? amount : 0
+      if (!isNaN(response.meta.count) && Number.isSafeInteger(response.meta.count)) {
+        if (isNaN(offset) || isNaN(amount)) {
+          let links = {
+            prev: 0,
+            current: 0,
+            next: (0 + amount) < response.meta.count ? amount : 0
+          }
+          response.errorflag = true
+          response.error.message.push('Illegal query parameters passed')
+          setLinksCB(links)
+        } else if (Number.isSafeInteger(offset) && Number.isSafeInteger(amount)) {
+          let links = {
+            prev: (offset - amount) > 0 ? (offset - amount) : 0,
+            current: offset,
+            next: (offset + amount) <= response.meta.count ? (offset + amount) : (response.meta.count)
+          }
+          setLinksCB(links)
         }
-        console.log("Next " + links.next)
+      } else {
+        console.log("ERROR")
         response.errorflag = true
-        response.error.message.push('Illegal query parameters passed')
-        setLinksCB(links)
-      } else if (Number.isSafeInteger(offset) && Number.isSafeInteger(amount)) {
-        let links = {
-          prev: (offset - amount) > 0 ? (offset - amount) : 0,
-          current: offset,
-          next: (offset + amount) < response.meta.count ? (offset + amount) : (response.meta.count)
-        }
-        console.log("Next is a num and is: " + links.next)
-        setLinksCB(links)
+        response.error.message.push('Illegal query parameters')
       }
     }
   })
@@ -64,7 +147,8 @@ router.route('/')
     // /components/?offset=250&amount=25
     // ?-tecknet berättar att det som kommer efter är query-strängen,
     // dessa parametrar finns i req.query (req skickas med i .get((req...
-    getLinkData(req.db, offset, amount, response, true, (links) => {
+
+    getLinkData(req.db, offset, amount, response, `select count(*) as count from components where approved=1`, (links) => {
       response.links = {
         prev: `?offset=${links.prev}&amount=${amount}`,
         current: `?offset=${links.current}&amount=${amount}`,
@@ -76,16 +160,16 @@ router.route('/')
       const query = `SELECT * FROM components where approved=1 LIMIT ${offset}, ${amount}`
       req.db.all(query, (err, rows) => {
         if (err) {
-          response.error.message = [...err]
-          response.error.status = 'ERROR'
-          response.error.errorflag = true
+          response.errors.message = [...err]
+          response.errors.status = 'ERROR'
+          response.errors.errorflag = true
           res.json(response)
         } else {
           response.items = rows
+          response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
           res.json(response)
         }
         // = rows
-        response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
       })
     }
   })
@@ -173,13 +257,37 @@ function getCorrectApproved (input) {
 
 router.route('/pending')
   .get((req, res) => {
-    req.db.all('SELECT * FROM components where approved=0', (err, rows) => {
-      if (err) {
-        console.log(err)
-      } else {
-        res.json(rows)
+    let response = initPayload()
+    let offset = parseInt(+req.query.offset) || 0
+    let amount = parseInt(+req.query.amount) || response.links.getDefaultAmount()
+
+    // exempel på route /components med query:
+    // /components/?offset=250&amount=25
+    // ?-tecknet berättar att det som kommer efter är query-strängen,
+    // dessa parametrar finns i req.query (req skickas med i .get((req...
+    getLinkData(req.db, offset, amount, response, `select count(*) as count from components where approved=0`, (links) => {
+      response.links = {
+        prev: `?offset=${links.prev}&amount=${amount}`,
+        current: `?offset=${links.current}&amount=${amount}`,
+        next: `?offset=${links.next}&amount=${amount}`
       }
     })
+    if (!response.errorflag) {
+      // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
+      const query = `SELECT * FROM components where approved=0 LIMIT ${offset}, ${amount}`
+      req.db.all(query, (err, rows) => {
+        if (err) {
+          response.errors.message = [...err]
+          response.errors.status = 'ERROR'
+          response.errors.errorflag = true
+          res.json(response)
+        } else {
+          response.items = rows
+          response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
+          res.json(response)
+        }
+      })
+    }
   })
 
 router.route('/approve')
@@ -353,46 +461,15 @@ function validateSearchParameter (params) {
 
 // ----------------------------------------------------------------------------
 //  Methods for /components/search/:id
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------_
 
-router.route('/search/:id')
-  .get((req, res) => {
-  // precondition: parameter is wellformed
-    const query = `select * from components where componentName LIKE "%${req.params.id}%"`
-    console.log(query)
-    req.db.all(query, (err, rows) => {
-      if (err) {
-        console.log(err)
-        res.status(404)
-        res.send('ERROR! error message:' + err.message + ', query: ' + query)
-      } else {
-        res.status(200)
-        console.log(rows)
-        res.json(rows)
-      }
-    })
+
+/*
+router.route('/pending/search/:id').get(
+  (req, res) => {
+
   })
-
-// ----------------------------------------------------------------------------
-//  Methods for /components/:id
-// ----------------------------------------------------------------------------
-router.route('/:id')
-
-  // In order to search; send in a JSON object with the applicable parameters.
-  .get((req, res) => {
-    let input = req.params.id
-    const query = `SELECT * FROM components WHERE id=${input}`
-    req.db.get(query, (err, row) => {
-      if (err) {
-        console.log(err)
-        res.status(404)
-        res.send('ERROR! error message:' + err.message + ', query: ' + query)
-      } else {
-        res.status(200)
-        res.json(row)
-      }
-    })
-  })
+*/
 
 function getComponent (req, res, componentName, componentVersion, id, callback) {
   let query = 'SELECT * FROM components'
@@ -642,5 +719,27 @@ function setComponentLog (req, res, input, old, callback) {
     }
   })
 }
+
+// ----------------------------------------------------------------------------
+//  Methods for /components/:id
+// ----------------------------------------------------------------------------
+router.route('/component/:id')
+
+// In order to search; send in a JSON object with the applicable parameters.
+  .get((req, res) => {
+    console.log("Cunt")
+    let input = req.params.id
+    const query = `SELECT * FROM components WHERE id=${input}`
+    req.db.get(query, (err, row) => {
+      if (err) {
+        console.log(err)
+        res.status(404)
+        res.send('ERROR! error message:' + err.message + ', query: ' + query)
+      } else {
+        res.status(200)
+        res.json(row)
+      }
+    })
+  })
 
 module.exports = router

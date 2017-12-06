@@ -25,4 +25,4 @@ function initPayload () {
   return payload
 }
 
-module.exports = [initPayload]
+module.exports = [initPayload, NOTSIGNED, SIGNED]

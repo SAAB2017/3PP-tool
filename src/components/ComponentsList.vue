@@ -2,14 +2,14 @@
 
 <style>
   .component-fade-enter-active, .component-fade-leave-active {
-    transition: opacity .3s ease;
+    transition: opacity .4s ease;
   }
   .component-fade-enter, .component-fade-leave-to
     /* .component-fade-leave-active below version 2.1.8 */ {
     opacity: 0;
   }
   .list-enter-active, .list-leave-active {
-    transition: all 1s;
+    transition: all 0.7s;
   }
   .list-enter, .list-leave-to /* .list-leave-active below version 2.1.8 */ {
     opacity: 0;
@@ -57,7 +57,7 @@
         </transition-group>
 
         <tr v-if="showPaginatorClick">
-          <div id="paginator" style="text-align: center;" @click="getNext()"> Hämta fler </div>
+          <div id="paginator" style="text-align: center;" @click="getMore()"> Hämta fler </div>
         </tr>
 
 
@@ -82,6 +82,7 @@
         sorted: '',
         reverse: 1,
         showPaginatorClick: true,
+        searching: false,
         payload: {
           links: {
             next: '?offset=0&amount=5' // first "page"/segment/increment to retrieve
@@ -98,6 +99,7 @@
         this.$route.params.type = ''
         console.log(this.message)
       }
+      this.payload = this.$initPayload()
       this.getNext()
       this.fade_out()
     },
@@ -106,25 +108,7 @@
       /**
        * Searches for signed components from the database matching the search-criteria
        */
-      searchComponent () {
-        if (this.searchComponents.length === 0) {
-          this.payload.links.next = ''
-          this.getNext()
-          return
-        }
-        if ((this.searchComponents !== 0) && (this.searchComponents !== null) && (this.searchComponents !== '')) {
-          axios.get(this.$baseAPI + 'components/search/' + this.searchComponents).then(response => {
-            console.log(response.data)
-            if (response.data != null) {
-              this.components = response.data
-            } else {
-              this.message = 'No component found!'
-            }
-          })
-        } else {
-          this.getFromBeginning()
-        }
-      },
+
 
       /**
        * Opens the view for a specific component with id id.
@@ -138,15 +122,63 @@
        * Fetches all components from database
        */
 
+      getMore () {
+        if (this.searching === false) {
+          this.getNext()
+        } else {
+          this.getNextSearchQuery()
+        }
+      },
+
+      searchComponent () {
+        this.searching = true
+        this.payload = this.$initPayload()
+        this.showPaginatorClick = true
+        if (this.searchComponents.length === 0) {
+          this.searching = false
+          this.showPaginatorClick = true
+          this.components = []
+          this.getNext()
+          return
+        }
+        if ((this.searchComponents.length !== 0) && (this.searchComponents !== null) && (this.searchComponents !== '')) {
+          const path = `components/search/${this.searchComponents}/${this.payload.links.next}`
+          console.log(path)
+          axios.get(this.$baseAPI + path).then(response => {
+            console.log(response.data)
+            if (response.data != null) {
+              this.payload = response.data
+              this.components = [...this.payload.items]
+            } else {
+              this.message = 'No component found!'
+            }
+          })
+        }
+      },
+
       getNext () {
-        console.log("components/" + this.payload.links.next)
         axios.get(this.$baseAPI + 'components/' + this.payload.links.next)
           .then(response => {
             this.payload = response.data
-            console.log(response.data.items)
             this.components = [...this.components, ...this.payload.items]
             if (this.components.length === this.payload.meta.count) {
               this.showPaginatorClick = null
+            } else {
+              this.showPaginatorClick = true
+            }
+          })
+      },
+
+      getNextSearchQuery () {
+        console.log("next search is ran on : " + this.searchComponents)
+        axios.get(this.$baseAPI + 'components/search/' + this.searchComponents + '/' + this.payload.links.next)
+          .then(response => {
+            this.payload = response.data
+            this.components = [...this.components, ...this.payload.items]
+            if (this.components.length === this.payload.meta.count) {
+              this.showPaginatorClick = null
+            } else {
+              this.showPaginatorClick = true
             }
           })
       },
