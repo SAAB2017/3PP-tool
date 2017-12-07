@@ -349,8 +349,7 @@ Content:
 
 ### Sample Call
 ```javascript
-let data = '{
-              licenseName : "New License",
+let data = '{ licenseName : "New License",
               licenseVersion : "1.0",
               dateCreated : "2017-12-05",
               lastEdited : "2017-12-05",
