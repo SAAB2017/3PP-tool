@@ -46,7 +46,7 @@ Required: None
 Code: 200
 
 Content:
-```
+```json
 {
 "id" : 1,
 "licenseName" : "GNU AGPL",
@@ -507,14 +507,56 @@ http://localhost:3000/search/{"componentName":"component"}
 
 # Products
 
-## GET /products
+## Show all products
 
-Returnerar alla produkter som finns i databasen i form av JSON objekt.
+### URL
 
-### Exempel på anrop:
-```bash
-http://localhost:3000/products
+/products
+
+### Method
+
+GET
+
+### URL Params
+
+Required: None
+
+### Success Response
+
+Code: 200
+
+Content:
 ```
+{
+"id" : 1,
+"productName" : "Third-Party License Management REST API",
+"productVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "Third party handler Rest API for handling licenses.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}
+```
+
+### Sample Call
+```javascript
+axios.get('/licenses/')
+  .then(response => {
+  response.data
+}
+```
+
+
+
+
+
+
+
+
+
+
+
 ## PUT /products/approve
 
 Givet parametrar som JSON objekt i BODY; signeras en produkt. Om operationen lyckas returneras ett JSON objekt.
