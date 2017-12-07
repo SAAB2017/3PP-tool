@@ -91,7 +91,7 @@ Code: 200
 
 Content:
 ```json
-{
+[{
 "id" : 1,
 "licenseName" : "GNU AGPL",
 "licenseVersion" : "3.0",
@@ -100,7 +100,7 @@ Content:
 "URL" : "https://www.gnu.org/licenses/agpl-3.0.en.html",
 "comment" : "GNU Affero General Public License",
 "licenseType" : "Open source license"
-}
+}]
 ```
 
 ### Error Response
@@ -139,12 +139,12 @@ Code: 200
 
 Content:
 ```json
-{
+[{
 "id" : 1,
 "licenseID" : 1,
 "dateLogged" : 0,
 "note" : "License created."
-}
+}]
 ```
 
 ### Error Response
@@ -183,14 +183,14 @@ Code: 200
 
 Content:
 ```json
-{
+[{
 "id" : 9,
 "licenseName" : "BSD 3-clause",
 "licenseVersion" : "1.0",
 "dateCreated" : "2017-11-01",
 "lastEdited" : "2017-11-01",
 "comment" : null
-}
+}]
 ```
 
 ### Error Response
@@ -229,14 +229,14 @@ Code: 200
 
 Content:
 ```json
-{
+[{
 "id" : 9,
 "licenseName" : "BSD 3-clause",
 "licenseVersion" : "1.0",
 "dateCreated" : "2017-11-01",
 "lastEdited" : "2017-11-01",
 "comment" : null
-}
+}]
 ```
 
 ### Error Response
@@ -527,8 +527,8 @@ Required: None
 Code: 200
 
 Content:
-```json
-{
+```
+[{
 "id" : 1,
 "productName" : "Third-Party License Management REST API",
 "productVersion" : "1.0",
@@ -537,7 +537,7 @@ Content:
 "comment" : "Third party handler Rest API for handling licenses.",
 "approved" : 1,
 "approvedBy" : "Nils Nilsson"
-}
+}]
 ```
 
 ### Sample Call
@@ -561,7 +561,7 @@ PUT
 ### Data Params
 
 Example:
-```json
+```
 {
   id : Integer,
   approved : Integer,
@@ -574,7 +574,7 @@ Example:
 Code: 201
 
 Content:
-```json
+```
 {
   send : "success"
 }
@@ -615,7 +615,7 @@ POST
 ### Data Params
 
 Example:
-```json
+```
 {
     id : Integer,
     productName : String,
@@ -639,7 +639,7 @@ Example:
 Code: 201
 
 Content:
-```json
+```
 {
   send : "success"
 }
@@ -678,11 +678,56 @@ axios.post('/products/add', data)
 })
 ```
 
-## Show all licenses in a component.
+## Show all pending products.
 
 ### URL
 
-/licenses/licensesInComponent/:id
+/products/pending/
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+none
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+"id" : 1,
+"productName" : "Third-Party License Management REST API",
+"productVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "Third party handler Rest API for handling licenses.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/products/pending')
+  .then(response => {
+  response.data
+}
+```
+
+## Show all products containing a certain component.
+
+### URL
+
+/products/productsWithComponent/:id
 
 ### Method
 
@@ -701,16 +746,307 @@ Example: id = 1
 Code: 200
 
 Content:
-```json
+```
+[{
+"id" : 1,
+"componentName" : "A component",
+"componentVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "This is a component.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/products/productsWithComponent/1')
+  .then(response => {
+  response.data
+}
+```
+
+## Connect a component with a product.
+
+### URL
+
+/products/connectComponentWithProduct
+
+### Method
+
+POST
+
+### Data Params
+
+Example:
+```
+{
+    productID : Integer,
+    componentID : Integer,
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+TODO
+
+### Sample Call
+```
+let data = '{
+              productID : 1,
+              componentID : 2,
+            '
+```
+```javascript
+axios.post('/products/connectComponentWithProduct', data)
+  .then(response => {
+  response
+})
+```
+
+## Show all products connected to a certain project.
+
+### URL
+
+/products/productsInProject/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"projectName" : "A Project",
+"projectVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "This is a project.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/products/productsWithComponent/1')
+  .then(response => {
+  response.data
+}
+```
+
+## Show all products containing a certain license.
+
+### URL
+
+/products/productsWithLicense/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"licenseName" : "A license",
+"licenseVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "This is a License.",
+"URL" : "www.hej.se"
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/products/productsWithLicense/1')
+  .then(response => {
+  response.data
+}
+```
+
+## Show the log for a certain product.
+
+### URL
+
+/products/log/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"productID" : 1,
+"dateLogged" : "2017-11-05",
+"note" : "Product created."
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/products/log/1')
+  .then(response => {
+  response.data
+}
+```
+
+## Change the comment of a certain product.
+
+### URL
+
+/products/comment
+
+### Method
+
+POST
+
+### Data Params
+
+Example:
+```
+{
+    productID : Integer,
+    comment : String,
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+TODO
+
+### Sample Call
+```
+let data = '{
+              productID : 1,
+              comment : "Detta är en ny kommentar",
+            '
+```
+```javascript
+axios.post('/products/comment', data)
+  .then(response => {
+  response
+})
+```
+
+## Get the product with a certain ID.
+
+### URL
+
+/products/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
 {
 "id" : 1,
-"licenseName" : "GNU AGPL",
-"licenseVersion" : "3.0",
-"dateCreated" : "2017-10-01",
-"lastEdited" : "2017-10-01",
-"URL" : "https://www.gnu.org/licenses/agpl-3.0.en.html",
-"comment" : "GNU Affero General Public License",
-"licenseType" : "Open source license"
+"productName" : "Third-Party License Management REST API",
+"productVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "Third party handler Rest API for handling licenses.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
 }
 ```
 
@@ -720,83 +1056,58 @@ TODO
 
 ### Sample Call
 ```javascript
-axios.get('/licenses/licensesInComponent/1')
+axios.get('/products/log/1')
   .then(response => {
   response.data
 }
 ```
 
+## Get the product with a certain name.
 
+### URL
 
+/products/search/:id
 
+### Method
 
+GET
 
+### URL Params
 
+Required:
+```
+id = Integer
+```
+Example: id = product name
 
+### Success Response
 
+Code: 200
 
-
-## POST /products/connectProductWithComponent
-
-Givet parametrar som JSON objekt i BODY; kopplas en komponent till en produkt. Om operationen lyckas returneras ett JSON objekt.
-
-### Exempel på anrop:
-```bash
-http://localhost:3000/products/connectProductWithComponent
+Content:
+```
+{
+"id" : 1,
+"productName" : "Third-Party License Management REST API",
+"productVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "Third party handler Rest API for handling licenses.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}
 ```
 
-## GET /products/productsInProject/:id
+### Error Response
 
-Givet projekt id som JSON objekt i URL; returneras alla produkter som finns i ett projekt.
+TODO
 
-### Exempel på anrop:
-```bash
-http://localhost:3000/products/productsInProject/
-```
-
-## GET /products/productsWithLicense/:id
-
-Givet licens id som JSON objekt i URL; returneras alla produkter som finns i ett projekt.
-
-### Exempel på anrop:
-```bash
-http://localhost:3000/product/productsWithLicense/
-```
-
-## GET /products/productsWithComponent/:id
-
-Givet komponent id som JSON objekt i URL; returneras alla produkter som finns i ett projekt.
-
-### Exempel på anrop:
-```bash
-http://localhost:3000/products/productsWithLicense/
-```
-
-## GET /products/log/:id
-
-Givet ett produkt id inskickat som JSON objekt; Returnerar loggen för produkten i form av JSON objekt.
-
-### Exempel på anrop:
-```bash
-http://localhost:3000/products/log/{"id":"1"}
-```
-
-## GET /products/:id
-
-Givet ett produkt id inskickat som en siffra; Returnerar en produkt.
-
-### Exempel på anrop:
-```bash
-http://localhost:3000/products/1
-```
-
-## GET /products/search/:params
-
-Givet parametrar som JSON objekt i URL; söker baserat på parametrarna. Om operationen lyckas returneras ett JSON objekt med produkten.
-
-### Exempel på anrop:
-```bash
-http://localhost:3000/products/search/{"productName":"product"}
+### Sample Call
+```javascript
+axios.get('/products/log/Third-Party License Management REST API')
+  .then(response => {
+  response.data
+}
 ```
 
 # Projects
