@@ -348,8 +348,9 @@ Content:
 
 
 ### Sample Call
-```javascript
-let data = '{ licenseName : "New License",
+```
+let data = '{
+              licenseName : "New License",
               licenseVersion : "1.0",
               dateCreated : "2017-12-05",
               lastEdited : "2017-12-05",
@@ -357,12 +358,12 @@ let data = '{ licenseName : "New License",
               comment : "This is a comment.",
               licenseType : "Type of license."
             }'
-
+```
+```javascript
 axios.post('/licenses/add', data)
   .then(response => {
   response
 })
-
 ```
 
 ## Search for a license based on its name.
