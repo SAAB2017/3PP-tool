@@ -46,7 +46,7 @@ Required: None
 Code: 200
 
 Content:
-```bash
+```
 {
 "id" : 1,
 "licenseName" : "GNU AGPL",
@@ -60,7 +60,7 @@ Content:
 ```
 
 ### Sample Call
-```bash
+```javascript
 axios.get('/licenses/')
   .then(response => {
   response.data
@@ -80,7 +80,7 @@ GET
 ### URL Params
 
 Required:
-```bash
+```
 id = Integer
 ```
 Example: id = 1
@@ -90,7 +90,7 @@ Example: id = 1
 Code: 200
 
 Content:
-```bash
+```
 {
 "id" : 1,
 "licenseName" : "GNU AGPL",
@@ -108,7 +108,7 @@ Content:
 TODO
 
 ### Sample Call
-```bash
+```javascript
 axios.get('/licenses/licensesInComponent/1')
   .then(response => {
   response.data
@@ -128,7 +128,7 @@ GET
 ### URL Params
 
 Required:
-```bash
+```
 id = Integer
 ```
 Example: id = 1
@@ -138,7 +138,7 @@ Example: id = 1
 Code: 200
 
 Content:
-```bash
+```
 {
 "id" : 1,
 "licenseID" : 1,
@@ -152,7 +152,7 @@ Content:
 TODO
 
 ### Sample Call
-```bash
+```javascript
 axios.get('/licenses/log/1')
   .then(response => {
   response.data
@@ -172,7 +172,7 @@ GET
 ### URL Params
 
 Required:
-```bash
+```
 id = Integer
 ```
 Example: id = 1
@@ -182,7 +182,7 @@ Example: id = 1
 Code: 200
 
 Content:
-```bash
+```
 {
 "id" : 9,
 "licenseName" : "BSD 3-clause",
@@ -198,7 +198,7 @@ Content:
 TODO
 
 ### Sample Call
-```bash
+```javascript
 axios.get('/licenses/licensesInProduct/1')
   .then(response => {
   response.data
@@ -218,7 +218,7 @@ GET
 ### URL Params
 
 Required:
-```bash
+```
 id = Integer
 ```
 Example: id = 1
@@ -228,7 +228,7 @@ Example: id = 1
 Code: 200
 
 Content:
-```bash
+```
 {
 "id" : 9,
 "licenseName" : "BSD 3-clause",
@@ -244,7 +244,7 @@ Content:
 TODO
 
 ### Sample Call
-```bash
+```javascript
 axios.get('/licenses/licensesInProject/1')
   .then(response => {
   response.data
@@ -264,7 +264,7 @@ GET
 ### URL Params
 
 Required:
-```bash
+```
 id = Integer
 ```
 Example: id = 1
@@ -274,7 +274,7 @@ Example: id = 1
 Code: 200
 
 Content:
-```bash
+```
 {
 "id" : 1,
 "licenseName" : "GNU AGPL",
@@ -292,7 +292,7 @@ Content:
 TODO
 
 ### Sample Call
-```bash
+```javascript
 axios.get('/licenses/1')
   .then(response => {
   response.data
@@ -312,28 +312,15 @@ POST
 ### Data Params
 
 Example:
-```bash
-{
-  licenseName : [String],
-  licenseVersion : [String],
-  dateCreated : [String],
-  lastEdited : [String],
-  URL : [String],
-  comment : [String],
-  licenseType : [String]
-}
 ```
-
-Example:
-```bash
 {
-  licenseName : "New License",
-  licenseVersion : "1.0",
-  dateCreated : "2017-12-05",
-  lastEdited : "2017-12-05",
-  URL : "http://www.example.com",
-  comment : "This is a comment.",
-  licenseType : "Type of license."
+  licenseName : String,
+  licenseVersion : String,
+  dateCreated : String,
+  lastEdited : String,
+  URL : String,
+  comment : String,
+  licenseType : String
 }
 ```
 
@@ -342,7 +329,7 @@ Example:
 Code: 201
 
 Content:
-```bash
+```
 {
   send : "success"
 }
@@ -353,7 +340,7 @@ Content:
 Code: 500
 
 Content:
-```bash
+```
 {
   error_id : "E04"
 }
@@ -361,7 +348,7 @@ Content:
 
 
 ### Sample Call
-```bash
+```javascript
 let data = '{
               licenseName : "New License",
               licenseVersion : "1.0",
@@ -392,7 +379,7 @@ GET
 ### URL Params
 
 Required:
-```bash
+```
 params = String
 ```
 Example: params = GNU AGPL
@@ -402,7 +389,7 @@ Example: params = GNU AGPL
 Code: 200
 
 Content:
-```bash
+```
 {
 "id" : 1,
 "licenseName" : "GNU AGPL",
@@ -420,7 +407,7 @@ Content:
 TODO
 
 ### Sample Call
-```bash
+```javascript
 axios.get('/licenses/search/GNU AGPL')
   .then(response => {
   response.data
