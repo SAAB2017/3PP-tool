@@ -90,7 +90,7 @@ Example: id = 1
 Code: 200
 
 Content:
-```
+```json
 {
 "id" : 1,
 "licenseName" : "GNU AGPL",
@@ -138,7 +138,7 @@ Example: id = 1
 Code: 200
 
 Content:
-```
+```json
 {
 "id" : 1,
 "licenseID" : 1,
@@ -182,7 +182,7 @@ Example: id = 1
 Code: 200
 
 Content:
-```
+```json
 {
 "id" : 9,
 "licenseName" : "BSD 3-clause",
@@ -228,7 +228,7 @@ Example: id = 1
 Code: 200
 
 Content:
-```
+```json
 {
 "id" : 9,
 "licenseName" : "BSD 3-clause",
@@ -274,7 +274,7 @@ Example: id = 1
 Code: 200
 
 Content:
-```
+```json
 {
 "id" : 1,
 "licenseName" : "GNU AGPL",
@@ -312,7 +312,7 @@ POST
 ### Data Params
 
 Example:
-```
+```json
 {
   licenseName : String,
   licenseVersion : String,
@@ -329,7 +329,7 @@ Example:
 Code: 201
 
 Content:
-```
+```json
 {
   send : "success"
 }
@@ -340,7 +340,7 @@ Content:
 Code: 500
 
 Content:
-```
+```json
 {
   error_id : "E04"
 }
@@ -358,7 +358,8 @@ let data = '{
               comment : "This is a comment.",
               licenseType : "Type of license."
             }'
-
+```
+```javascript
 axios.post('/licenses/add', data)
   .then(response => {
   response
@@ -378,7 +379,7 @@ GET
 ### URL Params
 
 Required:
-```
+```json
 params = String
 ```
 Example: params = GNU AGPL
@@ -388,7 +389,7 @@ Example: params = GNU AGPL
 Code: 200
 
 Content:
-```
+```json
 {
 "id" : 1,
 "licenseName" : "GNU AGPL",
@@ -526,7 +527,7 @@ Required: None
 Code: 200
 
 Content:
-```
+```json
 {
 "id" : 1,
 "productName" : "Third-Party License Management REST API",
@@ -541,7 +542,185 @@ Content:
 
 ### Sample Call
 ```javascript
-axios.get('/licenses/')
+axios.get('/products/')
+  .then(response => {
+  response.data
+}
+```
+
+## Approve a product.
+
+### URL
+
+/products/approve
+
+### Method
+
+PUT
+
+### Data Params
+
+Example:
+```json
+{
+  id : Integer,
+  approved : Integer,
+  approvedBy : String,
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```json
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+TODO
+
+### Sample Call
+```
+let data = '{
+              id : 1,
+              approved : 1,
+              approvedBy : "Nils Nilsson",
+            }'
+```
+```javascript
+axios.post('/products/approve', data)
+  .then(response => {
+  response
+})
+```
+
+## Add a product.
+
+### URL
+
+/products/add
+
+### Method
+
+POST
+
+### Data Params
+
+Example:
+```json
+{
+    id : Integer,
+    productName : String,
+    productVersion : String,
+    dateCreated : Date,
+    lastEdited : Date,
+    comment : String,
+    approved : Integer,
+    approvedBy : String,
+    components : [{
+                    id : Integer,
+                 },
+                 {
+                    id : Integer,
+                 }]
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```json
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+TODO
+
+### Sample Call
+```
+let data = '{
+    id : 1,
+    productName : "Third-Party License Management REST API",
+    productVersion : "1.0",
+    dateCreated : "2017-11-20",
+    lastEdited : "2017-11-20",
+    comment : "Third party handler Rest API for handling licenses.",
+    approved : 1,
+    approvedBy : "Nils Nilsson",
+    components : [{
+                    id : 1,
+                 },
+                 {
+                    id : 2,
+                 }]
+            }'
+```
+```javascript
+axios.post('/products/add', data)
+  .then(response => {
+  response
+})
+```
+
+## Show all licenses in a component.
+
+### URL
+
+/licenses/licensesInComponent/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```json
+{
+"id" : 1,
+"licenseName" : "GNU AGPL",
+"licenseVersion" : "3.0",
+"dateCreated" : "2017-10-01",
+"lastEdited" : "2017-10-01",
+"URL" : "https://www.gnu.org/licenses/agpl-3.0.en.html",
+"comment" : "GNU Affero General Public License",
+"licenseType" : "Open source license"
+}
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/licenses/licensesInComponent/1')
   .then(response => {
   response.data
 }
@@ -556,24 +735,6 @@ axios.get('/licenses/')
 
 
 
-
-## PUT /products/approve
-
-Givet parametrar som JSON objekt i BODY; signeras en produkt. Om operationen lyckas returneras ett JSON objekt.
-
-### Exempel på anrop:
-```bash
-http://localhost:3000/products/approve
-```
-
-## POST /products/add
-
-Givet parametrar som JSON objekt i BODY; lägger till en produkt. Om operationen lyckas returneras ett JSON objekt.
-
-### Exempel på anrop:
-```bash
-http://localhost:3000/products/add
-```
 
 ## POST /products/connectProductWithComponent
 
