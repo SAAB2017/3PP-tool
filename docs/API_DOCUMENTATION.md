@@ -1056,7 +1056,7 @@ TODO
 
 ### Sample Call
 ```javascript
-axios.get('/products/log/1')
+axios.get('/products/1')
   .then(response => {
   response.data
 }
@@ -1104,100 +1104,612 @@ TODO
 
 ### Sample Call
 ```javascript
-axios.get('/products/log/Third-Party License Management REST API')
+axios.get('/products/search/Third-Party License Management REST API')
+  .then(response => {
+  response.data
+}
+```
+# Projects
+
+## Show all project
+
+### URL
+
+/projects
+
+### Method
+
+GET
+
+### URL Params
+
+Required: None
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"projectName" : "A project",
+"projectVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "Third party handler Rest API for handling licenses.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}]
+```
+
+### Sample Call
+```javascript
+axios.get('/projects/')
   .then(response => {
   response.data
 }
 ```
 
-# Projects
+## Approve a project.
 
-## GET /projects
+### URL
 
-Returnerar alla projekt som finns i databasen i form av JSON objekt.
+/projects/approve
 
-### Exempel på anrop:
-```bash
-http://localhost:3000/projects
+### Method
+
+PUT
+
+### Data Params
+
+Example:
+```
+{
+  id : Integer,
+  approved : Integer,
+  approvedBy : String,
+}
 ```
 
-## PUT /projects/approve
+### Success Response
 
-Givet parametrar som JSON objekt i BODY; signeras ett projekt. Om operationen lyckas returneras ett JSON objekt.
+Code: 201
 
-### Exempel på anrop:
-```bash
-http://localhost:3000/projects/approve
+Content:
+```
+{
+  send : "success"
+}
 ```
 
-## POST /projects/add
+### Error Response
 
-Givet parametrar som JSON objekt i BODY; lägger till ett projekt. Om operationen lyckas returneras ett JSON objekt.
+Code: 500
 
-### Exempel på anrop:
-```bash
-http://localhost:3000/projects/add
+Content:
+TODO
+
+### Sample Call
+```
+let data = '{
+              id : 1,
+              approved : 1,
+              approvedBy : "Nils Nilsson",
+            }'
+```
+```javascript
+axios.post('/projects/approve', data)
+  .then(response => {
+  response
+})
 ```
 
-## POST /projects/connectProductWithProject
+## Add a project.
 
-Givet parametrar som JSON objekt i BODY; kopplas en produkt till ett projekt. Om operationen lyckas returneras ett JSON objekt.
+### URL
 
-### Exempel på anrop:
-```bash
-http://localhost:3000/projects/connectProductWithProject
+/projects/add
+
+### Method
+
+POST
+
+### Data Params
+
+Example:
+```
+{
+    id : Integer,
+    projectName : String,
+    projectVersion : String,
+    dateCreated : Date,
+    lastEdited : Date,
+    comment : String,
+    approved : Integer,
+    approvedBy : String,
+    projects : [{
+                    id : Integer,
+                 },
+                 {
+                    id : Integer,
+                 }]
+}
 ```
 
-## GET /projects/projectsWithLicense/:id
+### Success Response
 
-Givet licens id som JSON objekt i URL; returneras alla projekt som är kopplade till licensen.
+Code: 201
 
-### Exempel på anrop:
-```bash
-http://localhost:3000/projects/projectsWithLicense/{"id":"1"}
+Content:
+```
+{
+  send : "success"
+}
 ```
 
-## GET /projects/projectsWithComponent/:id
+### Error Response
 
-Givet komponent id som JSON objekt i URL; returneras alla projekt som är kopplade till komponenten.
+Code: 500
 
-### Exempel på anrop:
-```bash
-http://localhost:3000/projects/projectsWithComponent/{"id":"1"}
+Content:
+TODO
+
+### Sample Call
+```
+let data = '{
+    id : 1,
+    projectName : "A project",
+    projectVersion : "1.0",
+    dateCreated : "2017-11-20",
+    lastEdited : "2017-11-20",
+    comment : "Third party handler Rest API for handling licenses.",
+    approved : 1,
+    approvedBy : "Nils Nilsson",
+    project : [{
+                    id : 1,
+                 },
+                 {
+                    id : 2,
+                 }]
+            }'
+```
+```javascript
+axios.post('/project/add', data)
+  .then(response => {
+  response
+})
 ```
 
-## GET /projects/projectsWithProduct/:id
+## Show all pending projects.
 
-Givet produkt id som JSON objekt i URL; returneras alla projekt som är kopplade till produkten.
+### URL
 
-### Exempel på anrop:
-```bash
-http://localhost:3000/projects/projectsWithProduct/{"id":"1"}
+/projects/pending/
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+none
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"projectName" : "A project",
+"projectVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "Third party handler Rest API for handling licenses.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}]
 ```
 
-## GET /projects/log/:id
+### Error Response
 
-Givet ett projekt id inskickat som JSON objekt; Returnerar loggen för projektet i form av JSON objekt.
+TODO
 
-### Exempel på anrop:
-```bash
-http://localhost:3000/projects/log/{"id":"1"}
+### Sample Call
+```javascript
+axios.get('/project/pending')
+  .then(response => {
+  response.data
+}
 ```
 
-## GET /projects/:id
+## Show all projects containing a certain component.
 
-Givet ett projekt id inskickat som en siffra; Returnerar ett projekt.
+### URL
 
-### Exempel på anrop:
-```bash
-http://localhost:3000/projects/1
+/projects/projectsWithComponent/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"projectName" : "A Project",
+"projectVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "This is a project.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}]
 ```
 
-## GET /projects/search/:params
+### Error Response
 
-Givet parametrar som JSON objekt i URL; söker baserat på parametrarna. Om operationen lyckas returneras ett JSON objekt med projektet.
+TODO
 
-### Exempel på anrop:
-```bash
-http://localhost:3000/projects/search/{"projectName":"project"}
+### Sample Call
+```javascript
+axios.get('/projects/projectsWithComponent/1')
+  .then(response => {
+  response.data
+}
+```
+
+## Connect a product with a project.
+
+### URL
+
+/projects/connectProductWithProject
+
+### Method
+
+POST
+
+### Data Params
+
+Example:
+```
+{
+    projectID : Integer,
+    productID : Integer,
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+TODO
+
+### Sample Call
+```
+let data = '{
+              projectID : 1,
+              productID : 2,
+            '
+```
+```javascript
+axios.post('/projects/connectProductWithProject', data)
+  .then(response => {
+  response
+})
+```
+
+## Show all projects containing a certain license.
+
+### URL
+
+/projects/projectsWithLicense/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"projectName" : "A Project",
+"projectVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "This is a project.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/projects/projectsWithLicense/1')
+  .then(response => {
+  response.data
+}
+```
+
+## Show all projects containing a certain product.
+
+### URL
+
+/projects/projectsWithProduct/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"projectName" : "A Project",
+"projectVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "This is a project.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/products/productsWithLicense/1')
+  .then(response => {
+  response.data
+}
+```
+
+## Show the log for a certain project.
+
+### URL
+
+/projects/log/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"projectID" : 1,
+"dateLogged" : "2017-11-05",
+"note" : "Project created."
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/projects/log/1')
+  .then(response => {
+  response.data
+}
+```
+
+## Change the comment of a certain project.
+
+### URL
+
+/projects/comment
+
+### Method
+
+POST
+
+### Data Params
+
+Example:
+```
+{
+    projectID : Integer,
+    comment : String,
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+TODO
+
+### Sample Call
+```
+let data = '{
+              projectID : 1,
+              comment : "Detta är en ny kommentar",
+            '
+```
+```javascript
+axios.post('/projects/comment', data)
+  .then(response => {
+  response
+})
+```
+
+## Get the project with a certain ID.
+
+### URL
+
+/projects/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+"id" : 1,
+"projectName" : "A Project",
+"projectVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "This is a project.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/projects/1')
+  .then(response => {
+  response.data
+}
+```
+
+## Get the project with a certain name.
+
+### URL
+
+/projects/search/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = project name
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+"id" : 1,
+"projectName" : "A Project",
+"projectVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "This is a project.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/projects/search/Third-Party License Management REST API')
+  .then(response => {
+  response.data
+}
 ```
