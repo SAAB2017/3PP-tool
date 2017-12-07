@@ -64,13 +64,14 @@
         reverse: 1,
         showPaginatorClick: true,
         searching: false,
-        payload: null
+        payload: null,
+        initPayload: this.$initPayload.bind(null, 'component')
       }
     },
     /* Fetches unsigned components from the database and puts them in components */
     mounted () {
       // TODO: getNext()
-      this.payload = this.$initPayload()
+      this.payload = this.initPayload()
       this.getNext()
     },
 
@@ -94,7 +95,7 @@
        */
       searchComponent () {
         this.searching = true
-        this.payload = this.$initPayload()
+        this.payload = this.initPayload()
         this.showPaginatorClick = true
         if (this.searchComponents.length === 0) {
           this.searching = false
@@ -104,7 +105,7 @@
           return
         }
         if ((this.searchComponents.length !== 0) && (this.searchComponents !== null) && (this.searchComponents !== '')) {
-          const path = `components/pending/search/${this.searchComponents}/${this.payload.links.next}`
+          const path = `components/pending/search/${this.searchComponents}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
           console.log(path)
           axios.get(this.$baseAPI + path).then(response => {
             console.log(response.data)
@@ -118,7 +119,7 @@
         }
       },
       getNext () {
-        axios.get(this.$baseAPI + 'components/pending/' + this.payload.links.next)
+        axios.get(this.$baseAPI + 'components/pending/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
             this.components = [...this.components, ...this.payload.items]
@@ -130,8 +131,7 @@
           })
       },
       getNextSearchQuery () {
-        console.log("next search is ran on : " + this.searchComponents)
-        axios.get(this.$baseAPI + 'components/pending/search/' + this.searchComponents + '/' + this.payload.links.next)
+        axios.get(this.$baseAPI + 'components/pending/search/' + this.searchComponents + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
             this.components = [...this.components, ...this.payload.items]

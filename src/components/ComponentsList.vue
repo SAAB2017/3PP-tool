@@ -70,7 +70,8 @@
 
 <script>
   import axios from 'axios'
-
+  // import {initPayload} from '../../backend/routes/payloadConfig'
+  // let [initPayload] = require('../../backend/routes/payloadConfig')
   export default {
     data () {
       return {
@@ -79,13 +80,15 @@
         component: null,
         componentVersion: null,
         message: '',
-        sorted: '',
+        sorted: 'componentName',
+        ordering: '',
         reverse: 1,
         showPaginatorClick: true,
         searching: false,
         payload: null,
-        }
-      },
+        payloadFactory: this.$initPayload.bind(null, 'component')
+      }
+    },
 
     /* Fetches signed components from the database and puts them in components */
     mounted () {
@@ -95,7 +98,7 @@
         this.$route.params.type = ''
         console.log(this.message)
       }
-      this.payload = this.$initPayload()
+      this.payload = this.payloadFactory()
       this.getNext()
       this.fade_out()
     },
@@ -128,7 +131,7 @@
 
       searchComponent () {
         this.searching = true
-        this.payload = this.$initPayload()
+        this.payload = this.payloadFactory()
         this.showPaginatorClick = true
         if (this.searchComponents.length === 0) {
           this.searching = false
@@ -138,7 +141,7 @@
           return
         }
         if ((this.searchComponents.length !== 0) && (this.searchComponents !== null) && (this.searchComponents !== '')) {
-          const path = `components/search/${this.searchComponents}/${this.payload.links.next}`
+          const path = `components/search/${this.searchComponents}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
           console.log(path)
           axios.get(this.$baseAPI + path).then(response => {
             console.log(response.data)
@@ -153,19 +156,9 @@
       },
 
       getNext () {
-        axios.get(this.$baseAPI + 'components/' + this.payload.links.next)
+        axios.get(this.$baseAPI + 'components/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
-            // FIXME: TODO: ta bort nedanstående, endast debug-info
-        {
-        console.log('response.links = {')
-          for (let a in response.data.links) {
-         // console.log(a + ': ' + respoonse.links[a] + ',')
-         console.log(a + ":" + response.data.links[a])
-          }
-        console.log('}')
-        }
-        // FIXME: TODO: TA BORT OVANSTÅENDE
             this.components = [...this.components, ...this.payload.items]
             if (this.components.length === this.payload.meta.count) {
               this.showPaginatorClick = null
@@ -212,8 +205,8 @@
       },
 
       sortName () {
-        if (this.sorted !== 'name') {
-          this.sorted = 'name'
+        if (this.sorted !== 'componentName') {
+          this.sorted = 'componentName'
           this.reverse = 1
         }
         let t = this
@@ -232,8 +225,8 @@
       },
 
       sortVersion () {
-        if (this.sorted !== 'version') {
-          this.sorted = 'version'
+        if (this.sorted !== 'componentVersion') {
+          this.sorted = 'componentVersion'
           this.reverse = 1
         }
         let t = this
@@ -252,8 +245,8 @@
       },
 
       sortCreated () {
-        if (this.sorted !== 'created') {
-          this.sorted = 'created'
+        if (this.sorted !== 'dateCreated') {
+          this.sorted = 'dateCreated'
           this.reverse = 1
         }
         let t = this
@@ -272,8 +265,8 @@
       },
 
       sortEdited () {
-        if (this.sorted !== 'created') {
-          this.sorted = 'created'
+        if (this.sorted !== 'dateCreated') {
+          this.sorted = 'dateCreated'
           this.reverse = 1
         }
         let t = this
