@@ -358,12 +358,12 @@ let data = '{
               comment : "This is a comment.",
               licenseType : "Type of license."
             }'
-```
 ```javascript
 axios.post('/licenses/add', data)
   .then(response => {
   response
 })
+```
 ```
 
 ## Search for a license based on its name.
