@@ -133,9 +133,6 @@ function handleGetRequest(req, res, isSigned) {
   const pending = (isSigned) ? 1 : 0
   let sorting = (req.query.sort === 'undefined') ? `componentName` : `${req.query.sort}`
   let ordering = (req.query.order === 'undefined') ? `asc` : `${req.query.order}`
-  console.log(sorting)
-  console.log(ordering)
-  console.log("Pending " + pending)
   // exempel på route /components med query:
   // /components/?offset=250&amount=25
   // ?-tecknet berättar att det som kommer efter är query-strängen,
@@ -150,7 +147,7 @@ function handleGetRequest(req, res, isSigned) {
   })
   for (let uri in response.links) {
     const link = `${response.links[uri]}&sort=${sorting}&order=${ordering}`
-    console.log(uri + ": " + link)
+    console.log("commands: " + uri + ": " + link)
     response.links[uri] = link
   }
   for (let a in response.links) {

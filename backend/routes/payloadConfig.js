@@ -13,7 +13,7 @@ function setOrdering (dir, payload) {
 }
 
 function initPayload (type) {
-  if (type === 'undefined') {
+  if (type === 'undefined' || type === null || type === '') {
     let Error = {
       givenType: type,
       message: 'Wrong column type. Type needs to be specified explicitly'
@@ -39,9 +39,6 @@ function initPayload (type) {
     errors: {
       message: [],
       status: 'OK'
-    },
-    getDefaultAmount: function () {
-      return 25
     },
     errorflag: false
   }
