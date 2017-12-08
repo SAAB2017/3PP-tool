@@ -7,7 +7,7 @@ import payloadcfg from '../backend/routes/config'
 Vue.config.productionTip = false
 
 Vue.prototype.$baseAPI = 'http://localhost:3000/'
-Vue.prototype.$initPayload = payloadcfg.newPayload
+Vue.prototype.$initPayload = payloadcfg.payloadInit
 Vue.prototype.$setSort = payloadcfg.setSort
 Vue.prototype.$setOrder = payloadcfg.setOrder
 

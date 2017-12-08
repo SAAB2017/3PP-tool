@@ -1,6 +1,6 @@
 let payloadcfg = require('./config')
 
-let initPayload = payloadcfg.newPayload.bind(null, 'component')
+let initPayload = payloadcfg.payloadInit.bind(null, 'component')
 let NOTSIGNED = payloadcfg.NOTSIGNED
 let SIGNED = payloadcfg.SIGNED
 
@@ -12,9 +12,11 @@ function handleSearchGetRequest (req, res, isPending) {
   let response = initPayload()
   const offset = parseInt(+req.query.offset) || 0
   const amount = parseInt(+req.query.amount) || 5
-  const pending = isPending ? 0 : 1
+  const pending = isPending ? 1 : 0
   let sorting = (req.query.sort === 'undefined') ? `componentName` : `${req.query.sort}`
   let ordering = (req.query.order === 'undefined') ? `asc` : `${req.query.order}`
+  console.log(JSON.stringify(payloadcfg.setSorting(sorting, ordering)))
+  response.sort = payloadcfg.setSorting(sorting, ordering)
   getLinkData(req.db, offset, amount, response, `select count(*) as count from components where componentName LIKE '%${req.params.id}%' AND approved=${pending}`, (links) => {
     response.links = {
       prev: `?offset=${links.prev}&amount=${amount}`,
@@ -54,11 +56,11 @@ function handleSearchGetRequest (req, res, isPending) {
 // ===========================
 router.route('/search/:id')
   .get((req, res) => {
-    handleSearchGetRequest(req, res, NOTSIGNED)
+    handleSearchGetRequest(req, res, SIGNED)
   })
 
 router.route('/pending/search/:id').get((req, res) => {
-  handleSearchGetRequest(req, res, SIGNED)
+  handleSearchGetRequest(req, res, NOTSIGNED)
 })
 // ----------------------------------------------------------------------------
 //  Methods for /components
@@ -79,7 +81,7 @@ function getLinkData (db, offset, amount, response, pageQuery, setLinksCB) {
   db.get(pageQuery, (err, row) => {
     if (err) {
       // console.log("ERROR: " + err.message)
-      console.log("Error:")
+      console.qlog("Error:")
       console.log(err)
       response = initPayload() // effectively empty payload, reset cursor to beginning, default parameters
       response.errors.message.push('Could not get element count from database.')
@@ -119,7 +121,7 @@ function getLinkData (db, offset, amount, response, pageQuery, setLinksCB) {
 }
 
 // Example request: components/search/o/?offset=0&amount=3&sort=componentName&order=desc
-function handleGetRequest(req, res, isSigned) {
+function handleGetRequest (req, res, isSigned) {
   // if these parameters are malformed, the response defaults to the first 30 items (0, 30)
   let response = initPayload()
   const offset = parseInt(+req.query.offset) || 0
@@ -159,9 +161,6 @@ function handleGetRequest(req, res, isSigned) {
         response.errors.errorflag = true
         res.json(response)
       } else {
-        for (let a in rows) {
-          console.log(a)
-        }
         response.items = rows
         response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
         res.json(response)

@@ -1,8 +1,9 @@
 const ITEMTYPES = ['component', 'license', 'product', 'project']
 const ord = ['asc', 'desc']
+const DEFAULTPAYLOADSIZE = 25
 
 module.exports = {
-  newPayload: (type) => {
+  payloadInit: (type) => {
     if (type === 'undefined' || type === null || type === '') {
       let Error = {
         givenType: type,
@@ -10,13 +11,12 @@ module.exports = {
       }
       throw Error
     }
-    console.log("WTF MOTFHERUC!=!!=!==!")
     return {
       items: [],
       links: {
-        prev: '',
-        current: `?offset=0&amount=${3}`,
-        next: `?offset=0&amount=${3}`
+        prev: `?offset=0&amount=${DEFAULTPAYLOADSIZE}`,
+        current: `?offset=0&amount=${DEFAULTPAYLOADSIZE}`,
+        next: `?offset=0&amount=${DEFAULTPAYLOADSIZE}`
       },
       sort: {
         column: `&sort=${type}Name`,
@@ -44,6 +44,21 @@ module.exports = {
     }
     console.log("Warning: wrong name for column")
     return '&sort=componentName'
+  },
+  setSorting: (sortBy, order) => {
+    let sort = {
+      column: `&sort=${sortBy}`,
+      order: `&order=${order}`
+    }
+    return sort
+  },
+  setCursor: (offset, amount) => {
+    let links = {
+      prev: `?offset=${offset}&amount=${amount}`,
+      current: `?offset=${offset}&amount=${amount}`,
+      next: `?offset=${offset}&amount=${amount}`
+    }
+    return links
   },
   NOTSIGNED : false,
   SIGNED: true
