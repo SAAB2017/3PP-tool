@@ -2,12 +2,14 @@ const NOTSIGNED = false
 const SIGNED = true
 const ITEMTYPES = ['component', 'license', 'product', 'project']
 
-function setSort(col, payload) {
+const Ord = ['asc', 'desc']
+
+function setSort (col, payload) {
   payload.sort.column = `&sort=${col}`
 }
 
-function setOrdering(dir, payload) {
-  payload.sort.order = `&ord=${dir}`
+function setOrdering (dir, payload) {
+  payload.sort.order = `&order=${dir}`
 }
 
 function initPayload (type) {
@@ -18,7 +20,7 @@ function initPayload (type) {
     }
     throw Error
   }
-
+  console.log("WTF MOTFHERUC!=!!=!==!")
   return {
     items: [],
     links: {

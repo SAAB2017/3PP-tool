@@ -4,7 +4,7 @@ initPayload = initPayload.bind(null, 'component')
 var express = require('express')
 var router = express.Router()
 
-function handleSearchGetRequest(req, res, isPending) {
+function handleSearchGetRequest (req, res, isPending) {
   // precondition: parameter is wellformed
   const columns = ['componentName', 'componentVersion', 'dateCreated', 'lastEdited']
   const orderTypes = ['asc', 'desc']
@@ -12,20 +12,25 @@ function handleSearchGetRequest(req, res, isPending) {
   let response = initPayload()
   const offset = parseInt(+req.query.offset) || 0
   const amount = parseInt(+req.query.amount) || 5
-  const pending = (isPending) ? 0 : 1
+  const pending = isPending ? 0 : 1
   console.log("Approved:" + pending)
   let sorting = (req.query.sort === 'undefined') ? `order by componentName` : `order by ${req.query.sort}`
   let ordering = (req.query.order === 'undefined') ? `asc` : `${req.query.order}`
-  getLinkData(req.db, offset, amount, response, `select count(*) as count from components where componentName LIKE '%${req.params.id}%' AND approved=${pending}`, (links) => {
+  getLinkData(req.db, offset, amount, response, `select count(*) as count from components where componentName LIKE '%${req.params.id}%' AND approved=${isPending}`, (links) => {
     response.links = {
       prev: `?offset=${links.prev}&amount=${amount}`,
       current: `?offset=${links.current}&amount=${amount}`,
       next: `?offset=${links.next}&amount=${amount}`
     }
     for (let uri in response.links) {
-      response.links[uri] += `&sort=${req.query.sort}&order=${ordering}`
+      const link = `${response.links[uri]}${req.query.sort}&order=${ordering}`
+      // response.links[uri] += `&sort=${req.query.sort}&order=${ordering}`
+      console.log("Link: " + link)
+      response.links[uri] = link
     }
-    for (let a in response.links) { console.log(response.links[a])}
+    for (let a in response.links) {
+      console.log(`Payload context data: ${a}:` + response.links[a])
+    }
   })
   if (!response.errorflag) {
     // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
@@ -83,7 +88,7 @@ function getLinkData (db, offset, amount, response, pageQuery, setLinksCB) {
       console.log("Error:")
       console.log(err)
       response = initPayload() // effectively empty payload, reset cursor to beginning, default parameters
-      response.error.message.push('Could not get element count from database.')
+      response.errors.message.push('Could not get element count from database.')
       response.errorflag = true
       response.meta.count = 0
     } else {
@@ -100,7 +105,7 @@ function getLinkData (db, offset, amount, response, pageQuery, setLinksCB) {
             next: (0 + amount) < response.meta.count ? amount : 0
           }
           response.errorflag = true
-          response.error.message.push('Illegal query parameters passed')
+          response.errors.message.push('Illegal query parameters passed')
           setLinksCB(links)
         } else if (Number.isSafeInteger(offset) && Number.isSafeInteger(amount)) {
           let links = {
@@ -113,22 +118,24 @@ function getLinkData (db, offset, amount, response, pageQuery, setLinksCB) {
       } else {
         console.log("ERROR")
         response.errorflag = true
-        response.error.message.push('Illegal query parameters')
+        response.errors.message.push('Illegal query parameters')
       }
     }
   })
 }
 
-function handleGetRequest(req, res, isPending) {
+// Example request: components/search/o/?offset=0&amount=3&sort=componentName&order=desc
+function handleGetRequest(req, res, isSigned) {
   // if these parameters are malformed, the response defaults to the first 30 items (0, 30)
   let response = initPayload()
   const offset = parseInt(+req.query.offset) || 0
   const amount = parseInt(+req.query.amount) || 5
-  const pending = (isPending) ? 0 : 1
-  let sorting = (req.query.sort === 'undefined') ? `order by componentName` : `order by ${req.query.sort}`
+  const pending = (isSigned) ? 1 : 0
+  let sorting = (req.query.sort === 'undefined') ? `componentName` : `${req.query.sort}`
   let ordering = (req.query.order === 'undefined') ? `asc` : `${req.query.order}`
   console.log(sorting)
   console.log(ordering)
+  console.log("Pending " + pending)
   // exempel på route /components med query:
   // /components/?offset=250&amount=25
   // ?-tecknet berättar att det som kommer efter är query-strängen,
@@ -142,12 +149,17 @@ function handleGetRequest(req, res, isPending) {
     }
   })
   for (let uri in response.links) {
-    response.links[uri] += `&sort=${req.query.sort}&order=${ordering}`
+    const link = `${response.links[uri]}&sort=${sorting}&order=${ordering}`
+    console.log(uri + ": " + link)
+    response.links[uri] = link
   }
-  for (let a in response.links) { console.log(response.links[a])}
+  for (let a in response.links) {
+    console.log(`${a} ${response.links[a]}`)
+  }
   if (!response.errorflag) {
     // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
-    const query = `SELECT * FROM components where approved=${pending} ${sorting} ${ordering} LIMIT ${offset}, ${amount} `
+    console.log("Pending: " + pending)
+    const query = `SELECT * FROM components where approved=${pending} order by ${sorting} ${ordering} LIMIT ${offset}, ${amount} `
     req.db.all(query, (err, rows) => {
       if (err) {
         console.log(err)
@@ -156,6 +168,9 @@ function handleGetRequest(req, res, isPending) {
         response.errors.errorflag = true
         res.json(response)
       } else {
+        for (let a in rows) {
+          console.log(a)
+        }
         response.items = rows
         response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
         res.json(response)

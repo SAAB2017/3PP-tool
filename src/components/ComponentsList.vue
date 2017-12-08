@@ -40,10 +40,10 @@
       <table>
         <thead>
         <tr style="background-color: white">
-          <th scope="col" @click="sortName()">Component</th>
-          <th scope="col" @click="sortVersion()">Version</th>
-          <th scope="col" @click="sortCreated()">Created</th>
-          <th scope="col" @click="sortEdited()">Last edited</th>
+          <th scope="col" @click="sortName()">Component</></th>
+          <th scope="col" @click="sortBy('componentVersion')">Version</th>
+          <th scope="col" @click="sortBy('dateCreated')">Created</th>
+          <th scope="col" @click="sortBy('lastEdited')">Last edited</th>
         </tr>
         </thead>
         <tbody>
@@ -60,7 +60,6 @@
           <div id="paginator" style="text-align: center;" @click="getMore()"><a class="button is-primary">Hämta in fler</a></div>
         </tr>
 
-
         </tbody>
       </table>
     </div>
@@ -70,8 +69,7 @@
 
 <script>
   import axios from 'axios'
-  // import {initPayload} from '../../backend/routes/payloadConfig'
-  // let [initPayload] = require('../../backend/routes/payloadConfig')
+
   export default {
     data () {
       return {
@@ -81,12 +79,12 @@
         componentVersion: null,
         message: '',
         sorted: 'componentName',
-        ordering: '',
+        ordering: 'asc',
         reverse: 1,
         showPaginatorClick: true,
         searching: false,
         payload: null,
-        payloadFactory: this.$initPayload.bind(null, 'component')
+        payloadFactory: this.$initPayload.bind(null,'component')
       }
     },
 
@@ -107,7 +105,6 @@
       /**
        * Searches for signed components from the database matching the search-criteria
        */
-
 
       /**
        * Opens the view for a specific component with id id.
@@ -156,8 +153,11 @@
       },
 
       getNext () {
-        axios.get(this.$baseAPI + 'components/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+        return axios.get(this.$baseAPI + 'components/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
+            let a = this.payload
+            this.payload = this.payloadFactory()
+            this.payload = a
             this.payload = response.data
             this.components = [...this.components, ...this.payload.items]
             if (this.components.length === this.payload.meta.count) {
@@ -169,7 +169,7 @@
       },
 
       getNextSearchQuery () {
-        axios.get(this.$baseAPI + 'components/search/' + this.searchComponents + '/' + this.payload.links.next)
+        axios.get(this.$baseAPI + 'components/search/' + this.searchComponents + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
             this.components = [...this.components, ...this.payload.items]
@@ -204,7 +204,32 @@
         }, 100)
       },
 
+      sortBy(column) {
+        console.log("Sorting by " + column)
+        if (this.sorted === column) {
+          this.payload = this.payloadFactory()
+          (this.ordering === 'asc') ? this.$setOrder('desc', this.payload) : this.$setOrder('asc', this.payload)
+          this.$setSort(column, this.payload)
+          this.components === null
+        } else {
+          this.payload = this.payloadFactory()
+          this.$setOrder('asc', this.payload)
+          this.$setSort(column, this.payload)
+          this.components = null
+        }
+        this.getNext()
+      },
       sortName () {
+        // this.payload = this.$initPayload('component')
+        // this.payload = this.$initPayload('component')
+        this.$setOrder('desc', this.payload)
+        console.log("Sorting by column: " + this.payload.sort.column)
+        this.$setSort('componentName', this.payload)
+        this.components = null
+        this.getNext().catch(error => {
+            console.log(error)
+          })
+        /*
         if (this.sorted !== 'componentName') {
           this.sorted = 'componentName'
           this.reverse = 1
@@ -222,6 +247,7 @@
           return 0
         })
         this.reverse *= -1
+        */
       },
 
       sortVersion () {
