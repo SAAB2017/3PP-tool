@@ -52,7 +52,7 @@
 
 <script>
   import axios from 'axios'
-
+  import payloadcfg from '../../backend/routes/config'
   export default {
     data () {
       return {
@@ -61,26 +61,26 @@
         componentVersion: null,
         searchComponents: null,
         sorted: '',
-        reverse: 1,
         showPaginatorClick: true,
         searching: false,
         payload: null,
-        initPayload: this.$initPayload.bind(null, 'component')
+        initPayload: this.payloadFactory()
       }
     },
     /* Fetches unsigned components from the database and puts them in components */
     mounted () {
       // TODO: getNext()
-      this.payload = this.initPayload()
-      this.getNext()
+      this.payload = this.payloadFactory()
+      this.getNext(true)
     },
 
     methods: {
-      getMore () {
+      payloadFactory: payloadcfg.payloadInit.bind(null, 'component'),
+      getMore (replaceItemsList) {
         if (this.searching === false) {
-          this.getNext()
+          this.getNext(replaceItemsList)
         } else {
-          this.getNextSearchQuery()
+          this.getNextSearchQuery(replaceItemsList)
         }
       },
       getAllPending () {
@@ -95,13 +95,15 @@
        */
       searchComponent () {
         this.searching = true
-        this.payload = this.initPayload()
+        let sort = this.payload.sort
+        this.payload = this.payloadFactory()
+        this.payload.sort = sort
         this.showPaginatorClick = true
         if (this.searchComponents.length === 0) {
           this.searching = false
           this.showPaginatorClick = true
           this.components = []
-          this.getNext()
+          this.getNext(true)
           return
         }
         if ((this.searchComponents.length !== 0) && (this.searchComponents !== null) && (this.searchComponents !== '')) {
@@ -118,23 +120,20 @@
           })
         }
       },
-      getNext () {
+
+      getNext (replaceItemsList) {
         axios.get(this.$baseAPI + 'components/pending/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
-            this.components = [...this.components, ...this.payload.items]
-            if (this.components.length === this.payload.meta.count) {
-              this.showPaginatorClick = null
-            } else {
-              this.showPaginatorClick = true
-            }
+            replaceItemsList ? this.components = [...this.payload.items] : this.components = [...this.components, ...this.payload.items]
+            this.components.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
           })
       },
-      getNextSearchQuery () {
+      getNextSearchQuery (replaceItemsList) {
         axios.get(this.$baseAPI + 'components/pending/search/' + this.searchComponents + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
-            this.components = [...this.components, ...this.payload.items]
+            replaceItemsList ? this.components = [...this.payload.items] : this.components = [...this.components, ...this.payload.items]
             if (this.components.length === this.payload.meta.count) {
               this.showPaginatorClick = null
             } else {
@@ -152,83 +151,64 @@
       },
 
       sortName () {
-        if (this.sorted !== 'name') {
-          this.sorted = 'name'
-          this.reverse = 1
+        let newpayload = this.payloadFactory()
+        newpayload.sort.column = '&sort=componentName'
+        if (this.ordering === 'asc') {
+          this.ordering = 'desc'
+          newpayload.sort.order = '&order=desc'
+        } else {
+          this.ordering = 'asc'
+          newpayload.sort.order = '&order=asc'
         }
-        let t = this
-        this.components.sort(function (a, b) {
-          let lFirst = a.componentName.toLowerCase()
-          let lSecond = b.componentName.toLowerCase()
-          if (lFirst < lSecond) {
-            return -1 * t.reverse
-          }
-          if (lFirst > lSecond) {
-            return 1 * t.reverse
-          }
-          return 0
-        })
-        this.reverse *= -1
+        this.payload.sort = newpayload.sort
+        this.payload.links = newpayload.links
+        this.getMore(true)
       },
 
       sortVersion () {
-        if (this.sorted !== 'version') {
-          this.sorted = 'version'
-          this.reverse = 1
+        let newpayload = this.payloadFactory()
+        newpayload.sort.column = '&sort=componentVersion'
+        if (this.ordering === 'asc') {
+          this.ordering = 'desc'
+          newpayload.sort.order = '&order=desc'
+        } else {
+          this.ordering = 'asc'
+          newpayload.sort.order = '&order=asc'
         }
-        let t = this
-        this.components.sort(function (a, b) {
-          let lFirst = a.componentVersion.toLowerCase()
-          let lSecond = b.componentVersion.toLowerCase()
-          if (lFirst < lSecond) {
-            return -1 * t.reverse
-          }
-          if (lFirst > lSecond) {
-            return 1 * t.reverse
-          }
-          return 0
-        })
-        this.reverse *= -1
+        this.payload.sort = newpayload.sort
+        this.payload.links = newpayload.links
+        this.getMore(true)
       },
 
       sortCreated () {
-        if (this.sorted !== 'created') {
-          this.sorted = 'created'
-          this.reverse = 1
+        let newpayload = this.payloadFactory()
+        newpayload.sort.column = '&sort=dateCreated'
+        if (this.ordering === 'asc') {
+          this.ordering = 'desc'
+          newpayload.sort.order = '&order=desc'
+        } else {
+          this.ordering = 'asc'
+          newpayload.sort.order = '&order=asc'
         }
-        let t = this
-        this.components.sort(function (a, b) {
-          let lFirst = a.dateCreated.toLowerCase()
-          let lSecond = b.dateCreated.toLowerCase()
-          if (lFirst < lSecond) {
-            return -1 * t.reverse
-          }
-          if (lFirst > lSecond) {
-            return 1 * t.reverse
-          }
-          return 0
-        })
-        this.reverse *= -1
+        this.payload.sort = newpayload.sort
+        this.payload.links = newpayload.links
+        this.getMore(true)
       },
 
       sortEdited () {
-        if (this.sorted !== 'created') {
-          this.sorted = 'created'
-          this.reverse = 1
+        let newpayload = this.payloadFactory()
+        newpayload.sort.column = '&sort=lastEdited'
+        if (this.ordering === 'asc') {
+          this.ordering = 'desc'
+          newpayload.sort.order = '&order=desc'
+        } else {
+          this.ordering = 'asc'
+          newpayload.sort.order = '&order=asc'
         }
-        let t = this
-        this.components.sort(function (a, b) {
-          let lFirst = a.lastEdited.toLowerCase()
-          let lSecond = b.lastEdited.toLowerCase()
-          if (lFirst < lSecond) {
-            return -1 * t.reverse
-          }
-          if (lFirst > lSecond) {
-            return 1 * t.reverse
-          }
-          return 0
-        })
-        this.reverse *= -1
+        console.log(this.$baseAPI + 'components/pending/' + newpayload.links.next + newpayload.sort.column + newpayload.sort.order)
+        this.payload.sort = newpayload.sort
+        this.payload.links = newpayload.links
+        this.getMore(true)
       }
     }
   }

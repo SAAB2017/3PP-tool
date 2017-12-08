@@ -75,9 +75,9 @@
     data () {
       return {
         components: [],
-        searchComponents: null,
         component: null,
         componentVersion: null,
+        searchComponents: null,
         message: '',
         showPaginatorClick: true,
         searching: false,
@@ -159,7 +159,6 @@
           }
           )
       },
-
       getNextSearchQuery (replaceItemsList) {
         axios.get(this.$baseAPI + 'components/search/' + this.searchComponents + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
