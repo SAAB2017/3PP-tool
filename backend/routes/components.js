@@ -12,12 +12,12 @@ function handleSearchGetRequest (req, res, isPending) {
   let response = initPayload()
   const offset = parseInt(+req.query.offset) || 0
   const amount = parseInt(+req.query.amount) || 5
-  const pending = isPending ? 1 : 0
+  const approved = isPending ? 0 : 1
   let sorting = (req.query.sort === 'undefined') ? `componentName` : `${req.query.sort}`
   let ordering = (req.query.order === 'undefined') ? `asc` : `${req.query.order}`
   console.log(JSON.stringify(payloadcfg.setSorting(sorting, ordering)))
   response.sort = payloadcfg.setSorting(sorting, ordering)
-  getLinkData(req.db, offset, amount, response, `select count(*) as count from components where componentName LIKE '%${req.params.id}%' AND approved=${pending}`, (links) => {
+  getLinkData(req.db, offset, amount, response, `select count(*) as count from components where componentName LIKE '%${req.params.id}%' AND approved=${approved}`, (links) => {
     response.links = {
       prev: `?offset=${links.prev}&amount=${amount}`,
       current: `?offset=${links.current}&amount=${amount}`,
@@ -30,7 +30,7 @@ function handleSearchGetRequest (req, res, isPending) {
   })
   if (!response.errorflag) {
     // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
-    const query = `SELECT * FROM components where componentName LIKE '%${req.params.id}%' AND approved=${pending} order by ${sorting} ${ordering} LIMIT ${offset}, ${amount}`
+    const query = `SELECT * FROM components where componentName LIKE '%${req.params.id}%' AND approved=${approved} order by ${sorting} ${ordering} LIMIT ${offset}, ${amount}`
     console.log(query)
     req.db.all(query, (err, rows) => {
       if (err) {
@@ -77,7 +77,6 @@ function getLinkData (db, offset, amount, response, pageQuery, setLinksCB) {
   // FIXME: getTotal(req, response) doesn't work because of the async nature of calls to sqlite3
   // const pageCountQuery = (signed) ? `select count(*) as count from components where approved=1` : `select count(*) as count from components where approved=0`
   // console.log(pageCountQuery)
-  console.log("Trying to execute query: " + pageQuery)
   db.get(pageQuery, (err, row) => {
     if (err) {
       // console.log("ERROR: " + err.message)
@@ -126,15 +125,11 @@ function handleGetRequest (req, res, isSigned) {
   let response = initPayload()
   const offset = parseInt(+req.query.offset) || 0
   const amount = parseInt(+req.query.amount) || 5
-  const pending = (isSigned) ? 1 : 0
+  const approved = (isSigned) ? 0 : 1
   let sorting = (req.query.sort === 'undefined') ? `componentName` : `${req.query.sort}`
   let ordering = (req.query.order === 'undefined') ? `asc` : `${req.query.order}`
-  // exempel på route /components med query:
-  // /components/?offset=250&amount=25
-  // ?-tecknet berättar att det som kommer efter är query-strängen,
-  // dessa parametrar finns i req.query (req skickas med i .get((req...
 
-  getLinkData(req.db, offset, amount, response, `select count(*) as count from components where approved=${pending}`, (links) => {
+  getLinkData(req.db, offset, amount, response, `select count(*) as count from components where approved=${approved}`, (links) => {
     response.links = {
       prev: `?offset=${links.prev}&amount=${amount}`,
       current: `?offset=${links.current}&amount=${amount}`,
@@ -151,8 +146,8 @@ function handleGetRequest (req, res, isSigned) {
   }
   if (!response.errorflag) {
     // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
-    console.log("Pending: " + pending)
-    const query = `SELECT * FROM components where approved=${pending} order by ${sorting} ${ordering} LIMIT ${offset}, ${amount} `
+    console.log("Pending: " + approved)
+    const query = `SELECT * FROM components where approved=${approved} order by ${sorting} ${ordering} LIMIT ${offset}, ${amount} `
     req.db.all(query, (err, rows) => {
       if (err) {
         console.log(err)
@@ -172,13 +167,11 @@ function handleGetRequest (req, res, isSigned) {
 
 router.route('/')
   .get((req, res) => {
-    console.log("Trying to handle req")
     handleGetRequest(req, res, SIGNED)
   })
 
 router.route('/pending')
   .get((req, res) => {
-    console.log("Called /components/pending")
     handleGetRequest(req, res, NOTSIGNED)
   })
 

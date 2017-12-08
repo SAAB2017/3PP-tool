@@ -125,7 +125,7 @@
           this.searching = false
           this.showPaginatorClick = true
           this.components = []
-          this.getNext(false)
+          this.getNext(true)
           return
         }
         if ((this.searchComponents.length !== 0) && (this.searchComponents !== null) && (this.searchComponents !== '')) {
@@ -199,8 +199,13 @@
       sortName () {
         let newpayload = this.payloadFactory()
         newpayload.sort.column = '&sort=componentName'
-        newpayload.sort.order = (this.ordering === 'asc') ? (() =>{this.ordering = 'desc'; return '&order=desc'})() : (() => { this.ordering = 'asc'; return '&order=asc'})()
-        console.log(this.$baseAPI + 'components/' + newpayload.links.next + newpayload.sort.column + newpayload.sort.order)
+        if (this.ordering === 'asc') {
+          this.ordering = 'desc'
+          newpayload.sort.order = '&order=desc'
+        } else {
+          this.ordering = 'asc'
+          newpayload.sort.order = '&order=asc'
+        }
         this.payload.sort = newpayload.sort
         this.payload.links = newpayload.links
         this.getMore(true)
@@ -209,8 +214,13 @@
       sortVersion () {
         let newpayload = this.payloadFactory()
         newpayload.sort.column = '&sort=componentVersion'
-        newpayload.sort.order = (this.ordering === 'asc') ? (() =>{this.ordering = 'desc'; return '&order=desc'})() : (() => { this.ordering = 'asc'; return '&order=asc'})()
-        console.log(this.$baseAPI + 'components/' + newpayload.links.next + newpayload.sort.column + newpayload.sort.order)
+        if (this.ordering === 'asc') {
+          this.ordering = 'desc'
+          newpayload.sort.order = '&order=desc'
+        } else {
+          this.ordering = 'asc'
+          newpayload.sort.order = '&order=asc'
+        }
         this.payload.sort = newpayload.sort
         this.payload.links = newpayload.links
         this.getMore(true)
@@ -219,8 +229,13 @@
       sortCreated () {
         let newpayload = this.payloadFactory()
         newpayload.sort.column = '&sort=dateCreated'
-        newpayload.sort.order = (this.ordering === 'asc') ? (() =>{this.ordering = 'desc'; return '&order=desc'})() : (() => { this.ordering = 'asc'; return '&order=asc'})()
-        console.log(this.$baseAPI + 'components/' + newpayload.links.next + newpayload.sort.column + newpayload.sort.order)
+        if (this.ordering === 'asc') {
+          this.ordering = 'desc'
+          newpayload.sort.order = '&order=desc'
+        } else {
+          this.ordering = 'asc'
+          newpayload.sort.order = '&order=asc'
+        }
         this.payload.sort = newpayload.sort
         this.payload.links = newpayload.links
         this.getMore(true)
@@ -229,7 +244,14 @@
       sortEdited () {
         let newpayload = this.payloadFactory()
         newpayload.sort.column = '&sort=lastEdited'
-        newpayload.sort.order = (this.ordering === 'asc') ? (() =>{this.ordering = 'desc'; return '&order=desc'})() : (() => { this.ordering = 'asc'; return '&order=asc'})()
+        if (this.ordering === 'asc') {
+          this.ordering = 'desc'
+          newpayload.sort.order = '&order=desc'
+        } else {
+          this.ordering = 'asc'
+          newpayload.sort.order = '&order=asc'
+        }
+
         console.log(this.$baseAPI + 'components/' + newpayload.links.next + newpayload.sort.column + newpayload.sort.order)
         this.payload.sort = newpayload.sort
         this.payload.links = newpayload.links
