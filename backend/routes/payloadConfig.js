@@ -1,7 +1,7 @@
 const NOTSIGNED = false
 const SIGNED = true
 const ITEMTYPES = ['component', 'license', 'product', 'project']
-
+const DEFAULTPAYLOADSIZE = 25
 const Ord = ['asc', 'desc']
 
 function setSort (col, payload) {
@@ -20,13 +20,12 @@ function initPayload (type) {
     }
     throw Error
   }
-  console.log("WTF MOTFHERUC!=!!=!==!")
   return {
     items: [],
     links: {
-      prev: '',
-      current: `?offset=0&amount=${3}`,
-      next: `?offset=0&amount=${3}`
+      prev: `?offset=0&amount=${DEFAULTPAYLOADSIZE}`,
+      current: `?offset=0&amount=${DEFAULTPAYLOADSIZE}`,
+      next: `?offset=0&amount=${DEFAULTPAYLOADSIZE}`
     },
     sort: {
       column: `&sort=${type}Name`,

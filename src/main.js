@@ -3,13 +3,13 @@ import App from './App'
 import router from './router'
 import 'bulma/css/bulma.css'
 import 'font-awesome/css/font-awesome.css'
-let [initPayload, NOTSIGNED, SIGNED, setSort, setOrdering] = require('../backend/routes/payloadConfig')
+import payloadcfg from '../backend/routes/config'
 Vue.config.productionTip = false
 
 Vue.prototype.$baseAPI = 'http://localhost:3000/'
-Vue.prototype.$initPayload = initPayload
-Vue.prototype.$setSort = setSort
-Vue.prototype.$setOrder = setOrdering
+Vue.prototype.$initPayload = payloadcfg.newPayload
+Vue.prototype.$setSort = payloadcfg.setSort
+Vue.prototype.$setOrder = payloadcfg.setOrder
 
 let main = new Vue({
   el: '#app',

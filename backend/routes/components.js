@@ -1,40 +1,34 @@
-let [initPayload, NOTSIGNED, SIGNED] = require('./payloadConfig')
+let payloadcfg = require('./config')
 
-initPayload = initPayload.bind(null, 'component')
+let initPayload = payloadcfg.newPayload.bind(null, 'component')
+let NOTSIGNED = payloadcfg.NOTSIGNED
+let SIGNED = payloadcfg.SIGNED
+
 var express = require('express')
 var router = express.Router()
 
 function handleSearchGetRequest (req, res, isPending) {
   // precondition: parameter is wellformed
-  const columns = ['componentName', 'componentVersion', 'dateCreated', 'lastEdited']
-  const orderTypes = ['asc', 'desc']
-  console.log('Called /pending/search with id: ' + req.params.id)
   let response = initPayload()
   const offset = parseInt(+req.query.offset) || 0
   const amount = parseInt(+req.query.amount) || 5
   const pending = isPending ? 0 : 1
-  console.log("Approved:" + pending)
-  let sorting = (req.query.sort === 'undefined') ? `order by componentName` : `order by ${req.query.sort}`
+  let sorting = (req.query.sort === 'undefined') ? `componentName` : `${req.query.sort}`
   let ordering = (req.query.order === 'undefined') ? `asc` : `${req.query.order}`
-  getLinkData(req.db, offset, amount, response, `select count(*) as count from components where componentName LIKE '%${req.params.id}%' AND approved=${isPending}`, (links) => {
+  getLinkData(req.db, offset, amount, response, `select count(*) as count from components where componentName LIKE '%${req.params.id}%' AND approved=${pending}`, (links) => {
     response.links = {
       prev: `?offset=${links.prev}&amount=${amount}`,
       current: `?offset=${links.current}&amount=${amount}`,
       next: `?offset=${links.next}&amount=${amount}`
     }
     for (let uri in response.links) {
-      const link = `${response.links[uri]}${req.query.sort}&order=${ordering}`
-      // response.links[uri] += `&sort=${req.query.sort}&order=${ordering}`
-      console.log("Link: " + link)
+      const link = `${response.links[uri]}&sort=${sorting}&order=${ordering}`
       response.links[uri] = link
-    }
-    for (let a in response.links) {
-      console.log(`Payload context data: ${a}:` + response.links[a])
     }
   })
   if (!response.errorflag) {
     // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
-    const query = `SELECT * FROM components where componentName LIKE '%${req.params.id}%' AND approved=${pending} ${sorting} ${ordering} LIMIT ${offset}, ${amount} `
+    const query = `SELECT * FROM components where componentName LIKE '%${req.params.id}%' AND approved=${pending} order by ${sorting} ${ordering} LIMIT ${offset}, ${amount}`
     console.log(query)
     req.db.all(query, (err, rows) => {
       if (err) {
