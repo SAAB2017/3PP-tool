@@ -1,3 +1,5 @@
+
+
 let payloadcfg = require('./config')
 
 let initPayload = payloadcfg.payloadInit.bind(null, 'component')
@@ -12,7 +14,7 @@ function handleSearchGetRequest (req, res, isPending) {
   let response = initPayload()
   const offset = parseInt(+req.query.offset) || 0
   const amount = parseInt(+req.query.amount) || 5
-  const approved = isPending ? 0 : 1
+  const approved = isPending ? 1 : 0
   let sorting = (req.query.sort === 'undefined') ? `componentName` : `${req.query.sort}`
   let ordering = (req.query.order === 'undefined') ? `asc` : `${req.query.order}`
   console.log(JSON.stringify(payloadcfg.setSorting(sorting, ordering)))
@@ -56,10 +58,12 @@ function handleSearchGetRequest (req, res, isPending) {
 // ===========================
 router.route('/search/:id')
   .get((req, res) => {
+    console.log('Calling search for components')
     handleSearchGetRequest(req, res, SIGNED)
   })
 
 router.route('/pending/search/:id').get((req, res) => {
+  console.log("Calling pending search for components")
   handleSearchGetRequest(req, res, NOTSIGNED)
 })
 // ----------------------------------------------------------------------------
@@ -167,11 +171,13 @@ function handleGetRequest (req, res, isSigned) {
 
 router.route('/')
   .get((req, res) => {
+    console.log("\x1b[mCalling signed function")
     handleGetRequest(req, res, SIGNED)
   })
 
 router.route('/pending')
   .get((req, res) => {
+    console.log("\x1b[93;41m Calling pending function")
     handleGetRequest(req, res, NOTSIGNED)
   })
 
@@ -424,7 +430,7 @@ router.route('/log/:id')
   // postcondition: the log entries of the component
 })
 
-// ----------------------------------------------------------------------------
+// ---------------------u-------------------------------------------------------
 //  Methods for /components/search/:id
 // ---------------------------------------------------------------------------_
 

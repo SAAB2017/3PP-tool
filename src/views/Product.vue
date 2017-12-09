@@ -300,6 +300,7 @@
        * Fetch all licenses that is in this product
        */
       fetchLicenses () {
+        console.log(this.$baseAPI + 'licenses/licensesInProduct/' + this.$route.params.id)
         axios.get(this.$baseAPI + 'licenses/licensesInProduct/' + this.$route.params.id).then(response => {
           this.licenses = response.data
         })

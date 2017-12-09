@@ -78,9 +78,9 @@
       payloadFactory: payloadcfg.payloadInit.bind(null, 'product'),
       getMore (uri, replaceItemsList) {
         if (this.searching === false) {
-          this.getNext(uri, replaceItemsList)
+          this.getNext('products/pending/', replaceItemsList)
         } else {
-          this.getNextSearchQuery(uri, replaceItemsList)
+          this.getNextSearchQuery('products/pending/', replaceItemsList)
         }
       },
       getNext (uri, replaceItemsList) {
@@ -93,6 +93,7 @@
           })
       },
       getNextSearchQuery (uri, replaceItemsList) {
+        console.log(this.$baseAPI + uri + 'search/' + this.searchProducts + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
         axios.get(this.$baseAPI + uri + 'search/' + this.searchProducts + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data

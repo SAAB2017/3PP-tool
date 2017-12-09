@@ -2,11 +2,11 @@
 <template>
   <div class="component-list">
     <!-- Fields for adding name and version to the component -->
-    <zdiv class="field">
+    <div class="field">
       <p class="control">
         <input v-model="componentName" class="input" type="text" placeholder="Name">
       </p>
-    </zdiv>
+    </div>
     <div class="field">
       <p class="control">
         <input v-model="componentVersion" class="input" type="text" placeholder="Version">
@@ -127,7 +127,7 @@
         } else {
           this.getNextSearchQuery(replaceItemsList)
         }
-      },
+       },
       getNextLicenses (replaceItemList) {
         axios.get(this.$baseAPI + 'licenses/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {

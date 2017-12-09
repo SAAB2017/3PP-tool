@@ -463,7 +463,7 @@ router.route('/product/:id')
 
   .get((req, res) => {
     let input = req.params.id
-    const query = `SELECT * FROM products WHERE id=${input}`
+    const query = `SELECT * FROM products WHERE productName=${input}`
     req.db.get(query, (err, row) => {
       if (err) {
         console.log(err)

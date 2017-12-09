@@ -1,15 +1,26 @@
-<!-- View for showing all unsigned components -->
+s<!-- Viezx w for showing all unsigned components -->
+s<!-- Viezx w for showing all unsigned components -->
 <template>
   <div class="components-list">
 
     <div id="message-text">
       <p class="help is-success subtitle is-6" style="text-align: center; padding-bottom: 15px">{{ message }}</p>
-    </div>
 
+
+
+
+
+
+
+
+
+
+
+    </div>
     <div id="top-div-child" class="columns is-mobile is-centered">
       <div id="top-search" class="field has-addons">
         <div class="control">
-          <input v-on:keyup="searchComponent()" v-model="searchComponents" class="input" type="text" placeholder="Find a component">
+          <input v-on:keyup="searchComponent()" v-model="searchSignComponents" class="input" type="text" placeholder="Find a component">
         </div>
         <div class="control">
           <button @click="searchComponent()" class="button is-primary">Search</button>
@@ -32,6 +43,7 @@
         <tbody>
         <transition-group name="list" appear>
           <tr v-for="component in components" @click="displayComponent(component)" v-bind:key="component" class="list-item">
+            <td scope="row" data-label="id">{{ component.id }}</td>
             <td scope="row" data-label="Component">{{ component.componentName }}</td>
             <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
             <td scope="row" data-label="Created">{{ component.dateCreated }}</td>
@@ -59,7 +71,7 @@
         components: [],
         component: null,
         componentVersion: null,
-        searchComponents: null,
+        searchSignComponents: null,
         sorted: '',
         showPaginatorClick: true,
         searching: false,
@@ -99,15 +111,15 @@
         this.payload = this.payloadFactory()
         this.payload.sort = sort
         this.showPaginatorClick = true
-        if (this.searchComponents.length === 0) {
+        if (this.searchSignComponents.length === 0) {
           this.searching = false
           this.showPaginatorClick = true
           this.components = []
           this.getNext(true)
           return
         }
-        if ((this.searchComponents.length !== 0) && (this.searchComponents !== null) && (this.searchComponents !== '')) {
-          const path = `components/pending/search/${this.searchComponents}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
+        if ((this.searchSignComponents.length !== 0) && (this.searchSignComponents !== null) && (this.searchSignComponents !== '')) {
+          const path = `components/pending/search/${this.searchSignComponents}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
           console.log(path)
           axios.get(this.$baseAPI + path).then(response => {
             console.log(response.data)
@@ -130,7 +142,7 @@
           })
       },
       getNextSearchQuery (replaceItemsList) {
-        axios.get(this.$baseAPI + 'components/pending/search/' + this.searchComponents + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+        axios.get(this.$baseAPI + 'components/pending/search/' + this.searchSignComponents + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
             replaceItemsList ? this.components = [...this.payload.items] : this.components = [...this.components, ...this.payload.items]

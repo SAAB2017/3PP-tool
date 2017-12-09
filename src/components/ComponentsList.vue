@@ -48,7 +48,8 @@
         </thead>
         <tbody>
         <transition-group name="list" appear>
-          <tr v-for="component in components" @click="displayComponent(component)" v-bind:key="component" class="list-item">
+          <tr v-for="(component, index) in components" @click="displayComponent(component)" v-bind:key="component" class="list-item">
+            <td scope="row" data-label="Index">idx: {{ index }} id: {{ component.id}} </td>
             <td scope="row" data-label="Component">{{ component.componentName }}</td>
             <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
             <td scope="row" data-label="Created">{{ component.dateCreated }}</td>
@@ -160,7 +161,7 @@
           )
       },
       getNextSearchQuery (replaceItemsList) {
-        axios.get(this.$baseAPI + 'components/search/' + this.searchComponents + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+        axios.get(this.$baseAPI + 'components/search/' + this.searchComponents + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
             replaceItemsList ? this.components = [...this.payload.items] : this.components = [...this.components, ...this.payload.items]
