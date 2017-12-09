@@ -73,6 +73,7 @@
         componentVersion: '',
         componentComment: '',
         searchLicense: '',
+        searching: false,
         showPaginatorClick: true,
         payload: this.payloadFactory()
       }
@@ -80,6 +81,7 @@
     /* Fetches liceses from the database and puts them in licenses */
     mounted () {
       this.payload = this.payloadFactory()
+      console.log(JSON.stringify(this.payload))
       this.getNextLicenses(true)
     },
 

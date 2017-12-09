@@ -6,10 +6,10 @@
     /* .component-fade-leave-active below version 2.1.8 */ {
     opacity: 0;
   }
-  .license-list-enter-active, .license-list-leave-active {
+  .list-enter-active, .list-leave-active {
     transition: all 0.7s;
   }
-  .license-list-enter, .license-list-leave-to /* .list-leave-active below version 2.1.8 */ {
+  .list-enter, .list-leave-to /* .list-leave-active below version 2.1.8 */ {
     opacity: 0;
   }
 </style>
@@ -42,20 +42,18 @@
         </tr>
       </thead>
       <tbody>
-      <transition-group name="license-list" appear>
-        <tr v-for="license in licenses" @click="displayComponent(license)" v-bind:key="license" class="license-list-item">
+      <transition-group name="list" appear>
+        <tr v-for="license in licenses" @click="displayComponent(license)" v-bind:key="license" class="list-item">
           <td scope="row" data-label="License">{{ license.licenseName }}</td>
           <td scope="row" data-label="Version">{{ license.licenseVersion }}</td>
           <td scope="row" data-label="Created">{{ license.dateCreated }}</td>
           <td scope="row" data-label="Last edited">{{ license.lastEdited }}</td>
         </tr>
-        <tr v-if="showPaginatorClick">
-          <div id="paginator" style="text-align: center;" @click="getMore(false)"><a class="button is-primary">Hämta in fler</a></div>
-        </tr>
       </transition-group>
-
-
-        </tbody>
+      <tr v-if="showPaginatorClick">
+        <div id="paginator" style="text-align: center;" @click="getMore(false)"><a class="button is-primary">Hämta in fler</a></div>
+      </tr>
+      </tbody>
       </table>
     </div>
 
@@ -138,7 +136,7 @@
         this.payload = this.payloadFactory()
         this.payload.sort = sort
         this.showPaginatorClick = true
-        if (this.searchComponents.length === 0) {
+        if (this.searchLicenses.length === 0) {
           this.searching = false
           this.showPaginatorClick = true
           this.licenses = []
