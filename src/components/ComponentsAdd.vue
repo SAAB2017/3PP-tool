@@ -2,11 +2,11 @@
 <template>
   <div class="component-list">
     <!-- Fields for adding name and version to the component -->
-    <div class="field">
+    <zdiv class="field">
       <p class="control">
         <input v-model="componentName" class="input" type="text" placeholder="Name">
       </p>
-    </div>
+    </zdiv>
     <div class="field">
       <p class="control">
         <input v-model="componentVersion" class="input" type="text" placeholder="Version">

@@ -256,47 +256,6 @@ function getCorrectApproved (input) {
   return approved
 }
 
-
-// ----------------------------------------------------------------------------
-//  Methods for /components/pending
-// ----------------------------------------------------------------------------
-/*
-router.route('/pending')
-  .get((req, res) => {
-    let response = initPayload()
-    let offset = parseInt(+req.query.offset) || 0
-    let amount = parseInt(+req.query.amount) || response.links.getDefaultAmount()
-
-    // exempel på route /components med query:
-    // /components/?offset=250&amount=25
-    // ?-tecknet berättar att det som kommer efter är query-strängen,
-    // dessa parametrar finns i req.query (req skickas med i .get((req...
-    getLinkData(req.db, offset, amount, response, `select count(*) as count from components where approved=0`, (links) => {
-      response.links = {
-        prev: `?offset=${links.prev}&amount=${amount}`,
-        current: `?offset=${links.current}&amount=${amount}`,
-        next: `?offset=${links.next}&amount=${amount}`
-      }
-    })
-    if (!response.errorflag) {
-      // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
-      const query = `SELECT * FROM components where approved=0 LIMIT ${offset}, ${amount}`
-      req.db.all(query, (err, rows) => {
-        if (err) {
-          response.errors.message = [...err]
-          response.errors.status = 'ERROR'
-          response.errors.errorflag = true
-          res.json(response)
-        } else {
-          response.items = rows
-          response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
-          res.json(response)
-        }
-      })
-    }
-  })
-*/
-
 // ----------------------------------------------------------------------------
 //  Methods for /components/approve
 // ----------------------------------------------------------------------------

@@ -29,7 +29,9 @@
         <td scope="row" data-label="Component">{{ component.componentName }}</td>
         <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
       </tr>
-
+      <tr v-if="showPaginatorClick">
+        <div id="paginator" style="text-align: center;" @click="getMore(false)"><a class="button is-primary">Hämta in fler</a></div>
+      </tr>
       </tbody>
     </table>
     <!-- Field for searching for components. Uses "searchComponent"-method for searching -->
@@ -59,7 +61,7 @@
 
 <script>
   import axios from 'axios'
-
+  import payloadcfg from '../../backend/routes/config'
   export default {
 
     data () {
@@ -69,23 +71,27 @@
         productName: '',
         productVersion: '',
         productComment: '',
-        searchComponents: ''
+        searchComponents: '',
+        showPaginatorClick: true,
+        searching: false,
+        payload: this.payloadFactory()
       }
     },
     /* Fetches liceses from the database and puts them in components */
     mounted () {
-      this.getAllComponents()
+      this.getNext(false)
     },
 
     methods: {
       /**
        * Add a product to the database according to the fields in the view
        */
+      payloadFactory: payloadcfg.payloadInit.bind(null, 'component'),
       addProduct () {
         let data = {
           productName: this.productName,
           productVersion: this.productVersion,
-          comment: this.productComment,
+          comment: this.productCommeznt,
           components: this.checkedComponents
         }
 
@@ -103,32 +109,67 @@
           })
         this.$router.go()
       },
-
-      getAllComponents () {
-        axios.get(this.$baseAPI + 'components')
-          .then(response => {
-            this.components = response.data
-          })
+      // GET METHODS
+      getMore (replaceItemsList) {
+        if (this.searching === false) {
+          this.getNext(replaceItemsList)
+        } else {
+          console.log('Searching query in textbox')
+          this.getNextSearchQuery(replaceItemsList)
+        }
       },
-
+      getNext (replaceItemsList) {
+        axios.get(this.$baseAPI + 'components/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+          .then(response => {
+            this.payload = response.data
+            replaceItemsList ? this.components = [...this.payload.items] : this.components = [...this.components, ...this.payload.items]
+            this.components.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
+          }).catch(err => console.log(err))
+      },
+      getNextSearchQuery (replaceItemsList) {
+        if (this.components.length < this.payload.meta.count) {
+          axios.get(this.$baseAPI + 'components/search/' + this.searchComponents + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+            .then(response => {
+              this.payload = response.data
+              replaceItemsList ? this.components = [...this.payload.items] : this.components = [...this.components, ...this.payload.items]
+              if (this.components.length === this.payload.meta.count) {
+                this.showPaginatorClick = null
+              } else {
+                this.showPaginatorClick = true
+              }
+            }).catch(err => console.log(err))
+        } else {
+          this.showPaginatorClick = null
+        }
+      },
       /**
        * Searches for liceses from the database matching the search-criteria
        */
       searchComponent () {
+        this.searching = true
+        let sort = this.payload.sort
+        this.payload = this.payloadFactory()
+        this.payload.sort = sort
+        this.showPaginatorClick = true
         if (this.searchComponents.length === 0) {
-          this.getAllComponents()
+          this.searching = false
+          this.showPaginatorClick = true
+          this.components = []
+          this.getNext(true)
           return
         }
-        if (this.searchComponents !== 0 || this.searchComponents !== null || this.searchComponents !== '') {
-          axios.get(this.$baseAPI + 'components/search/' + this.searchComponents).then(response => {
+        if ((this.searchComponents.length !== 0) && (this.searchComponents !== null) && (this.searchComponents !== '')) {
+          const path = `components/search/${this.searchComponents}/${this.payload.links.next}${this.payload.sort.column}${this.payload.sort.order}`
+          console.log(path)
+          axios.get(this.$baseAPI + path).then(response => {
+            console.log(response.data)
             if (response.data != null) {
-              this.components = response.data
+              this.payload = response.data
+              this.components = [...this.payload.items]
             } else {
               this.message = 'No component found!'
             }
           })
-        } else {
-          this.getAllComponents()
         }
       }
     }
