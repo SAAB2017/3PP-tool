@@ -41,7 +41,7 @@ export default new Router({
       component: LicensesHome
     },
     {
-      path: '/licenses/:id(\\d+)',
+      path: '/licenses/license/:id(\\d+)',
       name: 'licenses_id',
       component: License
     },

@@ -281,13 +281,13 @@
     methods: {
       /**
        * Fetch all components that contains this license
-       */
+       */ // TODO: WORKS
       fetchComponents () {
         axios.get(this.$baseAPI + 'components/componentsWithLicense/' + this.$route.params.id).then(response => {
           this.components = response.data
         })
       },
-
+      // TODO:
       /**
        * Fetch all products that contains this license
        */
@@ -402,7 +402,7 @@
       },
 
       /**
-       * Shows this.message for some time then fades it away and removes it.
+D       * Shows this.message for some time then fades it away and removes it.
        */
       fade_out () {
         let msg = document.getElementById('p-message')

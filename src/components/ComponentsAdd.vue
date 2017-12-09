@@ -30,7 +30,7 @@
         <td scope="row" data-label="Version">{{ license.licenseVersion }}</td>
       </tr>
       <tr v-if="showPaginatorClick">
-        <div id="paginator" style="text-align: center;" @click="getMore()"><a class="button is-primary">Hämta in fler</a></div>
+        <div id="paginator" style="text-align: center;" @click="getMore(false)"><a class="button is-primary">Hämta in fler</a></div>
       </tr>
       </tbody>
     </table>
@@ -62,6 +62,7 @@
 <script>
   import axios from 'axios'
   import payloadcfg from '../../backend/routes/config'
+
   export default {
 
     data () {
@@ -72,15 +73,18 @@
         componentVersion: '',
         componentComment: '',
         searchLicense: '',
-        showPaginatorClick: true
+        showPaginatorClick: true,
+        payload: this.payloadFactory()
       }
     },
     /* Fetches liceses from the database and puts them in licenses */
     mounted () {
-      this.getAllLicenses()
+      this.payload = this.payloadFactory()
+      this.getNextLicenses(true)
     },
 
     methods: {
+      payloadFactory: payloadcfg.payloadInit.bind(null, 'license'),
       /**
        * Add a component to the database according to the fields in the view
        */
@@ -113,24 +117,65 @@
             this.licenses = response.data
           })
       },
+
+
+      getMore (replaceItemsList) {
+        if (this.searching === false) {
+          this.getNextLicenses(replaceItemsList)
+        } else {
+          this.getNextSearchQuery(replaceItemsList)
+        }
+      },
+      getNextLicenses (replaceItemList) {
+        axios.get(this.$baseAPI + 'licenses/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+          .then(response => {
+            this.payload = response.data
+            replaceItemList ? this.licenses = [...this.payload.items] : this.licenses = [...this.licenses, ...this.payload.items]
+            this.licenses.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
+          })
+      },
+      getNextSearchQuery (replaceItemsList) {
+        axios.get(this.$baseAPI + 'licenses/search/' + this.searchLicense + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+          .then(response => {
+            this.payload = response.data
+            replaceItemsList ? this.licenses = [...this.payload.items] : this.licenses = [...this.licenses, ...this.payload.items]
+            if (this.licenses.length === this.payload.meta.count) {
+              this.showPaginatorClick = null
+            } else {
+              this.showPaginatorClick = true
+            }
+          })
+      },
+
       /**
        * Searches for liceses from the database matching the search-criteria
        */
       searchLicenses () {
+        this.searching = true
+        // create a new payload frame, with the old context data (so that we know "where" to get the next 25, 50 etc
+        let sort = this.payload.sort
+        this.payload = this.payloadFactory()
+        this.payload.sort = sort
+        this.showPaginatorClick = true
         if (this.searchLicense.length === 0) {
-          this.getAllLicenses()
+          this.searching = false
+          this.showPaginatorClick = true
+          this.licenses = []
+          this.getNextLicenses(true)
           return
         }
-        if (this.searchLicense !== 0 || this.searchLicense !== null || this.searchLicense !== '') {
-          axios.get(this.$baseAPI + 'licenses/search/' + this.searchLicense).then(response => {
-            if (response.data !== null) {
-              this.licenses = response.data
+        if ((this.searchLicense.length !== 0) && (this.searchLicense !== null) && (this.searchLicense !== '')) {
+          const path = `licenses/search/${this.searchLicense}/${this.payload.links.next}${this.payload.sort.column}${this.payload.sort.order}`
+          console.log(path)
+          axios.get(this.$baseAPI + path).then(response => {
+            console.log(response.data)
+            if (response.data != null) {
+              this.payload = response.data
+              this.licenses = [...this.payload.items]
             } else {
               this.message = 'No component found!'
             }
           })
-        } else {
-          this.getAllLicenses()
         }
       }
     }

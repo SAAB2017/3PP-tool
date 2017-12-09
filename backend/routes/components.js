@@ -125,7 +125,7 @@ function handleGetRequest (req, res, isSigned) {
   let response = initPayload()
   const offset = parseInt(+req.query.offset) || 0
   const amount = parseInt(+req.query.amount) || 5
-  const approved = (isSigned) ? 0 : 1
+  const approved = (isSigned) ? 1 : 0
   let sorting = (req.query.sort === 'undefined') ? `componentName` : `${req.query.sort}`
   let ordering = (req.query.order === 'undefined') ? `asc` : `${req.query.order}`
 
@@ -720,10 +720,9 @@ function setComponentLog (req, res, input, old, callback) {
 }
 
 // ----------------------------------------------------------------------------
-//  Methods for /components/component/:id
+//  Methods for /components/component/:ids
 // ----------------------------------------------------------------------------
 router.route('/component/:id')
-
 // In order to search; send in a JSON object with the applicable parameters.
   .get((req, res) => {
     let input = req.params.id

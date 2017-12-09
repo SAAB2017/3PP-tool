@@ -1,6 +1,6 @@
 const ITEMTYPES = ['component', 'license', 'product', 'project']
 const ord = ['asc', 'desc']
-const DEFAULTPAYLOADSIZE = 25
+const DEFAULTPAYLOADSIZE = 5
 
 module.exports = {
   payloadInit: (type) => {
