@@ -1,5 +1,3 @@
-
-
 let payloadcfg = require('./config')
 
 let initPayload = payloadcfg.payloadInit.bind(null, 'component')

@@ -43,7 +43,6 @@ s<!-- Viezx w for showing all unsigned components -->
         <tbody>
         <transition-group name="list" appear>
           <tr v-for="component in components" @click="displayComponent(component)" v-bind:key="component" class="list-item">
-            <td scope="row" data-label="id">{{ component.id }}</td>
             <td scope="row" data-label="Component">{{ component.componentName }}</td>
             <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
             <td scope="row" data-label="Created">{{ component.dateCreated }}</td>
