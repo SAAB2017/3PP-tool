@@ -29,6 +29,7 @@
         <td scope="row" data-label="Component">{{ component.componentName }}</td>
         <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
       </tr>
+
       </tbody>
     </table>
     <!-- Field for searching for components. Uses "searchComponent"-method for searching -->

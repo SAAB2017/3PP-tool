@@ -36,13 +36,13 @@ module.exports = {
   setOrder: (order) => {
     return `&order=${order}`
   },
-  setSort: (sortBy)  => {
+  setSort: (sortBy) => {
     for (let column of ITEMTYPES) {
       if (sortBy === column) {
         return `&sort=${sortBy}`
       }
     }
-    console.log("Warning: wrong name for column")
+    console.log('Warning: wrong name for column')
     return '&sort=componentName'
   },
   setSorting: (sortBy, order) => {
@@ -60,6 +60,39 @@ module.exports = {
     }
     return links
   },
-  NOTSIGNED : false,
+  /*    // TODO: make these functions global, then bind context to them
+  getMore: (uri, replaceItemsList) => {
+    console.log('HELLO BOUND UNIVERSE! A')
+    if (this.searching === false) {
+      this.getNext(uri, replaceItemsList)
+    } else {
+      this.getNextSearchQuery(uri, replaceItemsList)
+    }
+  },
+  getNext: (uri, replaceItemsList) => {
+    console.log('HELLO BOUND UNIVERSE! B')
+    console.log(this.$baseAPI)
+    console.log(this.$baseAPI + uri + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+    axios.get(this.$baseAPI + uri + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+      .then(response => {
+        this.payload = response.data
+        replaceItemsList ? this.products = [...this.payload.items] : this.products = [...this.products, ...this.payload.items]
+        this.products.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
+      })
+  },
+  getNextSearchQuery: (uri, replaceItemsList) => {
+    console.log('HELLO BOUND UNIVERSE! C')
+    axios.get(this.$baseAPI + uri + 'search/' + this.searchProducts + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+      .then(response => {
+        this.payload = response.data
+        replaceItemsList ? this.products = [...this.payload.items] : this.products = [...this.products, ...this.payload.items]
+        if (this.products.length === this.payload.meta.count) {
+          this.showPaginatorClick = null
+        } else {
+          this.showPaginatorClick = true
+        }
+      })
+  },*/
+  NOTSIGNED: false,
   SIGNED: true
 }

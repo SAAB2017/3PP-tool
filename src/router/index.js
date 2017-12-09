@@ -81,7 +81,7 @@ export default new Router({
       component: ProductsHome
     },
     {
-      path: '/products/:id(\\d+)',
+      path: '/products/product/:id(\\d+)',
       name: 'products_id',
       component: Product
     },

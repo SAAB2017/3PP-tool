@@ -1,3 +1,19 @@
+<style>
+  .component-fade-enter-active, .component-fade-leave-active {
+    transition: opacity .4s ease;
+  }
+  .component-fade-enter, .component-fade-leave-to
+    /* .component-fade-leave-active below version 2.1.8 */ {
+    opacity: 0;
+  }
+  .plist-enter-active, .plist-leave-active {
+    transition: all 0.7s;
+  }
+  .plist-enter, .plist-leave-to /* .list-leave-active below version 2.1.8 */ {
+    opacity: 0;
+  }
+</style>
+
 <!-- View for showing all signed products -->
 <template>
   <div class="products-list">
@@ -30,11 +46,18 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="product in products" @click="displayComponent(product)">
+
+        <transition-group name="plist2" appear>
+        <tr v-for="product in products" @click="displayComponent(product)" v-bind:key="product" class="plist-item">
           <td scope="row" data-label="Product">{{ product.productName }}</td>
           <td scope="row" data-label="Version">{{ product.productVersion }}</td>
           <td scope="row" data-label="Created">{{ product.dateCreated }}</td>
           <td scope="row" data-label="Last edited">{{ product.lastEdited }}</td>
+        </tr>
+        </transition-group>
+
+        <tr v-if="showPaginatorClick">
+          <div id="paginator" style="text-align: center;" @click="getMore()"><a class="button is-primary">Hämta in fler</a></div>
         </tr>
         </tbody>
       </table>
@@ -45,17 +68,20 @@
 
 <script>
   import axios from 'axios'
+  import payloadcfg from '../../backend/routes/config'
 
   export default {
     data () {
       return {
         products: [],
-        searchProducts: null,
         product: null,
         productVersion: null,
+        searchProducts: null,
+        searching: false,
         message: '',
         sorted: '',
-        reverse: 1
+        showPaginatorClick: true,
+        payload: this.payloadFactory()
       }
     },
 
@@ -67,30 +93,46 @@
         this.$route.params.type = ''
         console.log(this.message)
       }
-      this.getAllProducts()
+      this.payload = this.payloadFactory()
+      console.log(JSON.stringify(this.payload))
+      this.getNext = this.getNext.bind(this, 'products/')
+      this.getMore = this.getMore.bind(this, 'products/')
+      this.getNextSearchQuery = this.getNextSearchQuery.bind(this, 'products/')
+      this.getNext(true)
       this.fade_out()
     },
 
     methods: {
+      payloadFactory: payloadcfg.payloadInit.bind(null, 'product'),
       /**
        * Searches for signed products from the database matching the search-criteria
        */
       searchProduct () {
+        this.searching = true
+        let sort = this.payload.sort
+        this.payload = this.payloadFactory()
+        this.payload.sort = sort
+        this.showPaginatorClick = true
         if (this.searchProducts.length === 0) {
-          this.getAllProducts()
+          this.searching = false
+          this.showPaginatorClick = true
+          this.products = []
+          this.getNext(true)
           return
         }
-        if (this.searchProducts !== 0 || this.searchProducts !== null || this.searchProducts !== '') {
-          axios.get(this.$baseAPI + 'products/search/' + this.searchProducts).then(response => {
+        if ((this.searchProducts.length !== 0) && (this.searchProducts !== null) && (this.searchProducts !== '')) {
+          const path = `products/search/${this.searchProducts}/${this.payload.links.next}${this.payload.sort.column}${this.payload.sort.order}`
+          axios.get(this.$baseAPI + path).then(response => {
             console.log(response.data)
             if (response.data != null) {
-              this.products = response.data
+              this.payload = response.data
+              console.log(JSON.stringify(response.data))
+              this.products = [...this.payload.items]
             } else {
-              this.message = 'No product found!'
+              console.log('Moterfucaasdd')
+              this.message = 'No component found!'
             }
           })
-        } else {
-          this.getAllProducts()
         }
       },
 
@@ -109,6 +151,36 @@
         axios.get(this.$baseAPI + 'products/')
           .then(response => {
             this.products = response.data
+          })
+      },
+
+      // GET METHODS
+      getMore (uri, replaceItemsList) {
+        if (this.searching === false) {
+          this.getNext(uri, replaceItemsList)
+        } else {
+          this.getNextSearchQuery(uri, replaceItemsList)
+        }
+      },
+      getNext (uri, replaceItemsList) {
+        console.log(this.$baseAPI + uri + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+        axios.get(this.$baseAPI + uri + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+          .then(response => {
+            this.payload = response.data
+            replaceItemsList ? this.products = [...this.payload.items] : this.products = [...this.products, ...this.payload.items]
+            this.products.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
+          })
+      },
+      getNextSearchQuery (uri, replaceItemsList) {
+        axios.get(this.$baseAPI + uri + 'search/' + this.searchProducts + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+          .then(response => {
+            this.payload = response.data
+            replaceItemsList ? this.products = [...this.payload.items] : this.products = [...this.products, ...this.payload.items]
+            if (this.products.length === this.payload.meta.count) {
+              this.showPaginatorClick = null
+            } else {
+              this.showPaginatorClick = true
+            }
           })
       },
 
@@ -136,83 +208,60 @@
       },
 
       sortName () {
-        if (this.sorted !== 'name') {
-          this.sorted = 'name'
-          this.reverse = 1
+        let newpayload = this.payloadFactory()
+        newpayload.sort.column = '&sort=productName'
+        if (this.ordering === 'asc') {
+          this.ordering = 'desc'
+          newpayload.sort.order = '&order=desc'
+        } else {
+          this.ordering = 'asc'
+          newpayload.sort.order = '&order=asc'
         }
-        let t = this
-        this.products.sort(function (a, b) {
-          let lFirst = a.productName.toLowerCase()
-          let lSecond = b.productName.toLowerCase()
-          if (lFirst < lSecond) {
-            return -1 * t.reverse
-          }
-          if (lFirst > lSecond) {
-            return 1 * t.reverse
-          }
-          return 0
-        })
-        this.reverse *= -1
+        this.payload.sort = newpayload.sort
+        this.payload.links = newpayload.links
+        this.getMore(true)
       },
-
       sortVersion () {
-        if (this.sorted !== 'version') {
-          this.sorted = 'version'
-          this.reverse = 1
+        let newpayload = this.payloadFactory()
+        newpayload.sort.column = '&sort=productVersion'
+        if (this.ordering === 'asc') {
+          this.ordering = 'desc'
+          newpayload.sort.order = '&order=desc'
+        } else {
+          this.ordering = 'asc'
+          newpayload.sort.order = '&order=asc'
         }
-        let t = this
-        this.products.sort(function (a, b) {
-          let lFirst = a.productVersion.toLowerCase()
-          let lSecond = b.productVersion.toLowerCase()
-          if (lFirst < lSecond) {
-            return -1 * t.reverse
-          }
-          if (lFirst > lSecond) {
-            return 1 * t.reverse
-          }
-          return 0
-        })
-        this.reverse *= -1
+        this.payload.sort = newpayload.sort
+        this.payload.links = newpayload.links
+        this.getMore(true)
       },
-
       sortCreated () {
-        if (this.sorted !== 'created') {
-          this.sorted = 'created'
-          this.reverse = 1
+        let newpayload = this.payloadFactory()
+        newpayload.sort.column = '&sort=dateCreated'
+        if (this.ordering === 'asc') {
+          this.ordering = 'desc'
+          newpayload.sort.order = '&order=desc'
+        } else {
+          this.ordering = 'asc'
+          newpayload.sort.order = '&order=asc'
         }
-        let t = this
-        this.products.sort(function (a, b) {
-          let lFirst = a.dateCreated.toLowerCase()
-          let lSecond = b.dateCreated.toLowerCase()
-          if (lFirst < lSecond) {
-            return -1 * t.reverse
-          }
-          if (lFirst > lSecond) {
-            return 1 * t.reverse
-          }
-          return 0
-        })
-        this.reverse *= -1
+        this.payload.sort = newpayload.sort
+        this.payload.links = newpayload.links
+        this.getMore(true)
       },
-
       sortEdited () {
-        if (this.sorted !== 'created') {
-          this.sorted = 'created'
-          this.reverse = 1
+        let newpayload = this.payloadFactory()
+        newpayload.sort.column = '&sort=lastEdited'
+        if (this.ordering === 'asc') {
+          this.ordering = 'desc'
+          newpayload.sort.order = '&order=desc'
+        } else {
+          this.ordering = 'asc'
+          newpayload.sort.order = '&order=asc'
         }
-        let t = this
-        this.products.sort(function (a, b) {
-          let lFirst = a.lastEdited.toLowerCase()
-          let lSecond = b.lastEdited.toLowerCase()
-          if (lFirst < lSecond) {
-            return -1 * t.reverse
-          }
-          if (lFirst > lSecond) {
-            return 1 * t.reverse
-          }
-          return 0
-        })
-        this.reverse *= -1
+        this.payload.sort = newpayload.sort
+        this.payload.links = newpayload.links
+        this.getMore(true)
       }
     }
   }

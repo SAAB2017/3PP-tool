@@ -285,7 +285,7 @@
      * then fetch licenses, components and projects
      */
     mounted () {
-      axios.get(this.$baseAPI + 'products/' + this.$route.params.id)
+      axios.get(this.$baseAPI + 'products/product/' + this.$route.params.id)
         .then(response => {
           this.product = response.data
           this.origComment = this.product.comment

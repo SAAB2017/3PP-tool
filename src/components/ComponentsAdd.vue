@@ -29,6 +29,9 @@
         <td scope="row" data-label="License">{{ license.licenseName }}</td>
         <td scope="row" data-label="Version">{{ license.licenseVersion }}</td>
       </tr>
+      <tr v-if="showPaginatorClick">
+        <div id="paginator" style="text-align: center;" @click="getMore()"><a class="button is-primary">Hämta in fler</a></div>
+      </tr>
       </tbody>
     </table>
     <!-- Field for searching for licenses. Uses "searchLicense"-method for searching -->
@@ -58,7 +61,7 @@
 
 <script>
   import axios from 'axios'
-
+  import payloadcfg from '../../backend/routes/config'
   export default {
 
     data () {
@@ -68,7 +71,8 @@
         componentName: '',
         componentVersion: '',
         componentComment: '',
-        searchLicense: ''
+        searchLicense: '',
+        showPaginatorClick: true
       }
     },
     /* Fetches liceses from the database and puts them in licenses */
@@ -94,7 +98,7 @@
               this.componentName = null
               this.componentVersion = null
               this.componentComment = null
-              axios.get(this.$baseAPI + 'components')
+              axios.get(this.$baseAPI + 'components ')
                 .then(response => {
                   this.components = response.data
                 })

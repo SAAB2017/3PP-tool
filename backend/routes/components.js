@@ -592,6 +592,7 @@ function updateComponent (req, res, componentName, componentVersion, id, paramet
   })
 }
 
+
 // insert a license into a component
 function insertLicenseIntoComponent (req, res, licenseID, componentID, callback) {
   // Insert the license as a license of the component

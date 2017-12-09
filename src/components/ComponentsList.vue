@@ -57,7 +57,7 @@
         </transition-group>
 
         <tr v-if="showPaginatorClick">
-          <div id="paginator" style="text-align: center;" @click="getMore()"><a class="button is-primary">Hämta in fler</a></div>
+          <div id="paginator" style="text-align: center;" @click="getMore(false)"><a class="button is-primary">Hämta in fler</a></div>
         </tr>
 
 
@@ -209,7 +209,6 @@
         this.payload.links = newpayload.links
         this.getMore(true)
       },
-
       sortVersion () {
         let newpayload = this.payloadFactory()
         newpayload.sort.column = '&sort=componentVersion'
@@ -224,7 +223,6 @@
         this.payload.links = newpayload.links
         this.getMore(true)
       },
-
       sortCreated () {
         let newpayload = this.payloadFactory()
         newpayload.sort.column = '&sort=dateCreated'
@@ -239,7 +237,6 @@
         this.payload.links = newpayload.links
         this.getMore(true)
       },
-
       sortEdited () {
         let newpayload = this.payloadFactory()
         newpayload.sort.column = '&sort=lastEdited'

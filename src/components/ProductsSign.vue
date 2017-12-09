@@ -36,6 +36,9 @@
           <td scope="row" data-label="Created">{{ product.dateCreated }}</td>
           <td scope="row" data-label="Last edited">{{ product.lastEdited }}</td>
         </tr>
+        <tr v-if="showPaginatorClick">
+          <div id="paginator" style="text-align: center;" @click="getMore()"><a class="button is-primary">Hämta in fler</a></div>
+        </tr>
         </tbody>
       </table>
     </div>
@@ -45,7 +48,8 @@
 
 <script>
   import axios from 'axios'
-
+  import meth from './ProductsList'
+  import payloadcfg from '../../backend/routes/config'
   export default {
     data () {
       return {
@@ -54,15 +58,53 @@
         productVersion: null,
         searchProducts: '',
         sorted: '',
-        reverse: 1
+        reverse: 1,
+        message: '',
+        showPaginatorClick: true,
+        payload: this.payloadFactory()
       }
     },
     /* Fetches unsigned products from the database and puts them in products */
     mounted () {
-      this.getAllPending()
+      this.getMore = this.getMore.bind(this, 'products/pending/')
+      this.getNext = this.getNext.bind(this, 'products/pending/')
+      this.getNextSearchQuery = this.getNextSearchQuery.bind(this, 'products/pending/')
+      this.payload = this.payloadFactory()
+      this.getNext(true)
+      // this.getAllPending()
     },
 
     methods: {
+      payloadFactory: payloadcfg.payloadInit.bind(null, 'product'),
+      getMore (uri, replaceItemsList) {
+        if (this.searching === false) {
+          this.getNext(uri, replaceItemsList)
+        } else {
+          this.getNextSearchQuery(uri, replaceItemsList)
+        }
+      },
+      getNext (uri, replaceItemsList) {
+        console.log(this.$baseAPI + uri + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+        axios.get(this.$baseAPI + uri + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+          .then(response => {
+            this.payload = response.data
+            replaceItemsList ? this.products = [...this.payload.items] : this.products = [...this.products, ...this.payload.items]
+            this.products.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
+          })
+      },
+      getNextSearchQuery (uri, replaceItemsList) {
+        axios.get(this.$baseAPI + uri + 'search/' + this.searchProducts + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+          .then(response => {
+            this.payload = response.data
+            replaceItemsList ? this.products = [...this.payload.items] : this.products = [...this.products, ...this.payload.items]
+            if (this.products.length === this.payload.meta.count) {
+              this.showPaginatorClick = null
+            } else {
+              this.showPaginatorClick = true
+            }
+          })
+      },
+
       getAllPending () {
         axios.get(this.$baseAPI + 'products/pending')
           .then(response => {
@@ -120,7 +162,6 @@
         })
         this.reverse *= -1
       },
-
       sortVersion () {
         if (this.sorted !== 'version') {
           this.sorted = 'version'
@@ -140,7 +181,6 @@
         })
         this.reverse *= -1
       },
-
       sortCreated () {
         if (this.sorted !== 'created') {
           this.sorted = 'created'
@@ -160,7 +200,6 @@
         })
         this.reverse *= -1
       },
-
       sortEdited () {
         if (this.sorted !== 'created') {
           this.sorted = 'created'
