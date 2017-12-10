@@ -11,7 +11,7 @@ module.exports = {
       }
       throw Error
     }
-    return {
+    return { // a default payload, can/should be extended
       items: [],
       links: {
         prev: `?offset=0&amount=${DEFAULTPAYLOADSIZE}`,

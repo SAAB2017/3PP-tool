@@ -17,7 +17,7 @@ function handleSearchGetRequest (req, res, isPending) {
   const approved = isPending ? 1 : 0
   let sorting = (req.query.sort === 'undefined') ? `productName` : `${req.query.sort}`
   let ordering = (req.query.order === 'undefined') ? `asc` : `${req.query.order}`
-  console.log(JSON.stringify(payloadcfg.setSorting(sorting, ordering)))
+  console.log('json' + JSON.stringify(payloadcfg.setSorting(sorting, ordering)))
   response.sort = payloadcfg.setSorting(sorting, ordering)
   getLinkData(req.db, offset, amount, response, `select count(*) as count from products where productName LIKE '%${req.params.id}%' AND approved=${approved}`, (links) => {
     response.links = {
@@ -27,6 +27,7 @@ function handleSearchGetRequest (req, res, isPending) {
     }
     for (let uri in response.links) {
       const link = `${response.links[uri]}&sort=${sorting}&order=${ordering}`
+      console.log(uri + ":" + link)
       response.links[uri] = link
     }
   })
@@ -61,11 +62,19 @@ function handleSearchGetRequest (req, res, isPending) {
 // ===========================
 router.route('/search/:id')
   .get((req, res) => {
+    console.log('/search/:id' + 'someting')
     handleSearchGetRequest(req, res, SIGNED)
   })
 
 router.route('/pending/search/:id').get((req, res) => {
-  console.log('/pending/search/:id' + req.query.sort )
+  console.log('mf')
+  console.log('/pending/search/:id' + req.query.sort)
+  handleSearchGetRequest(req, res, NOTSIGNED)
+})
+
+
+router.route('/pending/:id').get((req, res) => {
+  console.log('/pending/:id' + req.params.id)
   handleSearchGetRequest(req, res, NOTSIGNED)
 })
 // ----------------------------------------------------------------------------
@@ -171,6 +180,51 @@ function handleGetRequest (req, res, isSigned) {
     })
   }
 }
+
+router.route('/all')
+  .get((req, res) => {
+    // if these parameters are malformed, the response defaults to the first 30 items (0, 30)
+    let response = initPayload()
+    const offset = parseInt(+req.query.offset) || 0
+    const amount = parseInt(+req.query.amount) || 5
+    let sorting = (req.query.sort === 'undefined') ? `productName` : `${req.query.sort}`
+    let ordering = (req.query.order === 'undefined') ? `asc` : `${req.query.order}`
+    console.log('SORTING: ' + sorting + " ORDER: " + ordering)
+    getLinkData(req.db, offset, amount, response, `select count(*) as count from products`, (links) => {
+      response.links = {
+        prev: `?offset=${links.prev}&amount=${amount}`,
+        current: `?offset=${links.current}&amount=${amount}`,
+        next: `?offset=${links.next}&amount=${amount}`
+      }
+    })
+    for (let uri in response.links) {
+      const link = `${response.links[uri]}&sort=${sorting}&order=${ordering}`
+      console.log("commands: " + uri + ": " + link)
+      response.links[uri] = link
+    }
+    for (let a in response.links) {
+      console.log(`${a} ${response.links[a]}`)
+    }
+    if (!response.errorflag) {
+      // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
+      const query = `SELECT * FROM products order by ${sorting} ${ordering} LIMIT ${offset}, ${amount} `
+      console.log('Executing query: ' + query)
+      req.db.all(query, (err, rows) => {
+        if (err) {
+          console.log(err)
+          response.errors.message = [err]
+          response.errors.status = 'ERROR'
+          response.errors.errorflag = true
+          res.json(response)
+        } else {
+          response.items = rows
+          response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
+          res.json(response)
+        }
+        // = rows
+      })
+    }
+  })
 
 router.route('/')
   .get((req, res) => {
@@ -463,7 +517,7 @@ router.route('/product/:id')
 
   .get((req, res) => {
     let input = req.params.id
-    const query = `SELECT * FROM products WHERE productName=${input}`
+    const query = `SELECT * FROM products WHERE id=${input}`
     req.db.get(query, (err, row) => {
       if (err) {
         console.log(err)
@@ -800,24 +854,3 @@ function setProductLog (req, res, input, old, callback) {
     }
   })
 }
-
-// ----------------------------------------------------------------------------
-//  Methods for /products/product/:id
-// ----------------------------------------------------------------------------
-router.route('/product/:id')
-
-// In order to search; send in a JSON object with the applicable parameters.
-  .get((req, res) => {
-    let input = req.params.id
-    const query = `SELECT * FROM products WHERE id=${input}`
-    req.db.get(query, (err, row) => {
-      if (err) {
-        console.log(err)
-        res.status(404)
-        res.send('ERROR! error message:' + err.message + ', query: ' + query)
-      } else {
-        res.status(200)
-        res.json(row)
-      }
-    })
-  })

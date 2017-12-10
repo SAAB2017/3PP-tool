@@ -267,14 +267,17 @@
     /* Fetch the license with id from database and add to license,
      * then fetch components, products and projects */
     mounted () {
-      axios.get(this.$baseAPI + 'licenses/' + this.$route.params.id)
+      let _this = this
+      axios.get(this.$baseAPI + 'licenses/license/' + this.$route.params.id)
         .then(response => {
-          this.license = response.data
-          this.origComment = this.license.comment
-          this.origURL = this.license.URL
-          this.fetchComponents()
-          this.fetchProducts()
-          this.fetchProjects()
+          _this.license = response.data
+          _this.origComment = _this.license.comment
+          _this.origURL = _this.license.URL
+          _this.fetchComponents()
+          _this.fetchProducts()
+          _this.fetchProjects()
+        }).catch(err => {
+          console.log(err)
         })
     },
 

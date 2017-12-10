@@ -1,3 +1,19 @@
+<style>
+  .product-fade-enter-active, .product-fade-leave-active {
+    transition: opacity .4s ease;
+  }
+  .product-fade-enter, .product-fade-leave-to
+    /* .component-fade-leave-active below version 2.1.8 */ {
+    opacity: 0;
+  }
+  .list-enter-active, .list-leave-active {
+    transition: all 0.7s;
+  }
+  .list-enter, .list-leave-to /* .list-leave-active below version 2.1.8 */ {
+    opacity: 0;
+  }
+</style>
+
 <!-- View for adding Projects -->
 <template>
   <div class="project-list">
@@ -24,10 +40,15 @@
       </tr>
       </thead>
       <tbody class="tbodyadd">
-      <tr v-for="product in products">
+      <transition-group  name="list" appear>
+      <tr v-for="product in products" class="list-item" v-bind:key="product">
         <td style="width: 25px"><input class="checkbox" type="checkbox" v-bind:value=product.id v-model.number="checkedProducts"></td>
         <td scope="row" data-label="Product">{{ product.productName }}</td>
         <td scope="row" data-label="Version">{{ product.productVersion }}</td>
+      </tr>
+      </transition-group>
+      <tr v-if="showPaginatorClick">
+        <div id="paginator" style="text-align: center;" @click="getMore()"><a class="button is-primary">Hämta in fler</a></div>
       </tr>
       </tbody>
     </table>
@@ -58,7 +79,7 @@
 
 <script>
   import axios from 'axios'
-
+  import payloadcfg from '../../backend/routes/config'
   export default {
 
     data () {
@@ -68,15 +89,55 @@
         projectName: '',
         projectVersion: '',
         projectComment: '',
-        searchProducts: ''
+        searchProducts: '',
+        searching: false, // nothing entered in the search bar
+        payload: this.payloadFactory()
       }
     },
     /* Fetches liceses from the database and puts them in products */
     mounted () {
-      this.getAllProducts()
+      this.getNext(false)
+      // this.getAllProducts()
     },
 
     methods: {
+      // used for the "product" list, used for adding to project, since we're not wanting payloads of project
+      payloadFactory: payloadcfg.payloadInit.bind(null, 'product'),
+
+      getMore (replaceItemsList) {
+        let _this = this
+        if (this.searching === false) {
+          _this.getNext(replaceItemsList)
+        } else {
+          _this.getNextSearchQuery(replaceItemsList)
+        }
+      },
+      getNext (replaceItemsList) {
+        let _this = this
+        axios.get(this.$baseAPI + 'products/all' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+          .then(response => {
+            this.payload = response.data
+            replaceItemsList ? _this.products = [..._this.payload.items] : _this.products = [..._this.products, ..._this.payload.items]
+            _this.products.length === _this.payload.meta.count ? _this.showPaginatorClick = null : _this.showPaginatorClick = true
+          }).catch(err => console.log(err))
+      },
+      getNextSearchQuery (replaceItemsList) {
+        let _this = this
+        if (this.products.length < this.payload.meta.count) {
+          axios.get(this.$baseAPI + 'products/search/' + this.searchProducts + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+            .then(response => {
+              _this.payload = response.data
+              replaceItemsList ? _this.products = [..._this.payload.items] : _this.products = [..._this.products, ..._this.payload.items]
+              if (_this.products.length === _this.payload.meta.count) {
+                _this.showPaginatorClick = null
+              } else {
+                _this.showPaginatorClick = true
+              }
+            }).catch(err => console.log(err))
+        } else {
+          this.showPaginatorClick = null
+        }
+      },
       /**
        * Add a project to the database according to the fields in the view
        */
@@ -114,17 +175,25 @@
        * Searches for liceses from the database matching the search-criteria
        */
       searchProduct () {
+        let _this = this
         if (this.searchProducts.length === 0) {
-          this.getAllProducts()
+          this.searching = false
+          this.getNext(true)
           return
         }
         if (this.searchProducts !== 0 || this.searchProducts !== null || this.searchProducts !== '') {
-          axios.get(this.$baseAPI + 'products/search/' + this.searchProducts).then(response => {
+          axios.get(this.$baseAPI + 'products/search/' + this.searchProducts + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order).then(response => {
             if (response.data !== null) {
-              this.products = response.data
+              _this.products = response.data
             } else {
-              this.message = 'No product found!'
+              _this.message = 'No product found!'
             }
+          }).catch(err => {
+            console.log('Error trying to search product table')
+            console.log(err)
+            _this.searchProducts = ''
+            _this.searching = false
+            _this.getMore(true)
           })
         } else {
           this.getAllProducts()

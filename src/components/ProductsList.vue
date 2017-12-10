@@ -56,7 +56,7 @@
         </tr>
         </transition-group>
 
-        <tr v-if="showPaginatorClick">
+        <tr v-if="showPaginatorClick || products.length !== payload.meta.count">
           <div id="paginator" style="text-align: center;" @click="getMore()"><a class="button is-primary">Hämta in fler</a></div>
         </tr>
         </tbody>

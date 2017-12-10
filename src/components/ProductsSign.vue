@@ -1,4 +1,4 @@
-<!-- View for showing all unsigned products -->
+<<<<<<<<!-- View for showing all unsigned products -->
 <template>
   <div class="products-list">
 
@@ -59,6 +59,7 @@
         searchProducts: '',
         sorted: '',
         reverse: 1,
+        searching: false,
         message: '',
         showPaginatorClick: true,
         payload: this.payloadFactory()
@@ -66,44 +67,48 @@
     },
     /* Fetches unsigned products from the database and puts them in products */
     mounted () {
-      this.getMore = this.getMore.bind(this, 'products/pending/')
-      this.getNext = this.getNext.bind(this, 'products/pending/')
-      this.getNextSearchQuery = this.getNextSearchQuery.bind(this, 'products/pending/')
       this.payload = this.payloadFactory()
-      this.getNext(true)
+      this.getMore(true)
       // this.getAllPending()
     },
 
     methods: {
       payloadFactory: payloadcfg.payloadInit.bind(null, 'product'),
-      getMore (uri, replaceItemsList) {
+      getMore (replaceItemsList) {
         if (this.searching === false) {
-          this.getNext('products/pending/', replaceItemsList)
+          this.getNext(replaceItemsList)
         } else {
-          this.getNextSearchQuery('products/pending/', replaceItemsList)
+          this.getNextSearchQuery(replaceItemsList)
         }
       },
-      getNext (uri, replaceItemsList) {
-        console.log(this.$baseAPI + uri + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
-        axios.get(this.$baseAPI + uri + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+      getNext (replaceItemsList) {
+        let _this = this
+        console.log(this.$baseAPI + 'products/pending/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+        axios.get(this.$baseAPI + 'products/pending/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
-            this.payload = response.data
-            replaceItemsList ? this.products = [...this.payload.items] : this.products = [...this.products, ...this.payload.items]
-            this.products.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
-          })
+            _this.payload = response.data
+            replaceItemsList ? _this.products = [..._this.payload.items] : _this.products = [..._this.products, ..._this.payload.items]
+            _this.products.length === _this.payload.meta.count ? _this.showPaginatorClick = null : _this.showPaginatorClick = true
+          }).catch(err => {
+            console.log('Error thrown trying to get from /products/pending/' + _this.payload.links.next + _this.payload.sort.column + _this.payload.sort.order)
+            console.log(err)
+        })
       },
-      getNextSearchQuery (uri, replaceItemsList) {
-        console.log(this.$baseAPI + uri + 'search/' + this.searchProducts + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
-        axios.get(this.$baseAPI + uri + 'search/' + this.searchProducts + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+      getNextSearchQuery (replaceItemsList) {
+        let _this = this
+        axios.get(this.$baseAPI + 'products/pending/search/' + this.searchProducts + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
-            this.payload = response.data
-            replaceItemsList ? this.products = [...this.payload.items] : this.products = [...this.products, ...this.payload.items]
-            if (this.products.length === this.payload.meta.count) {
-              this.showPaginatorClick = null
+            _this.payload = response.data
+            replaceItemsList ? _this.products = [..._this.payload.items] : _this.products = [..._this.products, ..._this.payload.items]
+            if (_this.products.length === _this.payload.meta.count) {
+              _this.showPaginatorClick = null
             } else {
-              this.showPaginatorClick = true
+              _this.showPaginatorClick = true
             }
-          })
+          }).catch(err => {
+            console.log('Error caught, from thrown exception at URI: \n' + 'products/pending/search/' + _this.searchProducts + '/' + _this.payload.links.next + _this.payload.sort.column + _this.payload.sort.order)
+            console.log(err)
+        })
       },
 
       getAllPending () {
@@ -116,22 +121,32 @@
        * Searches for unsigned products from the database matching the search-criteria
        */
       searchProduct () {
-        // TODO Implement method
+        let _this = this
+        this.searching = true
+        let sort = this.payload.sort
+        this.payload = this.payloadFactory()
+        this.payload.sort = sort
+        this.showPaginatorClick = true
         if (this.searchProducts.length === 0) {
-          this.getAllPending()
+          this.searching = false
+          this.showPaginatorClick = true
+          this.products = []
+          this.getNext(true)
           return
         }
-        if (this.searchProducts !== 0 || this.searchProducts !== null || this.searchProducts !== '') {
-          axios.get(this.$baseAPI + 'products/search/' + this.searchProducts).then(response => {
+        if ((this.searchProducts.length !== 0) && (this.searchProducts !== null) && (this.searchProducts !== '')) {
+          const path = `products/pending/search/${this.searchProducts}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
+          console.log(path)
+          console.log("mf")
+          axios.get(this.$baseAPI + path).then(response => {
             console.log(response.data)
             if (response.data != null) {
-              this.products = response.data
+              _this.payload = response.data
+              _this.products = [..._this.payload.items]
             } else {
-              this.message = 'No product found!'
+              _this.message = 'No component found!'
             }
           })
-        } else {
-          this.getAllPending()
         }
       },
 
@@ -184,7 +199,7 @@
       },
       sortCreated () {
         if (this.sorted !== 'created') {
-          this.sorted = 'created'
+          this.ssorted = 'created'
           this.reverse = 1
         }
         let t = this

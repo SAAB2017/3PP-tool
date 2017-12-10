@@ -1,3 +1,7 @@
+let payloadcfg = require('./config')
+let initPayload = payloadcfg.payloadInit.bind(null, 'project')
+let NOTSIGNED = payloadcfg.NOTSIGNED
+let SIGNED = payloadcfg.SIGNED
 let express = require('express')
 let router = express.Router()
 
@@ -5,7 +9,6 @@ let router = express.Router()
 //  Methods for /projects
 // ----------------------------------------------------------------------------
 router.route('/')
-
   .get((req, res) => {
     req.db.all('SELECT * FROM projects WHERE approved=1', (error, rows) => {
       if (error) {

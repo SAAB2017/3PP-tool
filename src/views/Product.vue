@@ -285,13 +285,18 @@
      * then fetch licenses, components and projects
      */
     mounted () {
+      let _this = this
+      console.log('This id: ' + this.$route.params.id)
       axios.get(this.$baseAPI + 'products/product/' + this.$route.params.id)
         .then(response => {
-          this.product = response.data
-          this.origComment = this.product.comment
-          this.fetchLicenses()
-          this.fetchComponents()
-          this.fetchProjects()
+          _this.product = response.data
+          _this.origComment = this.product.comment
+          _this.fetchLicenses()
+          _this.fetchComponents()
+          _this.fetchProjects()
+        }).catch(err => {
+          console.log('Caught exception from throw: error')
+          console.log(err)
         })
     },
 
@@ -300,9 +305,13 @@
        * Fetch all licenses that is in this product
        */
       fetchLicenses () {
+        let _this = this
         console.log(this.$baseAPI + 'licenses/licensesInProduct/' + this.$route.params.id)
         axios.get(this.$baseAPI + 'licenses/licensesInProduct/' + this.$route.params.id).then(response => {
-          this.licenses = response.data
+          _this.licenses = response.data
+        }).catch(err => {
+          console.log('Caught exception from throw: error')
+          console.log(err)
         })
       },
 

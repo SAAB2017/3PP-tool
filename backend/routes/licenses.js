@@ -280,7 +280,6 @@ router.route('/license/:id')
     console.log('Trying to get license with id ' + req.param.id)
     let input = req.params.id
     const query = `SELECT * FROM licenses WHERE id=${input}`
-    console.log(`${meta.count}`)
     req.db.get(query, (err, row) => {
       if (err) {
         console.log(err)
