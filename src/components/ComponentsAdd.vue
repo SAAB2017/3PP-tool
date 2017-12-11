@@ -24,11 +24,13 @@
       </tr>
       </thead>
       <tbody class="tbodyadd">
-      <tr v-for="license in licenses">
+      <transition-group name="list" appear>
+      <tr v-for="license in licenses" v-bind:key="license" class="list-item">
         <td style="width: 25px"><input class="checkbox" type="checkbox" v-bind:value=license.id v-model.number="checkedLicenses"></td>
         <td scope="row" data-label="License">{{ license.licenseName }}</td>
         <td scope="row" data-label="Version">{{ license.licenseVersion }}</td>
       </tr>
+      </transition-group>
       <tr v-if="showPaginatorClick">
         <div id="paginator" style="text-align: center;" @click="getMore(false)"><a class="button is-primary">Hämta in fler</a></div>
       </tr>

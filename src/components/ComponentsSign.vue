@@ -1,29 +1,18 @@
-s<!-- Viezx w for showing all unsigned components -->
+qs<!-- Viezx w for showing all unsigned components -->
 s<!-- Viezx w for showing all unsigned components -->
 <template>
   <div class="components-list">
 
     <div id="message-text">
       <p class="help is-success subtitle is-6" style="text-align: center; padding-bottom: 15px">{{ message }}</p>
-
-
-
-
-
-
-
-
-
-
-
     </div>
     <div id="top-div-child" class="columns is-mobile is-centered">
       <div id="top-search" class="field has-addons">
         <div class="control">
-          <input v-on:keyup="searchComponent()" v-model="searchSignComponents" class="input" type="text" placeholder="Find a component">
+          <input v-model="searchSignComponents" class="input" type="text" placeholder="Find a component">
         </div>
         <div class="control">
-          <button @click="searchComponent()" class="button is-primary">Search</button>
+          <button @click="searchComponent(this.searchSignComponents)" class="button is-primary">Search</button>
         </div>
       </div>
     </div>
@@ -51,7 +40,7 @@ s<!-- Viezx w for showing all unsigned components -->
         </transition-group>
 
         <tr v-if="showPaginatorClick">
-          <div id="paginator" style="text-align: center;" @click="getMore()"><a class="button is-primary">Hämta in fler</a></div>
+          <div id="paginator" style="text-align: center;" @click="getMore(false)"><a class="button is-primary">Hämta in fler</a></div>
         </tr>
 
         </tbody>
@@ -85,51 +74,65 @@ s<!-- Viezx w for showing all unsigned components -->
       this.getNext(true)
     },
 
+    watch: {
+      searchSignComponents: function (a) {
+        if (a.length === 0) {
+          this.searching = false
+          this.showPaginatorClick = true
+          this.components = []
+          this.payload = this.payloadFactory()
+          this.getNext(true)
+        } else if (a.length > 0) {
+          this.searching = true
+          let sort = this.payload.sort
+          this.payload = this.payloadFactory()
+          this.payload.sort = sort
+          this.searchComponent(a)
+        }
+      },
+      components: function (a) {
+        if (a.length === this.payload.meta.count) {
+          this.showPaginatorClick = false
+        } else if (a.length < this.payload.meta.count) {
+          this.showPaginatorClick = true
+        }
+      }
+    },
+
     methods: {
       payloadFactory: payloadcfg.payloadInit.bind(null, 'component'),
       getMore (replaceItemsList) {
         if (this.searching === false) {
+          console.log("Searching is turned off")
           this.getNext(replaceItemsList)
         } else {
+          console.log("getting more")
           this.getNextSearchQuery(replaceItemsList)
         }
-      },
-      getAllPending () {
-        axios.get(this.$baseAPI + 'components/pending')
-          .then(response => {
-            this.components = response.data
-          })
       },
       // TODO: behöver städa upp. men huvud funktionalitet i sök + hämtning av data för / och /pending, samt /search och /pending/search
       /**
        * Searches for unsigned components from the database matching the search-criteria
        */
-      searchComponent () {
-        this.searching = true
-        let sort = this.payload.sort
-        this.payload = this.payloadFactory()
-        this.payload.sort = sort
-        this.showPaginatorClick = true
-        if (this.searchSignComponents.length === 0) {
-          this.searching = false
-          this.showPaginatorClick = true
-          this.components = []
-          this.getNext(true)
-          return
-        }
-        if ((this.searchSignComponents.length !== 0) && (this.searchSignComponents !== null) && (this.searchSignComponents !== '')) {
-          const path = `components/pending/search/${this.searchSignComponents}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
-          console.log(path)
-          axios.get(this.$baseAPI + path).then(response => {
-            console.log(response.data)
-            if (response.data != null) {
-              this.payload = response.data
-              this.components = [...this.payload.items]
-            } else {
-              this.message = 'No component found!'
+      searchComponent (search) {
+        const path = `components/pending/search/${search}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
+        console.log(path)
+        let _this = this
+        axios.get(this.$baseAPI + path).then(response => {
+          console.log(response.data)
+          if (response.data != null) {
+            _this.payload = response.data
+            _this.components = [..._this.payload.items]
+            console.log("Count: " + _this.payload.meta.count + " Length: " + _this.components.length)
+            if (_this.components.length === _this.payload.meta.count) {
+              _this.showPaginatorClick = false
             }
-          })
-        }
+          } else {
+            _this.message = 'No component found!'
+          }
+        }).catch(err => {
+          console.log(err)
+        })
       },
 
       getNext (replaceItemsList) {
@@ -141,7 +144,9 @@ s<!-- Viezx w for showing all unsigned components -->
           })
       },
       getNextSearchQuery (replaceItemsList) {
-        axios.get(this.$baseAPI + 'components/pending/search/' + this.searchSignComponents + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+        let p = this.$baseAPI + 'components/pending/search/' + this.searchSignComponents + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order
+        console.log(p)
+        axios.get(p)
           .then(response => {
             this.payload = response.data
             replaceItemsList ? this.components = [...this.payload.items] : this.components = [...this.components, ...this.payload.items]
@@ -150,7 +155,9 @@ s<!-- Viezx w for showing all unsigned components -->
             } else {
               this.showPaginatorClick = true
             }
-          })
+          }).catch(err => {
+            console.log(err)
+        })
       },
       /**
        * Opens the view for signing a specific component with id id.

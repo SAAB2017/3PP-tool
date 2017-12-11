@@ -1,3 +1,19 @@
+<style>
+  .project-fade-enter-active, .project-fade-leave-active {
+    transition: opacity .127s ease;
+  }
+  .project-fade-enter, .project-fade-leave-to
+    /* .component-fade-leave-active below version 2.1.8 */ {
+    opacity: 0;
+  }
+  .list-enter-active, .list-leave-active {
+    transition: all 0.327s;
+  }
+  .list-enter, .list-leave-to /* .list-leave-active below version 2.1.8 */ {
+    opacity: 0;
+  }
+</style>
+
 <!-- View for showing all unsigned projects -->
 <template>
   <div class="products-list">
@@ -9,7 +25,7 @@
     <div id="top-div-child" class="columns is-mobile is-centered">
       <div id="top-search" class="field has-addons">
         <div class="control">
-          <input v-on:keyup="searchProject()" v-model="searchProducts" class="input" type="text" placeholder="Find a product">
+          <input v-model="searchProjects" class="input" type="text" placeholder="Find a product">
         </div>
         <div class="control">
           <button @click="searchProject()" class="button is-primary">Search</button>
@@ -30,11 +46,16 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="project in projects" @click="displayProject(project)">
+        <transition-group  name="list" appear>
+        <tr v-for="project in projects" @click="displayProject(project)" v-bind:key="project">
           <td scope="row" data-label="Project">{{ project.projectName }}</td>
           <td scope="row" data-label="Version">{{ project.projectVersion }}</td>
           <td scope="row" data-label="Created">{{ project.dateCreated }}</td>
           <td scope="row" data-label="Last edited">{{ project.lastEdited }}</td>
+        </tr>
+        </transition-group>
+        <tr v-if="showPaginatorClick">
+          <div id="paginator" style="text-align: center;" @click="getMore(false)"><a class="button is-primary">Hämta in fler</a></div>
         </tr>
         </tbody>
       </table>
@@ -45,51 +66,116 @@
 
 <script>
   import axios from 'axios'
-
+  import payloadcfg from '../../backend/routes/config'
+  const URI = 'projects/pending/'
   export default {
     data () {
       return {
         projects: [],
         project: null,
         projectVersion: null,
-        searchProjects: '',
+        searchProjects: null,
+        searching: false,
+        message: '',
         sorted: '',
-        reverse: 1
+        showPaginatorClick: true,
+        payload: this.payloadFactory()
       }
     },
     /* Fetches unsigned projects from the database and puts them in projects */
     mounted () {
-      this.getAllPending()
+      this.getNext = this.getNext.bind(this, 'projects/pending')
+      this.getMore = this.getMore.bind(this, 'projects/pending')
+      this.getNextSearchQuery = this.getNextSearchQuery.bind(this, 'projects/pending')
+      this.getNext(true)
+    },
+
+    watch: {
+      searchProjects: function (a) {
+        if (a.length === 0) {
+          this.searching = false
+          this.showPaginatorClick = true
+          this.projects = []
+          this.payload = this.payloadFactory()
+          this.getNext(true)
+        } else if (a.length > 0) {
+          this.searching = true
+          let sort = this.payload.sort
+          this.payload = this.payloadFactory()
+          this.payload.sort = sort
+          this.searchProject(a)
+        }
+      },
+      projects: function (a) {
+        if (a.length === this.payload.meta.count) {
+          this.showPaginatorClick = false
+        } else if (a.length < this.payload.meta.count) {
+          this.showPaginatorClick = true
+        }
+      }
     },
 
     methods: {
-      getAllPending () {
-        axios.get(this.$baseAPI + 'projects/pending')
+      payloadFactory: payloadcfg.payloadInit.bind(this, 'project'),
+      /**
+       * Fetches all projects from database
+       */
+      getMore (uri, replaceItemsList) {
+        let _this = this
+        if (this.searching === false) {
+          this.getNext(replaceItemsList)
+        } else {
+          _this.getNextSearchQuery(replaceItemsList)
+        }
+      },
+      getNext (uri, replaceItemsList) {
+        let _this = this
+        axios.get(this.$baseAPI + uri + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
-            this.projects = response.data
-          })
+            _this.payload = response.data
+            replaceItemsList ? _this.projects = [..._this.payload.items] : _this.projects = [..._this.projects, ..._this.payload.items]
+            _this.projects.length === _this.payload.meta.count ? _this.showPaginatorClick = null : _this.showPaginatorClick = true
+          }).catch(err => console.log(err))
+      },
+      getNextSearchQuery (uri, replaceItemsList) {
+        let _this = this
+        if (this.projects.length < this.payload.meta.count) {
+          axios.get(this.$baseAPI + `${uri}/search/` + this.searchProjects + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+            .then(response => {
+              _this.payload = response.data
+              replaceItemsList ? _this.projects = [..._this.payload.items] : _this.projects = [..._this.projects, ..._this.payload.items]
+              if (_this.projects.length === _this.payload.meta.count) {
+                _this.showPaginatorClick = null
+              } else {
+                _this.showPaginatorClick = true
+              }
+            }).catch(err => console.log(err))
+        } else {
+          this.showPaginatorClick = null
+        }
       },
       /**
        * Searches for unsigned projects from the database matching the search-criteria
        */
-      searchProject () {
-        // TODO Implement method
-        if (this.searchProjects.length === 0) {
-          this.getAllPending()
-          return
-        }
-        if (this.searchProjects !== 0 || this.searchProjects !== null || this.searchProjects !== '') {
-          axios.get(this.$baseAPI + 'projects/search/' + this.searchProjects).then(response => {
-            console.log(response.data)
-            if (response.data != null) {
-              this.projects = response.data
-            } else {
-              this.message = 'No product found!'
+      searchProject (search) {
+        const path = `projects/pending/search/${search}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
+        console.log(path)
+        let _this = this
+        axios.get(this.$baseAPI + path).then(response => {
+          console.log(response.data)
+          if (response.data != null) {
+            _this.payload = response.data
+            _this.projects = [..._this.payload.items]
+            console.log("Count: " + _this.payload.meta.count + " Length: " + _this.projects.length)
+            if (_this.projects.length === _this.payload.meta.count) {
+              _this.showPaginatorClick = false
             }
-          })
-        } else {
-          this.getAllPending()
-        }
+          } else {
+            _this.message = 'No component found!'
+          }
+        }).catch(err => {
+          console.log(err)
+        })
       },
 
       /**
@@ -204,7 +290,7 @@
     background-color: lightgray;
   }
 
-  .products-list {
+  .projects-list {
     margin-bottom: 20px;
   }
 

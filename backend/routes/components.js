@@ -8,6 +8,7 @@ var express = require('express')
 var router = express.Router()
 
 function handleSearchGetRequest (req, res, isPending) {
+  console.log("Handle search get request!")
   // precondition: parameter is wellformed
   let response = initPayload()
   const offset = parseInt(+req.query.offset) || 0
@@ -15,17 +16,13 @@ function handleSearchGetRequest (req, res, isPending) {
   const approved = isPending ? 1 : 0
   let sorting = (req.query.sort === 'undefined') ? `componentName` : `${req.query.sort}`
   let ordering = (req.query.order === 'undefined') ? `asc` : `${req.query.order}`
-  console.log(JSON.stringify(payloadcfg.setSorting(sorting, ordering)))
-  response.sort = payloadcfg.setSorting(sorting, ordering)
+  let sort = {column: `&sort=${sorting}`, order: `&order=${ordering}`}
+  response.sort = sort
   getLinkData(req.db, offset, amount, response, `select count(*) as count from components where componentName LIKE '%${req.params.id}%' AND approved=${approved}`, (links) => {
     response.links = {
       prev: `?offset=${links.prev}&amount=${amount}`,
       current: `?offset=${links.current}&amount=${amount}`,
       next: `?offset=${links.next}&amount=${amount}`
-    }
-    for (let uri in response.links) {
-      const link = `${response.links[uri]}&sort=${sorting}&order=${ordering}`
-      response.links[uri] = link
     }
   })
   if (!response.errorflag) {
@@ -92,7 +89,7 @@ function getLinkData (db, offset, amount, response, pageQuery, setLinksCB) {
       // response.meta.count = Number.isSafeInteger(row.count) ? row.count : 0
       // Object.assign(response.meta, meta)
       response.meta.count = row.count
-      console.log(response.meta.count)
+      console.log("Count: " + response.meta.count)
       // if these parameters are malformed, the response defaults to the first 30 items (0, 30)
       if (!isNaN(response.meta.count) && Number.isSafeInteger(response.meta.count)) {
         if (isNaN(offset) || isNaN(amount)) {
@@ -123,6 +120,7 @@ function getLinkData (db, offset, amount, response, pageQuery, setLinksCB) {
 
 // Example request: components/search/o/?offset=0&amount=3&sort=componentName&order=desc
 function handleGetRequest (req, res, isSigned) {
+  console.log("Handle get request!")
   // if these parameters are malformed, the response defaults to the first 30 items (0, 30)
   let response = initPayload()
   const offset = parseInt(+req.query.offset) || 0
@@ -140,11 +138,7 @@ function handleGetRequest (req, res, isSigned) {
   })
   for (let uri in response.links) {
     const link = `${response.links[uri]}&sort=${sorting}&order=${ordering}`
-    console.log("commands: " + uri + ": " + link)
     response.links[uri] = link
-  }
-  for (let a in response.links) {
-    console.log(`${a} ${response.links[a]}`)
   }
   if (!response.errorflag) {
     // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set

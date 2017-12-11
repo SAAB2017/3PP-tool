@@ -1,13 +1,13 @@
 <style>
   .license-fade-enter-active, .license-fade-leave-active {
-    transition: opacity .4s ease;
+    transition: opacity .127s ease;
   }
   .license-fade-enter, .license-fade-leave-to
     /* .component-fade-leave-active below version 2.1.8 */ {
     opacity: 0;
   }
   .list-enter-active, .list-leave-active {
-    transition: all 0.7s;
+    transition: all 0.327s;
   }
   .list-enter, .list-leave-to /* .list-leave-active below version 2.1.8 */ {
     opacity: 0;

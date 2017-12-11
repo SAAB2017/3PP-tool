@@ -17,18 +17,14 @@ function handleSearchGetRequest (req, res, isPending) {
   const approved = isPending ? 1 : 0
   let sorting = (req.query.sort === 'undefined') ? `productName` : `${req.query.sort}`
   let ordering = (req.query.order === 'undefined') ? `asc` : `${req.query.order}`
-  console.log('json' + JSON.stringify(payloadcfg.setSorting(sorting, ordering)))
-  response.sort = payloadcfg.setSorting(sorting, ordering)
+  let sort = {column: `&sort=${sorting}`, order: `&order=${ordering}`}
+  response.sort = sort
+
   getLinkData(req.db, offset, amount, response, `select count(*) as count from products where productName LIKE '%${req.params.id}%' AND approved=${approved}`, (links) => {
     response.links = {
       prev: `?offset=${links.prev}&amount=${amount}`,
       current: `?offset=${links.current}&amount=${amount}`,
       next: `?offset=${links.next}&amount=${amount}`
-    }
-    for (let uri in response.links) {
-      const link = `${response.links[uri]}&sort=${sorting}&order=${ordering}`
-      console.log(uri + ":" + link)
-      response.links[uri] = link
     }
   })
   if (!response.errorflag) {
@@ -45,9 +41,6 @@ function handleSearchGetRequest (req, res, isPending) {
         res.status(404)
         res.json(response)
       } else {
-        for (let r of rows) {
-          console.log("Row: " + JSON.stringify(r))
-        }
         response.items = rows
         res.status(200)
         response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
@@ -144,7 +137,8 @@ function handleGetRequest (req, res, isSigned) {
   const approved = (isSigned) ? 1 : 0
   let sorting = (req.query.sort === 'undefined') ? `productName` : `${req.query.sort}`
   let ordering = (req.query.order === 'undefined') ? `asc` : `${req.query.order}`
-  console.log('SORTING: ' + sorting + " ORDER: " + ordering)
+  let sort = {column: `&sort=${sorting}`, order: `&order=${ordering}`}
+  response.sort = sort
   getLinkData(req.db, offset, amount, response, `select count(*) as count from products where approved='${approved}'`, (links) => {
     response.links = {
       prev: `?offset=${links.prev}&amount=${amount}`,
@@ -152,14 +146,6 @@ function handleGetRequest (req, res, isSigned) {
       next: `?offset=${links.next}&amount=${amount}`
     }
   })
-  for (let uri in response.links) {
-    const link = `${response.links[uri]}&sort=${sorting}&order=${ordering}`
-    console.log("commands: " + uri + ": " + link)
-    response.links[uri] = link
-  }
-  for (let a in response.links) {
-    console.log(`${a} ${response.links[a]}`)
-  }
   if (!response.errorflag) {
     // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
     const query = `SELECT * FROM products where approved=${approved} order by ${sorting} ${ordering} LIMIT ${offset}, ${amount} `
@@ -173,6 +159,7 @@ function handleGetRequest (req, res, isSigned) {
         res.json(response)
       } else {
         response.items = rows
+        console.log('Current response data: \n' + JSON.stringify(response))
         response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
         res.json(response)
       }

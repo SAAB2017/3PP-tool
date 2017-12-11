@@ -14,17 +14,14 @@ function handleSearchGetRequest (req, res) {
   const amount = parseInt(+req.query.amount) || 5
   let sorting = (req.query.sort === 'undefined') ? `licenseName` : `${req.query.sort}`
   let ordering = (req.query.order === 'undefined') ? `asc` : `${req.query.order}`
-  console.log(JSON.stringify(payloadcfg.setSorting(sorting, ordering)))
-  response.sort = payloadcfg.setSorting(sorting, ordering)
+  let sort = {column: `&sort=${sorting}`, order: `&order=${ordering}`}
+  response.sort = sort
+
   getLinkData(req.db, offset, amount, response, `select count(*) as count from licenses where licenseName LIKE '%${req.params.id}%'`, (links) => {
     response.links = {
       prev: `?offset=${links.prev}&amount=${amount}`,
       current: `?offset=${links.current}&amount=${amount}`,
       next: `?offset=${links.next}&amount=${amount}`
-    }
-    for (let uri in response.links) {
-      const link = `${response.links[uri]}&sort=${sorting}&order=${ordering}`
-      response.links[uri] = link
     }
   })
   if (!response.errorflag) {

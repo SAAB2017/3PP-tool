@@ -55,7 +55,7 @@
     <!-- Field for searching for products. Uses "searchProduct"-method for searching -->
     <div class="field has-addons" style="padding-top: 15px">
       <div class="control">
-        <input v-on:keyup="searchProduct()" v-model="searchProducts" class="input" type="text" placeholder="Find a product">
+        <input v-model="searchProducts" class="input" type="text" placeholder="Find a product">
       </div>
       <div class="control">
         <a @click="searchProduct()" class="button is-primary">Search</a>
@@ -99,7 +99,30 @@
       this.getNext(false)
       // this.getAllProducts()
     },
-
+    watch: {
+      searchProducts: function (a) {
+        if (a.length === 0) {
+          this.searching = false
+          this.showPaginatorClick = true
+          this.products = []
+          this.payload = this.payloadFactory()
+          this.getNext(true)
+        } else if (a.length > 0) {
+          this.searching = true
+          let sort = this.payload.sort
+          this.payload = this.payloadFactory()
+          this.payload.sort = sort
+          this.searchProduct(a)
+        }
+      },
+      products: function (a) {
+        if (a.length === this.payload.meta.count) {
+          this.showPaginatorClick = false
+        } else if (a.length < this.payload.meta.count) {
+          this.showPaginatorClick = true
+        }
+      }
+    },
     methods: {
       // used for the "product" list, used for adding to project, since we're not wanting payloads of project
       payloadFactory: payloadcfg.payloadInit.bind(null, 'product'),
@@ -164,41 +187,30 @@
         this.$router.go()
       },
 
-      getAllProducts () {
-        axios.get(this.$baseAPI + 'products')
-          .then(response => {
-            this.products = response.data
-          })
-      },
+      searchProduct (search) {
+        const path = `products/search/${search}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
+        console.log(path)
+        let _this = this
+        axios.get(this.$baseAPI + path).then(response => {
+          console.log(response.data)
+          if (response.data != null) {
+            _this.payload = response.data
+            _this.products = [..._this.payload.items]
+            console.log("Count: " + _this.payload.meta.count + " Length: " + _this.products.length)
+            if (_this.products.length === _this.payload.meta.count) {
+              _this.showPaginatorClick = false
+            }
+          } else {
+            _this.message = 'No component found!'
+          }
+        }).catch(err => {
+          console.log(err)
+        })
+      }
 
       /**
        * Searches for liceses from the database matching the search-criteria
        */
-      searchProduct () {
-        let _this = this
-        if (this.searchProducts.length === 0) {
-          this.searching = false
-          this.getNext(true)
-          return
-        }
-        if (this.searchProducts !== 0 || this.searchProducts !== null || this.searchProducts !== '') {
-          axios.get(this.$baseAPI + 'products/search/' + this.searchProducts + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order).then(response => {
-            if (response.data !== null) {
-              _this.products = response.data
-            } else {
-              _this.message = 'No product found!'
-            }
-          }).catch(err => {
-            console.log('Error trying to search product table')
-            console.log(err)
-            _this.searchProducts = ''
-            _this.searching = false
-            _this.getMore(true)
-          })
-        } else {
-          this.getAllProducts()
-        }
-      }
     }
   }
 </script>

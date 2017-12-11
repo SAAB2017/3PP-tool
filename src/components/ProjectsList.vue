@@ -1,13 +1,13 @@
 <style>
   .project-fade-enter-active, .project-fade-leave-active {
-    transition: opacity .4s ease;
+    transition: opacity .127s ease;
   }
   .project-fade-enter, .project-fade-leave-to
     /* .component-fade-leave-active below version 2.1.8 */ {
     opacity: 0;
   }
   .list-enter-active, .list-leave-active {
-    transition: all 0.7s;
+    transition: all 0.327s;
   }
   .list-enter, .list-leave-to /* .list-leave-active below version 2.1.8 */ {
     opacity: 0;
@@ -26,7 +26,7 @@
     <div id="top-div-child" class="columns is-mobile is-centered">
       <div id="top-search" class="field has-addons">
         <div class="control">
-          <input v-on:keyup="searchProject()" v-model="searchProjects" class="input" type="text" placeholder="Find a project">
+          <input v-model="searchProjects" class="input" type="text" placeholder="Find a project">
         </div>
         <div class="control">
           <button @click="searchProject()" class="button is-primary">Search</button>
@@ -70,12 +70,12 @@
     data () {
       return {
         projects: [],
-        searchProjects: null,
         project: null,
         projectVersion: null,
+        searchProjects: null,
+        searching: false,
         message: '',
         sorted: '',
-        reverse: 1,
         showPaginatorClick: true,
         payload: this.payloadFactory()
       }
@@ -89,41 +89,60 @@
         this.$route.params.type = ''
         console.log(this.message)
       }
-      this.getMore(true)
+      this.getNext = this.getNext.bind(this, 'projects/')
+      this.getMore = this.getMore.bind(this, 'projects/')
+      this.getNextSearchQuery = this.getNextSearchQuery.bind(this, 'projects/')
+      this.getNext(true)
       this.fade_out()
     },
-
+    watch: {
+      searchProjects: function (a) {
+        if (a.length === 0) {
+          this.searching = false
+          this.showPaginatorClick = true
+          this.projects = []
+          this.payload = this.payloadFactory()
+          this.getNext(true)
+        } else if (a.length > 0) {
+          this.searching = true
+          let sort = this.payload.sort
+          this.payload = this.payloadFactory()
+          this.payload.sort = sort
+          this.searchProject(a)
+        }
+      },
+      projects: function (a) {
+        if (a.length === this.payload.meta.count) {
+          this.showPaginatorClick = false
+        } else if (a.length < this.payload.meta.count) {
+          this.showPaginatorClick = true
+        }
+      }
+    },
     methods: {
       payloadFactory: payloadcfg.payloadInit.bind(null, 'project'),
       /**
        * Searches for signed projects from the database matching the search-criteria
        */
-      searchProject () {
+      searchProject (search) {
+        const path = `projects/search/${search}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
+        console.log(path)
         let _this = this
-        this.searching = true
-        let sort = this.payload.sort
-        this.payload = this.payloadFactory()
-        this.payload.sort = sort
-        this.showPaginatorClick = true
-        if (this.searchProjects.length === 0) {
-          this.searching = false
-          this.showPaginatorClick = true
-          this.projects = []
-          this.getNext(true)
-          return
-        }
-        if ((this.searchProjects.length !== 0) && (this.searchProjects !== null) && (this.searchProjects !== '')) {
-          const path = `projects/search/${this.searchProjects}/${this.payload.links.next}${this.payload.sort.column}${this.payload.sort.order}`
-          axios.get(this.$baseAPI + path).then(response => {
-            console.log(response.data)
-            if (response.data != null) {
-              _this.payload = response.data
-              _this.projects = [..._this.payload.items]
-            } else {
-              _this.message = 'No component found!'
+        axios.get(this.$baseAPI + path).then(response => {
+          console.log(response.data)
+          if (response.data != null) {
+            _this.payload = response.data
+            _this.projects = [..._this.payload.items]
+            console.log("Count: " + _this.payload.meta.count + " Length: " + _this.projects.length)
+            if (_this.projects.length === _this.payload.meta.count) {
+              _this.showPaginatorClick = false
             }
-          })
-        }
+          } else {
+            _this.message = 'No component found!'
+          }
+        }).catch(err => {
+          console.log(err)
+        })
       },
 
       /**
@@ -137,27 +156,27 @@
       /**
        * Fetches all projects from database
        */
-      getMore (replaceItemsList) {
+      getMore (uri, replaceItemsList) {
         let _this = this
         if (this.searching === false) {
-          _this.getNext(replaceItemsList)
+          this.getNext(replaceItemsList)
         } else {
           _this.getNextSearchQuery(replaceItemsList)
         }
       },
-      getNext (replaceItemsList) {
+      getNext (uri, replaceItemsList) {
         let _this = this
-        axios.get(this.$baseAPI + 'projects/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+        axios.get(this.$baseAPI + uri + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
-            this.payload = response.data
+            _this.payload = response.data
             replaceItemsList ? _this.projects = [..._this.payload.items] : _this.projects = [..._this.projects, ..._this.payload.items]
             _this.projects.length === _this.payload.meta.count ? _this.showPaginatorClick = null : _this.showPaginatorClick = true
           }).catch(err => console.log(err))
       },
-      getNextSearchQuery (replaceItemsList) {
+      getNextSearchQuery (uri, replaceItemsList) {
         let _this = this
         if (this.projects.length < this.payload.meta.count) {
-          axios.get(this.$baseAPI + 'projects/search/' + this.searchProjects + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+          axios.get(this.$baseAPI + `${uri}/search/` + this.searchProjects + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
             .then(response => {
               _this.payload = response.data
               replaceItemsList ? _this.projects = [..._this.payload.items] : _this.projects = [..._this.projects, ..._this.payload.items]

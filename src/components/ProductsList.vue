@@ -1,13 +1,13 @@
 <style>
   .component-fade-enter-active, .component-fade-leave-active {
-    transition: opacity .4s ease;
+    transition: opacity .127s ease;
   }
   .component-fade-enter, .component-fade-leave-to
     /* .component-fade-leave-active below version 2.1.8 */ {
     opacity: 0;
   }
   .plist-enter-active, .plist-leave-active {
-    transition: all 0.7s;
+    transition: all 0.327s;
   }
   .plist-enter, .plist-leave-to /* .list-leave-active below version 2.1.8 */ {
     opacity: 0;
@@ -27,7 +27,7 @@
     <div id="top-div-child" class="columns is-mobile is-centered">
       <div id="top-search" class="field has-addons">
         <div class="control">
-          <input v-on:keyup="searchProduct()" v-model="searchProducts" class="input" type="text" placeholder="Find a product">
+          <input v-model="searchProducts" class="input" type="text" placeholder="Find a product">
         </div>
         <div class="control">
           <button @click="searchProduct()" class="button is-primary">Search</button>
@@ -47,7 +47,7 @@
         </thead>
         <tbody>
 
-        <transition-group name="plist2" appear>
+        <transition-group name="list" appear>
         <tr v-for="product in products" @click="displayComponent(product)" v-bind:key="product" class="plist-item">
           <td scope="row" data-label="Product">{{ product.productName }}</td>
           <td scope="row" data-label="Version">{{ product.productVersion }}</td>
@@ -57,7 +57,7 @@
         </transition-group>
 
         <tr v-if="showPaginatorClick || products.length !== payload.meta.count">
-          <div id="paginator" style="text-align: center;" @click="getMore()"><a class="button is-primary">Hämta in fler</a></div>
+          <div id="paginator" style="text-align: center;" @click="getMore(false)"><a class="button is-primary">Hämta in fler</a></div>
         </tr>
         </tbody>
       </table>
@@ -84,9 +84,33 @@
         payload: this.payloadFactory()
       }
     },
-
+    watch: {
+      searchProducts: function (a) {
+        if (a.length === 0) {
+          this.searching = false
+          this.showPaginatorClick = true
+          this.products = []
+          this.payload = this.payloadFactory()
+          this.getNext(true)
+        } else if (a.length > 0) {
+          this.searching = true
+          let sort = this.payload.sort
+          this.payload = this.payloadFactory()
+          this.payload.sort = sort
+          this.searchProduct(a)
+        }
+      },
+      products: function (a) {
+        if (a.length === this.payload.meta.count) {
+          this.showPaginatorClick = false
+        } else if (a.length < this.payload.meta.count) {
+          this.showPaginatorClick = true
+        }
+      }
+    },
     /* Fetches signed products from the database and puts them in products */
     mounted () {
+      console.log("PRODUCTS LIST")
       console.log(this.$route.params)
       if (this.$route.params.type === 'signed') {
         this.message = 'Product "' + this.$route.params.sName + '" (version: ' + this.$route.params.sVersion + ') signed'
@@ -95,9 +119,6 @@
       }
       this.payload = this.payloadFactory()
       console.log(JSON.stringify(this.payload))
-      this.getNext = this.getNext.bind(this, 'products/')
-      this.getMore = this.getMore.bind(this, 'products/')
-      this.getNextSearchQuery = this.getNextSearchQuery.bind(this, 'products/')
       this.getNext(true)
       this.fade_out()
     },
@@ -107,33 +128,23 @@
       /**
        * Searches for signed products from the database matching the search-criteria
        */
-      searchProduct () {
-        this.searching = true
-        let sort = this.payload.sort
-        this.payload = this.payloadFactory()
-        this.payload.sort = sort
-        this.showPaginatorClick = true
-        if (this.searchProducts.length === 0) {
-          this.searching = false
-          this.showPaginatorClick = true
-          this.products = []
-          this.getNext(true)
-          return
-        }
-        if ((this.searchProducts.length !== 0) && (this.searchProducts !== null) && (this.searchProducts !== '')) {
-          const path = `products/search/${this.searchProducts}/${this.payload.links.next}${this.payload.sort.column}${this.payload.sort.order}`
-          axios.get(this.$baseAPI + path).then(response => {
-            console.log(response.data)
-            if (response.data != null) {
-              this.payload = response.data
-              console.log(JSON.stringify(response.data))
-              this.products = [...this.payload.items]
-            } else {
-              console.log('Moterfucaasdd')
-              this.message = 'No component found!'
+      searchProduct (search) {
+        const path = `products/search/${search}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
+        let _this = this
+        axios.get(this.$baseAPI + path).then(response => {
+          console.log(response.data)
+          if (response.data != null) {
+            _this.payload = response.data
+            _this.products = [..._this.payload.items]
+            if (_this.products.length === _this.payload.meta.count) {
+              _this.showPaginatorClick = false
             }
-          })
-        }
+          } else {
+            _this.message = 'No component found!'
+          }
+        }).catch(err => {
+          console.log(err)
+        })
       },
 
       /**
@@ -147,32 +158,26 @@
       /**
        * Fetches all products from database
        */
-      getAllProducts () {
-        axios.get(this.$baseAPI + 'products/')
-          .then(response => {
-            this.products = response.data
-          })
-      },
-
       // GET METHODS
-      getMore (uri, replaceItemsList) {
+      getMore (replaceItemsList) {
         if (this.searching === false) {
-          this.getNext(uri, replaceItemsList)
+          this.getNext(replaceItemsList)
         } else {
-          this.getNextSearchQuery(uri, replaceItemsList)
+          this.getNextSearchQuery(replaceItemsList)
         }
       },
-      getNext (uri, replaceItemsList) {
-        console.log(this.$baseAPI + uri + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
-        axios.get(this.$baseAPI + uri + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+      getNext (replaceItemsList) {
+        console.log(this.$baseAPI + 'products/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+        axios.get(this.$baseAPI + 'products/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
             replaceItemsList ? this.products = [...this.payload.items] : this.products = [...this.products, ...this.payload.items]
+            console.log("Response data: \n" + JSON.stringify(response.data))
             this.products.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
           })
       },
-      getNextSearchQuery (uri, replaceItemsList) {
-        axios.get(this.$baseAPI + uri + 'search/' + this.searchProducts + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+      getNextSearchQuery (replaceItemsList) {
+        axios.get(this.$baseAPI + 'products/search/' + this.searchProducts + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
             replaceItemsList ? this.products = [...this.payload.items] : this.products = [...this.products, ...this.payload.items]

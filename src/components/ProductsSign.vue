@@ -9,7 +9,7 @@
     <div id="top-div-child" class="columns is-mobile is-centered">
       <div id="top-search" class="field has-addons">
         <div class="control">
-          <input v-on:keyup="searchProduct()" v-model="searchProducts" class="input" type="text" placeholder="Find a product">
+          <input v-model="searchProducts" class="input" type="text" placeholder="Find a product">
         </div>
         <div class="control">
           <button @click="searchProduct()" class="button is-primary">Search</button>
@@ -30,12 +30,14 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="product in products" @click="displayProduct(product)">
+        <transition-group  name="list" appear>
+        <tr v-for="product in products" @click="displayProduct(product)" v-bind:key="product" class="plist-item">
           <td scope="row" data-label="Product">{{ product.productName }}</td>
           <td scope="row" data-label="Version">{{ product.productVersion }}</td>
           <td scope="row" data-label="Created">{{ product.dateCreated }}</td>
           <td scope="row" data-label="Last edited">{{ product.lastEdited }}</td>
         </tr>
+        </transition-group>
         <tr v-if="showPaginatorClick">
           <div id="paginator" style="text-align: center;" @click="getMore()"><a class="button is-primary">Hämta in fler</a></div>
         </tr>
@@ -71,7 +73,30 @@
       this.getMore(true)
       // this.getAllPending()
     },
-
+    watch: {
+      searchProducts: function (a) {
+        if (a.length === 0) {
+          this.searching = false
+          this.showPaginatorClick = true
+          this.products = []
+          this.payload = this.payloadFactory()
+          this.getNext(true)
+        } else if (a.length > 0) {
+          this.searching = true
+          let sort = this.payload.sort
+          this.payload = this.payloadFactory()
+          this.payload.sort = sort
+          this.searchComponent(a)
+        }
+      },
+      components: function (a) {
+        if (a.length === this.payload.meta.count) {
+          this.showPaginatorClick = false
+        } else if (a.length < this.payload.meta.count) {
+          this.showPaginatorClick = true
+        }
+      }
+    },
     methods: {
       payloadFactory: payloadcfg.payloadInit.bind(null, 'product'),
       getMore (replaceItemsList) {
@@ -120,34 +145,25 @@
       /**
        * Searches for unsigned products from the database matching the search-criteria
        */
-      searchProduct () {
+      searchComponent (search) {
+        const path = `products/pending/search/${search}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
+        console.log(path)
         let _this = this
-        this.searching = true
-        let sort = this.payload.sort
-        this.payload = this.payloadFactory()
-        this.payload.sort = sort
-        this.showPaginatorClick = true
-        if (this.searchProducts.length === 0) {
-          this.searching = false
-          this.showPaginatorClick = true
-          this.products = []
-          this.getNext(true)
-          return
-        }
-        if ((this.searchProducts.length !== 0) && (this.searchProducts !== null) && (this.searchProducts !== '')) {
-          const path = `products/pending/search/${this.searchProducts}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
-          console.log(path)
-          console.log("mf")
-          axios.get(this.$baseAPI + path).then(response => {
-            console.log(response.data)
-            if (response.data != null) {
-              _this.payload = response.data
-              _this.products = [..._this.payload.items]
-            } else {
-              _this.message = 'No component found!'
+        axios.get(this.$baseAPI + path).then(response => {
+          console.log(response.data)
+          if (response.data != null) {
+            _this.payload = response.data
+            _this.products = [..._this.payload.items]
+            console.log("Count: " + _this.payload.meta.count + " Length: " + _this.products.length)
+            if (_this.products.length === _this.payload.meta.count) {
+              _this.showPaginatorClick = false
             }
-          })
-        }
+          } else {
+            _this.message = 'No component found!'
+          }
+        }).catch(err => {
+          console.log(err)
+        })
       },
 
       /**
