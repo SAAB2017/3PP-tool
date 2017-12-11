@@ -128,6 +128,8 @@ function handleGetRequest (req, res, isSigned) {
   const approved = (isSigned) ? 1 : 0
   let sorting = (req.query.sort === 'undefined') ? `componentName` : `${req.query.sort}`
   let ordering = (req.query.order === 'undefined') ? `asc` : `${req.query.order}`
+  let sort = {column: `&sort=${sorting}`, order: `&order=${ordering}`}
+  response.sort = sort
 
   getLinkData(req.db, offset, amount, response, `select count(*) as count from components where approved=${approved}`, (links) => {
     response.links = {
@@ -136,10 +138,6 @@ function handleGetRequest (req, res, isSigned) {
       next: `?offset=${links.next}&amount=${amount}`
     }
   })
-  for (let uri in response.links) {
-    const link = `${response.links[uri]}&sort=${sorting}&order=${ordering}`
-    response.links[uri] = link
-  }
   if (!response.errorflag) {
     // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
     console.log("Pending: " + approved)

@@ -62,7 +62,6 @@ module.exports = {
   },
   /*    // TODO: make these functions global, then bind context to them
   getMore: (uri, replaceItemsList) => {
-    console.log('HELLO BOUND UNIVERSE! A')
     if (this.searching === false) {
       this.getNext(uri, replaceItemsList)
     } else {
@@ -70,9 +69,6 @@ module.exports = {
     }
   },
   getNext: (uri, replaceItemsList) => {
-    console.log('HELLO BOUND UNIVERSE! B')
-    console.log(this.$baseAPI)
-    console.log(this.$baseAPI + uri + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
     axios.get(this.$baseAPI + uri + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
       .then(response => {
         this.payload = response.data
@@ -81,7 +77,6 @@ module.exports = {
       })
   },
   getNextSearchQuery: (uri, replaceItemsList) => {
-    console.log('HELLO BOUND UNIVERSE! C')
     axios.get(this.$baseAPI + uri + 'search/' + this.searchProducts + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
       .then(response => {
         this.payload = response.data
@@ -92,7 +87,8 @@ module.exports = {
           this.showPaginatorClick = true
         }
       })
-  },*/
+  },
+  */
   NOTSIGNED: false,
   SIGNED: true
 }

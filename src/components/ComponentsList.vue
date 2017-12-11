@@ -78,10 +78,16 @@
         component: null,
         componentVersion: null,
         searchComponents: null,
+        order: 'asc',
         message: '',
         showPaginatorClick: true,
         searching: false,
         payload: this.payloadFactory()
+      }
+    },
+    watch: {
+      ordering: function (ord) {
+        this.components = []
       }
     },
 

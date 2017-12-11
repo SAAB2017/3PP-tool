@@ -96,6 +96,10 @@ s<!-- Viezx w for showing all unsigned components -->
         } else if (a.length < this.payload.meta.count) {
           this.showPaginatorClick = true
         }
+      },
+      // watch for change in ordering; cancel out content
+      ordering: function (a) {
+        this.components = []
       }
     },
 
@@ -103,10 +107,8 @@ s<!-- Viezx w for showing all unsigned components -->
       payloadFactory: payloadcfg.payloadInit.bind(null, 'component'),
       getMore (replaceItemsList) {
         if (this.searching === false) {
-          console.log("Searching is turned off")
           this.getNext(replaceItemsList)
         } else {
-          console.log("getting more")
           this.getNextSearchQuery(replaceItemsList)
         }
       },
@@ -115,15 +117,14 @@ s<!-- Viezx w for showing all unsigned components -->
        * Searches for unsigned components from the database matching the search-criteria
        */
       searchComponent (search) {
-        const path = `components/pending/search/${search}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
+        const path = 'components/pending/search/' + search + this.payload.links.next + this.payload.sort.column + this.payload.sort.order
         console.log(path)
         let _this = this
         axios.get(this.$baseAPI + path).then(response => {
           console.log(response.data)
           if (response.data != null) {
             _this.payload = response.data
-            _this.components = [..._this.payload.items]
-            console.log("Count: " + _this.payload.meta.count + " Length: " + _this.components.length)
+            _this.components = _this.payload.items
             if (_this.components.length === _this.payload.meta.count) {
               _this.showPaginatorClick = false
             }
