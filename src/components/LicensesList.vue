@@ -23,7 +23,7 @@
     <div id="top-div-child" class="columns is-mobile is-centered" style="padding-top: 20px">
       <div id="top-search" class="field has-addons">
         <div class="control">
-          <input v-on:keyup="searchLicense()" v-model="searchLicenses" class="input" type="text" placeholder="Find a product">
+          <input v-model="searchLicenses" class="input" type="text" placeholder="Find a product">
         </div>
         <div class="control">
           <button @click="searchLicense()" class="button is-primary">Search</button>
@@ -72,7 +72,7 @@
         licenseVersion: null,
         searchLicenses: null,
         sorted: '',
-        reverse: 1,
+        ordering: 'asc',
         message: '',
         showPaginatorClick: true,
         searching: false,
@@ -83,6 +83,35 @@
     /* Fetches signed licenses from the database and puts them in licenses */
     mounted () {
       this.getNext(true)
+    },
+
+    watch: {
+      searchLicenses: function (a) {
+        if (a.length === 0) {
+          this.searching = false
+          this.showPaginatorClick = true
+          this.licenses = []
+          this.payload = this.payloadFactory()
+          this.getNext(true)
+        } else if (a.length > 0) {
+          this.searching = true
+          let sort = this.payload.sort
+          this.payload = this.payloadFactory()
+          this.payload.sort = sort
+          this.searchLicense(a)
+        }
+      },
+      ordering: function (newval) {
+        console.log("New order: " + newval)
+        this.licenses = []
+      },
+      licenses: function (a) {
+        if (a.length === this.payload.meta.count) {
+          this.showPaginatorClick = false
+        } else if (a.length < this.payload.meta.count) {
+          this.showPaginatorClick = true
+        }
+      }
     },
 
     methods: {
@@ -113,7 +142,7 @@
         axios.get(this.$baseAPI + 'licenses/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
-            replaceItemsList ? this.licenses = [...this.payload.items] : this.licenses = [...this.licenses, ...this.payload.items]
+            replaceItemsList ? this.licenses = this.payload.items : this.licenses = this.licenses.concat(this.payload.items)
             this.licenses.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
           })
       },
@@ -144,34 +173,16 @@
           return
         }
         if ((this.searchLicenses.length !== 0) && (this.searchLicenses !== null) && (this.searchLicenses !== '')) {
-          const path = `licenses/search/${this.searchLicenses}/${this.payload.links.next}${this.payload.sort.column}${this.payload.sort.order}`
+          const path = 'licenses/search/' + this.searchLicenses + this.payload.links.next + this.payload.sort.column + this.payload.sort.order
           axios.get(this.$baseAPI + path).then(response => {
             console.log(response.data)
             if (response.data != null) {
               this.payload = response.data
-              this.licenses  = [...this.payload.items]
+              this.licenses = this.payload.items
             } else {
               this.message = 'No component found!'
             }
           })
-        }
-      },
-
-      searchLicensev3 () {
-        if (this.searchLicenses.length === 0) {
-          this.getAllLicenses()
-          return
-        }
-        if (this.searchLicenses !== 0 || this.searchLicenses !== null || this.searchLicenses !== '') {
-          axios.get(this.$baseAPI + 'licenses/search/' + this.searchLicenses).then(response => {
-            if (response.data != null) {
-              this.licenses = response.data
-            } else {
-              this.message = 'No component found!'
-            }
-          })
-        } else {
-          this.getAllLicenses()
         }
       },
 
@@ -184,83 +195,62 @@
       },
 
       sortName () {
-        if (this.sorted !== 'name') {
-          this.sorted = 'name'
-          this.reverse = 1
+        this.licenses = []
+        let newpayload = this.payloadFactory()
+        newpayload.sort.column = '&sort=licenseName'
+        if (this.ordering === 'asc') {
+          this.ordering = 'desc'
+          newpayload.sort.order = '&order=desc'
+        } else {
+          this.ordering = 'asc'
+          newpayload.sort.order = '&order=asc'
         }
-        let t = this
-        this.licenses.sort(function (a, b) {
-          let lFirst = a.licenseName.toLowerCase()
-          let lSecond = b.licenseName.toLowerCase()
-          if (lFirst < lSecond) {
-            return -1 * t.reverse
-          }
-          if (lFirst > lSecond) {
-            return 1 * t.reverse
-          }
-          return 0
-        })
-        this.reverse *= -1
+        this.payload.sort = newpayload.sort
+        this.payload.links = newpayload.links
+        this.getMore(true)
       },
-
       sortVersion () {
-        if (this.sorted !== 'version') {
-          this.sorted = 'version'
-          this.reverse = 1
+        let newpayload = this.payloadFactory()
+        newpayload.sort.column = '&sort=licenseVersion'
+        if (this.ordering === 'asc') {
+          this.ordering = 'desc'
+          newpayload.sort.order = '&order=desc'
+        } else {
+          this.ordering = 'asc'
+          newpayload.sort.order = '&order=asc'
         }
-        let t = this
-        this.licenses.sort(function (a, b) {
-          let lFirst = a.licenseVersion.toLowerCase()
-          let lSecond = b.licenseVersion.toLowerCase()
-          if (lFirst < lSecond) {
-            return -1 * t.reverse
-          }
-          if (lFirst > lSecond) {
-            return 1 * t.reverse
-          }
-          return 0
-        })
-        this.reverse *= -1
+        this.payload.sort = newpayload.sort
+        this.payload.links = newpayload.links
+        this.getMore(true)
       },
-
       sortCreated () {
-        if (this.sorted !== 'created') {
-          this.sorted = 'created'
-          this.reverse = 1
+        let newpayload = this.payloadFactory()
+        newpayload.sort.column = '&sort=dateCreated'
+        if (this.ordering === 'asc') {
+          this.ordering = 'desc'
+          newpayload.sort.order = '&order=desc'
+        } else {
+          this.ordering = 'asc'
+          newpayload.sort.order = '&order=asc'
         }
-        let t = this
-        this.licenses.sort(function (a, b) {
-          let lFirst = a.dateCreated.toLowerCase()
-          let lSecond = b.dateCreated.toLowerCase()
-          if (lFirst < lSecond) {
-            return -1 * t.reverse
-          }
-          if (lFirst > lSecond) {
-            return 1 * t.reverse
-          }
-          return 0
-        })
-        this.reverse *= -1
+        this.payload.sort = newpayload.sort
+        this.payload.links = newpayload.links
+        this.getMore(true)
       },
-
       sortEdited () {
-        if (this.sorted !== 'created') {
-          this.sorted = 'created'
-          this.reverse = 1
+        let newpayload = this.payloadFactory()
+        newpayload.sort.column = '&sort=lastEdited'
+        if (this.ordering === 'asc') {
+          this.ordering = 'desc'
+          newpayload.sort.order = '&order=desc'
+        } else {
+          this.ordering = 'asc'
+          newpayload.sort.order = '&order=asc'
         }
-        let t = this
-        this.licenses.sort(function (a, b) {
-          let lFirst = a.lastEdited.toLowerCase()
-          let lSecond = b.lastEdited.toLowerCase()
-          if (lFirst < lSecond) {
-            return -1 * t.reverse
-          }
-          if (lFirst > lSecond) {
-            return 1 * t.reverse
-          }
-          return 0
-        })
-        this.reverse *= -1
+        console.log(this.$baseAPI + 'licenses/' + newpayload.links.next + newpayload.sort.column + newpayload.sort.order)
+        this.payload.sort = newpayload.sort
+        this.payload.links = newpayload.links
+        this.getMore(true)
       }
     }
   }

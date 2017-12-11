@@ -169,6 +169,7 @@ router.route('/approve')
       // Make sure that row is not null and that an approved project can't be approved again by a diffrent person
       if (project !== null && input.id !== null && validateRequest(project, approved)) {
         // update the project
+        //            req, res, name, version, id, parametersText, parameters, callback
         updateProject(req, res, null, null, input.id, ['approved', 'approvedBy'], approved, function () {
           insertUpdateIntoLog(req, res, project.id, approved, null)
         })
@@ -542,7 +543,7 @@ function updateProject (req, res, name, version, id, parametersText, parameters,
     query += 'id = ?;'
     parameters.push(id)
   }
-
+  console.log("Query to sign: "  + query)
   req.db.get(query, parameters, (error, row) => {
     if (error) {
       console.log(query + ', ' + error.message)

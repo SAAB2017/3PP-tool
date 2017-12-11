@@ -140,7 +140,11 @@
         axios.get(this.$baseAPI + 'products/all' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
-            replaceItemsList ? _this.products = [..._this.payload.items] : _this.products = [..._this.products, ..._this.payload.items]
+            if (replaceItemsList) {
+              _this.products = _this.payload.items
+            } else {
+              _this.products = _this.products.concat(_this.payload.items)
+            }
             _this.products.length === _this.payload.meta.count ? _this.showPaginatorClick = null : _this.showPaginatorClick = true
           }).catch(err => console.log(err))
       },
@@ -150,7 +154,11 @@
           axios.get(this.$baseAPI + 'products/search/' + this.searchProducts + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
             .then(response => {
               _this.payload = response.data
-              replaceItemsList ? _this.products = [..._this.payload.items] : _this.products = [..._this.products, ..._this.payload.items]
+              if (replaceItemsList) {
+                _this.products = _this.payload.items
+              } else {
+                _this.products = _this.products.concat(_this.payload.items)
+              }
               if (_this.products.length === _this.payload.meta.count) {
                 _this.showPaginatorClick = null
               } else {
@@ -188,14 +196,14 @@
       },
 
       searchProduct (search) {
-        const path = `products/search/${search}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
+        const path = 'products/search/' + search + this.payload.links.next + this.payload.sort.column + this.payload.sort.order
         console.log(path)
         let _this = this
         axios.get(this.$baseAPI + path).then(response => {
           console.log(response.data)
           if (response.data != null) {
             _this.payload = response.data
-            _this.products = [..._this.payload.items]
+            _this.products = _this.payload.items
             console.log("Count: " + _this.payload.meta.count + " Length: " + _this.products.length)
             if (_this.products.length === _this.payload.meta.count) {
               _this.showPaginatorClick = false

@@ -48,6 +48,8 @@
 
 <script>
   import axios from 'axios'
+  import payloadcfg from '../../backend/routes/config'
+
   export default {
     data () {
       return {

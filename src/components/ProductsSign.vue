@@ -146,15 +146,15 @@
        * Searches for unsigned products from the database matching the search-criteria
        */
       searchComponent (search) {
-        const path = `products/pending/search/${search}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
+        const path = 'products/pending/search/' + search + this.payload.links.next + this.payload.sort.column + this.payload.sort.order
         console.log(path)
         let _this = this
         axios.get(this.$baseAPI + path).then(response => {
           console.log(response.data)
           if (response.data != null) {
             _this.payload = response.data
-            _this.products = [..._this.payload.items]
-            console.log("Count: " + _this.payload.meta.count + " Length: " + _this.products.length)
+            _this.products = _this.payload.items
+            // console.log("Count: " + _this.payload.meta.count + " Length: " + _this.products.length)
             if (_this.products.length === _this.payload.meta.count) {
               _this.showPaginatorClick = false
             }

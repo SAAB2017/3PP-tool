@@ -131,7 +131,7 @@
         let data = {
           productName: this.productName,
           productVersion: this.productVersion,
-          comment: this.productCommeznt,
+          comment: this.productComment,
           components: this.checkedComponents
         }
 
@@ -154,7 +154,6 @@
         if (this.searching === false) {
           this.getNext(replaceItemsList)
         } else {
-          console.log('Searching query in textbox')
           this.getNextSearchQuery(replaceItemsList)
         }
       },

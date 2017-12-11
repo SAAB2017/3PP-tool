@@ -127,10 +127,6 @@ function handleGetRequest (req, res) {
       next: `?offset=${links.next}&amount=${amount}`
     }
   })
-  for (let uri in response.links) {
-    const link = `${response.links[uri]}&sort=${sorting}&order=${ordering}`
-    response.links[uri] = link
-  }
   if (!response.errorflag) {
     // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
     const query = `SELECT * FROM licenses order by ${sorting} ${ordering} LIMIT ${offset}, ${amount} `
