@@ -1,6 +1,6 @@
 ##### Table of Contents
 <dl>
-  <dt></dt>[Projects](#projects)
+  <dt></dt> [Projects](#projects)
   <dd>[Show all signed projects](#signedProjects)</dd>
   <dd>[Show all unsigned projects](#unsignedProjects)</dd>
 
