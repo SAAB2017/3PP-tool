@@ -27,11 +27,11 @@ Alla anrop returneras som **JSON**.
 
 # Licenses
 
-## Show all licenses
+## Search for a specific license.
 
 ### URL
 
-/licenses
+/licenses/search/:id?offset=0&amount=30&sort=licenseName&order=asc
 
 ### Method
 
@@ -39,7 +39,14 @@ GET
 
 ### URL Params
 
-Required: None
+Required:
+```
+id = licenseName
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
 
 ### Success Response
 
@@ -48,20 +55,86 @@ Code: 200
 Content:
 ```json
 {
-"id" : 1,
-"licenseName" : "GNU AGPL",
-"licenseVersion" : "3.0",
-"dateCreated" : "2017-10-01",
-"lastEdited" : "2017-10-01",
-"URL" : "https://www.gnu.org/licenses/agpl-3.0.en.html",
-"comment" : "GNU Affero General Public License",
-"licenseType" : "Open source license"
+  "items":[{  "id":5,
+              "licenseName":"Apache License",
+              "licenseVersion":"2.0",
+              "dateCreated":"2017-10-20",
+              "lastEdited":"2017-10-15",
+              "URL":"https://www.mozilla.org/en-US/MPL/2.0/",
+              "comment":null,
+              "licenseType":"Open source license"}],
+   "links":{  "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+   "sort":{   "column":"&sort=licenseName",
+              "order":"&order=asc"},
+   "meta":{   "current":0,
+              "count":0},
+   "errors":{ "message":[],
+              "status":"OK"},
+   "errorflag":false
 }
 ```
 
 ### Sample Call
 ```javascript
-axios.get('/licenses/')
+axios.get('/licenses/search/Apache?offset=0&amount=30&sort=licenseName&order=asc')
+  .then(response => {
+  response.data
+}
+```
+
+## Get all licenses.
+
+### URL
+
+/licenses/?offset=0&amount=30&sort=licenseName&order=asc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```json
+{
+  "items":[{  "id":5,
+              "licenseName":"Apache License",
+              "licenseVersion":"2.0",
+              "dateCreated":"2017-10-20",
+              "lastEdited":"2017-10-15",
+              "URL":"https://www.mozilla.org/en-US/MPL/2.0/",
+              "comment":null,
+              "licenseType":"Open source license"}],
+   "links":{  "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+   "sort":{   "column":"&sort=licenseName",
+              "order":"&order=asc"},
+   "meta":{   "current":0,
+              "count":0},
+   "errors":{ "message":[],
+              "status":"OK"},
+   "errorflag":false
+}
+```
+
+### Sample Call
+```javascript
+axios.get('/licenses/?offset=0&amount=30&sort=licenseName&order=asc')
   .then(response => {
   response.data
 }
@@ -255,7 +328,7 @@ axios.get('/licenses/licensesInProject/1')
 
 ### URL
 
-/licenses/:id
+/licenses/license/:id
 
 ### Method
 
@@ -293,7 +366,7 @@ TODO
 
 ### Sample Call
 ```javascript
-axios.get('/licenses/1')
+axios.get('/licenses/license/1')
   .then(response => {
   response.data
 }
@@ -314,13 +387,13 @@ POST
 Example:
 ```json
 {
-  licenseName : String,
-  licenseVersion : String,
-  dateCreated : String,
-  lastEdited : String,
-  URL : String,
-  comment : String,
-  licenseType : String
+  "licenseName" : String,
+  "licenseVersion" : String,
+  "dateCreated" : String,
+  "lastEdited" : String,
+  "URL" : String,
+  "comment" : String,
+  "licenseType" : String
 }
 ```
 
@@ -346,21 +419,132 @@ Content:
 }
 ```
 
+### Sample Call
+```
+let data = '{
+              "licenseName" : "New License",
+              "licenseVersion" : "1.0",
+              "dateCreated" : "2017-12-05",
+              "lastEdited" : "2017-12-05",
+              "URL" : "http://www.example.com",
+              "comment" : "This is a comment.",
+              "licenseType" : "Type of license."
+}'
+```
+```javascript
+axios.post('/licenses/add', data)
+  .then(response => {
+  response
+})
+```
+
+## Change a license's comment.
+
+### URL
+
+/licenses/comment
+
+### Method
+
+POST
+
+### Data Params
+
+Example:
+```json
+{
+  "id" : Integer,
+  "comment" : String
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```json
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+```json
+{
+  error_id : "E04"
+}
+```
 
 ### Sample Call
 ```
 let data = '{
-              licenseName : "New License",
-              licenseVersion : "1.0",
-              dateCreated : "2017-12-05",
-              lastEdited : "2017-12-05",
-              URL : "http://www.example.com",
-              comment : "This is a comment.",
-              licenseType : "Type of license."
-            }'
+              "id" : 1,
+              "comment" : "This is a comment."
+}'
 ```
 ```javascript
-axios.post('/licenses/add', data)
+axios.post('/licenses/comment', data)
+  .then(response => {
+  response
+})
+```
+
+## Change a license's URL.
+
+### URL
+
+/licenses/URL
+
+### Method
+
+POST
+
+### Data Params
+
+Example:
+```json
+{
+  "id" : Integer,
+  "URL" : String
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```json
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+```json
+{
+  error_id : "E04"
+}
+```
+
+### Sample Call
+```
+let data = '{
+              "id" : 1,
+              "URL" : "This is an URL."
+}'
+```
+```javascript
+axios.post('/licenses/URL', data)
   .then(response => {
   response
 })
@@ -413,6 +597,170 @@ axios.get('/licenses/search/GNU AGPL')
   response.data
 }
 ```
+
+## Get licenses in component.
+
+### URL
+
+/licenses/licensesInComponent/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```json
+{
+  "items":[{  "id":5,
+              "licenseName":"Apache License",
+              "licenseVersion":"2.0",
+              "dateCreated":"2017-10-20",
+              "lastEdited":"2017-10-15",
+              "URL":"https://www.mozilla.org/en-US/MPL/2.0/",
+              "comment":null,
+              "licenseType":"Open source license"}],
+   "links":{  "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+   "sort":{   "column":"&sort=licenseName",
+              "order":"&order=asc"},
+   "meta":{   "current":0,
+              "count":0},
+   "errors":{ "message":[],
+              "status":"OK"},
+   "errorflag":false
+}
+```
+
+### Sample Call
+```javascript
+axios.get('/licenses/licensesInComponent/1')
+  .then(response => {
+  response.data
+}
+```
+
+## Get licenses in product.
+
+### URL
+
+/licenses/licensesInProduct/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```json
+{
+  "items":[{  "id":5,
+              "licenseName":"Apache License",
+              "licenseVersion":"2.0",
+              "dateCreated":"2017-10-20",
+              "lastEdited":"2017-10-15",
+              "URL":"https://www.mozilla.org/en-US/MPL/2.0/",
+              "comment":null,
+              "licenseType":"Open source license"}],
+   "links":{  "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+   "sort":{   "column":"&sort=licenseName",
+              "order":"&order=asc"},
+   "meta":{   "current":0,
+              "count":0},
+   "errors":{ "message":[],
+              "status":"OK"},
+   "errorflag":false
+}
+```
+
+### Sample Call
+```javascript
+axios.get('/licenses/licensesInProduct/1')
+  .then(response => {
+  response.data
+}
+```
+
+## Get licenses in project.
+
+### URL
+
+/licenses/licensesInProject/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```json
+{
+  "items":[{  "id":5,
+              "licenseName":"Apache License",
+              "licenseVersion":"2.0",
+              "dateCreated":"2017-10-20",
+              "lastEdited":"2017-10-15",
+              "URL":"https://www.mozilla.org/en-US/MPL/2.0/",
+              "comment":null,
+              "licenseType":"Open source license"}],
+   "links":{  "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+   "sort":{   "column":"&sort=licenseName",
+              "order":"&order=asc"},
+   "meta":{   "current":0,
+              "count":0},
+   "errors":{ "message":[],
+              "status":"OK"},
+   "errorflag":false
+}
+```
+
+### Sample Call
+```javascript
+axios.get('/licenses/licensesInProject/1')
+  .then(response => {
+  response.data
+}
+```
+
+
+
+
+
 
 # Components
 
