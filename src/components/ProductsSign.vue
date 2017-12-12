@@ -172,7 +172,7 @@
        */
       displayProduct (product) {
         console.log(`Product id is ${product}`)
-        this.$router.push({ name: 'products_pending_id', params: { id: product.id } })
+        this.$router.push({ name: 'products_id', params: { id: product.id } })
       },
 
       sortName () {
@@ -250,7 +250,8 @@
           return 0
         })
         this.reverse *= -1
-      }
+      },
+
     }
   }
 </script>

@@ -166,7 +166,7 @@ s<!-- Viezx w for showing all unsigned components -->
        */
       displayComponent (component) {
         console.log(`Component id is ${component.id}`)
-        this.$router.push({ name: 'components_pending_id', params: { id: component.id } })
+        this.$router.push({ name: 'components_id', params: { id: component.id } })
       },
 
       sortName () {
