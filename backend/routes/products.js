@@ -30,14 +30,12 @@ function handleSearchGetRequest (req, res, isPending) {
   if (!response.errorflag) {
     // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
     const query = `SELECT * FROM products where productName LIKE '%${req.params.id}%' AND approved='${approved}' order by ${sorting} ${ordering} LIMIT ${offset}, ${amount}`
-    console.log("Product query: " + query)
     req.db.all(query, (err, rows) => {
       if (err) {
         let errormessage = 'ERROR! error message:' + err.message + ', query: ' + query
         response.errors.message = [errormessage]
         response.errors.status = 'ERROR'
         response.errors.errorflag = true
-        console.log(err)
         res.status(404)
         res.json(response)
       } else {
@@ -55,19 +53,15 @@ function handleSearchGetRequest (req, res, isPending) {
 // ===========================
 router.route('/search/:id')
   .get((req, res) => {
-    console.log('/search/:id' + 'someting')
     handleSearchGetRequest(req, res, SIGNED)
   })
 
 router.route('/pending/search/:id').get((req, res) => {
-  console.log('mf')
-  console.log('/pending/search/:id' + req.query.sort)
   handleSearchGetRequest(req, res, NOTSIGNED)
 })
 
 
 router.route('/pending/:id').get((req, res) => {
-  console.log('/pending/:id' + req.params.id)
   handleSearchGetRequest(req, res, NOTSIGNED)
 })
 // ----------------------------------------------------------------------------
@@ -84,13 +78,8 @@ router.route('/pending/:id').get((req, res) => {
 function getLinkData (db, offset, amount, response, pageQuery, setLinksCB) {
   // FIXME: getTotal(req, response) doesn't work because of the async nature of calls to sqlite3
   // const pageCountQuery = (signed) ? `select count(*) as count from components where approved=1` : `select count(*) as count from components where approved=0`
-  // console.log(pageCountQuery)
-  console.log('pagequery: ' + pageQuery)
   db.get(pageQuery, (err, row) => {
     if (err) {
-      // console.log("ERROR: " + err.message)
-      console.log("Error:")
-      console.log(err)
       response = initPayload() // effectively empty payload, reset cursor to beginning, default parameters
       response.errors.message.push('Could not get element count from database.')
       response.errorflag = true
@@ -99,7 +88,6 @@ function getLinkData (db, offset, amount, response, pageQuery, setLinksCB) {
       // response.meta.count = Number.isSafeInteger(row.count) ? row.count : 0
       // Object.assign(response.meta, meta)
       response.meta.count = row.count
-      console.log(response.meta.count)
       // if these parameters are malformed, the response defaults to the first 30 items (0, 30)
       if (!isNaN(response.meta.count) && Number.isSafeInteger(response.meta.count)) {
         if (isNaN(offset) || isNaN(amount)) {
@@ -120,7 +108,6 @@ function getLinkData (db, offset, amount, response, pageQuery, setLinksCB) {
           setLinksCB(links)
         }
       } else {
-        console.log("ERROR")
         response.errorflag = true
         response.errors.message.push('Illegal query parameters')
       }
@@ -149,17 +136,14 @@ function handleGetRequest (req, res, isSigned) {
   if (!response.errorflag) {
     // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
     const query = `SELECT * FROM products where approved=${approved} order by ${sorting} ${ordering} LIMIT ${offset}, ${amount} `
-    console.log('Executing query: ' + query)
     req.db.all(query, (err, rows) => {
       if (err) {
-        console.log(err)
         response.errors.message = [err]
         response.errors.status = 'ERROR'
         response.errors.errorflag = true
         res.json(response)
       } else {
         response.items = rows
-        console.log('Current response data: \n' + JSON.stringify(response))
         response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
         res.json(response)
       }
@@ -176,7 +160,6 @@ router.route('/all')
     const amount = parseInt(+req.query.amount) || 5
     let sorting = (req.query.sort === 'undefined') ? `productName` : `${req.query.sort}`
     let ordering = (req.query.order === 'undefined') ? `asc` : `${req.query.order}`
-    console.log('SORTING: ' + sorting + " ORDER: " + ordering)
     getLinkData(req.db, offset, amount, response, `select count(*) as count from products`, (links) => {
       response.links = {
         prev: `?offset=${links.prev}&amount=${amount}`,
@@ -186,19 +169,15 @@ router.route('/all')
     })
     for (let uri in response.links) {
       const link = `${response.links[uri]}&sort=${sorting}&order=${ordering}`
-      console.log("commands: " + uri + ": " + link)
       response.links[uri] = link
     }
     for (let a in response.links) {
-      console.log(`${a} ${response.links[a]}`)
     }
     if (!response.errorflag) {
       // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
       const query = `SELECT * FROM products order by ${sorting} ${ordering} LIMIT ${offset}, ${amount} `
-      console.log('Executing query: ' + query)
       req.db.all(query, (err, rows) => {
         if (err) {
-          console.log(err)
           response.errors.message = [err]
           response.errors.status = 'ERROR'
           response.errors.errorflag = true
@@ -215,13 +194,11 @@ router.route('/all')
 
 router.route('/')
   .get((req, res) => {
-    console.log('Yo yo yo')
     handleGetRequest(req, res, SIGNED)
   })
 
 router.route('/pending')
   .get((req, res) => {
-    console.log('Calling pending')
     handleGetRequest(req, res, NOTSIGNED)
   })
 
@@ -250,7 +227,6 @@ router.route('/approve')
           'byUser': '' + product.approvedBy
           // "onTime": "1510062744"
         }
-        console.log(message)
         res.status(500).send(message)
       }
     })
@@ -329,12 +305,10 @@ router.route('/add')
     const components = input.components
     req.db.run('begin', (err) => {
       if (err) {
-        console.log('Error acquiring lock on database: ' + err.message)
       } else {
         addProduct(input, (query) => {
           req.db.run(query, (err) => {
             if (err) {
-              console.log(err.message)
               res.status(500)
               req.db.run('rollback')
               res.send('ERROR! error message:' + err.message + ', query: ' + query)
@@ -394,7 +368,6 @@ router.route('/connectComponentWithProduct')
             let message = {
               'errorType': 'componentDoesNotExist'
             }
-            console.log(message)
             res.status(500).send(message)
           } else {
             // Create a log of the license added to the component
@@ -507,7 +480,6 @@ router.route('/product/:id')
     const query = `SELECT * FROM products WHERE id=${input}`
     req.db.get(query, (err, row) => {
       if (err) {
-        console.log(err)
         res.status(404)
         res.send('ERROR! error message:' + err.message + ', query: ' + query)
       } else {
@@ -527,7 +499,6 @@ router.route('/search/:id')
     const query = `select * from products where productName LIKE "%${req.params.id}%"`
     req.db.all(query, (err, rows) => {
       if (err) {
-        console.log(err)
         res.status(404)
         res.send('ERROR! error message:' + err.message + ', query: ' + query)
       } else {
@@ -586,7 +557,6 @@ function getProduct (req, res, productName, productVersion, id, callback) {
 
   req.db.get(query, parameters, (error, row) => {
     if (error) {
-      console.log(error.message)
       res.status(500)
       res.send('ERROR! error message:' + error.message + ', query: ' + query + ', parameters: ' + parameters)
     } else {
@@ -620,7 +590,6 @@ function getComponent (req, res, componentName, componentVersion, id, callback) 
 
   req.db.get(query, parameters, (error, row) => {
     if (error) {
-      console.log(error.message)
       res.status(500)
       res.send('ERROR! error message:' + error.message + ', query: ' + query + ', parameters: ' + parameters)
     } else {
@@ -644,7 +613,6 @@ function insertProductLog (req, res, id, text, callback) {
   let queryLog = 'INSERT INTO productLog (productID, dateLogged, note) VALUES (?, ?, ?);'
   req.db.run((queryLog), parametersLog, (error) => {
     if (error) {
-      console.log(error.message)
       res.status(500)
       res.send(error.message)
     } else {
@@ -691,7 +659,6 @@ function updateProduct (req, res, productName, productVersion, id, parametersTex
 
   req.db.run(query, parameters, (error) => {
     if (error) {
-      console.log(error.message)
       res.status(500)
       res.send('ERROR! error message:' + error.message + ', query: ' + query + ', parameters: ' + parameters)
     } else {
@@ -715,7 +682,6 @@ function insertComponentIntoProduct (req, res, componentID, productID, callback)
   let parameters = [componentID, productID]
   req.db.run(query, parameters, (error) => {
     if (error) {
-      console.log(error.message)
       res.status(500)
       res.send(error.message)
       res.error_id = "E07"

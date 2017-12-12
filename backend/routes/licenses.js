@@ -27,14 +27,12 @@ function handleSearchGetRequest (req, res) {
   if (!response.errorflag) {
     // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
     const query = `SELECT * FROM licenses where licenseName LIKE '%${req.params.id}%' order by ${sorting} ${ordering} LIMIT ${offset}, ${amount}`
-    console.log(query)
     req.db.all(query, (err, rows) => {
       if (err) {
         let errormessage = 'ERROR! error message:' + err.message + ', query: ' + query
         response.errors.message = [errormessage]
         response.errors.status = 'ERROR'
         response.errors.errorflag = true
-        console.log(err)
         res.status(404)
         res.json(response)
       } else {
@@ -71,9 +69,6 @@ function getLinkData (db, offset, amount, response, pageQuery, setLinksCB) {
   // FIXME: getTotal(req, response) doesn't work because of the async nature of calls to sqlite3
   db.get(pageQuery, (err, row) => {
     if (err) {
-      // console.log("ERROR: " + err.message)
-      console.qlog("Error:")
-      console.log(err)
       response = initPayload() // effectively empty payload, reset cursor to beginning, default parameters
       response.errors.message.push('Could not get element count from database.')
       response.errorflag = true
@@ -82,7 +77,6 @@ function getLinkData (db, offset, amount, response, pageQuery, setLinksCB) {
       // response.meta.count = Number.isSafeInteger(row.count) ? row.count : 0
       // Object.assign(response.meta, meta)
       response.meta.count = row.count
-      console.log(response.meta.count)
       // if these parameters are malformed, the response defaults to the first 30 items (0, 30)
       if (!isNaN(response.meta.count) && Number.isSafeInteger(response.meta.count)) {
         if (isNaN(offset) || isNaN(amount)) {
@@ -103,7 +97,6 @@ function getLinkData (db, offset, amount, response, pageQuery, setLinksCB) {
           setLinksCB(links)
         }
       } else {
-        console.log("ERROR")
         response.errorflag = true
         response.errors.message.push('Illegal query parameters')
       }
@@ -132,7 +125,6 @@ function handleGetRequest (req, res) {
     const query = `SELECT * FROM licenses order by ${sorting} ${ordering} LIMIT ${offset}, ${amount} `
     req.db.all(query, (err, rows) => {
       if (err) {
-        console.log(err)
         response.errors.message = [err]
         response.errors.status = 'ERROR'
         response.errors.errorflag = true
@@ -167,7 +159,6 @@ router.route('/add')
     req.db.run('begin', () => {
       req.db.run(query, (error) => {
         if (error) {
-          console.log(error.message)
           res.status(500)
           res.send(error.message)
           res.error_id = 'E04'
@@ -186,11 +177,9 @@ router.route('/add')
           const logquery = `INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES (${licenseID}, '${date}', 'License created.')`
           req.db.run(logquery, (error) => {
             if (error) {
-              console.log(error.message)
               res.status(500)
               res.send(error.message)
             } else {
-              console.log('Success!')
               req.db.run('commit')
               res.status(201)
               res.send('success')
@@ -208,12 +197,10 @@ router.route('/add')
 router.route('/licensesInComponent/:id')
   .get((req, res) => {
     let componentID = req.params.id
-    console.log(componentID)
     let query = `SELECT licenseID as id, licenseName, licenseVersion, dateCreated, lastEdited, comment, URL FROM  licenses INNER JOIN licensesInComponents ON licenses.id=licensesInComponents.licenseID WHERE 
     componentID=${componentID}`
     req.db.all(query, (err, rows) => {
       if (err) {
-        console.log(err)
       }
       res.json(rows)
     })
@@ -237,7 +224,6 @@ router.route('/log/:id')
 // ----------------------------------------------------------------------------
 router.route('/licensesInProduct/:id')
   .get((req, res) => {
-    console.log("Calling licesenses In Product" + req.params.id)
     // precondition: the product must exists and it must also be connected to atleast one component.
     // This component must inturn be connected to a license.
     let input = req.params.id
@@ -270,12 +256,10 @@ router.route('/license/:id')
   // Search for a license, or license attribute.
   // In order to search; send in a JSON object with the applicable parameters.
   .get((req, res) => {
-    console.log('Trying to get license with id ' + req.param.id)
     let input = req.params.id
     const query = `SELECT * FROM licenses WHERE id=${input}`
     req.db.get(query, (err, row) => {
       if (err) {
-        console.log(err)
         res.status(404)
         res.send('ERROR! error message:' + err.message + ', query: ' + query)
       } else {
@@ -385,7 +369,6 @@ function getLicenseLog (req, res, id) {
 
   req.db.all(query, [id], (error, rows) => {
     if (error) {
-      console.log(error.message)
       res.status(500)
       res.send(error.message)
     } else {
