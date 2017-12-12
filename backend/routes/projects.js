@@ -81,9 +81,9 @@ function getCorrectApproved (input) {
 
   // logic for correct approve/approvedBy
   if (approved[0] !== null) {
-    if (approved !== 0 && approved[1] !== null) {
+    if (approved === 0 && approved[1] === null) {
       approved[1] = ''
-    } else if (approved !== 1 && approved[1] !== null) {
+    } else if (approved === 1 && approved[1] === null) {
       approved[0] = null
     }
   }
