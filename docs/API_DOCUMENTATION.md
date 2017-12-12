@@ -512,7 +512,7 @@ http://localhost:3000/search/{"componentName":"component"}
 
 ### URL
 
-/products
+/products/all/?offset=0&amount=30&sort=productName&order=asc
 
 ### Method
 
@@ -520,7 +520,13 @@ GET
 
 ### URL Params
 
-Required: None
+Required:
+```
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
 
 ### Success Response
 
@@ -528,21 +534,209 @@ Code: 200
 
 Content:
 ```
-[{
-"id" : 1,
-"productName" : "Third-Party License Management REST API",
-"productVersion" : "1.0",
-"dateCreated" : "2017-11-20",
-"lastEdited" : "2017-11-20",
-"comment" : "Third party handler Rest API for handling licenses.",
-"approved" : 1,
-"approvedBy" : "Nils Nilsson"
-}]
+{
+"items": [{  "id":1,
+              "productName":"Third-Party License Management REST API",
+              "productVersion":"1.0",
+              "dateCreated":"2017-11-20",
+              "lastEdited":"2017-11-20",
+              "comment":"Third party handler Rest API for handling licenses.",
+              "approved":1,
+              "approvedBy":"Nils Nilsson"},
+           {  "id":2,
+              "productName":"Third-Party License Management WUI",
+              "productVersion":"1.0",
+              "dateCreated":"2017-11-20",
+              "lastEdited":"2017-11-20",
+              "comment":"Third party handler Rest API for handling licenses.",
+              "approved":0,
+              "approvedBy":"Nils Nilsson"}],
+"links": {    "prev":"?offset=0&amount=5&sort=productName&order=asc",
+              "current":"?offset=0&amount=5&sort=productName&order=asc",
+              "next":"?offset=0&amount=5&sort=productName&order=asc"},
+"sort": {     "column":"&sort=productName",
+              "order":"&order=asc"},
+"meta": {     "current":0,
+              "count":0},
+"errors": {   "message":[],
+              "status":"OK"},
+"errorflag": false
+}
 ```
 
 ### Sample Call
 ```javascript
-axios.get('/products/')
+axios.get('/products/all/?offset=0&amount=30&sort=productName&order=asc')
+  .then(response => {
+  response.data
+}
+```
+
+## Search for a specific signed product.
+
+### URL
+
+/products/search/:id/?offset=0&amount=30&sort=productName&order=asc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = productName
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+"items": [{  "id":1,
+              "productName":"Third-Party License Management REST API",
+              "productVersion":"1.0",
+              "dateCreated":"2017-11-20",
+              "lastEdited":"2017-11-20",
+              "comment":"Third party handler Rest API for handling licenses.",
+              "approved":1,
+              "approvedBy":"Nils Nilsson"}],
+"links": {    "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+"sort": {     "column":"&sort=productName",
+              "order":"&order=asc"},
+"meta": {     "current":0,
+              "count":0},
+"errors": {   "message":[],
+              "status":"OK"},
+"errorflag": false
+}
+```
+
+### Sample Call
+```javascript
+axios.get('/products/search/Third-Party License Management REST API/?offset=0&amount=30&sort=productName&order=asc')
+  .then(response => {
+  response.data
+}
+```
+
+## Search for a specific unsigned product.
+
+### URL
+
+/products/pending/search/:id/?offset=0&amount=30&sort=productName&order=asc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = productName
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+"items": [{  "id":2,
+              "productName":"Third-Party License Management WUI",
+              "productVersion":"1.0",
+              "dateCreated":"2017-11-20",
+              "lastEdited":"2017-11-20",
+              "comment":"Third party handler Rest API for handling licenses.",
+              "approved":0,
+              "approvedBy":"Nils Nilsson"}],
+"links": {    "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+"sort": {     "column":"&sort=productName",
+              "order":"&order=asc"},
+"meta": {     "current":0,
+              "count":0},
+"errors": {   "message":[],
+              "status":"OK"},
+"errorflag": false
+}
+```
+
+### Sample Call
+```javascript
+axios.get('/products/pending/search/Third-Party License Management WUI/?offset=0&amount=30&sort=productName&order=asc')
+  .then(response => {
+  response.data
+}
+```
+
+## Show all approved products
+
+### URL
+
+/products/?offset=0&amount=30&sort=productName&order=asc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+"items": [{  "id":1,
+              "productName":"Third-Party License Management REST API",
+              "productVersion":"1.0",
+              "dateCreated":"2017-11-20",
+              "lastEdited":"2017-11-20",
+              "comment":"Third party handler Rest API for handling licenses.",
+              "approved":1,
+              "approvedBy":"Nils Nilsson"}],
+"links": {    "prev":"?offset=0&amount=5&sort=productName&order=asc",
+              "current":"?offset=0&amount=5&sort=productName&order=asc",
+              "next":"?offset=0&amount=5&sort=productName&order=asc"},
+"sort": {     "column":"&sort=productName",
+              "order":"&order=asc"},
+"meta": {     "current":0,
+              "count":0},
+"errors": {   "message":[],
+              "status":"OK"},
+"errorflag": false
+}
+```
+
+### Sample Call
+```javascript
+axios.get('/products/?offset=0&amount=30&sort=productName&order=asc')
   .then(response => {
   response.data
 }
@@ -617,20 +811,12 @@ POST
 Example:
 ```
 {
-    id : Integer,
-    productName : String,
-    productVersion : String,
-    dateCreated : Date,
-    lastEdited : Date,
-    comment : String,
-    approved : Integer,
-    approvedBy : String,
-    components : [{
-                    id : Integer,
-                 },
-                 {
-                    id : Integer,
-                 }]
+    "productName" : String,
+    "productVersion" : String,
+    "dateCreated" : Date,
+    "lastEdited" : Date,
+    "comment" : String,
+    "components" : [Integer,Integer]
 }
 ```
 
@@ -655,21 +841,13 @@ TODO
 ### Sample Call
 ```
 let data = '{
-    id : 1,
-    productName : "Third-Party License Management REST API",
-    productVersion : "1.0",
-    dateCreated : "2017-11-20",
-    lastEdited : "2017-11-20",
-    comment : "Third party handler Rest API for handling licenses.",
-    approved : 1,
-    approvedBy : "Nils Nilsson",
-    components : [{
-                    id : 1,
-                 },
-                 {
-                    id : 2,
-                 }]
-            }'
+    "productName":"Random product name",
+    "productVersion":"1.0",
+    "dateCreated":"2017-11-20",
+    "lastEdited":"2017-11-20",
+    "comment":"Third party handler Rest API for handling licenses.",
+    "components":[1,2]
+}'
 ```
 ```javascript
 axios.post('/products/add', data)
@@ -682,7 +860,7 @@ axios.post('/products/add', data)
 
 ### URL
 
-/products/pending/
+/products/pending/?offset=0&amount=30&sort=productName&order=desc
 
 ### Method
 
@@ -691,7 +869,12 @@ GET
 ### URL Params
 
 Required:
-none
+```
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
 
 ### Success Response
 
@@ -700,14 +883,24 @@ Code: 200
 Content:
 ```
 {
-"id" : 1,
-"productName" : "Third-Party License Management REST API",
-"productVersion" : "1.0",
-"dateCreated" : "2017-11-20",
-"lastEdited" : "2017-11-20",
-"comment" : "Third party handler Rest API for handling licenses.",
-"approved" : 1,
-"approvedBy" : "Nils Nilsson"
+"items": [{  "id":2,
+              "productName":"Third-Party License Management WUI",
+              "productVersion":"1.0",
+              "dateCreated":"2017-11-20",
+              "lastEdited":"2017-11-20",
+              "comment":"Third party handler Rest API for handling licenses.",
+              "approved":0,
+              "approvedBy":"Nils Nilsson"}],
+"links": {    "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+"sort": {     "column":"&sort=productName",
+              "order":"&order=desc"},
+"meta": {     "current":0,
+              "count":0},
+"errors": {   "message":[],
+              "status":"OK"},
+"errorflag": false
 }
 ```
 
@@ -717,7 +910,7 @@ TODO
 
 ### Sample Call
 ```javascript
-axios.get('/products/pending')
+axios.get('/products/pending/?offset=0&amount=30&sort=productName&order=desc')
   .then(response => {
   response.data
 }
