@@ -1,6 +1,8 @@
-##### Table of Contents  
-[Projects](#projects)  
-
+##### Table of Contents
+<dl>
+  <dt>[Projects](#projects)</dt>
+  <dd>[Show all signed projects](#signedProjects)</dd>
+  <dd>[Show all unsigned projects](#unsignedProjects)</dd>
 
 ---
 Title: API documentation
@@ -2249,6 +2251,8 @@ axios.get('/products/search/Third-Party License Management REST API')
 
 # Projects
 
+<a name="signedProjects"/>
+
 ## Show all signed projects
 
 ### URL
@@ -2304,6 +2308,8 @@ axios.get('/projects/?offset=0&amount=30&sort=projectName&order=asc')
   response.data
 }
 ```
+
+<a name="unsignedProjects"/>
 
 ## Show all unsigned projects
 
