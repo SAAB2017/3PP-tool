@@ -1,3 +1,10 @@
+##### Table of Contents
+[Projects](#projects)
+
+[Show all signed projects](#signedProjects)
+ 
+[Show all unsigned projects](#unsignedProjects)
+
 ---
 Title: API documentation
 Version: 0.1.0
@@ -27,11 +34,11 @@ Alla anrop returneras som **JSON**.
 
 # Licenses
 
-## Show all licenses
+## Search for a specific license.
 
 ### URL
 
-/licenses
+/licenses/search/:id?offset=0&amount=30&sort=licenseName&order=asc
 
 ### Method
 
@@ -39,29 +46,102 @@ GET
 
 ### URL Params
 
-Required: None
+Required:
+```
+id = licenseName
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
 
 ### Success Response
 
 Code: 200
 
 Content:
-```json
+```
 {
-"id" : 1,
-"licenseName" : "GNU AGPL",
-"licenseVersion" : "3.0",
-"dateCreated" : "2017-10-01",
-"lastEdited" : "2017-10-01",
-"URL" : "https://www.gnu.org/licenses/agpl-3.0.en.html",
-"comment" : "GNU Affero General Public License",
-"licenseType" : "Open source license"
+  "items":[{  "id":5,
+              "licenseName":"Apache License",
+              "licenseVersion":"2.0",
+              "dateCreated":"2017-10-20",
+              "lastEdited":"2017-10-15",
+              "URL":"https://www.mozilla.org/en-US/MPL/2.0/",
+              "comment":null,
+              "licenseType":"Open source license"}],
+   "links":{  "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+   "sort":{   "column":"&sort=licenseName",
+              "order":"&order=asc"},
+   "meta":{   "current":0,
+              "count":0},
+   "errors":{ "message":[],
+              "status":"OK"},
+   "errorflag":false
 }
 ```
 
 ### Sample Call
 ```javascript
-axios.get('/licenses/')
+axios.get('/licenses/search/Apache?offset=0&amount=30&sort=licenseName&order=asc')
+  .then(response => {
+  response.data
+}
+```
+
+## Get all licenses.
+
+### URL
+
+/licenses/?offset=0&amount=30&sort=licenseName&order=asc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+  "items":[{  "id":5,
+              "licenseName":"Apache License",
+              "licenseVersion":"2.0",
+              "dateCreated":"2017-10-20",
+              "lastEdited":"2017-10-15",
+              "URL":"https://www.mozilla.org/en-US/MPL/2.0/",
+              "comment":null,
+              "licenseType":"Open source license"}],
+   "links":{  "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+   "sort":{   "column":"&sort=licenseName",
+              "order":"&order=asc"},
+   "meta":{   "current":0,
+              "count":0},
+   "errors":{ "message":[],
+              "status":"OK"},
+   "errorflag":false
+}
+```
+
+### Sample Call
+```javascript
+axios.get('/licenses/?offset=0&amount=30&sort=licenseName&order=asc')
   .then(response => {
   response.data
 }
@@ -90,7 +170,7 @@ Example: id = 1
 Code: 200
 
 Content:
-```json
+```
 [{
 "id" : 1,
 "licenseName" : "GNU AGPL",
@@ -138,7 +218,7 @@ Example: id = 1
 Code: 200
 
 Content:
-```json
+```
 [{
 "id" : 1,
 "licenseID" : 1,
@@ -182,7 +262,7 @@ Example: id = 1
 Code: 200
 
 Content:
-```json
+```
 [{
 "id" : 9,
 "licenseName" : "BSD 3-clause",
@@ -228,7 +308,7 @@ Example: id = 1
 Code: 200
 
 Content:
-```json
+```
 [{
 "id" : 9,
 "licenseName" : "BSD 3-clause",
@@ -255,7 +335,7 @@ axios.get('/licenses/licensesInProject/1')
 
 ### URL
 
-/licenses/:id
+/licenses/license/:id
 
 ### Method
 
@@ -274,7 +354,7 @@ Example: id = 1
 Code: 200
 
 Content:
-```json
+```
 {
 "id" : 1,
 "licenseName" : "GNU AGPL",
@@ -293,7 +373,7 @@ TODO
 
 ### Sample Call
 ```javascript
-axios.get('/licenses/1')
+axios.get('/licenses/license/1')
   .then(response => {
   response.data
 }
@@ -312,15 +392,15 @@ POST
 ### Data Params
 
 Example:
-```json
+```
 {
-  licenseName : String,
-  licenseVersion : String,
-  dateCreated : String,
-  lastEdited : String,
-  URL : String,
-  comment : String,
-  licenseType : String
+  "licenseName" : String,
+  "licenseVersion" : String,
+  "dateCreated" : String,
+  "lastEdited" : String,
+  "URL" : String,
+  "comment" : String,
+  "licenseType" : String
 }
 ```
 
@@ -329,7 +409,68 @@ Example:
 Code: 201
 
 Content:
-```json
+```
+{
+  "send": "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+```
+{
+  error_id : "E04"
+}
+```
+
+### Sample Call
+```
+let data = '{
+              "licenseName" : "New License",
+              "licenseVersion" : "1.0",
+              "dateCreated" : "2017-12-05",
+              "lastEdited" : "2017-12-05",
+              "URL" : "http://www.example.com",
+              "comment" : "This is a comment.",
+              "licenseType" : "Type of license."
+}'
+```
+```javascript
+axios.post('/licenses/add', data)
+  .then(response => {
+  response
+})
+```
+
+## Change a license's comment.
+
+### URL
+
+/licenses/comment
+
+### Method
+
+POST
+
+### Data Params
+
+Example:
+```
+{
+  "id" : Integer,
+  "comment" : String
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```
 {
   send : "success"
 }
@@ -340,27 +481,77 @@ Content:
 Code: 500
 
 Content:
-```json
+```
 {
   error_id : "E04"
 }
 ```
 
+### Sample Call
+```
+let data = '{
+              "id" : 1,
+              "comment" : "This is a comment."
+}'
+```
+```javascript
+axios.post('/licenses/comment', data)
+  .then(response => {
+  response
+})
+```
+
+## Change a license's URL.
+
+### URL
+
+/licenses/URL
+
+### Method
+
+POST
+
+### Data Params
+
+Example:
+```
+{
+  "id" : Integer,
+  "URL" : String
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+```
+{
+  error_id : "E04"
+}
+```
 
 ### Sample Call
 ```
 let data = '{
-              licenseName : "New License",
-              licenseVersion : "1.0",
-              dateCreated : "2017-12-05",
-              lastEdited : "2017-12-05",
-              URL : "http://www.example.com",
-              comment : "This is a comment.",
-              licenseType : "Type of license."
-            }'
+              "id" : 1,
+              "URL" : "This is an URL."
+}'
 ```
 ```javascript
-axios.post('/licenses/add', data)
+axios.post('/licenses/URL', data)
   .then(response => {
   response
 })
@@ -379,7 +570,7 @@ GET
 ### URL Params
 
 Required:
-```json
+```
 params = String
 ```
 Example: params = GNU AGPL
@@ -389,7 +580,7 @@ Example: params = GNU AGPL
 Code: 200
 
 Content:
-```json
+```
 {
 "id" : 1,
 "licenseName" : "GNU AGPL",
@@ -414,105 +605,11 @@ axios.get('/licenses/search/GNU AGPL')
 }
 ```
 
-# Components
-
-## GET /components
-
-Returnerar alla komponenter som finns i databasen i form av JSON objekt.
-
-### Exempel på anrop:
-```bash
-http://localhost:3000/components
-```
-
-## PUT /components/approve
-
-Givet parametrar som JSON objekt i BODY; signeras en komponent. Om operationen lyckas returneras ett JSON objekt.
-
-### Exempel på anrop:
-```bash
-http://localhost:3000/components/approve
-```
-
-## POST /components/add
-
-Givet parametrar som JSON objekt i BODY; lägger till en komponent. Om operationen lyckas returneras ett JSON objekt.
-
-### Exempel på anrop:
-```bash
-http://localhost:3000/components/add
-```
-
-## POST /components/connectLicenseWithComponent
-
-Givet parametrar som JSON objekt i BODY; kopplas en licens till en komponent. Om operationen lyckas returneras ett JSON objekt.
-
-### Exempel på anrop:
-```bash
-http://localhost:3000/components/connectLicenseWithComponent
-```
-
-## GET /components/componentsInProduct/:id
-
-Givet produkt id som JSON objekt i URL; returneras alla komponenter i en produkt.
-
-### Exempel på anrop:
-```bash
-http://localhost:3000/components/componentsInProduct/{"id":"1"}
-```
-
-## GET /components/componentsInProject/:id
-
-Givet projekt id som JSON objekt i URL; returneras alla komponenter i ett projekt.
-
-### Exempel på anrop:
-```bash
-http://localhost:3000/components/componentsInProject/{"id":"1"}
-```
-
-## GET /components/componentsWithLicense/:id
-
-Givet licens id som JSON objekt i URL; returneras alla komponenter som är kopplade till licensen.
-
-### Exempel på anrop:
-```bash
-http://localhost:3000/components/componentsWithLicense/{"id":"1"}
-```
-
-## GET /components/log/:id
-
-Givet komponent id som JSON objekt i URL; returneras loggen för en komponent.
-
-### Exempel på anrop:
-```bash
-http://localhost:3000/components/log/{"id":"1"}
-```
-
-## GET /components/:id
-
-Givet komponent id som siffra i URL; returneras en komponent.
-
-### Exempel på anrop:
-```bash
-http://localhost:3000/components/1
-```
-
-## GET /components/search/:params
-
-Givet parametrar som JSON i URL; returneras komponenter.
-
-### Exempel på anrop:
-```bash
-http://localhost:3000/search/{"componentName":"component"}
-```
-
-# Products
-
-## Show all products
+## Get licenses in component.
 
 ### URL
 
-/products
+/licenses/licensesInComponent/:id
 
 ### Method
 
@@ -520,7 +617,517 @@ GET
 
 ### URL Params
 
-Required: None
+Required:
+```
+id = Integer
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+  "items":[{  "id":5,
+              "licenseName":"Apache License",
+              "licenseVersion":"2.0",
+              "dateCreated":"2017-10-20",
+              "lastEdited":"2017-10-15",
+              "URL":"https://www.mozilla.org/en-US/MPL/2.0/",
+              "comment":null,
+              "licenseType":"Open source license"}],
+   "links":{  "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+   "sort":{   "column":"&sort=licenseName",
+              "order":"&order=asc"},
+   "meta":{   "current":0,
+              "count":0},
+   "errors":{ "message":[],
+              "status":"OK"},
+   "errorflag":false
+}
+```
+
+### Sample Call
+```javascript
+axios.get('/licenses/licensesInComponent/1')
+  .then(response => {
+  response.data
+}
+```
+
+## Get licenses in product.
+
+### URL
+
+/licenses/licensesInProduct/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+  "items":[{  "id":5,
+              "licenseName":"Apache License",
+              "licenseVersion":"2.0",
+              "dateCreated":"2017-10-20",
+              "lastEdited":"2017-10-15",
+              "URL":"https://www.mozilla.org/en-US/MPL/2.0/",
+              "comment":null,
+              "licenseType":"Open source license"}],
+   "links":{  "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+   "sort":{   "column":"&sort=licenseName",
+              "order":"&order=asc"},
+   "meta":{   "current":0,
+              "count":0},
+   "errors":{ "message":[],
+              "status":"OK"},
+   "errorflag":false
+}
+```
+
+### Sample Call
+```javascript
+axios.get('/licenses/licensesInProduct/1')
+  .then(response => {
+  response.data
+}
+```
+
+## Get licenses in project.
+
+### URL
+
+/licenses/licensesInProject/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+  "items":[{  "id":5,
+              "licenseName":"Apache License",
+              "licenseVersion":"2.0",
+              "dateCreated":"2017-10-20",
+              "lastEdited":"2017-10-15",
+              "URL":"https://www.mozilla.org/en-US/MPL/2.0/",
+              "comment":null,
+              "licenseType":"Open source license"}],
+   "links":{  "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+   "sort":{   "column":"&sort=licenseName",
+              "order":"&order=asc"},
+   "meta":{   "current":0,
+              "count":0},
+   "errors":{ "message":[],
+              "status":"OK"},
+   "errorflag":false
+}
+```
+
+### Sample Call
+```javascript
+axios.get('/licenses/licensesInProject/1')
+  .then(response => {
+  response.data
+}
+```
+
+
+
+
+
+
+# Components
+
+## Search for a specific signed component.
+
+### URL
+
+/components/search/:id?offset=0&amount=30&sort=componentName&order=asc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = componentName
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+  "items":[{  "id":3,
+              "componentName":"axios",
+              "componentVersion":"0.17.0",
+              "dateCreated":"2017-11-04",
+              "lastEdited":"2017-11-04",
+              "comment":"Promise based HTTP client for the browser and node.js.",
+              "approved":1,
+              "approvedBy":"Nils Nilsson"}],
+  "links":{   "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+  "sort":{    "column":"&sort=componentName",
+              "order":"&order=asc"},
+  "meta":{    "current":0,
+              "count":0},
+  "errors":{  "message":[],
+              "status":"OK"},
+  "errorflag":false
+}
+```
+
+### Sample Call
+```javascript
+axios.get('/components/search/axios?offset=0&amount=30&sort=componentName&order=asc')
+  .then(response => {
+  response.data
+}
+```
+
+## Search for a specific unsigned product.
+
+### URL
+
+/components/pending/search/:id?offset=0&amount=30&sort=componentName&order=asc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = productName
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+  "items":[{  "id":10,
+              "componentName":"sqlite3",
+              "componentVersion":"3.1.13",
+              "dateCreated":"2017-11-11",
+              "lastEdited":"2017-11-11",
+              "comment":"Asynchronous, non-blocking SQLite3 bindings for Node.js.",
+              "approved":0,
+              "approvedBy":"Nils Nilsson"}],
+  "links":{   "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+  "sort":{    "column":"&sort=componentName",
+              "order":"&order=asc"},
+  "meta":{    "current":0,
+              "count":0},
+  "errors":{  "message":[],
+              "status":"OK"},
+  "errorflag":false
+}
+```
+
+### Sample Call
+```javascript
+axios.get('/components/pending/search/sqlite3?offset=0&amount=30&sort=componentName&order=asc')
+  .then(response => {
+  response.data
+}
+```
+
+## Show all approved components
+
+### URL
+
+/components/?offset=0&amount=30&sort=componentName&order=asc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+  "items":[{  "id":3,
+              "componentName":"axios",
+              "componentVersion":"0.17.0",
+              "dateCreated":"2017-11-04",
+              "lastEdited":"2017-11-04",
+              "comment":"Promise based HTTP client for the browser and node.js.",
+              "approved":1,
+              "approvedBy":"Nils Nilsson"}],
+  "links":{   "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+  "sort":{    "column":"&sort=componentName",
+              "order":"&order=asc"},
+  "meta":{    "current":0,
+              "count":0},
+  "errors":{  "message":[],
+              "status":"OK"},
+  "errorflag":false
+}
+```
+
+### Sample Call
+```javascript
+axios.get('/components/?offset=0&amount=30&sort=componentName&order=asc')
+  .then(response => {
+  response.data
+}
+```
+
+## Approve a component.
+
+### URL
+
+/components/approve
+
+### Method
+
+PUT
+
+### Data Params
+
+Example:
+```
+{
+  id : Integer,
+  approved : Integer,
+  approvedBy : String,
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+TODO
+
+### Sample Call
+```
+let data = '{
+              id : 1,
+              approved : 1,
+              approvedBy : "Nils Nilsson",
+            }'
+```
+```javascript
+axios.post('/components/approve', data)
+  .then(response => {
+  response
+})
+```
+
+## Add a component.
+
+### URL
+
+/components/add
+
+### Method
+
+POST
+
+### Data Params
+
+Example:
+```
+{
+    "componentName" : String,
+    "componentVersion" : String,
+    "comment" : String,
+    "license" : Integer
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+TODO
+
+### Sample Call
+```
+let data = '{
+    "componentName":"Random component name",
+    "componentVersion":"1.0",
+    "comment":"Third party handler Rest API for handling licenses.",
+    "license":1
+}'
+```
+```javascript
+axios.post('/components/add', data)
+  .then(response => {
+  response
+})
+```
+
+## Show all pending components.
+
+### URL
+
+/components/pending?offset=0&amount=30&sort=componentName&order=desc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+  "items":[{  "id":3,
+              "componentName":"axios",
+              "componentVersion":"0.17.0",
+              "dateCreated":"2017-11-04",
+              "lastEdited":"2017-11-04",
+              "comment":"Promise based HTTP client for the browser and node.js.",
+              "approved":0,
+              "approvedBy":"Nils Nilsson"}],
+  "links":{   "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+  "sort":{    "column":"&sort=componentName",
+              "order":"&order=asc"},
+  "meta":{    "current":0,
+              "count":0},
+  "errors":{  "message":[],
+              "status":"OK"},
+  "errorflag":false
+}
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/components/pending?offset=0&amount=30&sort=componentName&order=desc')
+  .then(response => {
+  response.data
+}
+```
+
+## Show all components in product.
+
+### URL
+
+/components/componentsInProduct/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
 
 ### Success Response
 
@@ -530,19 +1137,551 @@ Content:
 ```
 [{
 "id" : 1,
-"productName" : "Third-Party License Management REST API",
-"productVersion" : "1.0",
+"componentName" : "A component",
+"componentVersion" : "1.0",
 "dateCreated" : "2017-11-20",
 "lastEdited" : "2017-11-20",
-"comment" : "Third party handler Rest API for handling licenses.",
+"comment" : "This is a component.",
 "approved" : 1,
 "approvedBy" : "Nils Nilsson"
 }]
 ```
 
+### Error Response
+
+TODO
+
 ### Sample Call
 ```javascript
-axios.get('/products/')
+axios.get('/components/componentsInProduct/1')
+  .then(response => {
+  response.data
+}
+```
+
+## Connect a license with a component.
+
+### URL
+
+/components/connectLicenseWithComponent
+
+### Method
+
+POST
+
+### Data Params
+
+Example:
+```
+{
+    componentID : Integer,
+    licenseID : Integer,
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+TODO
+
+### Sample Call
+```
+let data = '{
+              componentID : 1,
+              licenseID : 2,
+            '
+```
+```javascript
+axios.post('/components/connectLicenseWithComponent', data)
+  .then(response => {
+  response
+})
+```
+
+## Show all components connected to a certain project.
+
+### URL
+
+/components/componentsInProject/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"componentName" : "A component",
+"componentVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "This is a component.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/components/componentsInProject/1')
+  .then(response => {
+  response.data
+}
+```
+
+## Show all components containing a certain license.
+
+### URL
+
+/components/componentsWithLicense/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"componentName" : "A component",
+"componentVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "This is a component.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/components/componentsWithLicense/1')
+  .then(response => {
+  response.data
+}
+```
+
+## Show the log for a certain component.
+
+### URL
+
+/components/log/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"componentID" : 1,
+"dateLogged" : "2017-11-05",
+"note" : "Component created."
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/components/log/1')
+  .then(response => {
+  response.data
+}
+```
+
+## Change the comment of a certain component.
+
+### URL
+
+/component/comment
+
+### Method
+
+POST
+
+### Data Params
+
+Example:
+```
+{
+    componentID : Integer,
+    comment : String,
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+TODO
+
+### Sample Call
+```
+let data = '{
+              componentID : 1,
+              comment : "Detta är en ny kommentar",
+            '
+```
+```javascript
+axios.post('/components/comment', data)
+  .then(response => {
+  response
+})
+```
+
+## Get the component with a certain ID.
+
+### URL
+
+/components/component/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+  "id":1,
+  "componentName":"vue",
+  "componentVersion":"2.5.2",
+  "dateCreated":"2017-11-01",
+  "lastEdited":"2017-11-01",
+  "comment":"The Progressive JavaScript Framework.",
+  "approved":1,
+  "approvedBy":"Nils Nilsson"
+}
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/components/component/1')
+  .then(response => {
+  response.data
+}
+```
+
+# Products
+
+## Show all products
+
+### URL
+
+/products/all/?offset=0&amount=30&sort=productName&order=asc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+"items": [{  "id":1,
+              "productName":"Third-Party License Management REST API",
+              "productVersion":"1.0",
+              "dateCreated":"2017-11-20",
+              "lastEdited":"2017-11-20",
+              "comment":"Third party handler Rest API for handling licenses.",
+              "approved":1,
+              "approvedBy":"Nils Nilsson"},
+           {  "id":2,
+              "productName":"Third-Party License Management WUI",
+              "productVersion":"1.0",
+              "dateCreated":"2017-11-20",
+              "lastEdited":"2017-11-20",
+              "comment":"Third party handler Rest API for handling licenses.",
+              "approved":0,
+              "approvedBy":"Nils Nilsson"}],
+"links": {    "prev":"?offset=0&amount=5&sort=productName&order=asc",
+              "current":"?offset=0&amount=5&sort=productName&order=asc",
+              "next":"?offset=0&amount=5&sort=productName&order=asc"},
+"sort": {     "column":"&sort=productName",
+              "order":"&order=asc"},
+"meta": {     "current":0,
+              "count":0},
+"errors": {   "message":[],
+              "status":"OK"},
+"errorflag": false
+}
+```
+
+### Sample Call
+```javascript
+axios.get('/products/all/?offset=0&amount=30&sort=productName&order=asc')
+  .then(response => {
+  response.data
+}
+```
+
+## Search for a specific signed product.
+
+### URL
+
+/products/search/:id/?offset=0&amount=30&sort=productName&order=asc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = productName
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+"items": [{  "id":1,
+              "productName":"Third-Party License Management REST API",
+              "productVersion":"1.0",
+              "dateCreated":"2017-11-20",
+              "lastEdited":"2017-11-20",
+              "comment":"Third party handler Rest API for handling licenses.",
+              "approved":1,
+              "approvedBy":"Nils Nilsson"}],
+"links": {    "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+"sort": {     "column":"&sort=productName",
+              "order":"&order=asc"},
+"meta": {     "current":0,
+              "count":0},
+"errors": {   "message":[],
+              "status":"OK"},
+"errorflag": false
+}
+```
+
+### Sample Call
+```javascript
+axios.get('/products/search/Third-Party License Management REST API/?offset=0&amount=30&sort=productName&order=asc')
+  .then(response => {
+  response.data
+}
+```
+
+## Search for a specific unsigned product.
+
+### URL
+
+/products/pending/search/:id/?offset=0&amount=30&sort=productName&order=asc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = productName
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+"items": [{  "id":2,
+              "productName":"Third-Party License Management WUI",
+              "productVersion":"1.0",
+              "dateCreated":"2017-11-20",
+              "lastEdited":"2017-11-20",
+              "comment":"Third party handler Rest API for handling licenses.",
+              "approved":0,
+              "approvedBy":"Nils Nilsson"}],
+"links": {    "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+"sort": {     "column":"&sort=productName",
+              "order":"&order=asc"},
+"meta": {     "current":0,
+              "count":0},
+"errors": {   "message":[],
+              "status":"OK"},
+"errorflag": false
+}
+```
+
+### Sample Call
+```javascript
+axios.get('/products/pending/search/Third-Party License Management WUI/?offset=0&amount=30&sort=productName&order=asc')
+  .then(response => {
+  response.data
+}
+```
+
+## Show all approved products
+
+### URL
+
+/products/?offset=0&amount=30&sort=productName&order=asc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+"items": [{  "id":1,
+              "productName":"Third-Party License Management REST API",
+              "productVersion":"1.0",
+              "dateCreated":"2017-11-20",
+              "lastEdited":"2017-11-20",
+              "comment":"Third party handler Rest API for handling licenses.",
+              "approved":1,
+              "approvedBy":"Nils Nilsson"}],
+"links": {    "prev":"?offset=0&amount=5&sort=productName&order=asc",
+              "current":"?offset=0&amount=5&sort=productName&order=asc",
+              "next":"?offset=0&amount=5&sort=productName&order=asc"},
+"sort": {     "column":"&sort=productName",
+              "order":"&order=asc"},
+"meta": {     "current":0,
+              "count":0},
+"errors": {   "message":[],
+              "status":"OK"},
+"errorflag": false
+}
+```
+
+### Sample Call
+```javascript
+axios.get('/products/?offset=0&amount=30&sort=productName&order=asc')
   .then(response => {
   response.data
 }
@@ -617,20 +1756,12 @@ POST
 Example:
 ```
 {
-    id : Integer,
-    productName : String,
-    productVersion : String,
-    dateCreated : Date,
-    lastEdited : Date,
-    comment : String,
-    approved : Integer,
-    approvedBy : String,
-    components : [{
-                    id : Integer,
-                 },
-                 {
-                    id : Integer,
-                 }]
+    "productName" : String,
+    "productVersion" : String,
+    "dateCreated" : Date,
+    "lastEdited" : Date,
+    "comment" : String,
+    "components" : [Integer,Integer]
 }
 ```
 
@@ -655,21 +1786,13 @@ TODO
 ### Sample Call
 ```
 let data = '{
-    id : 1,
-    productName : "Third-Party License Management REST API",
-    productVersion : "1.0",
-    dateCreated : "2017-11-20",
-    lastEdited : "2017-11-20",
-    comment : "Third party handler Rest API for handling licenses.",
-    approved : 1,
-    approvedBy : "Nils Nilsson",
-    components : [{
-                    id : 1,
-                 },
-                 {
-                    id : 2,
-                 }]
-            }'
+    "productName":"Random product name",
+    "productVersion":"1.0",
+    "dateCreated":"2017-11-20",
+    "lastEdited":"2017-11-20",
+    "comment":"Third party handler Rest API for handling licenses.",
+    "components":[1,2]
+}'
 ```
 ```javascript
 axios.post('/products/add', data)
@@ -682,7 +1805,7 @@ axios.post('/products/add', data)
 
 ### URL
 
-/products/pending/
+/products/pending/?offset=0&amount=30&sort=productName&order=desc
 
 ### Method
 
@@ -691,7 +1814,12 @@ GET
 ### URL Params
 
 Required:
-none
+```
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
 
 ### Success Response
 
@@ -700,14 +1828,24 @@ Code: 200
 Content:
 ```
 {
-"id" : 1,
-"productName" : "Third-Party License Management REST API",
-"productVersion" : "1.0",
-"dateCreated" : "2017-11-20",
-"lastEdited" : "2017-11-20",
-"comment" : "Third party handler Rest API for handling licenses.",
-"approved" : 1,
-"approvedBy" : "Nils Nilsson"
+"items": [{  "id":2,
+              "productName":"Third-Party License Management WUI",
+              "productVersion":"1.0",
+              "dateCreated":"2017-11-20",
+              "lastEdited":"2017-11-20",
+              "comment":"Third party handler Rest API for handling licenses.",
+              "approved":0,
+              "approvedBy":"Nils Nilsson"}],
+"links": {    "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+"sort": {     "column":"&sort=productName",
+              "order":"&order=desc"},
+"meta": {     "current":0,
+              "count":0},
+"errors": {   "message":[],
+              "status":"OK"},
+"errorflag": false
 }
 ```
 
@@ -717,7 +1855,7 @@ TODO
 
 ### Sample Call
 ```javascript
-axios.get('/products/pending')
+axios.get('/products/pending/?offset=0&amount=30&sort=productName&order=desc')
   .then(response => {
   response.data
 }
@@ -1109,13 +2247,18 @@ axios.get('/products/search/Third-Party License Management REST API')
   response.data
 }
 ```
+
+<a name="projects"/>
+
 # Projects
 
-## Show all project
+<a name="signedProjects"/>
+
+## Show all signed projects
 
 ### URL
 
-/projects
+/projects/?offset=0&amount=30&sort=projectName&order=asc
 
 ### Method
 
@@ -1123,7 +2266,13 @@ GET
 
 ### URL Params
 
-Required: None
+Required:
+```
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
 
 ### Success Response
 
@@ -1131,21 +2280,89 @@ Code: 200
 
 Content:
 ```
-[{
-"id" : 1,
-"projectName" : "A project",
-"projectVersion" : "1.0",
-"dateCreated" : "2017-11-20",
-"lastEdited" : "2017-11-20",
-"comment" : "Third party handler Rest API for handling licenses.",
-"approved" : 1,
-"approvedBy" : "Nils Nilsson"
-}]
+{
+  "items":[{    "id":1,
+                "projectName":"3PP Management Tool",
+                "projectVersion":"1.0",
+                "dateCreated":"2017-11-21",
+                "lastEdited":"2017-11-21",
+                "comment":"License manager solution for SAAB.",
+                "approved":1,
+                "approvedBy":"Nils Nilsson"}],
+  "links":{     "prev":"?offset=0&amount=5",
+                "current":"?offset=0&amount=5",
+                "next":"?offset=0&amount=5"},
+  "sort":{      "column":"&sort=projectName",
+                "order":"&order=asc"},
+  "meta":{      "current":0,
+                "count":0},
+  "errors":{    "message":[],
+                "status":"OK"},
+  "errorflag":false
+}
 ```
 
 ### Sample Call
 ```javascript
-axios.get('/projects/')
+axios.get('/projects/?offset=0&amount=30&sort=projectName&order=asc')
+  .then(response => {
+  response.data
+}
+```
+
+<a name="unsignedProjects"/>
+
+## Show all unsigned projects
+
+### URL
+
+/projects/pending/?offset=0&amount=30&sort=projectName&order=asc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+  "items":[{    "id":1,
+                "projectName":"3PP Management Tool",
+                "projectVersion":"1.0",
+                "dateCreated":"2017-11-21",
+                "lastEdited":"2017-11-21",
+                "comment":"License manager solution for SAAB.",
+                "approved":0,
+                "approvedBy":"Nils Nilsson"}],
+  "links":{     "prev":"?offset=0&amount=5",
+                "current":"?offset=0&amount=5",
+                "next":"?offset=0&amount=5"},
+  "sort":{      "column":"&sort=projectName",
+                "order":"&order=asc"},
+  "meta":{      "current":0,
+                "count":0},
+  "errors":{    "message":[],
+                "status":"OK"},
+  "errorflag":false
+}
+```
+
+### Sample Call
+```javascript
+axios.get('/projects/?offset=0&amount=30&sort=projectName&order=asc')
   .then(response => {
   response.data
 }
@@ -1220,20 +2437,10 @@ POST
 Example:
 ```
 {
-    id : Integer,
-    projectName : String,
-    projectVersion : String,
-    dateCreated : Date,
-    lastEdited : Date,
-    comment : String,
-    approved : Integer,
-    approvedBy : String,
-    projects : [{
-                    id : Integer,
-                 },
-                 {
-                    id : Integer,
-                 }]
+    "projectName" : String,
+    "projectVersion" : String,
+    "comment" : String,
+    "products" : [Integer,Integer]
 }
 ```
 
@@ -1258,21 +2465,11 @@ TODO
 ### Sample Call
 ```
 let data = '{
-    id : 1,
-    projectName : "A project",
-    projectVersion : "1.0",
-    dateCreated : "2017-11-20",
-    lastEdited : "2017-11-20",
-    comment : "Third party handler Rest API for handling licenses.",
-    approved : 1,
-    approvedBy : "Nils Nilsson",
-    project : [{
-                    id : 1,
-                 },
-                 {
-                    id : 2,
-                 }]
-            }'
+    "projectName" : "A project",
+    "projectVersion" : "1.0",
+    "comment" : "Third party handler Rest API for handling licenses.",
+    "products" : [1,2]
+    }'
 ```
 ```javascript
 axios.post('/project/add', data)
@@ -1666,11 +2863,11 @@ axios.get('/projects/1')
 }
 ```
 
-## Get the project with a certain name.
+## Search for a specific signed project.
 
 ### URL
 
-/projects/search/:id
+/projects/search/:id?offset=0&amount=30&sort=comment&order=asc
 
 ### Method
 
@@ -1680,9 +2877,12 @@ GET
 
 Required:
 ```
-id = Integer
+id = projectName
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
 ```
-Example: id = project name
 
 ### Success Response
 
@@ -1691,14 +2891,24 @@ Code: 200
 Content:
 ```
 {
-"id" : 1,
-"projectName" : "A Project",
-"projectVersion" : "1.0",
-"dateCreated" : "2017-11-20",
-"lastEdited" : "2017-11-20",
-"comment" : "This is a project.",
-"approved" : 1,
-"approvedBy" : "Nils Nilsson"
+  "items":[{    "id":1,
+                "projectName":"3PP Management Tool",
+                "projectVersion":"1.0",
+                "dateCreated":"2017-11-21",
+                "lastEdited":"2017-11-21",
+                "comment":"License manager solution for SAAB.",
+                "approved":1,
+                "approvedBy":"Nils Nilsson"}],
+  "links":{     "prev":"?offset=0&amount=5",
+                "current":"?offset=0&amount=5",
+                "next":"?offset=0&amount=5"},
+  "sort":{      "column":"&sort=projectName",
+                "order":"&order=asc"},
+  "meta":{      "current":0,
+                "count":0},
+  "errors":{    "message":[],
+                "status":"OK"},
+  "errorflag":false
 }
 ```
 
@@ -1708,7 +2918,68 @@ TODO
 
 ### Sample Call
 ```javascript
-axios.get('/projects/search/Third-Party License Management REST API')
+axios.get('/projects/search/:id?offset=0&amount=30&sort=comment&order=asc')
+  .then(response => {
+  response.data
+}
+```
+
+## Search for a specific unsigned project.
+
+### URL
+
+/projects/pending/search/:id?offset=0&amount=30&sort=comment&order=asc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = projectName
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+  "items":[{    "id":6,
+                "projectName":"A project",
+                "projectVersion":"1.0",
+                "dateCreated":"12/12/2017",
+                "lastEdited":"12/12/2017",
+                "comment":"License manager solution for SAAB.",
+                "approved":0,
+                "approvedBy":"Nils Nilsson"}],
+  "links":{     "prev":"?offset=0&amount=5",
+                "current":"?offset=0&amount=5",
+                "next":"?offset=0&amount=5"},
+  "sort":{      "column":"&sort=comment",
+                "order":"&order=asc"},
+  "meta":{      "current":0,
+                "count":0},
+  "errors":{    "message":[],
+                "status":"OK"},
+  "errorflag":false
+}
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/projects/pending/search/A project?offset=0&amount=30&sort=comment&order=asc')
   .then(response => {
   response.data
 }
