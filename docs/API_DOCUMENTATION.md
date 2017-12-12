@@ -1304,11 +1304,11 @@ axios.get('/products/search/Third-Party License Management REST API')
 ```
 # Projects
 
-## Show all project
+## Show all signed projects
 
 ### URL
 
-/projects
+/projects/?offset=0&amount=30&sort=projectName&order=asc
 
 ### Method
 
@@ -1316,7 +1316,13 @@ GET
 
 ### URL Params
 
-Required: None
+Required:
+```
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
 
 ### Success Response
 
@@ -1324,21 +1330,87 @@ Code: 200
 
 Content:
 ```
-[{
-"id" : 1,
-"projectName" : "A project",
-"projectVersion" : "1.0",
-"dateCreated" : "2017-11-20",
-"lastEdited" : "2017-11-20",
-"comment" : "Third party handler Rest API for handling licenses.",
-"approved" : 1,
-"approvedBy" : "Nils Nilsson"
-}]
+{
+  "items":[{    "id":1,
+                "projectName":"3PP Management Tool",
+                "projectVersion":"1.0",
+                "dateCreated":"2017-11-21",
+                "lastEdited":"2017-11-21",
+                "comment":"License manager solution for SAAB.",
+                "approved":1,
+                "approvedBy":"Nils Nilsson"}],
+  "links":{     "prev":"?offset=0&amount=5",
+                "current":"?offset=0&amount=5",
+                "next":"?offset=0&amount=5"},
+  "sort":{      "column":"&sort=projectName",
+                "order":"&order=asc"},
+  "meta":{      "current":0,
+                "count":0},
+  "errors":{    "message":[],
+                "status":"OK"},
+  "errorflag":false
+}
 ```
 
 ### Sample Call
 ```javascript
-axios.get('/projects/')
+axios.get('/projects/?offset=0&amount=30&sort=projectName&order=asc')
+  .then(response => {
+  response.data
+}
+```
+
+## Show all unsigned projects
+
+### URL
+
+/projects/pending/?offset=0&amount=30&sort=projectName&order=asc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+  "items":[{    "id":1,
+                "projectName":"3PP Management Tool",
+                "projectVersion":"1.0",
+                "dateCreated":"2017-11-21",
+                "lastEdited":"2017-11-21",
+                "comment":"License manager solution for SAAB.",
+                "approved":0,
+                "approvedBy":"Nils Nilsson"}],
+  "links":{     "prev":"?offset=0&amount=5",
+                "current":"?offset=0&amount=5",
+                "next":"?offset=0&amount=5"},
+  "sort":{      "column":"&sort=projectName",
+                "order":"&order=asc"},
+  "meta":{      "current":0,
+                "count":0},
+  "errors":{    "message":[],
+                "status":"OK"},
+  "errorflag":false
+}
+```
+
+### Sample Call
+```javascript
+axios.get('/projects/?offset=0&amount=30&sort=projectName&order=asc')
   .then(response => {
   response.data
 }
@@ -1413,20 +1485,10 @@ POST
 Example:
 ```
 {
-    id : Integer,
-    projectName : String,
-    projectVersion : String,
-    dateCreated : Date,
-    lastEdited : Date,
-    comment : String,
-    approved : Integer,
-    approvedBy : String,
-    projects : [{
-                    id : Integer,
-                 },
-                 {
-                    id : Integer,
-                 }]
+    "projectName" : String,
+    "projectVersion" : String,
+    "comment" : String,
+    "products" : [Integer,Integer]
 }
 ```
 
@@ -1451,21 +1513,11 @@ TODO
 ### Sample Call
 ```
 let data = '{
-    id : 1,
-    projectName : "A project",
-    projectVersion : "1.0",
-    dateCreated : "2017-11-20",
-    lastEdited : "2017-11-20",
-    comment : "Third party handler Rest API for handling licenses.",
-    approved : 1,
-    approvedBy : "Nils Nilsson",
-    project : [{
-                    id : 1,
-                 },
-                 {
-                    id : 2,
-                 }]
-            }'
+    "projectName" : "A project",
+    "projectVersion" : "1.0",
+    "comment" : "Third party handler Rest API for handling licenses.",
+    "products" : [1,2]
+    }'
 ```
 ```javascript
 axios.post('/project/add', data)
@@ -1859,11 +1911,11 @@ axios.get('/projects/1')
 }
 ```
 
-## Get the project with a certain name.
+## Search for a specific signed project.
 
 ### URL
 
-/projects/search/:id
+/projects/search/:id?offset=0&amount=30&sort=comment&order=asc
 
 ### Method
 
@@ -1873,9 +1925,12 @@ GET
 
 Required:
 ```
-id = Integer
+id = projectName
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
 ```
-Example: id = project name
 
 ### Success Response
 
@@ -1884,14 +1939,24 @@ Code: 200
 Content:
 ```
 {
-"id" : 1,
-"projectName" : "A Project",
-"projectVersion" : "1.0",
-"dateCreated" : "2017-11-20",
-"lastEdited" : "2017-11-20",
-"comment" : "This is a project.",
-"approved" : 1,
-"approvedBy" : "Nils Nilsson"
+  "items":[{    "id":1,
+                "projectName":"3PP Management Tool",
+                "projectVersion":"1.0",
+                "dateCreated":"2017-11-21",
+                "lastEdited":"2017-11-21",
+                "comment":"License manager solution for SAAB.",
+                "approved":1,
+                "approvedBy":"Nils Nilsson"}],
+  "links":{     "prev":"?offset=0&amount=5",
+                "current":"?offset=0&amount=5",
+                "next":"?offset=0&amount=5"},
+  "sort":{      "column":"&sort=projectName",
+                "order":"&order=asc"},
+  "meta":{      "current":0,
+                "count":0},
+  "errors":{    "message":[],
+                "status":"OK"},
+  "errorflag":false
 }
 ```
 
@@ -1901,7 +1966,68 @@ TODO
 
 ### Sample Call
 ```javascript
-axios.get('/projects/search/Third-Party License Management REST API')
+axios.get('/projects/search/:id?offset=0&amount=30&sort=comment&order=asc')
+  .then(response => {
+  response.data
+}
+```
+
+## Search for a specific unsigned project.
+
+### URL
+
+/projects/pending/search/:id?offset=0&amount=30&sort=comment&order=asc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = projectName
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+  "items":[{    "id":6,
+                "projectName":"A project",
+                "projectVersion":"1.0",
+                "dateCreated":"12/12/2017",
+                "lastEdited":"12/12/2017",
+                "comment":"License manager solution for SAAB.",
+                "approved":0,
+                "approvedBy":"Nils Nilsson"}],
+  "links":{     "prev":"?offset=0&amount=5",
+                "current":"?offset=0&amount=5",
+                "next":"?offset=0&amount=5"},
+  "sort":{      "column":"&sort=comment",
+                "order":"&order=asc"},
+  "meta":{      "current":0,
+                "count":0},
+  "errors":{    "message":[],
+                "status":"OK"},
+  "errorflag":false
+}
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/projects/pending/search/A project?offset=0&amount=30&sort=comment&order=asc')
   .then(response => {
   response.data
 }
