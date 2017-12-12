@@ -1,8 +1,7 @@
 ##### Table of Contents
-<dl>
-  <dt></dt> [Projects](#projects)
-  <dd>[Show all signed projects](#signedProjects)</dd>
-  <dd>[Show all unsigned projects](#unsignedProjects)</dd>
+[Projects](#projects)
+ [Show all signed projects](#signedProjects)
+ [Show all unsigned projects](#unsignedProjects)
 
 ---
 Title: API documentation
