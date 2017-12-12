@@ -1,9 +1,7 @@
 ##### Table of Contents  
-[Headers](#headers)  
+[Projects](#projects)  
 [Emphasis](#emphasis)  
 
-<a name="Projects"/>
-## Headers
 
 
 
@@ -2250,6 +2248,7 @@ axios.get('/products/search/Third-Party License Management REST API')
 }
 ```
 
+<a name="projects"/>
 # Projects
 
 ## Show all signed projects
