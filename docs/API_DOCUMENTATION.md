@@ -1,8 +1,5 @@
 ##### Table of Contents  
 [Projects](#projects)  
-[Emphasis](#emphasis)  
-
-
 
 
 ---
