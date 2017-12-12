@@ -33,7 +33,6 @@ router.route('/')
         }
       })
     } else {
-      console.log("Motherfucker")
       req.db.all('SELECT * FROM components', (err, rows) => {
         if (err) {
           console.log(err)
