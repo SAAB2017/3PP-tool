@@ -385,7 +385,7 @@ POST
 ### Data Params
 
 Example:
-```json
+```
 {
   "licenseName" : String,
   "licenseVersion" : String,
@@ -404,7 +404,7 @@ Code: 201
 Content:
 ```json
 {
-  send : "success"
+  "send": "success"
 }
 ```
 
