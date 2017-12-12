@@ -416,94 +416,684 @@ axios.get('/licenses/search/GNU AGPL')
 
 # Components
 
-## GET /components
+## Search for a specific signed component.
 
-Returnerar alla komponenter som finns i databasen i form av JSON objekt.
+### URL
 
-### Exempel på anrop:
-```bash
-http://localhost:3000/components
+/components/search/:id?offset=0&amount=30&sort=componentName&order=asc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = componentName
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
 ```
 
-## PUT /components/approve
+### Success Response
 
-Givet parametrar som JSON objekt i BODY; signeras en komponent. Om operationen lyckas returneras ett JSON objekt.
+Code: 200
 
-### Exempel på anrop:
-```bash
-http://localhost:3000/components/approve
+Content:
+```
+{
+  "items":[{  "id":3,
+              "componentName":"axios",
+              "componentVersion":"0.17.0",
+              "dateCreated":"2017-11-04",
+              "lastEdited":"2017-11-04",
+              "comment":"Promise based HTTP client for the browser and node.js.",
+              "approved":1,
+              "approvedBy":"Nils Nilsson"}],
+  "links":{   "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+  "sort":{    "column":"&sort=componentName",
+              "order":"&order=asc"},
+  "meta":{    "current":0,
+              "count":0},
+  "errors":{  "message":[],
+              "status":"OK"},
+  "errorflag":false
+}
 ```
 
-## POST /components/add
-
-Givet parametrar som JSON objekt i BODY; lägger till en komponent. Om operationen lyckas returneras ett JSON objekt.
-
-### Exempel på anrop:
-```bash
-http://localhost:3000/components/add
+### Sample Call
+```javascript
+axios.get('/components/search/axios?offset=0&amount=30&sort=componentName&order=asc')
+  .then(response => {
+  response.data
+}
 ```
 
-## POST /components/connectLicenseWithComponent
+## Search for a specific unsigned product.
 
-Givet parametrar som JSON objekt i BODY; kopplas en licens till en komponent. Om operationen lyckas returneras ett JSON objekt.
+### URL
 
-### Exempel på anrop:
-```bash
-http://localhost:3000/components/connectLicenseWithComponent
+/components/pending/search/:id?offset=0&amount=30&sort=componentName&order=asc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = productName
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
 ```
 
-## GET /components/componentsInProduct/:id
+### Success Response
 
-Givet produkt id som JSON objekt i URL; returneras alla komponenter i en produkt.
+Code: 200
 
-### Exempel på anrop:
-```bash
-http://localhost:3000/components/componentsInProduct/{"id":"1"}
+Content:
+```
+{
+  "items":[{  "id":10,
+              "componentName":"sqlite3",
+              "componentVersion":"3.1.13",
+              "dateCreated":"2017-11-11",
+              "lastEdited":"2017-11-11",
+              "comment":"Asynchronous, non-blocking SQLite3 bindings for Node.js.",
+              "approved":0,
+              "approvedBy":"Nils Nilsson"}],
+  "links":{   "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+  "sort":{    "column":"&sort=componentName",
+              "order":"&order=asc"},
+  "meta":{    "current":0,
+              "count":0},
+  "errors":{  "message":[],
+              "status":"OK"},
+  "errorflag":false
+}
 ```
 
-## GET /components/componentsInProject/:id
-
-Givet projekt id som JSON objekt i URL; returneras alla komponenter i ett projekt.
-
-### Exempel på anrop:
-```bash
-http://localhost:3000/components/componentsInProject/{"id":"1"}
+### Sample Call
+```javascript
+axios.get('/components/pending/search/sqlite3?offset=0&amount=30&sort=componentName&order=asc')
+  .then(response => {
+  response.data
+}
 ```
 
-## GET /components/componentsWithLicense/:id
+## Show all approved components
 
-Givet licens id som JSON objekt i URL; returneras alla komponenter som är kopplade till licensen.
+### URL
 
-### Exempel på anrop:
-```bash
-http://localhost:3000/components/componentsWithLicense/{"id":"1"}
+/components/?offset=0&amount=30&sort=componentName&order=asc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
 ```
 
-## GET /components/log/:id
+### Success Response
 
-Givet komponent id som JSON objekt i URL; returneras loggen för en komponent.
+Code: 200
 
-### Exempel på anrop:
-```bash
-http://localhost:3000/components/log/{"id":"1"}
+Content:
+```
+{
+  "items":[{  "id":3,
+              "componentName":"axios",
+              "componentVersion":"0.17.0",
+              "dateCreated":"2017-11-04",
+              "lastEdited":"2017-11-04",
+              "comment":"Promise based HTTP client for the browser and node.js.",
+              "approved":1,
+              "approvedBy":"Nils Nilsson"}],
+  "links":{   "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+  "sort":{    "column":"&sort=componentName",
+              "order":"&order=asc"},
+  "meta":{    "current":0,
+              "count":0},
+  "errors":{  "message":[],
+              "status":"OK"},
+  "errorflag":false
+}
 ```
 
-## GET /components/:id
-
-Givet komponent id som siffra i URL; returneras en komponent.
-
-### Exempel på anrop:
-```bash
-http://localhost:3000/components/1
+### Sample Call
+```javascript
+axios.get('/components/?offset=0&amount=30&sort=componentName&order=asc')
+  .then(response => {
+  response.data
+}
 ```
 
-## GET /components/search/:params
+## Approve a component.
 
-Givet parametrar som JSON i URL; returneras komponenter.
+### URL
 
-### Exempel på anrop:
-```bash
-http://localhost:3000/search/{"componentName":"component"}
+/components/approve
+
+### Method
+
+PUT
+
+### Data Params
+
+Example:
+```
+{
+  id : Integer,
+  approved : Integer,
+  approvedBy : String,
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+TODO
+
+### Sample Call
+```
+let data = '{
+              id : 1,
+              approved : 1,
+              approvedBy : "Nils Nilsson",
+            }'
+```
+```javascript
+axios.post('/components/approve', data)
+  .then(response => {
+  response
+})
+```
+
+## Add a component.
+
+### URL
+
+/components/add
+
+### Method
+
+POST
+
+### Data Params
+
+Example:
+```
+{
+    "componentName" : String,
+    "componentVersion" : String,
+    "comment" : String,
+    "license" : Integer
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+TODO
+
+### Sample Call
+```
+let data = '{
+    "componentName":"Random component name",
+    "componentVersion":"1.0",
+    "comment":"Third party handler Rest API for handling licenses.",
+    "license":1
+}'
+```
+```javascript
+axios.post('/components/add', data)
+  .then(response => {
+  response
+})
+```
+
+## Show all pending components.
+
+### URL
+
+/components/pending?offset=0&amount=30&sort=componentName&order=desc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+  "items":[{  "id":3,
+              "componentName":"axios",
+              "componentVersion":"0.17.0",
+              "dateCreated":"2017-11-04",
+              "lastEdited":"2017-11-04",
+              "comment":"Promise based HTTP client for the browser and node.js.",
+              "approved":0,
+              "approvedBy":"Nils Nilsson"}],
+  "links":{   "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+  "sort":{    "column":"&sort=componentName",
+              "order":"&order=asc"},
+  "meta":{    "current":0,
+              "count":0},
+  "errors":{  "message":[],
+              "status":"OK"},
+  "errorflag":false
+}
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/components/pending?offset=0&amount=30&sort=componentName&order=desc')
+  .then(response => {
+  response.data
+}
+```
+
+## Show all components in product.
+
+### URL
+
+/components/componentsInProduct/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"componentName" : "A component",
+"componentVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "This is a component.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/components/componentsInProduct/1')
+  .then(response => {
+  response.data
+}
+```
+
+## Connect a license with a component.
+
+### URL
+
+/components/connectLicenseWithComponent
+
+### Method
+
+POST
+
+### Data Params
+
+Example:
+```
+{
+    componentID : Integer,
+    licenseID : Integer,
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+TODO
+
+### Sample Call
+```
+let data = '{
+              componentID : 1,
+              licenseID : 2,
+            '
+```
+```javascript
+axios.post('/components/connectLicenseWithComponent', data)
+  .then(response => {
+  response
+})
+```
+
+## Show all components connected to a certain project.
+
+### URL
+
+/components/componentsInProject/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"componentName" : "A component",
+"componentVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "This is a component.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/components/componentsInProject/1')
+  .then(response => {
+  response.data
+}
+```
+
+## Show all components containing a certain license.
+
+### URL
+
+/components/componentsWithLicense/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"componentName" : "A component",
+"componentVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "This is a component.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/components/componentsWithLicense/1')
+  .then(response => {
+  response.data
+}
+```
+
+## Show the log for a certain component.
+
+### URL
+
+/components/log/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"componentID" : 1,
+"dateLogged" : "2017-11-05",
+"note" : "Component created."
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/components/log/1')
+  .then(response => {
+  response.data
+}
+```
+
+## Change the comment of a certain component.
+
+### URL
+
+/component/comment
+
+### Method
+
+POST
+
+### Data Params
+
+Example:
+```
+{
+    componentID : Integer,
+    comment : String,
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+TODO
+
+### Sample Call
+```
+let data = '{
+              componentID : 1,
+              comment : "Detta är en ny kommentar",
+            '
+```
+```javascript
+axios.post('/components/comment', data)
+  .then(response => {
+  response
+})
+```
+
+## Get the component with a certain ID.
+
+### URL
+
+/components/component/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+  "id":1,
+  "componentName":"vue",
+  "componentVersion":"2.5.2",
+  "dateCreated":"2017-11-01",
+  "lastEdited":"2017-11-01",
+  "comment":"The Progressive JavaScript Framework.",
+  "approved":1,
+  "approvedBy":"Nils Nilsson"
+}
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/components/component/1')
+  .then(response => {
+  response.data
+}
 ```
 
 # Products
@@ -1302,6 +1892,7 @@ axios.get('/products/search/Third-Party License Management REST API')
   response.data
 }
 ```
+
 # Projects
 
 ## Show all signed projects
