@@ -7,6 +7,17 @@
       </div>
       <p id="p-message" class="help subtitle is-6" style="text-align: center; padding-bottom: 15px">{{ message }}</p>
 
+      <div v-if="component.approved === 0" class="columns is-mobile is-centered">
+        <div class="field is-horizontal">
+          <div class="control">
+            <input v-model="component.approvedBy" class="input" type="text" placeholder="Signature">
+          </div>
+          <div class="control">
+            <button @click="signComponent()" class="button is-primary">Sign</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Columns that is centered and multiline for support on lower resolution -->
       <div class="columns is-mobile is-centered is-multiline">
 
@@ -433,6 +444,41 @@
       goTo (part) {
         let routeName = this.modalComp + 's_id'
         this.$router.push({name: routeName, params: {id: part.id}})
+      },
+
+      /**
+       * Approves the component and adds the approvers signature to the component
+       */
+      signComponent () {
+        if (this.component.approvedBy !== '' || this.component.approvedBy) {
+          console.log(this.component.componentName)
+          let data = {
+            id: this.component.id,
+            approvedBy: this.component.approvedBy,
+            comment: this.component.comment,
+            lastEdited: new Date().toLocaleDateString()
+          }
+          axios.put(this.$baseAPI + 'components/approve', data)
+            .then(response => {
+              if (response.status === 204) {
+                console.log(response.data)
+                this.$router.push({name: 'components', params: {type: 'signed', sName: this.component.componentName, sVersion: this.component.componentVersion}})
+              } else {
+                console.log('Error: Could not sign component')
+                this.message = response.data
+              }
+            })
+            .catch(error => {
+              console.log(error.response)
+              if (error.response) {
+                if (error.response.status === 500) {
+                  this.message = 'Already signed by ' + error.response.data.byUser
+                }
+              }
+            })
+        } else {
+          this.message = 'Invalid signature!'
+        }
       }
     }
   }

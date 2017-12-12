@@ -7,6 +7,17 @@
           </div>
           <p id="p-message" class="help subtitle is-6" style="text-align: center; padding-bottom: 15px">{{ message }}</p>
 
+          <div v-if="project.approved === 0" class="columns is-mobile is-centered">
+            <div class="field is-horizontal">
+              <div class="control">
+                <input v-model="project.approvedBy" class="input" type="text" placeholder="Signature">
+              </div>
+              <div class="control">
+                <button @click="signProject()" class="button is-primary">Sign</button>
+              </div>
+            </div>
+          </div>
+
           <!-- Columns that is centered and multiline for support on lower resolution -->
           <div class="columns is-mobile is-centered is-multiline">
 
@@ -427,6 +438,38 @@
         this.modalComment = product.comment
         this.modalApprover = product.approvedBy
         this.showModal()
+      },
+
+      signProject () {
+        if (this.project.approvedBy !== '' || this.project.approvedBy.length !== 0) {
+          console.log(this.project.approvedBy)
+          let data = {
+            id: this.project.id,
+            approvedBy: this.project.approvedBy,
+            comment: this.project.comment,
+            lastEdited: new Date().toLocaleDateString()
+          }
+          axios.put(this.$baseAPI + 'projects/approve', data)
+            .then(response => {
+              if (response.status === 204) {
+                console.log(response.data)
+                this.$router.push({name: 'projects', params: {type: 'signed', sName: this.project.projectName, sVersion: this.project.projectVersion}})
+              } else {
+                console.log('Error: Could not sign project')
+                this.message = response.data
+              }
+            })
+            .catch(error => {
+              console.log(error.response)
+              if (error.response) {
+                if (error.response.status === 500) {
+                  this.message = 'Already signed by ' + error.response.data.byUser
+                }
+              }
+            })
+        } else {
+          this.message = 'Invalid signature!'
+        }
       },
 
       goTo (part) {
