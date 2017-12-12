@@ -1,9 +1,9 @@
 ##### Table of Contents
 [Projects](#projects)
 
- [Show all signed projects](#signedProjects)
+[Show all signed projects](#signedProjects)
  
- [Show all unsigned projects](#unsignedProjects)
+[Show all unsigned projects](#unsignedProjects)
 
 ---
 Title: API documentation
