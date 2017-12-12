@@ -523,6 +523,8 @@ function getProject (req, res, name, version, id, callback) {
 function updateProject (req, res, name, version, id, parametersText, parameters, callback) {
   let query = 'UPDATE projects SET '
 
+  // update components set approvedBy = '' where id > 6
+
   // Construct the remaining SQL query
   let first = false
   for (let i = 0; i < parametersText.length; i++) {
