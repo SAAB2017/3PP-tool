@@ -30,12 +30,19 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="component in components" @click="displayComponent(component)">
-          <td scope="row" data-label="Component">{{ component.componentName }}</td>
-          <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
-          <td scope="row" data-label="Created">{{ component.dateCreated }}</td>
-          <td scope="row" data-label="Last edited">{{ component.lastEdited }}</td>
+        <transition-group name="list" appear>
+          <tr v-for="component in components" @click="displayComponent(component)" v-bind:key="component" class="list-item">
+            <td scope="row" data-label="Component">{{ component.componentName }}</td>
+            <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
+            <td scope="row" data-label="Created">{{ component.dateCreated }}</td>
+            <td scope="row" data-label="Last edited">{{ component.lastEdited }}</td>
+          </tr>
+        </transition-group>
+
+        <tr v-if="showPaginatorClick">
+          <div id="paginator" style="text-align: center;" @click="getMore()"><a class="button is-primary">Hämta in fler</a></div>
         </tr>
+
         </tbody>
       </table>
     </div>
@@ -52,52 +59,95 @@
         components: [],
         component: null,
         componentVersion: null,
-        searchComponents: '',
+        searchComponents: null,
         sorted: '',
-        reverse: 1
+        reverse: 1,
+        showPaginatorClick: true,
+        searching: false,
+        payload: null
       }
     },
     /* Fetches unsigned components from the database and puts them in components */
     mounted () {
-      this.getAllPending()
+      // TODO: getNext()
+      this.payload = this.$initPayload()
+      this.getNext()
     },
 
     methods: {
+      getMore () {
+        if (this.searching === false) {
+          this.getNext()
+        } else {
+          this.getNextSearchQuery()
+        }
+      },
       getAllPending () {
         axios.get(this.$baseAPI + 'components/pending')
           .then(response => {
             this.components = response.data
           })
       },
+      // TODO: behöver städa upp. men huvud funktionalitet i sök + hämtning av data för / och /pending, samt /search och /pending/search
       /**
        * Searches for unsigned components from the database matching the search-criteria
        */
       searchComponent () {
-        // TODO Implement method
+        this.searching = true
+        this.payload = this.$initPayload()
+        this.showPaginatorClick = true
         if (this.searchComponents.length === 0) {
-          this.getAllPending()
+          this.searching = false
+          this.showPaginatorClick = true
+          this.components = []
+          this.getNext()
           return
         }
-        if (this.searchComponents !== 0 || this.searchComponents !== null || this.searchComponents !== '') {
-          axios.get(this.$baseAPI + 'components/search/' + this.searchComponents).then(response => {
+        if ((this.searchComponents.length !== 0) && (this.searchComponents !== null) && (this.searchComponents !== '')) {
+          const path = `components/pending/search/${this.searchComponents}/${this.payload.links.next}`
+          console.log(path)
+          axios.get(this.$baseAPI + path).then(response => {
             console.log(response.data)
             if (response.data != null) {
-              this.components = response.data
+              this.payload = response.data
+              this.components = [...this.payload.items]
             } else {
               this.message = 'No component found!'
             }
           })
-        } else {
-          this.getAllPending()
         }
       },
-
+      getNext () {
+        axios.get(this.$baseAPI + 'components/pending/' + this.payload.links.next)
+          .then(response => {
+            this.payload = response.data
+            this.components = [...this.components, ...this.payload.items]
+            if (this.components.length === this.payload.meta.count) {
+              this.showPaginatorClick = null
+            } else {
+              this.showPaginatorClick = true
+            }
+          })
+      },
+      getNextSearchQuery () {
+        console.log("next search is ran on : " + this.searchComponents)
+        axios.get(this.$baseAPI + 'components/pending/search/' + this.searchComponents + '/' + this.payload.links.next)
+          .then(response => {
+            this.payload = response.data
+            this.components = [...this.components, ...this.payload.items]
+            if (this.components.length === this.payload.meta.count) {
+              this.showPaginatorClick = null
+            } else {
+              this.showPaginatorClick = true
+            }
+          })
+      },
       /**
        * Opens the view for signing a specific component with id id.
        * @param component The component to be signed
        */
       displayComponent (component) {
-        console.log(`Component id is ${component}`)
+        console.log(`Component id is ${component.id}`)
         this.$router.push({ name: 'components_pending_id', params: { id: component.id } })
       },
 

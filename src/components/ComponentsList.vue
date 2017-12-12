@@ -1,4 +1,21 @@
 <!-- View for showing all signed components -->
+
+<style>
+  .component-fade-enter-active, .component-fade-leave-active {
+    transition: opacity .4s ease;
+  }
+  .component-fade-enter, .component-fade-leave-to
+    /* .component-fade-leave-active below version 2.1.8 */ {
+    opacity: 0;
+  }
+  .list-enter-active, .list-leave-active {
+    transition: all 0.7s;
+  }
+  .list-enter, .list-leave-to /* .list-leave-active below version 2.1.8 */ {
+    opacity: 0;
+  }
+</style>
+
 <template>
   <div class="components-list">
     <!-- Table that contains all signed components. Will grow to max-height and then
@@ -30,12 +47,20 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="component in components" @click="displayComponent(component)">
-          <td scope="row" data-label="Component">{{ component.componentName }}</td>
-          <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
-          <td scope="row" data-label="Created">{{ component.dateCreated }}</td>
-          <td scope="row" data-label="Last edited">{{ component.lastEdited }}</td>
+        <transition-group name="list" appear>
+          <tr v-for="component in components" @click="displayComponent(component)" v-bind:key="component" class="list-item">
+            <td scope="row" data-label="Component">{{ component.componentName }}</td>
+            <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
+            <td scope="row" data-label="Created">{{ component.dateCreated }}</td>
+            <td scope="row" data-label="Last edited">{{ component.lastEdited }}</td>
+          </tr>
+        </transition-group>
+
+        <tr v-if="showPaginatorClick">
+          <div id="paginator" style="text-align: center;" @click="getMore()"><a class="button is-primary">Hämta in fler</a></div>
         </tr>
+
+
         </tbody>
       </table>
     </div>
@@ -55,9 +80,12 @@
         componentVersion: null,
         message: '',
         sorted: '',
-        reverse: 1
-      }
-    },
+        reverse: 1,
+        showPaginatorClick: true,
+        searching: false,
+        payload: null,
+        }
+      },
 
     /* Fetches signed components from the database and puts them in components */
     mounted () {
@@ -67,7 +95,8 @@
         this.$route.params.type = ''
         console.log(this.message)
       }
-      this.getAllComponents()
+      this.payload = this.$initPayload()
+      this.getNext()
       this.fade_out()
     },
 
@@ -75,24 +104,7 @@
       /**
        * Searches for signed components from the database matching the search-criteria
        */
-      searchComponent () {
-        if (this.searchComponents.length === 0) {
-          this.getAllComponents()
-          return
-        }
-        if (this.searchComponents !== 0 || this.searchComponents !== null || this.searchComponents !== '') {
-          axios.get(this.$baseAPI + 'components/search/' + this.searchComponents).then(response => {
-            console.log(response.data)
-            if (response.data != null) {
-              this.components = response.data
-            } else {
-              this.message = 'No component found!'
-            }
-          })
-        } else {
-          this.getAllComponents()
-        }
-      },
+
 
       /**
        * Opens the view for a specific component with id id.
@@ -105,10 +117,74 @@
       /**
        * Fetches all components from database
        */
-      getAllComponents () {
-        axios.get(this.$baseAPI + 'components/')
+
+      getMore () {
+        if (this.searching === false) {
+          this.getNext()
+        } else {
+          this.getNextSearchQuery()
+        }
+      },
+
+      searchComponent () {
+        this.searching = true
+        this.payload = this.$initPayload()
+        this.showPaginatorClick = true
+        if (this.searchComponents.length === 0) {
+          this.searching = false
+          this.showPaginatorClick = true
+          this.components = []
+          this.getNext()
+          return
+        }
+        if ((this.searchComponents.length !== 0) && (this.searchComponents !== null) && (this.searchComponents !== '')) {
+          const path = `components/search/${this.searchComponents}/${this.payload.links.next}`
+          console.log(path)
+          axios.get(this.$baseAPI + path).then(response => {
+            console.log(response.data)
+            if (response.data != null) {
+              this.payload = response.data
+              this.components = [...this.payload.items]
+            } else {
+              this.message = 'No component found!'
+            }
+          })
+        }
+      },
+
+      getNext () {
+        axios.get(this.$baseAPI + 'components/' + this.payload.links.next)
           .then(response => {
-            this.components = response.data
+            this.payload = response.data
+            // FIXME: TODO: ta bort nedanstående, endast debug-info
+        {
+        console.log('response.links = {')
+          for (let a in response.data.links) {
+         // console.log(a + ': ' + respoonse.links[a] + ',')
+         console.log(a + ":" + response.data.links[a])
+          }
+        console.log('}')
+        }
+        // FIXME: TODO: TA BORT OVANSTÅENDE
+            this.components = [...this.components, ...this.payload.items]
+            if (this.components.length === this.payload.meta.count) {
+              this.showPaginatorClick = null
+            } else {
+              this.showPaginatorClick = true
+            }
+          })
+      },
+
+      getNextSearchQuery () {
+        axios.get(this.$baseAPI + 'components/search/' + this.searchComponents + '/' + this.payload.links.next)
+          .then(response => {
+            this.payload = response.data
+            this.components = [...this.components, ...this.payload.items]
+            if (this.components.length === this.payload.meta.count) {
+              this.showPaginatorClick = null
+            } else {
+              this.showPaginatorClick = true
+            }
           })
       },
 

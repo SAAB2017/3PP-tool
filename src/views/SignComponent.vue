@@ -86,7 +86,7 @@
     },
 
     mounted () {
-      const pendingURI = 'components/' + this.$route.params.id
+      const pendingURI = 'components/component/' + this.$route.params.id
       axios.get(this.$baseAPI + pendingURI)
         .then(response => {
           this.component = response.data
