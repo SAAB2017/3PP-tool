@@ -303,6 +303,7 @@
           this.fetchLicenses()
           this.fetchProducts()
           this.fetchProjects()
+          return null
         })
     },
 

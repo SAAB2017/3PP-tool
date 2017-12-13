@@ -305,6 +305,7 @@
           _this.fetchLicenses()
           _this.fetchComponents()
           _this.fetchProjects()
+          return null
         }).catch(err => {
           console.log('Caught exception from throw: error')
           console.log(err)
