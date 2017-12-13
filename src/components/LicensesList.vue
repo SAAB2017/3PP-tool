@@ -102,7 +102,6 @@
         }
       },
       ordering: function (newval) {
-        console.log("New order: " + newval)
         this.licenses = []
       },
       licenses: function (a) {
@@ -175,7 +174,6 @@
         if ((this.searchLicenses.length !== 0) && (this.searchLicenses !== null) && (this.searchLicenses !== '')) {
           const path = 'licenses/search/' + this.searchLicenses + this.payload.links.next + this.payload.sort.column + this.payload.sort.order
           axios.get(this.$baseAPI + path).then(response => {
-            console.log(response.data)
             if (response.data != null) {
               this.payload = response.data
               this.licenses = this.payload.items
@@ -247,7 +245,6 @@
           this.ordering = 'asc'
           newpayload.sort.order = '&order=asc'
         }
-        console.log(this.$baseAPI + 'licenses/' + newpayload.links.next + newpayload.sort.column + newpayload.sort.order)
         this.payload.sort = newpayload.sort
         this.payload.links = newpayload.links
         this.getMore(true)

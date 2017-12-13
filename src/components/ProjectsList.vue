@@ -83,11 +83,9 @@
 
     /* Fetches signed projects from the database and puts them in projects */
     mounted () {
-      console.log(this.$route.params)
       if (this.$route.params.type === 'signed') {
         this.message = 'Project "' + this.$route.params.sName + '" (version: ' + this.$route.params.sVersion + ') signed'
         this.$route.params.type = ''
-        console.log(this.message)
       }
       this.getNext = this.getNext.bind(this, 'projects/')
       this.getMore = this.getMore.bind(this, 'projects/')
@@ -126,14 +124,11 @@
        */
       searchProject (search) {
         const path = `projects/search/${search}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
-        console.log(path)
         let _this = this
         axios.get(this.$baseAPI + path).then(response => {
-          console.log(response.data)
           if (response.data != null) {
             _this.payload = response.data
             _this.projects = [..._this.payload.items]
-            console.log("Count: " + _this.payload.meta.count + " Length: " + _this.projects.length)
             if (_this.projects.length === _this.payload.meta.count) {
               _this.showPaginatorClick = false
             }
@@ -149,7 +144,7 @@
        * Opens the view for a specific project with id id.
        * @param project The project to be viewed
        */
-      displayComponent(project) {
+      displayComponent (project) {
         this.$router.push({name: 'projects_id', params: {id: project.id}})
       },
 
@@ -190,7 +185,7 @@
           this.showPaginatorClick = null
         }
       },
-      getAllProjects() {
+      getAllProjects () {
         axios.get(this.$baseAPI + 'projects/')
           .then(response => {
             this.projects = response.data
@@ -200,7 +195,7 @@
       /**
        * Shows this.message for some time then fades it away and removes it.
        */
-      fade_out() {
+      fade_out () {
         let msg = document.getElementById('message-text')
         let page = this
         let count = 1

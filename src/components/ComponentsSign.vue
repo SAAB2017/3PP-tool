@@ -118,10 +118,8 @@ s<!-- Viezx w for showing all unsigned components -->
        */
       searchComponent (search) {
         const path = 'components/pending/search/' + search + this.payload.links.next + this.payload.sort.column + this.payload.sort.order
-        console.log(path)
         let _this = this
         axios.get(this.$baseAPI + path).then(response => {
-          console.log(response.data)
           if (response.data != null) {
             _this.payload = response.data
             _this.components = _this.payload.items
@@ -146,7 +144,6 @@ s<!-- Viezx w for showing all unsigned components -->
       },
       getNextSearchQuery (replaceItemsList) {
         let p = this.$baseAPI + 'components/pending/search/' + this.searchSignComponents + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order
-        console.log(p)
         axios.get(p)
           .then(response => {
             this.payload = response.data
@@ -158,14 +155,13 @@ s<!-- Viezx w for showing all unsigned components -->
             }
           }).catch(err => {
             console.log(err)
-        })
+          })
       },
       /**
        * Opens the view for signing a specific component with id id.
        * @param component The component to be signed
        */
       displayComponent (component) {
-        console.log(`Component id is ${component.id}`)
         this.$router.push({ name: 'components_id', params: { id: component.id } })
       },
 
@@ -224,7 +220,6 @@ s<!-- Viezx w for showing all unsigned components -->
           this.ordering = 'asc'
           newpayload.sort.order = '&order=asc'
         }
-        console.log(this.$baseAPI + 'components/pending/' + newpayload.links.next + newpayload.sort.column + newpayload.sort.order)
         this.payload.sort = newpayload.sort
         this.payload.links = newpayload.links
         this.getMore(true)

@@ -142,7 +142,6 @@
         if ((this.searchQuery.length !== 0) && (this.searchQuery !== null) && (this.searchQuery !== '')) {
           const path = this.selected + `/search/${this.searchQuery}/${this.payload.links.next}${this.payload.sort.column}${this.payload.sort.order}`
           axios.get(this.$baseAPI + path).then(response => {
-            console.log(response.data)
             if (response.data !== null) {
               this.payload = response.data
               this.dispThing = [...this.payload.items]
@@ -154,21 +153,6 @@
             }
           })
         }
-        /* if (this.searchQuery.length === 0) {
-          this.dispThing = []
-          return
-        }
-        if (this.searchQuery !== 0 || this.searchQuery !== null || this.searchQuery !== '') {
-          let query = this.selected + '/search/' + this.searchQuery
-          axios.get(this.$baseAPI + query).then(response => {
-            console.log(response.data)
-            if (response.data != null) {
-              this.dispThing = response.data
-            }
-          })
-        } else {
-          this.dispThing = []
-        } */
       },
 
       // GET METHODS
@@ -308,7 +292,6 @@
           newpayload.sort.order = '&order=asc'
         }
 
-        console.log(this.$baseAPI + this.selected + '/' + newpayload.links.next + newpayload.sort.column + newpayload.sort.order)
         this.payload.sort = newpayload.sort
         this.payload.links = newpayload.links
         this.getMore(true)

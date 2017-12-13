@@ -50,7 +50,6 @@
 
 <script>
   import axios from 'axios'
-  import meth from './ProductsList'
   import payloadcfg from '../../backend/routes/config'
   export default {
     data () {
@@ -108,16 +107,14 @@
       },
       getNext (replaceItemsList) {
         let _this = this
-        console.log(this.$baseAPI + 'products/pending/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
         axios.get(this.$baseAPI + 'products/pending/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             _this.payload = response.data
             replaceItemsList ? _this.products = [..._this.payload.items] : _this.products = [..._this.products, ..._this.payload.items]
             _this.products.length === _this.payload.meta.count ? _this.showPaginatorClick = null : _this.showPaginatorClick = true
           }).catch(err => {
-            console.log('Error thrown trying to get from /products/pending/' + _this.payload.links.next + _this.payload.sort.column + _this.payload.sort.order)
             console.log(err)
-        })
+          })
       },
       getNextSearchQuery (replaceItemsList) {
         let _this = this
@@ -131,9 +128,8 @@
               _this.showPaginatorClick = true
             }
           }).catch(err => {
-            console.log('Error caught, from thrown exception at URI: \n' + 'products/pending/search/' + _this.searchProducts + '/' + _this.payload.links.next + _this.payload.sort.column + _this.payload.sort.order)
             console.log(err)
-        })
+          })
       },
 
       getAllPending () {
@@ -147,14 +143,11 @@
        */
       searchComponent (search) {
         const path = 'products/pending/search/' + search + this.payload.links.next + this.payload.sort.column + this.payload.sort.order
-        console.log(path)
         let _this = this
         axios.get(this.$baseAPI + path).then(response => {
-          console.log(response.data)
           if (response.data != null) {
             _this.payload = response.data
             _this.products = _this.payload.items
-            // console.log("Count: " + _this.payload.meta.count + " Length: " + _this.products.length)
             if (_this.products.length === _this.payload.meta.count) {
               _this.showPaginatorClick = false
             }
@@ -171,7 +164,6 @@
        * @param product The product to be signed
        */
       displayProduct (product) {
-        console.log(`Product id is ${product}`)
         this.$router.push({ name: 'products_id', params: { id: product.id } })
       },
 
@@ -194,6 +186,7 @@
         })
         this.reverse *= -1
       },
+
       sortVersion () {
         if (this.sorted !== 'version') {
           this.sorted = 'version'
@@ -213,6 +206,7 @@
         })
         this.reverse *= -1
       },
+
       sortCreated () {
         if (this.sorted !== 'created') {
           this.ssorted = 'created'
@@ -232,6 +226,7 @@
         })
         this.reverse *= -1
       },
+
       sortEdited () {
         if (this.sorted !== 'created') {
           this.sorted = 'created'
@@ -250,7 +245,7 @@
           return 0
         })
         this.reverse *= -1
-      },
+      }
 
     }
   }

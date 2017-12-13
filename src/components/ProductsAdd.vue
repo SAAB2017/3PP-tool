@@ -186,14 +186,11 @@
        */
       searchComponent (search) {
         const path = `components/search/${search}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
-        console.log(path)
         let _this = this
         axios.get(this.$baseAPI + path).then(response => {
-          console.log(response.data)
           if (response.data != null) {
             _this.payload = response.data
             _this.components = [..._this.payload.items]
-            console.log("Count: " + _this.payload.meta.count + " Length: " + _this.components.length)
             if (_this.components.length === _this.payload.meta.count) {
               _this.showPaginatorClick = false
             }
@@ -203,7 +200,7 @@
         }).catch(err => {
           console.log(err)
         })
-      },
+      }
     }
   }
 </script>

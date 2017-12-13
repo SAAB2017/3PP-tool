@@ -110,15 +110,11 @@
     },
     /* Fetches signed products from the database and puts them in products */
     mounted () {
-      console.log("PRODUCTS LIST")
-      console.log(this.$route.params)
       if (this.$route.params.type === 'signed') {
         this.message = 'Product "' + this.$route.params.sName + '" (version: ' + this.$route.params.sVersion + ') signed'
         this.$route.params.type = ''
-        console.log(this.message)
       }
       this.payload = this.payloadFactory()
-      console.log(JSON.stringify(this.payload))
       this.getNext(true)
       this.fade_out()
     },
@@ -132,7 +128,6 @@
         const path = `products/search/${search}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
         let _this = this
         axios.get(this.$baseAPI + path).then(response => {
-          console.log(response.data)
           if (response.data != null) {
             _this.payload = response.data
             _this.products = [..._this.payload.items]
@@ -166,16 +161,16 @@
           this.getNextSearchQuery(replaceItemsList)
         }
       },
+
       getNext (replaceItemsList) {
-        console.log(this.$baseAPI + 'products/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
         axios.get(this.$baseAPI + 'products/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
             replaceItemsList ? this.products = [...this.payload.items] : this.products = [...this.products, ...this.payload.items]
-            console.log("Response data: \n" + JSON.stringify(response.data))
             this.products.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
           })
       },
+
       getNextSearchQuery (replaceItemsList) {
         axios.get(this.$baseAPI + 'products/search/' + this.searchProducts + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
@@ -226,6 +221,7 @@
         this.payload.links = newpayload.links
         this.getMore(true)
       },
+
       sortVersion () {
         let newpayload = this.payloadFactory()
         newpayload.sort.column = '&sort=productVersion'
@@ -240,6 +236,7 @@
         this.payload.links = newpayload.links
         this.getMore(true)
       },
+
       sortCreated () {
         let newpayload = this.payloadFactory()
         newpayload.sort.column = '&sort=dateCreated'
@@ -254,6 +251,7 @@
         this.payload.links = newpayload.links
         this.getMore(true)
       },
+
       sortEdited () {
         let newpayload = this.payloadFactory()
         newpayload.sort.column = '&sort=lastEdited'

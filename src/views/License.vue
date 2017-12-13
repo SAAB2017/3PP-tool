@@ -276,6 +276,7 @@
           _this.fetchComponents()
           _this.fetchProducts()
           _this.fetchProjects()
+          return null
         }).catch(err => {
           console.log(err)
         })

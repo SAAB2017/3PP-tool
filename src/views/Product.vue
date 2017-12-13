@@ -297,7 +297,6 @@
      */
     mounted () {
       let _this = this
-      console.log('This id: ' + this.$route.params.id)
       axios.get(this.$baseAPI + 'products/product/' + this.$route.params.id)
         .then(response => {
           _this.product = response.data
@@ -305,8 +304,8 @@
           _this.fetchLicenses()
           _this.fetchComponents()
           _this.fetchProjects()
+          return null
         }).catch(err => {
-          console.log('Caught exception from throw: error')
           console.log(err)
         })
     },
@@ -317,11 +316,9 @@
        */
       fetchLicenses () {
         let _this = this
-        console.log(this.$baseAPI + 'licenses/licensesInProduct/' + this.$route.params.id)
         axios.get(this.$baseAPI + 'licenses/licensesInProduct/' + this.$route.params.id).then(response => {
           _this.licenses = response.data
         }).catch(err => {
-          console.log('Caught exception from throw: error')
           console.log(err)
         })
       },
@@ -460,7 +457,6 @@
        */
       signProduct () {
         if (this.product.approvedBy !== '' || this.product.approvedBy) {
-          console.log(this.product.productName)
           let data = {
             id: this.product.id,
             approvedBy: this.product.approvedBy,
@@ -470,15 +466,12 @@
           axios.put(this.$baseAPI + 'products/approve', data)
             .then(response => {
               if (response.status === 204) {
-                console.log(response.data)
                 this.$router.push({name: 'products', params: {type: 'signed', sName: this.product.productName, sVersion: this.product.productVersion}})
               } else {
-                console.log('Error: Could not sign product')
                 this.message = response.data
               }
             })
             .catch(error => {
-              console.log(error.response)
               if (error.response) {
                 if (error.response.status === 500) {
                   this.message = 'Already signed by ' + error.response.data.byUser

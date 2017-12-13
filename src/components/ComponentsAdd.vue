@@ -83,7 +83,6 @@
     /* Fetches liceses from the database and puts them in licenses */
     mounted () {
       this.payload = this.payloadFactory()
-      console.log(JSON.stringify(this.payload))
       this.getNextLicenses(true)
     },
 
@@ -122,14 +121,14 @@
           })
       },
 
-
       getMore (replaceItemsList) {
         if (this.searching === false) {
           this.getNextLicenses(replaceItemsList)
         } else {
           this.getNextSearchQuery(replaceItemsList)
         }
-       },
+      },
+
       getNextLicenses (replaceItemList) {
         axios.get(this.$baseAPI + 'licenses/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
@@ -138,6 +137,7 @@
             this.licenses.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
           })
       },
+
       getNextSearchQuery (replaceItemsList) {
         axios.get(this.$baseAPI + 'licenses/search/' + this.searchLicense + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
@@ -170,9 +170,7 @@
         }
         if ((this.searchLicense.length !== 0) && (this.searchLicense !== null) && (this.searchLicense !== '')) {
           const path = `licenses/search/${this.searchLicense}/${this.payload.links.next}${this.payload.sort.column}${this.payload.sort.order}`
-          console.log(path)
           axios.get(this.$baseAPI + path).then(response => {
-            console.log(response.data)
             if (response.data != null) {
               this.payload = response.data
               this.licenses = [...this.payload.items]
