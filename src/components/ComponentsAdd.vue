@@ -83,7 +83,6 @@
     /* Fetches liceses from the database and puts them in licenses */
     mounted () {
       this.payload = this.payloadFactory()
-      console.log(JSON.stringify(this.payload))
       this.getNextLicenses(true)
     },
 
@@ -170,9 +169,7 @@
         }
         if ((this.searchLicense.length !== 0) && (this.searchLicense !== null) && (this.searchLicense !== '')) {
           const path = `licenses/search/${this.searchLicense}/${this.payload.links.next}${this.payload.sort.column}${this.payload.sort.order}`
-          console.log(path)
           axios.get(this.$baseAPI + path).then(response => {
-            console.log(response.data)
             if (response.data != null) {
               this.payload = response.data
               this.licenses = [...this.payload.items]

@@ -16,7 +16,7 @@ d<!-- View for adding Licenses -->
     <div class="field">
       <p class="control">
         <input v-model="licenseType" class="input" type="text" placeholder="License type">
-      </p>
+      </p>g
     </div>
 
     <div class="field">

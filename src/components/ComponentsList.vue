@@ -93,11 +93,9 @@
 
     /* Fetches signed components from the database and puts them in components */
     mounted () {
-      console.log(this.$route.params)
       if (this.$route.params.type === 'signed') {
         this.message = 'Component "' + this.$route.params.sName + '" (version: ' + this.$route.params.sVersion + ') signed'
         this.$route.params.type = ''
-        console.log(this.message)
       }
       this.payload = this.payloadFactory()
       this.getNext(false)
@@ -137,7 +135,6 @@
         if ((this.searchComponents.length !== 0) && (this.searchComponents !== null) && (this.searchComponents !== '')) {
           const path = `components/search/${this.searchComponents}/${this.payload.links.next}${this.payload.sort.column}${this.payload.sort.order}`
           axios.get(this.$baseAPI + path).then(response => {
-            console.log(response.data)
             if (response.data != null) {
               this.payload = response.data
               this.components = [...this.payload.items]
@@ -254,7 +251,6 @@
           newpayload.sort.order = '&order=asc'
         }
 
-        console.log(this.$baseAPI + 'components/' + newpayload.links.next + newpayload.sort.column + newpayload.sort.order)
         this.payload.sort = newpayload.sort
         this.payload.links = newpayload.links
         this.getMore(true)

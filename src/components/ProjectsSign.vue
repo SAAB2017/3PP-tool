@@ -159,14 +159,11 @@
        */
       searchProject (search) {
         const path = `projects/pending/search/${search}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
-        console.log(path)
         let _this = this
         axios.get(this.$baseAPI + path).then(response => {
-          console.log(response.data)
           if (response.data != null) {
             _this.payload = response.data
             _this.projects = [..._this.payload.items]
-            console.log("Count: " + _this.payload.meta.count + " Length: " + _this.projects.length)
             if (_this.projects.length === _this.payload.meta.count) {
               _this.showPaginatorClick = false
             }
@@ -183,7 +180,6 @@
        * @param project The project to be signed
        */
       displayProject (project) {
-        console.log(`Project id is ${project}`)
         this.$router.push({ name: 'projects_id', params: { id: project.id } })
       },
 
