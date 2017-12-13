@@ -279,9 +279,10 @@ router.route('/add')
       addComponent(req.body, (query) => {
         req.db.run(query, (error) => {
           if (error) {
-            res.status(500)
+            // res.status(500)
             req.db.run('rollback')
-            res.send('ERROR! error message:' + error.message + ', query: ' + query)
+            // res.send('ERROR! error message:' + error.message + ', query: ' + query)
+            res.send('error')
           } else {
             // Get the component so that the id can be extracted
             getComponent(req, res, req.body.componentName, req.body.componentVersion, null, function (component) {
@@ -295,7 +296,7 @@ router.route('/add')
                     }
                   }))
                   req.db.run('commit')
-                  res.status(201).send('Success!')
+                  res.status(201).send('success')
                 })
             })
           }

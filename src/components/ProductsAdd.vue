@@ -16,8 +16,11 @@
 <!-- View for adding Products -->
 <template>
   <div class="product-list">
+    <div id="message-text">
+      <p v-for="error in errorList" class="help is-danger subtitle is-6" style="text-align: center; padding-bottom: 2px">{{ error }}</p>
+    </div>
     <!-- Fields for adding name and version to the product -->
-    <div class="field">
+    <div class="field" style="padding-top: 15px">
       <p class="control">
         <input v-model="productName" class="input" type="text" placeholder="Name">
       </p>
@@ -91,7 +94,8 @@
         searchComponents: '',
         showPaginatorClick: true,
         searching: false,
-        payload: this.payloadFactory()
+        payload: this.payloadFactory(),
+        errorList: []
       }
     },
     /* Fetches liceses from the database and puts them in components */
@@ -134,21 +138,41 @@
           comment: this.productComment,
           components: this.checkedComponents
         }
-
-        axios.post(this.$baseAPI + 'products/add', data)
-          .then(response => {
-            if (response.responseData.status === 'success') {
-              this.productName = null
-              this.productVersion = null
-              this.productComment = null
-              axios.get(this.$baseAPI + 'products')
-                .then(response => {
-                  this.products = response.data
-                })
-            }
-          })
-        this.$router.go()
+        this.errorList = this.checkInput(this.productName, this.productVersion, this.checkedComponents)
+        if (this.errorList.length === 0) {
+          axios.post(this.$baseAPI + 'products/add', data)
+            .then(response => {
+              if (response.data === 'success') {
+                this.productName = null
+                this.productVersion = null
+                this.productComment = null
+                axios.get(this.$baseAPI + 'products')
+                  .then(response => {
+                    this.products = response.data
+                  })
+                this.$router.go()
+              } else if (response.data === 'error') {
+                this.errorList = []
+                this.errorList[0] = 'A product with the name "' + this.productName + '" and version "' + this.productVersion + '" already exists.'
+              }
+            })
+        }
       },
+
+      checkInput (name, version, checked) {
+        let errors = []
+        if (name === null || name.length === 0 || name === '') {
+          errors[errors.length] = 'A name must be provided'
+        }
+        if (version === null || version.length === 0 || version === '') {
+          errors[errors.length] = 'A version must be provided'
+        }
+        if (checked === null || checked.length === 0) {
+          errors[errors.length] = 'A component must be binded to the product'
+        }
+        return errors
+      },
+
       // GET METHODS
       getMore (replaceItemsList) {
         if (this.searching === false) {

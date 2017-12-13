@@ -17,8 +17,11 @@
 <!-- View for adding Projects -->
 <template>
   <div class="project-list">
+    <div id="message-text">
+      <p v-for="error in errorList" class="help is-danger subtitle is-6" style="text-align: center">{{ error }}</p>
+    </div>
     <!-- Fields for adding name and version to the project -->
-    <div class="field">
+    <div class="field" style="padding-top: 15px">
       <p class="control">
         <input v-model="projectName" class="input" type="text" placeholder="Name">
       </p>
@@ -91,7 +94,8 @@
         projectComment: '',
         searchProducts: '',
         searching: false, // nothing entered in the search bar
-        payload: this.payloadFactory()
+        payload: this.payloadFactory(),
+        errorList: []
       }
     },
     /* Fetches liceses from the database and puts them in products */
@@ -179,20 +183,41 @@
           comment: this.projectComment,
           products: this.checkedProducts
         }
+        this.errorList = this.checkInput(this.projectName, this.projectVersion, this.checkedProducts)
 
-        axios.post(this.$baseAPI + 'projects/add', data)
-          .then(response => {
-            if (response.responseData.status === 'success') {
-              this.projectName = null
-              this.projectVersion = null
-              this.projectComment = null
-              axios.get(this.$baseAPI + 'projects')
-                .then(response => {
-                  this.projects = response.data
-                })
-            }
-          })
-        this.$router.go()
+        if (this.errorList.length === 0) {
+          axios.post(this.$baseAPI + 'projects/add', data)
+            .then(response => {
+              if (response.data === 'success') {
+                this.projectName = null
+                this.projectVersion = null
+                this.projectComment = null
+                axios.get(this.$baseAPI + 'projects')
+                  .then(response => {
+                    this.projects = response.data
+                  })
+
+                this.$router.go()
+              } else if (response.data === 'error') {
+                this.errorList = []
+                this.errorList[0] = 'A project with the name "' + this.projectName + '" and version "' + this.projectVersion + '" already exists.'
+              }
+            })
+        }
+      },
+
+      checkInput (name, version, checked) {
+        let errors = []
+        if (name === null || name.length === 0 || name === '') {
+          errors[errors.length] = 'A name must be provided'
+        }
+        if (version === null || version.length === 0 || version === '') {
+          errors[errors.length] = 'A version must be provided'
+        }
+        if (checked === null || checked.length === 0) {
+          errors[errors.length] = 'A product must be binded to the project'
+        }
+        return errors
       },
 
       searchProduct (search) {

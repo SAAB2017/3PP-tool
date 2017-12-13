@@ -1,8 +1,11 @@
 <!-- View for adding Components -->
 <template>
   <div class="component-list">
+    <div id="message-text">
+      <p v-for="error in errorList" class="help is-danger subtitle is-6" style="text-align: center; padding-bottom: 2px">{{ error }}</p>
+    </div>
     <!-- Fields for adding name and version to the component -->
-    <div class="field">
+    <div class="field" style="padding-top: 15px">
       <p class="control">
         <input v-model="componentName" class="input" type="text" placeholder="Name">
       </p>
@@ -77,7 +80,9 @@
         searchLicense: '',
         searching: false,
         showPaginatorClick: true,
-        payload: this.payloadFactory()
+        payload: this.payloadFactory(),
+        errorList: [],
+        success: true
       }
     },
     /* Fetches liceses from the database and puts them in licenses */
@@ -98,20 +103,39 @@
           comment: this.componentComment,
           licenses: this.checkedLicenses
         }
+        this.errorList = this.checkInput(this.componentName, this.componentVersion, this.checkedLicenses)
+        if (this.errorList.length === 0) {
+          axios.post(this.$baseAPI + 'components/add', data)
+            .then(response => {
+              if (response.data === 'success') {
+                this.componentName = null
+                this.componentVersion = null
+                this.componentComment = null
+                axios.get(this.$baseAPI + 'components ')
+                  .then(response => {
+                    this.components = response.data
+                  })
+                this.$router.go()
+              } else if (response.data === 'error') {
+                this.errorList = []
+                this.errorList[0] = 'A component with the name "' + this.componentName + '" and version "' + this.componentVersion + '" already exists.'
+              }
+            })
+        }
+      },
 
-        axios.post(this.$baseAPI + 'components/add', data)
-          .then(response => {
-            if (response.responseData.status === 'success') {
-              this.componentName = null
-              this.componentVersion = null
-              this.componentComment = null
-              axios.get(this.$baseAPI + 'components ')
-                .then(response => {
-                  this.components = response.data
-                })
-            }
-          })
-        this.$router.go()
+      checkInput (name, version, checked) {
+        let errors = []
+        if (name === null || name.length === 0 || name === '') {
+          errors[errors.length] = 'A name must be provided'
+        }
+        if (version === null || version.length === 0 || version === '') {
+          errors[errors.length] = 'A version must be provided'
+        }
+        if (checked === null || checked.length === 0) {
+          errors[errors.length] = 'A license must be binded to the component'
+        }
+        return errors
       },
 
       getAllLicenses () {

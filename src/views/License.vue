@@ -3,7 +3,7 @@
   <div class="section">
         <div v-if="license" class="component">
           <div class="columns is-mobile is-centered">
-            <h1 class="has-text-left">{{ license.componentName }}</h1>
+            <h1 class="has-text-left">{{ license.licenseName }}</h1>
           </div>
           <p id="p-message" class="help subtitle is-6" style="text-align: center; padding-bottom: 15px">{{ message }}</p>
 

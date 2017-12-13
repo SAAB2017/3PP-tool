@@ -235,9 +235,10 @@ router.route('/add')
         addProject(input, (query) => {
           req.db.run(query, (error) => {
             if (error) {
-              res.status(500)
+              // res.status(500)
               req.db.run('rollback')
-              res.send('ERROR! error message:' + error.message + ', query: ' + query)
+              res.send('error')
+              // res.send('ERROR! error message:' + error.message + ', query: ' + query)
             } else {
               getProject(req, res, input.projectName, input.projectVersion, null, function (product) {
                 insertProjectLog(req, res, product.id, 'Product created.',
@@ -254,7 +255,7 @@ router.route('/add')
                         })
                       })
                       req.db.run('commit')
-                      res.status(201).send('Success!')
+                      res.status(201).send('success')
                     })
               })
             }
