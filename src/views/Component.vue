@@ -305,6 +305,12 @@
           this.fetchProjects()
           return null
         })
+      let _this = this
+      document.addEventListener('keyup', function (event) {
+        if (event.key === 'Escape') {
+          _this.closeModal()
+        }
+      })
     },
 
     methods: {

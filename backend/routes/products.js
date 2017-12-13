@@ -309,10 +309,11 @@ router.route('/add')
         addProduct(input, (query) => {
           req.db.run(query, (err) => {
             if (err) {
-              res.status(500)
+              // res.status(500)
               req.db.run('rollback')
-              res.send('ERROR! error message:' + err.message + ', query: ' + query)
+              // res.send('ERROR! error message:' + err.message + ', query: ' + query)
               res.error_id = 'E03'
+              res.send('error')
             } else {
               getProduct(req, res, input.productName, input.productVersion, null, function (product) {
                 insertProductLog(req, res, product.id, 'Product created.',
@@ -329,7 +330,7 @@ router.route('/add')
                       })
                     })
                     req.db.run('commit')
-                    res.status(201).send('Success!')
+                    res.status(201).send('success')
                   })
               })
             }
@@ -749,7 +750,7 @@ function getproductsFromProject (req, res, id) {
  * @param {Integer} id
  */
 function getProductsWithLicense (req, res, id) {
-  let query = 'SELECT DISTINCT productID AS id, productName, productVersion, dateCreated, lastEdited, comment FROM products LEFT OUTER JOIN componentsInProducts ON products.id=componentsInProducts.productID' +
+  let query = 'SELECT DISTINCT productID AS id, productName, productVersion, dateCreated, lastEdited, comment, approvedBy FROM products LEFT OUTER JOIN componentsInProducts ON products.id=componentsInProducts.productID' +
               ' LEFT OUTER JOIN licensesInComponents ON licensesInComponents.componentID=componentsInProducts.componentID'
 
   query += ' WHERE licenseID = ?;'
@@ -769,7 +770,7 @@ function getProductsWithLicense (req, res, id) {
  * @param {Integer} id
  */
 function getProductsWithComponent (req, res, id) {
-  let query = 'SELECT DISTINCT productID AS id, productName, productVersion, dateCreated, lastEdited, comment FROM products LEFT OUTER JOIN componentsInProducts ON products.id=componentsInProducts.productID'
+  let query = 'SELECT DISTINCT productID AS id, productName, productVersion, dateCreated, lastEdited, comment, approvedBy FROM products LEFT OUTER JOIN componentsInProducts ON products.id=componentsInProducts.productID'
 
   query += ' WHERE componentID = ?;'
 

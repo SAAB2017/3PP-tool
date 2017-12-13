@@ -158,37 +158,43 @@ router.route('/add')
     // Construct SQL query based on input parameters.
     const query = `INSERT INTO licenses (licenseName, licenseVersion, dateCreated, lastEdited, URL, comment, licenseType) VALUES ('${lic.licenseName}', '${lic.licenseVersion}', '${date}', '${date}', '${lic.URL}', '${lic.comment}', '${lic.licenseType}')`
     // Send the license to the database.
-    req.db.run('begin', () => {
-      req.db.run(query, (error) => {
-        if (error) {
-          res.status(500)
-          res.send(error.message)
-          res.error_id = 'E04'
-        } else {
-          let licenseID = 1
-          const queryGetID = "SELECT MAX(id) AS 'id' FROM licenses"
-          req.db.get(queryGetID, (error, row) => {
-            if (error) {
-              // If there's an error then provide the error message and the different attributes that could have caused it.
-              res.send('ERROR! error message:' + error.message + ' query: ' + queryGetID)
-            } else {
-              licenseID += row.id
-            }
-          })
-          // Log the creation of the license.
-          const logquery = `INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES (${licenseID}, '${date}', 'License created.')`
-          req.db.run(logquery, (error) => {
-            if (error) {
-              res.status(500)
-              res.send(error.message)
-            } else {
-              req.db.run('commit')
-              res.status(201)
-              res.send('success')
-            }
-          })
-        }
-      })
+    req.db.run('begin', (error) => {
+      if (error) {
+        req.db.run('rollback')
+      } else {
+        req.db.run(query, (error) => {
+          if (error) {
+            // res.status(500)
+            res.send('error')
+            res.error_id = 'E04'
+            req.db.run('rollback')
+          } else {
+            let licenseID = 1
+            const queryGetID = "SELECT MAX(id) AS 'id' FROM licenses"
+            req.db.get(queryGetID, (error, row) => {
+              if (error) {
+                // If there's an error then provide the error message and the different attributes that could have caused it.
+                res.send('ERROR! error message:' + error.message + ' query: ' + queryGetID)
+              } else {
+                licenseID += row.id
+              }
+            })
+            // Log the creation of the license.
+            const logquery = `INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES (${licenseID}, '${date}', 'License created.')`
+            req.db.run(logquery, (error) => {
+              if (error) {
+                res.status(500)
+                res.send('error')
+              } else {
+                req.db.run('commit')
+                res.status(201)
+                res.send('success')
+              }
+            })
+          }
+        })
+      }
+
     })
     // postcondition: component created and logged.
   })
@@ -199,7 +205,7 @@ router.route('/add')
 router.route('/licensesInComponent/:id')
   .get((req, res) => {
     let componentID = req.params.id
-    let query = `SELECT licenseID as id, licenseName, licenseVersion, dateCreated, lastEdited, comment, URL FROM  licenses INNER JOIN licensesInComponents ON licenses.id=licensesInComponents.licenseID WHERE 
+    let query = `SELECT licenseID as id, licenseName, licenseVersion, dateCreated, lastEdited, comment, URL, licenseType FROM  licenses INNER JOIN licensesInComponents ON licenses.id=licensesInComponents.licenseID WHERE 
     componentID=${componentID}`
     req.db.all(query, (err, rows) => {
       if (err) {
@@ -386,7 +392,7 @@ function getLicenseLog (req, res, id) {
  * @param {Integer} id
  */
 function getLicensesFromProduct (req, res, id) {
-  let query = 'SELECT DISTINCT licenseID AS id , licenseName, licenseVersion, dateCreated, lastEdited, comment FROM licenses LEFT OUTER JOIN' +
+  let query = 'SELECT DISTINCT licenseID AS id , licenseName, licenseVersion, dateCreated, lastEdited, comment, URL, licenseType FROM licenses LEFT OUTER JOIN' +
     ' licensesInComponents ON licenses.id=licensesInComponents.licenseID LEFT OUTER JOIN componentsInProducts ON componentsInProducts.componentID=licensesInComponents.componentID' +
     ' WHERE productID = ?;'
 
@@ -405,7 +411,7 @@ function getLicensesFromProduct (req, res, id) {
  * @param {Integer} id
  */
 function getLicensesFromProject (req, res, id) {
-  let query = 'SELECT DISTINCT licenseID AS id , licenseName, licenseVersion, dateCreated, lastEdited, comment FROM licenses LEFT OUTER JOIN licensesInComponents ON licenses.id=licensesInComponents.licenseID' +
+  let query = 'SELECT DISTINCT licenseID AS id , licenseName, licenseVersion, dateCreated, lastEdited, comment, URL, licenseType FROM licenses LEFT OUTER JOIN licensesInComponents ON licenses.id=licensesInComponents.licenseID' +
               ' LEFT OUTER JOIN componentsInProducts ON componentsInProducts.componentID=licensesInComponents.componentID' +
               ' LEFT OUTER JOIN productsInProjects ON productsInProjects.productID=componentsInProducts.productID' +
     ' WHERE projectID = ?;'
