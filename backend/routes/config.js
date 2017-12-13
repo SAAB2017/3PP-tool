@@ -1,4 +1,3 @@
-import ax from 'axios'
 const ITEMTYPES = ['component', 'license', 'product', 'project']
 const ORD = ['asc', 'desc']
 const DEFAULTPAYLOADSIZE = 5
