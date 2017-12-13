@@ -267,27 +267,30 @@
     /* Fetch the license with id from database and add to license,
      * then fetch components, products and projects */
     mounted () {
-      axios.get(this.$baseAPI + 'licenses/' + this.$route.params.id)
+      let _this = this
+      axios.get(this.$baseAPI + 'licenses/license/' + this.$route.params.id)
         .then(response => {
-          this.license = response.data
-          this.origComment = this.license.comment
-          this.origURL = this.license.URL
-          this.fetchComponents()
-          this.fetchProducts()
-          this.fetchProjects()
+          _this.license = response.data
+          _this.origComment = _this.license.comment
+          _this.origURL = _this.license.URL
+          _this.fetchComponents()
+          _this.fetchProducts()
+          _this.fetchProjects()
+        }).catch(err => {
+          console.log(err)
         })
     },
 
     methods: {
       /**
        * Fetch all components that contains this license
-       */
+       */ // TODO: WORKS
       fetchComponents () {
         axios.get(this.$baseAPI + 'components/componentsWithLicense/' + this.$route.params.id).then(response => {
           this.components = response.data
         })
       },
-
+      // TODO:
       /**
        * Fetch all products that contains this license
        */
@@ -402,7 +405,7 @@
       },
 
       /**
-       * Shows this.message for some time then fades it away and removes it.
+D       * Shows this.message for some time then fades it away and removes it.
        */
       fade_out () {
         let msg = document.getElementById('p-message')

@@ -86,11 +86,15 @@
     },
 
     mounted () {
-      const pendingURI = 'products/' + this.$route.params.id
+      const pendingURI = 'products/product/' + this.$route.params.id
+      let _this = this
       axios.get(this.$baseAPI + pendingURI)
         .then(response => {
-          this.product = response.data
-          this.fetchLicenses()
+          _this.product = response.data
+          _this.fetchLicenses()
+        }).catch(err => {
+          console.log('Could not reach URI products/product/')
+          console.log(err)
         })
     },
 

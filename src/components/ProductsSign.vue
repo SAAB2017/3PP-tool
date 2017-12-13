@@ -1,4 +1,4 @@
-<!-- View for showing all unsigned products -->
+<<<<<<<<!-- View for showing all unsigned products -->
 <template>
   <div class="products-list">
 
@@ -9,7 +9,7 @@
     <div id="top-div-child" class="columns is-mobile is-centered">
       <div id="top-search" class="field has-addons">
         <div class="control">
-          <input v-on:keyup="searchProduct()" v-model="searchProducts" class="input" type="text" placeholder="Find a product">
+          <input v-model="searchProducts" class="input" type="text" placeholder="Find a product">
         </div>
         <div class="control">
           <button @click="searchProduct()" class="button is-primary">Search</button>
@@ -30,11 +30,16 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="product in products" @click="displayProduct(product)">
+        <transition-group  name="list" appear>
+        <tr v-for="product in products" @click="displayProduct(product)" v-bind:key="product" class="plist-item">
           <td scope="row" data-label="Product">{{ product.productName }}</td>
           <td scope="row" data-label="Version">{{ product.productVersion }}</td>
           <td scope="row" data-label="Created">{{ product.dateCreated }}</td>
           <td scope="row" data-label="Last edited">{{ product.lastEdited }}</td>
+        </tr>
+        </transition-group>
+        <tr v-if="showPaginatorClick">
+          <div id="paginator" style="text-align: center;" @click="getMore()"><a class="button is-primary">Hämta in fler</a></div>
         </tr>
         </tbody>
       </table>
@@ -45,7 +50,8 @@
 
 <script>
   import axios from 'axios'
-
+  import meth from './ProductsList'
+  import payloadcfg from '../../backend/routes/config'
   export default {
     data () {
       return {
@@ -54,15 +60,82 @@
         productVersion: null,
         searchProducts: '',
         sorted: '',
-        reverse: 1
+        reverse: 1,
+        searching: false,
+        message: '',
+        showPaginatorClick: true,
+        payload: this.payloadFactory()
       }
     },
     /* Fetches unsigned products from the database and puts them in products */
     mounted () {
-      this.getAllPending()
+      this.payload = this.payloadFactory()
+      this.getMore(true)
+      // this.getAllPending()
     },
-
+    watch: {
+      searchProducts: function (a) {
+        if (a.length === 0) {
+          this.searching = false
+          this.showPaginatorClick = true
+          this.products = []
+          this.payload = this.payloadFactory()
+          this.getNext(true)
+        } else if (a.length > 0) {
+          this.searching = true
+          let sort = this.payload.sort
+          this.payload = this.payloadFactory()
+          this.payload.sort = sort
+          this.searchComponent(a)
+        }
+      },
+      components: function (a) {
+        if (a.length === this.payload.meta.count) {
+          this.showPaginatorClick = false
+        } else if (a.length < this.payload.meta.count) {
+          this.showPaginatorClick = true
+        }
+      }
+    },
     methods: {
+      payloadFactory: payloadcfg.payloadInit.bind(null, 'product'),
+      getMore (replaceItemsList) {
+        if (this.searching === false) {
+          this.getNext(replaceItemsList)
+        } else {
+          this.getNextSearchQuery(replaceItemsList)
+        }
+      },
+      getNext (replaceItemsList) {
+        let _this = this
+        console.log(this.$baseAPI + 'products/pending/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+        axios.get(this.$baseAPI + 'products/pending/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+          .then(response => {
+            _this.payload = response.data
+            replaceItemsList ? _this.products = [..._this.payload.items] : _this.products = [..._this.products, ..._this.payload.items]
+            _this.products.length === _this.payload.meta.count ? _this.showPaginatorClick = null : _this.showPaginatorClick = true
+          }).catch(err => {
+            console.log('Error thrown trying to get from /products/pending/' + _this.payload.links.next + _this.payload.sort.column + _this.payload.sort.order)
+            console.log(err)
+        })
+      },
+      getNextSearchQuery (replaceItemsList) {
+        let _this = this
+        axios.get(this.$baseAPI + 'products/pending/search/' + this.searchProducts + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+          .then(response => {
+            _this.payload = response.data
+            replaceItemsList ? _this.products = [..._this.payload.items] : _this.products = [..._this.products, ..._this.payload.items]
+            if (_this.products.length === _this.payload.meta.count) {
+              _this.showPaginatorClick = null
+            } else {
+              _this.showPaginatorClick = true
+            }
+          }).catch(err => {
+            console.log('Error caught, from thrown exception at URI: \n' + 'products/pending/search/' + _this.searchProducts + '/' + _this.payload.links.next + _this.payload.sort.column + _this.payload.sort.order)
+            console.log(err)
+        })
+      },
+
       getAllPending () {
         axios.get(this.$baseAPI + 'products/pending')
           .then(response => {
@@ -72,24 +145,25 @@
       /**
        * Searches for unsigned products from the database matching the search-criteria
        */
-      searchProduct () {
-        // TODO Implement method
-        if (this.searchProducts.length === 0) {
-          this.getAllPending()
-          return
-        }
-        if (this.searchProducts !== 0 || this.searchProducts !== null || this.searchProducts !== '') {
-          axios.get(this.$baseAPI + 'products/search/' + this.searchProducts).then(response => {
-            console.log(response.data)
-            if (response.data != null) {
-              this.products = response.data
-            } else {
-              this.message = 'No product found!'
+      searchComponent (search) {
+        const path = 'products/pending/search/' + search + this.payload.links.next + this.payload.sort.column + this.payload.sort.order
+        console.log(path)
+        let _this = this
+        axios.get(this.$baseAPI + path).then(response => {
+          console.log(response.data)
+          if (response.data != null) {
+            _this.payload = response.data
+            _this.products = _this.payload.items
+            // console.log("Count: " + _this.payload.meta.count + " Length: " + _this.products.length)
+            if (_this.products.length === _this.payload.meta.count) {
+              _this.showPaginatorClick = false
             }
-          })
-        } else {
-          this.getAllPending()
-        }
+          } else {
+            _this.message = 'No component found!'
+          }
+        }).catch(err => {
+          console.log(err)
+        })
       },
 
       /**
@@ -98,7 +172,7 @@
        */
       displayProduct (product) {
         console.log(`Product id is ${product}`)
-        this.$router.push({ name: 'products_pending_id', params: { id: product.id } })
+        this.$router.push({ name: 'products_id', params: { id: product.id } })
       },
 
       sortName () {
@@ -120,7 +194,6 @@
         })
         this.reverse *= -1
       },
-
       sortVersion () {
         if (this.sorted !== 'version') {
           this.sorted = 'version'
@@ -140,10 +213,9 @@
         })
         this.reverse *= -1
       },
-
       sortCreated () {
         if (this.sorted !== 'created') {
-          this.sorted = 'created'
+          this.ssorted = 'created'
           this.reverse = 1
         }
         let t = this
@@ -160,7 +232,6 @@
         })
         this.reverse *= -1
       },
-
       sortEdited () {
         if (this.sorted !== 'created') {
           this.sorted = 'created'
@@ -179,7 +250,8 @@
           return 0
         })
         this.reverse *= -1
-      }
+      },
+
     }
   }
 </script>

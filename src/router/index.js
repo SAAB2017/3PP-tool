@@ -41,7 +41,7 @@ export default new Router({
       component: LicensesHome
     },
     {
-      path: '/licenses/:id(\\d+)',
+      path: '/licenses/license/:id(\\d+)',
       name: 'licenses_id',
       component: License
     },
@@ -81,7 +81,7 @@ export default new Router({
       component: ProductsHome
     },
     {
-      path: '/products/:id(\\d+)',
+      path: '/products/product/:id(\\d+)',
       name: 'products_id',
       component: Product
     },

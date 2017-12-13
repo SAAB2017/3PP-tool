@@ -2,14 +2,14 @@
 
 <style>
   .component-fade-enter-active, .component-fade-leave-active {
-    transition: opacity .4s ease;
+    transition: opacity .127s ease;
   }
   .component-fade-enter, .component-fade-leave-to
     /* .component-fade-leave-active below version 2.1.8 */ {
     opacity: 0;
   }
   .list-enter-active, .list-leave-active {
-    transition: all 0.7s;
+    transition: all 0.327s;
   }
   .list-enter, .list-leave-to /* .list-leave-active below version 2.1.8 */ {
     opacity: 0;
@@ -57,7 +57,7 @@
         </transition-group>
 
         <tr v-if="showPaginatorClick">
-          <div id="paginator" style="text-align: center;" @click="getMore()"><a class="button is-primary">Hämta in fler</a></div>
+          <div id="paginator" style="text-align: center;" @click="getMore(false)"><a class="button is-primary">Hämta in fler</a></div>
         </tr>
 
 
@@ -70,22 +70,26 @@
 
 <script>
   import axios from 'axios'
-
+  import payloadcfg from '../../backend/routes/config.js'
   export default {
     data () {
       return {
         components: [],
-        searchComponents: null,
         component: null,
         componentVersion: null,
+        searchComponents: null,
+        order: 'asc',
         message: '',
-        sorted: '',
-        reverse: 1,
         showPaginatorClick: true,
         searching: false,
-        payload: null,
-        }
-      },
+        payload: this.payloadFactory()
+      }
+    },
+    watch: {
+      ordering: function (ord) {
+        this.components = []
+      }
+    },
 
     /* Fetches signed components from the database and puts them in components */
     mounted () {
@@ -95,8 +99,8 @@
         this.$route.params.type = ''
         console.log(this.message)
       }
-      this.payload = this.$initPayload()
-      this.getNext()
+      this.payload = this.payloadFactory()
+      this.getNext(false)
       this.fade_out()
     },
 
@@ -105,7 +109,7 @@
        * Searches for signed components from the database matching the search-criteria
        */
 
-
+      payloadFactory: payloadcfg.payloadInit.bind(null, 'component'),
       /**
        * Opens the view for a specific component with id id.
        * @param component The component to be viewed
@@ -117,29 +121,21 @@
       /**
        * Fetches all components from database
        */
-
-      getMore () {
-        if (this.searching === false) {
-          this.getNext()
-        } else {
-          this.getNextSearchQuery()
-        }
-      },
-
       searchComponent () {
         this.searching = true
-        this.payload = this.$initPayload()
+        let sort = this.payload.sort
+        this.payload = this.payloadFactory()
+        this.payload.sort = sort
         this.showPaginatorClick = true
         if (this.searchComponents.length === 0) {
           this.searching = false
           this.showPaginatorClick = true
           this.components = []
-          this.getNext()
+          this.getNext(true)
           return
         }
         if ((this.searchComponents.length !== 0) && (this.searchComponents !== null) && (this.searchComponents !== '')) {
-          const path = `components/search/${this.searchComponents}/${this.payload.links.next}`
-          console.log(path)
+          const path = `components/search/${this.searchComponents}/${this.payload.links.next}${this.payload.sort.column}${this.payload.sort.order}`
           axios.get(this.$baseAPI + path).then(response => {
             console.log(response.data)
             if (response.data != null) {
@@ -152,34 +148,28 @@
         }
       },
 
-      getNext () {
-        axios.get(this.$baseAPI + 'components/' + this.payload.links.next)
-          .then(response => {
-            this.payload = response.data
-            // FIXME: TODO: ta bort nedanstående, endast debug-info
-        {
-        console.log('response.links = {')
-          for (let a in response.data.links) {
-         // console.log(a + ': ' + respoonse.links[a] + ',')
-         console.log(a + ":" + response.data.links[a])
-          }
-        console.log('}')
+      // GET METHODS
+      getMore (replaceItemsList) {
+        if (this.searching === false) {
+          this.getNext(replaceItemsList)
+        } else {
+          this.getNextSearchQuery(replaceItemsList)
         }
-        // FIXME: TODO: TA BORT OVANSTÅENDE
-            this.components = [...this.components, ...this.payload.items]
-            if (this.components.length === this.payload.meta.count) {
-              this.showPaginatorClick = null
-            } else {
-              this.showPaginatorClick = true
-            }
-          })
       },
-
-      getNextSearchQuery () {
-        axios.get(this.$baseAPI + 'components/search/' + this.searchComponents + '/' + this.payload.links.next)
+      getNext (replaceItemsList) {
+        axios.get(this.$baseAPI + 'components/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
-            this.components = [...this.components, ...this.payload.items]
+            replaceItemsList ? this.components = [...this.payload.items] : this.components = [...this.components, ...this.payload.items]
+            this.components.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
+          }
+          )
+      },
+      getNextSearchQuery (replaceItemsList) {
+        axios.get(this.$baseAPI + 'components/search/' + this.searchComponents + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+          .then(response => {
+            this.payload = response.data
+            replaceItemsList ? this.components = [...this.payload.items] : this.components = [...this.components, ...this.payload.items]
             if (this.components.length === this.payload.meta.count) {
               this.showPaginatorClick = null
             } else {
@@ -212,83 +202,62 @@
       },
 
       sortName () {
-        if (this.sorted !== 'name') {
-          this.sorted = 'name'
-          this.reverse = 1
+        let newpayload = this.payloadFactory()
+        newpayload.sort.column = '&sort=componentName'
+        if (this.ordering === 'asc') {
+          this.ordering = 'desc'
+          newpayload.sort.order = '&order=desc'
+        } else {
+          this.ordering = 'asc'
+          newpayload.sort.order = '&order=asc'
         }
-        let t = this
-        this.components.sort(function (a, b) {
-          let lFirst = a.componentName.toLowerCase()
-          let lSecond = b.componentName.toLowerCase()
-          if (lFirst < lSecond) {
-            return -1 * t.reverse
-          }
-          if (lFirst > lSecond) {
-            return 1 * t.reverse
-          }
-          return 0
-        })
-        this.reverse *= -1
+        this.payload.sort = newpayload.sort
+        this.payload.links = newpayload.links
+        this.getMore(true)
       },
-
       sortVersion () {
-        if (this.sorted !== 'version') {
-          this.sorted = 'version'
-          this.reverse = 1
+        let newpayload = this.payloadFactory()
+        newpayload.sort.column = '&sort=componentVersion'
+        if (this.ordering === 'asc') {
+          this.ordering = 'desc'
+          newpayload.sort.order = '&order=desc'
+        } else {
+          this.ordering = 'asc'
+          newpayload.sort.order = '&order=asc'
         }
-        let t = this
-        this.components.sort(function (a, b) {
-          let lFirst = a.componentVersion.toLowerCase()
-          let lSecond = b.componentVersion.toLowerCase()
-          if (lFirst < lSecond) {
-            return -1 * t.reverse
-          }
-          if (lFirst > lSecond) {
-            return 1 * t.reverse
-          }
-          return 0
-        })
-        this.reverse *= -1
+        this.payload.sort = newpayload.sort
+        this.payload.links = newpayload.links
+        this.getMore(true)
       },
-
       sortCreated () {
-        if (this.sorted !== 'created') {
-          this.sorted = 'created'
-          this.reverse = 1
+        let newpayload = this.payloadFactory()
+        newpayload.sort.column = '&sort=dateCreated'
+        if (this.ordering === 'asc') {
+          this.ordering = 'desc'
+          newpayload.sort.order = '&order=desc'
+        } else {
+          this.ordering = 'asc'
+          newpayload.sort.order = '&order=asc'
         }
-        let t = this
-        this.components.sort(function (a, b) {
-          let lFirst = a.dateCreated.toLowerCase()
-          let lSecond = b.dateCreated.toLowerCase()
-          if (lFirst < lSecond) {
-            return -1 * t.reverse
-          }
-          if (lFirst > lSecond) {
-            return 1 * t.reverse
-          }
-          return 0
-        })
-        this.reverse *= -1
+        this.payload.sort = newpayload.sort
+        this.payload.links = newpayload.links
+        this.getMore(true)
       },
-
       sortEdited () {
-        if (this.sorted !== 'created') {
-          this.sorted = 'created'
-          this.reverse = 1
+        let newpayload = this.payloadFactory()
+        newpayload.sort.column = '&sort=lastEdited'
+        if (this.ordering === 'asc') {
+          this.ordering = 'desc'
+          newpayload.sort.order = '&order=desc'
+        } else {
+          this.ordering = 'asc'
+          newpayload.sort.order = '&order=asc'
         }
-        let t = this
-        this.components.sort(function (a, b) {
-          let lFirst = a.lastEdited.toLowerCase()
-          let lSecond = b.lastEdited.toLowerCase()
-          if (lFirst < lSecond) {
-            return -1 * t.reverse
-          }
-          if (lFirst > lSecond) {
-            return 1 * t.reverse
-          }
-          return 0
-        })
-        this.reverse *= -1
+
+        console.log(this.$baseAPI + 'components/' + newpayload.links.next + newpayload.sort.column + newpayload.sort.order)
+        this.payload.sort = newpayload.sort
+        this.payload.links = newpayload.links
+        this.getMore(true)
       }
     }
   }

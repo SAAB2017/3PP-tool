@@ -105,8 +105,8 @@
        * Approves the project and adds the approvers signature to the project
        */
       signProject () {
-        if (this.project.approvedBy !== '' || this.project.approvedBy) {
-          console.log(this.project.projectName)
+        if (this.project.approvedBy !== '' || this.project.approvedBy.length !== 0) {
+          console.log(this.project.approvedBy)
           let data = {
             id: this.project.id,
             approvedBy: this.project.approvedBy,

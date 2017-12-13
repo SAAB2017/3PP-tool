@@ -1,87 +1,62 @@
-let [initPayload] = require('./payloadConfig')
+let payloadcfg = require('./config')
+
+let initPayload = payloadcfg.payloadInit.bind(null, 'component')
+let NOTSIGNED = payloadcfg.NOTSIGNED
+let SIGNED = payloadcfg.SIGNED
+
 var express = require('express')
 var router = express.Router()
 
+function handleSearchGetRequest (req, res, isPending) {
+  // precondition: parameter is wellformed
+  let response = initPayload()
+  const offset = parseInt(+req.query.offset) || 0
+  const amount = parseInt(+req.query.amount) || 5
+  const approved = isPending ? 1 : 0
+  let sorting = (req.query.sort === 'undefined') ? `componentName` : `${req.query.sort}`
+  let ordering = (req.query.order === 'undefined') ? `asc` : `${req.query.order}`
+  let sort = {column: `&sort=${sorting}`, order: `&order=${ordering}`}
+  response.sort = sort
+  getLinkData(req.db, offset, amount, response, `select count(*) as count from components where componentName LIKE '%${req.params.id}%' AND approved=${approved}`, (links) => {
+    response.links = {
+      prev: `?offset=${links.prev}&amount=${amount}`,
+      current: `?offset=${links.current}&amount=${amount}`,
+      next: `?offset=${links.next}&amount=${amount}`
+    }
+
+    if (!response.errorflag) {
+    // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
+      const query = `SELECT * FROM components where componentName LIKE '%${req.params.id}%' AND approved=${approved} order by ${sorting} ${ordering} LIMIT ${offset}, ${amount}`
+      req.db.all(query, (err, rows) => {
+        if (err) {
+          let errormessage = 'ERROR! error message:' + err.message + ', query: ' + query
+          response.errors.message = [errormessage]
+          response.errors.status = 'ERROR'
+          response.errors.errorflag = true
+          res.status(404)
+          res.json(response)
+        } else {
+          response.items = rows
+          res.status(200)
+          response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
+          res.json(response)
+        }
+      })
+    }
+  })
+}
+
 // ===========================
-// Methods for /components/search/:id
+// Methods for searching
 // ===========================
 router.route('/search/:id')
   .get((req, res) => {
-    // precondition: parameter is wellformed
-    console.log('Called /search with the id: ' + req.params.id)
-    let response = initPayload()
-    let offset = parseInt(+req.query.offset) || 0
-    let amount = parseInt(+req.query.amount) || 5
-    getLinkData(req.db, offset, amount, response, `select count(*) as count from components where componentName LIKE '%${req.params.id}%' AND approved=1`, (links) => {
-      response.links = {
-        prev: `?offset=${links.prev}&amount=${amount}`,
-        current: `?offset=${links.current}&amount=${amount}`,
-        next: `?offset=${links.next}&amount=${amount}`
-      }
-      // for (let a in response.links) { console.log(response.links[a]) }
-    })
-    if (!response.errorflag) {
-      // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
-      const query = `SELECT * FROM components where componentName LIKE '%${req.params.id}%' AND approved=1 LIMIT ${offset}, ${amount}`
-      req.db.all(query, (err, rows) => {
-        if (err) {
-          let errormessage = 'ERROR! error message:' + err.message + ', query: ' + query
-          response.errors.message = [errormessage]
-          response.errors.status = 'ERROR'
-          response.errors.errorflag = true
-          console.log(err)
-          res.status(404)
-          res.json(response)
-        } else {
-          response.items = rows
-          res.status(200)
-          response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
-          res.json(response)
-        }
-        // = rows
-      })
-    }
+    handleSearchGetRequest(req, res, SIGNED)
   })
 
-// ===========================
-// Methods for searching, /components/search/:id
-// ===========================
-router.route('/pending/search/:id')
-  .get((req, res) => {
-    // precondition: parameter is wellformed
-    console.log('Called /pending/search with id: ' + req.params.id)
-    let response = initPayload()
-    let offset = parseInt(+req.query.offset) || 0
-    let amount = parseInt(+req.query.amount) || 5
-    getLinkData(req.db, offset, amount, response, `select count(*) as count from components where componentName LIKE '%${req.params.id}%' AND approved=0`, (links) => {
-      response.links = {
-        prev: `?offset=${links.prev}&amount=${amount}`,
-        current: `?offset=${links.current}&amount=${amount}`,
-        next: `?offset=${links.next}&amount=${amount}`
-      }
-      // for (let a in response.links) { console.log(response.links[a]) }
-    })
-    if (!response.errorflag) {
-      // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
-      const query = `SELECT * FROM components where componentName LIKE '%${req.params.id}%' AND approved=0 LIMIT ${offset}, ${amount}`
-      req.db.all(query, (err, rows) => {
-        if (err) {
-          let errormessage = 'ERROR! error message:' + err.message + ', query: ' + query
-          response.errors.message = [errormessage]
-          response.errors.status = 'ERROR'
-          response.errors.errorflag = true
-          console.log(err)
-          res.status(404)
-          res.json(response)
-        } else {
-          response.items = rows
-          res.status(200)
-          response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
-          res.json(response)
-        }
-      })
-    }
-  })
+router.route('/pending/search/:id').get((req, res) => {
+  handleSearchGetRequest(req, res, NOTSIGNED)
+})
 // ----------------------------------------------------------------------------
 //  Methods for /components
 // ----------------------------------------------------------------------------
@@ -96,22 +71,16 @@ router.route('/pending/search/:id')
 function getLinkData (db, offset, amount, response, pageQuery, setLinksCB) {
   // FIXME: getTotal(req, response) doesn't work because of the async nature of calls to sqlite3
   // const pageCountQuery = (signed) ? `select count(*) as count from components where approved=1` : `select count(*) as count from components where approved=0`
-  // console.log(pageCountQuery)
-  console.log("Trying to execute query: " + pageQuery)
   db.get(pageQuery, (err, row) => {
     if (err) {
-      // console.log("ERROR: " + err.message)
-      console.log("Error:")
-      console.log(err)
-      response = initPayload()
-      response.error.message.push('Could not get element count from database.')
+      response = initPayload() // effectively empty payload, reset cursor to beginning, default parameters
+      response.errors.message.push('Could not get element count from database.')
       response.errorflag = true
       response.meta.count = 0
     } else {
       // response.meta.count = Number.isSafeInteger(row.count) ? row.count : 0
       // Object.assign(response.meta, meta)
       response.meta.count = row.count
-      console.log(response.meta.count)
       // if these parameters are malformed, the response defaults to the first 30 items (0, 30)
       if (!isNaN(response.meta.count) && Number.isSafeInteger(response.meta.count)) {
         if (isNaN(offset) || isNaN(amount)) {
@@ -121,7 +90,7 @@ function getLinkData (db, offset, amount, response, pageQuery, setLinksCB) {
             next: (0 + amount) < response.meta.count ? amount : 0
           }
           response.errorflag = true
-          response.error.message.push('Illegal query parameters passed')
+          response.errors.message.push('Illegal query parameters passed')
           setLinksCB(links)
         } else if (Number.isSafeInteger(offset) && Number.isSafeInteger(amount)) {
           let links = {
@@ -132,39 +101,38 @@ function getLinkData (db, offset, amount, response, pageQuery, setLinksCB) {
           setLinksCB(links)
         }
       } else {
-        console.log("ERROR")
         response.errorflag = true
-        response.error.message.push('Illegal query parameters')
+        response.errors.message.push('Illegal query parameters')
       }
     }
   })
 }
 
-router.route('/')
-  .get((req, res) => {
-    // if these parameters are malformed, the response defaults to the first 30 items (0, 30)
-    let response = initPayload()
-    let offset = parseInt(+req.query.offset) || 0
-    let amount = parseInt(+req.query.amount) || 5
-    // exempel på route /components med query:
-    // /components/?offset=250&amount=25
-    // ?-tecknet berättar att det som kommer efter är query-strängen,
-    // dessa parametrar finns i req.query (req skickas med i .get((req...
+// Example request: components/search/o/?offset=0&amount=3&sort=componentName&order=desc
+function handleGetRequest (req, res, isSigned) {
+  // if these parameters are malformed, the response defaults to the first 30 items (0, 30)
+  let response = initPayload()
+  const offset = parseInt(+req.query.offset) || 0
+  const amount = parseInt(+req.query.amount) || 5
+  const approved = (isSigned) ? 1 : 0
+  let sorting = (req.query.sort === 'undefined') ? `componentName` : `${req.query.sort}`
+  let ordering = (req.query.order === 'undefined') ? `asc` : `${req.query.order}`
+  let sort = {column: `&sort=${sorting}`, order: `&order=${ordering}`}
+  response.sort = sort
 
-    getLinkData(req.db, offset, amount, response, `select count(*) as count from components where approved=1`, (links) => {
-      response.links = {
-        prev: `?offset=${links.prev}&amount=${amount}`,
-        current: `?offset=${links.current}&amount=${amount}`,
-        next: `?offset=${links.next}&amount=${amount}`
-      }
-    })
+  getLinkData(req.db, offset, amount, response, `select count(*) as count from components where approved=${approved}`, (links) => {
+    response.links = {
+      prev: `?offset=${links.prev}&amount=${amount}`,
+      current: `?offset=${links.current}&amount=${amount}`,
+      next: `?offset=${links.next}&amount=${amount}`
+    }
 
     if (!response.errorflag) {
-      // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
-      const query = `SELECT * FROM components where approved=1 LIMIT ${offset}, ${amount}`
+    // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
+      const query = `SELECT * FROM components where approved=${approved} order by ${sorting} ${ordering} LIMIT ${offset}, ${amount} `
       req.db.all(query, (err, rows) => {
         if (err) {
-          response.errors.message = [...err]
+          response.errors.message = [err]
           response.errors.status = 'ERROR'
           response.errors.errorflag = true
           res.json(response)
@@ -173,10 +141,20 @@ router.route('/')
           response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
           res.json(response)
         }
-        // = rows
+      // = rows
       })
-
     }
+  })
+}
+
+router.route('/')
+  .get((req, res) => {
+    handleGetRequest(req, res, SIGNED)
+  })
+
+router.route('/pending')
+  .get((req, res) => {
+    handleGetRequest(req, res, NOTSIGNED)
   })
 
 // ----------------------------------------------------------------------------
@@ -228,7 +206,6 @@ function setComponentComment (req, res, input) {
 // ----------------------------------------------------------------------------
 
 function validateRequest (component, approved) {
-  console.log('Validating data')
   return ((approved[0] == null && approved[1] == null) || ((component.approved == 1 && approved[0] == 0) || (component.approved != 1 && approved[1] != '')))
 }
 
@@ -260,46 +237,6 @@ function getCorrectApproved (input) {
   return approved
 }
 
-
-// ----------------------------------------------------------------------------
-//  Methods for /components/pending
-// ----------------------------------------------------------------------------
-router.route('/pending')
-  .get((req, res) => {
-    let response = initPayload()
-    let offset = parseInt(+req.query.offset) || 0
-    let amount = parseInt(+req.query.amount) || response.links.getDefaultAmount()
-
-    // exempel på route /components med query:
-    // /components/?offset=250&amount=25
-    // ?-tecknet berättar att det som kommer efter är query-strängen,
-    // dessa parametrar finns i req.query (req skickas med i .get((req...
-    getLinkData(req.db, offset, amount, response, `select count(*) as count from components where approved=0`, (links) => {
-      response.links = {
-        prev: `?offset=${links.prev}&amount=${amount}`,
-        current: `?offset=${links.current}&amount=${amount}`,
-        next: `?offset=${links.next}&amount=${amount}`
-      }
-    })
-    if (!response.errorflag) {
-      // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
-      const query = `SELECT * FROM components where approved=0 LIMIT ${offset}, ${amount}`
-      req.db.all(query, (err, rows) => {
-        if (err) {
-          response.errors.message = [...err]
-          response.errors.status = 'ERROR'
-          response.errors.errorflag = true
-          res.json(response)
-        } else {
-          response.items = rows
-          response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
-          res.json(response)
-        }
-      })
-    }
-  })
-
-
 // ----------------------------------------------------------------------------
 //  Methods for /components/approve
 // ----------------------------------------------------------------------------
@@ -325,7 +262,6 @@ router.route('/approve')
           'byUser': '' + component.approvedBy
           // "onTime": "1510062744"
         }
-        console.log(message)
         res.status(500).send(message)
       }
     })
@@ -343,7 +279,6 @@ router.route('/add')
       addComponent(req.body, (query) => {
         req.db.run(query, (error) => {
           if (error) {
-            console.log(error.message)
             res.status(500)
             req.db.run('rollback')
             res.send('ERROR! error message:' + error.message + ', query: ' + query)
@@ -393,7 +328,6 @@ router.route('/connectLicenseWithComponent')
             message = {
               'errorType': 'licenseDoesNotExist'
             }
-            console.log(message)
             res.status(500).send(message)
           } else {
             // Create a log of the license added to the component
@@ -468,7 +402,7 @@ router.route('/log/:id')
   // postcondition: the log entries of the component
 })
 
-// ----------------------------------------------------------------------------
+// ---------------------u-------------------------------------------------------
 //  Methods for /components/search/:id
 // ---------------------------------------------------------------------------_
 
@@ -486,7 +420,6 @@ function getComponent (req, res, componentName, componentVersion, id, callback) 
 
   req.db.get(query, parameters, (error, row) => {
     if (error) {
-      console.log(error.message)
       res.status(500)
       res.send('ERROR! error message:' + error.message + ', query: ' + query + ', parameters: ' + parameters)
     } else {
@@ -515,7 +448,6 @@ function getComponentsFromProduct (req, res, id) {
       // If there's an error then provide the error message and the different attributes that could have caused it.
       res.send('ERROR! error message:' + err.message + ', query: ' + query)
     } else {
-      console.log(rows)
       res.json(rows)
     }
   })
@@ -586,7 +518,6 @@ function updateComponent (req, res, componentName, componentVersion, id, paramet
 
   req.db.run(query, parameters, (error) => {
     if (error) {
-      console.log(error.message)
       res.status(500)
       res.send('ERROR! error message:' + error.message + ', query: ' + query + ', parameters: ' + parameters)
     } else {
@@ -602,7 +533,6 @@ function insertLicenseIntoComponent (req, res, licenseID, componentID, callback)
   let parameters = [licenseID, componentID]
   req.db.run(query, parameters, (error) => {
     if (error) {
-      console.log(error.message)
       res.status(500)
       res.send(error.message)
     } else {
@@ -626,7 +556,6 @@ function getLicense (req, res, licenseName, licenseVersion, id, callback) {
 
   req.db.get(query, parameters, (error, row) => {
     if (error) {
-      console.log(error.message)
       res.status(500)
       res.send('ERROR! error message:' + error.message + ', query: ' + query + ', parameters: ' + parameters)
     } else {
@@ -643,7 +572,6 @@ function insertComponentLog (req, res, id, text, callback) {
   let queryLog = 'INSERT INTO componentLog (componentID, dateLogged, note) VALUES (?, ?, ?);'
   req.db.run((queryLog), parametersLog, (error) => {
     if (error) {
-      console.log(error.message)
       res.status(500)
       res.send(error.message)
     } else {
@@ -687,7 +615,6 @@ function getComponentLog (req, res, id) {
 
   req.db.all(query, [id], (error, rows) => {
     if (error) {
-      console.log(error.message)
       res.status(500)
       res.send(error.message)
     } else {
@@ -722,17 +649,15 @@ function setComponentLog (req, res, input, old, callback) {
 }
 
 // ----------------------------------------------------------------------------
-//  Methods for /components/component/:id
+//  Methods for /components/component/:ids
 // ----------------------------------------------------------------------------
 router.route('/component/:id')
-
 // In order to search; send in a JSON object with the applicable parameters.
   .get((req, res) => {
     let input = req.params.id
     const query = `SELECT * FROM components WHERE id=${input}`
     req.db.get(query, (err, row) => {
       if (err) {
-        console.log(err)
         res.status(404)
         res.send('ERROR! error message:' + err.message + ', query: ' + query)
       } else {
