@@ -50,7 +50,6 @@
 
 <script>
   import axios from 'axios'
-  import meth from './ProductsList'
   import payloadcfg from '../../backend/routes/config'
   export default {
     data () {
@@ -115,7 +114,7 @@
             _this.products.length === _this.payload.meta.count ? _this.showPaginatorClick = null : _this.showPaginatorClick = true
           }).catch(err => {
             console.log(err)
-        })
+          })
       },
       getNextSearchQuery (replaceItemsList) {
         let _this = this
@@ -130,7 +129,7 @@
             }
           }).catch(err => {
             console.log(err)
-        })
+          })
       },
 
       getAllPending () {
@@ -187,6 +186,7 @@
         })
         this.reverse *= -1
       },
+
       sortVersion () {
         if (this.sorted !== 'version') {
           this.sorted = 'version'
@@ -206,6 +206,7 @@
         })
         this.reverse *= -1
       },
+
       sortCreated () {
         if (this.sorted !== 'created') {
           this.ssorted = 'created'
@@ -225,6 +226,7 @@
         })
         this.reverse *= -1
       },
+
       sortEdited () {
         if (this.sorted !== 'created') {
           this.sorted = 'created'
@@ -243,7 +245,7 @@
           return 0
         })
         this.reverse *= -1
-      },
+      }
 
     }
   }

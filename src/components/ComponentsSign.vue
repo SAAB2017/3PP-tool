@@ -155,7 +155,7 @@ s<!-- Viezx w for showing all unsigned components -->
             }
           }).catch(err => {
             console.log(err)
-        })
+          })
       },
       /**
        * Opens the view for signing a specific component with id id.

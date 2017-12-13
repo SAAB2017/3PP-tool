@@ -144,7 +144,7 @@
        * Opens the view for a specific project with id id.
        * @param project The project to be viewed
        */
-      displayComponent(project) {
+      displayComponent (project) {
         this.$router.push({name: 'projects_id', params: {id: project.id}})
       },
 
@@ -185,7 +185,7 @@
           this.showPaginatorClick = null
         }
       },
-      getAllProjects() {
+      getAllProjects () {
         axios.get(this.$baseAPI + 'projects/')
           .then(response => {
             this.projects = response.data
@@ -195,7 +195,7 @@
       /**
        * Shows this.message for some time then fades it away and removes it.
        */
-      fade_out() {
+      fade_out () {
         let msg = document.getElementById('message-text')
         let page = this
         let count = 1

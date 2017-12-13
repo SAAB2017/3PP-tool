@@ -161,14 +161,16 @@
           this.getNextSearchQuery(replaceItemsList)
         }
       },
+
       getNext (replaceItemsList) {
-         axios.get(this.$baseAPI + 'products/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+        axios.get(this.$baseAPI + 'products/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
             replaceItemsList ? this.products = [...this.payload.items] : this.products = [...this.products, ...this.payload.items]
             this.products.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
           })
       },
+
       getNextSearchQuery (replaceItemsList) {
         axios.get(this.$baseAPI + 'products/search/' + this.searchProducts + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
@@ -219,6 +221,7 @@
         this.payload.links = newpayload.links
         this.getMore(true)
       },
+
       sortVersion () {
         let newpayload = this.payloadFactory()
         newpayload.sort.column = '&sort=productVersion'
@@ -233,6 +236,7 @@
         this.payload.links = newpayload.links
         this.getMore(true)
       },
+
       sortCreated () {
         let newpayload = this.payloadFactory()
         newpayload.sort.column = '&sort=dateCreated'
@@ -247,6 +251,7 @@
         this.payload.links = newpayload.links
         this.getMore(true)
       },
+
       sortEdited () {
         let newpayload = this.payloadFactory()
         newpayload.sort.column = '&sort=lastEdited'
