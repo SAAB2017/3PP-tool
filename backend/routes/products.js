@@ -750,7 +750,7 @@ function getproductsFromProject (req, res, id) {
  * @param {Integer} id
  */
 function getProductsWithLicense (req, res, id) {
-  let query = 'SELECT DISTINCT productID AS id, productName, productVersion, dateCreated, lastEdited, comment FROM products LEFT OUTER JOIN componentsInProducts ON products.id=componentsInProducts.productID' +
+  let query = 'SELECT DISTINCT productID AS id, productName, productVersion, dateCreated, lastEdited, comment, approvedBy FROM products LEFT OUTER JOIN componentsInProducts ON products.id=componentsInProducts.productID' +
               ' LEFT OUTER JOIN licensesInComponents ON licensesInComponents.componentID=componentsInProducts.componentID'
 
   query += ' WHERE licenseID = ?;'
@@ -770,7 +770,7 @@ function getProductsWithLicense (req, res, id) {
  * @param {Integer} id
  */
 function getProductsWithComponent (req, res, id) {
-  let query = 'SELECT DISTINCT productID AS id, productName, productVersion, dateCreated, lastEdited, comment FROM products LEFT OUTER JOIN componentsInProducts ON products.id=componentsInProducts.productID'
+  let query = 'SELECT DISTINCT productID AS id, productName, productVersion, dateCreated, lastEdited, comment, approvedBy FROM products LEFT OUTER JOIN componentsInProducts ON products.id=componentsInProducts.productID'
 
   query += ' WHERE componentID = ?;'
 

@@ -194,7 +194,7 @@ function getCorrectApproved (input) {
   let approved = [null, null]
 
   if (input.hasOwnProperty('approved')) {
-    if (input.approved !== 0 && approved[1] !== null) {
+    if (input.approved === 0 && approved[1] === null) {
       approved[1] = ''
     }
     approved[0] = input.approved
@@ -209,9 +209,9 @@ function getCorrectApproved (input) {
 
   // logic for correct approve/approvedBy
   if (approved[0] !== null) {
-    if (approved !== 0 && approved[1] !== null) {
+    if (approved === 0 && approved[1] === null) {
       approved[1] = ''
-    } else if (approved !== 1 && approved[1] !== null) {
+    } else if (approved === 1 && approved[1] === null) {
       approved[0] = null
     }
   }
@@ -621,7 +621,7 @@ function insertProductIntoProject (req, res, productID, projectID, callback) {
  * @param {Integer} id
  */
 function getProjectsWithLicense (req, res, id) {
-  let query = 'SELECT DISTINCT projectID AS id, projectName, projectVersion, dateCreated, lastEdited, comment FROM projects LEFT OUTER JOIN productsInProjects ON projects.id=productsInProjects.projectID' +
+  let query = 'SELECT DISTINCT projectID AS id, projectName, projectVersion, dateCreated, lastEdited, comment, approvedBy FROM projects LEFT OUTER JOIN productsInProjects ON projects.id=productsInProjects.projectID' +
               ' LEFT OUTER JOIN componentsInProducts ON componentsInProducts.productID=productsInProjects.productID' +
               ' LEFT OUTER JOIN licensesInComponents ON licensesInComponents.componentID=componentsInProducts.componentID'
 
@@ -641,7 +641,7 @@ function getProjectsWithLicense (req, res, id) {
  * @param {Integer} id
  */
 function getProjectsWithComponent (req, res, id) {
-  let query = 'SELECT DISTINCT projectID AS id, projectName, projectVersion, dateCreated, lastEdited, comment FROM projects LEFT OUTER JOIN productsInProjects ON projects.id=productsInProjects.projectID' +
+  let query = 'SELECT DISTINCT projectID AS id, projectName, projectVersion, dateCreated, lastEdited, comment, approvedBy FROM projects LEFT OUTER JOIN productsInProjects ON projects.id=productsInProjects.projectID' +
               ' LEFT OUTER JOIN componentsInProducts ON componentsInProducts.productID=productsInProjects.productID'
 
   query += ' WHERE componentID = ?;'
@@ -662,7 +662,7 @@ function getProjectsWithComponent (req, res, id) {
  * @param {Integer} id
  */
 function getProjectsWithProduct (req, res, id) {
-  let query = 'SELECT DISTINCT projectID AS id, projectName, projectVersion, dateCreated, lastEdited, comment FROM projects LEFT OUTER JOIN productsInProjects ON projects.id=productsInProjects.projectID'
+  let query = 'SELECT DISTINCT projectID AS id, projectName, projectVersion, dateCreated, lastEdited, comment, approvedBy FROM projects LEFT OUTER JOIN productsInProjects ON projects.id=productsInProjects.projectID'
 
   query += ' WHERE productID = ?;'
 

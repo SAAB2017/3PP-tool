@@ -304,6 +304,12 @@
           this.fetchProducts()
           return null
         })
+      let _this = this
+      document.addEventListener('keyup', function (event) {
+        if (event.key === 'Escape') {
+          _this.closeModal()
+        }
+      })
     },
 
     methods: {
@@ -442,7 +448,7 @@
       },
 
       signProject () {
-        if (this.project.approvedBy !== '' || this.project.approvedBy.length !== 0) {
+        if (this.project.approvedBy !== '' || this.project.approvedBy) {
           let data = {
             id: this.project.id,
             approvedBy: this.project.approvedBy,

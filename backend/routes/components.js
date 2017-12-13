@@ -308,7 +308,7 @@ router.route('/add')
 
 function addComponent (component, cb) {
   let date = new Date().toLocaleDateString()
-  const query = `INSERT INTO components (componentName, componentVersion, dateCreated, lastEdited, comment, approved, approvedBy) VALUES ('${component.componentName}','${component.componentVersion}','${date}','${date}','${component.componentName}', 0, '')`
+  const query = `INSERT INTO components (componentName, componentVersion, dateCreated, lastEdited, comment, approved, approvedBy) VALUES ('${component.componentName}','${component.componentVersion}','${date}','${date}','${component.comment}', 0, '')`
   cb(query)
 }
 

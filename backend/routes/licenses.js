@@ -205,7 +205,7 @@ router.route('/add')
 router.route('/licensesInComponent/:id')
   .get((req, res) => {
     let componentID = req.params.id
-    let query = `SELECT licenseID as id, licenseName, licenseVersion, dateCreated, lastEdited, comment, URL FROM  licenses INNER JOIN licensesInComponents ON licenses.id=licensesInComponents.licenseID WHERE 
+    let query = `SELECT licenseID as id, licenseName, licenseVersion, dateCreated, lastEdited, comment, URL, licenseType FROM  licenses INNER JOIN licensesInComponents ON licenses.id=licensesInComponents.licenseID WHERE 
     componentID=${componentID}`
     req.db.all(query, (err, rows) => {
       if (err) {
@@ -392,7 +392,7 @@ function getLicenseLog (req, res, id) {
  * @param {Integer} id
  */
 function getLicensesFromProduct (req, res, id) {
-  let query = 'SELECT DISTINCT licenseID AS id , licenseName, licenseVersion, dateCreated, lastEdited, comment FROM licenses LEFT OUTER JOIN' +
+  let query = 'SELECT DISTINCT licenseID AS id , licenseName, licenseVersion, dateCreated, lastEdited, comment, URL, licenseType FROM licenses LEFT OUTER JOIN' +
     ' licensesInComponents ON licenses.id=licensesInComponents.licenseID LEFT OUTER JOIN componentsInProducts ON componentsInProducts.componentID=licensesInComponents.componentID' +
     ' WHERE productID = ?;'
 
@@ -411,7 +411,7 @@ function getLicensesFromProduct (req, res, id) {
  * @param {Integer} id
  */
 function getLicensesFromProject (req, res, id) {
-  let query = 'SELECT DISTINCT licenseID AS id , licenseName, licenseVersion, dateCreated, lastEdited, comment FROM licenses LEFT OUTER JOIN licensesInComponents ON licenses.id=licensesInComponents.licenseID' +
+  let query = 'SELECT DISTINCT licenseID AS id , licenseName, licenseVersion, dateCreated, lastEdited, comment, URL, licenseType FROM licenses LEFT OUTER JOIN licensesInComponents ON licenses.id=licensesInComponents.licenseID' +
               ' LEFT OUTER JOIN componentsInProducts ON componentsInProducts.componentID=licensesInComponents.componentID' +
               ' LEFT OUTER JOIN productsInProjects ON productsInProjects.productID=componentsInProducts.productID' +
     ' WHERE projectID = ?;'

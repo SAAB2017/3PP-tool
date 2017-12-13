@@ -308,6 +308,12 @@
         }).catch(err => {
           console.log(err)
         })
+
+      document.addEventListener('keyup', function (event) {
+        if (event.key === 'Escape') {
+          _this.closeModal()
+        }
+      })
     },
 
     methods: {

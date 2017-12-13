@@ -280,6 +280,12 @@
         }).catch(err => {
           console.log(err)
         })
+
+      document.addEventListener('keyup', function (event) {
+        if (event.key === 'Escape') {
+          _this.closeModal()
+        }
+      })
     },
 
     methods: {
@@ -334,6 +340,7 @@
         this.modalVersion = component.componentVersion
         this.modalCreated = component.dateCreated
         this.modalComment = component.comment
+        this.modalApprover = component.approvedBy
         this.showModal()
       },
 
