@@ -24,26 +24,27 @@ function handleSearchGetRequest (req, res, isPending) {
       current: `?offset=${links.current}&amount=${amount}`,
       next: `?offset=${links.next}&amount=${amount}`
     }
-  })
-  if (!response.errorflag) {
+
+    if (!response.errorflag) {
     // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
-    const query = `SELECT * FROM projects where projectName LIKE '%${req.params.id}%' AND approved='${approved}' order by ${sorting} ${ordering} LIMIT ${offset}, ${amount}`
-    req.db.all(query, (err, rows) => {
-      if (err) {
-        let errormessage = 'ERROR! error message:' + err.message + ', query: ' + query
-        response.errors.message = [errormessage]
-        response.errors.status = 'ERROR'
-        response.errors.errorflag = true
-        res.status(404)
-        res.json(response)
-      } else {
-        response.items = rows
-        res.status(200)
-        response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
-        res.json(response)
-      }
-    })
-  }
+      const query = `SELECT * FROM projects where projectName LIKE '%${req.params.id}%' AND approved='${approved}' order by ${sorting} ${ordering} LIMIT ${offset}, ${amount}`
+      req.db.all(query, (err, rows) => {
+        if (err) {
+          let errormessage = 'ERROR! error message:' + err.message + ', query: ' + query
+          response.errors.message = [errormessage]
+          response.errors.status = 'ERROR'
+          response.errors.errorflag = true
+          res.status(404)
+          res.json(response)
+        } else {
+          response.items = rows
+          res.status(200)
+          response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
+          res.json(response)
+        }
+      })
+    }
+  })
 }
 
 /**
@@ -111,23 +112,23 @@ function handleGetRequest (req, res, isSigned) {
       current: `?offset=${links.current}&amount=${amount}`,
       next: `?offset=${links.next}&amount=${amount}`
     }
-  })
-  if (!response.errorflag) {
+    if (!response.errorflag) {
     // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
-    const query = `SELECT * FROM projects where approved=${approved} order by ${sorting} ${ordering} LIMIT ${offset}, ${amount} `
-    req.db.all(query, (err, rows) => {
-      if (err) {
-        response.errors.message = [err]
-        response.errors.status = 'ERROR'
-        response.errors.errorflag = true
-        res.json(response)
-      } else {
-        response.items = rows
-        res.json(response)
-      }
+      const query = `SELECT * FROM projects where approved=${approved} order by ${sorting} ${ordering} LIMIT ${offset}, ${amount} `
+      req.db.all(query, (err, rows) => {
+        if (err) {
+          response.errors.message = [err]
+          response.errors.status = 'ERROR'
+          response.errors.errorflag = true
+          res.json(response)
+        } else {
+          response.items = rows
+          res.json(response)
+        }
       // = rows
-    })
-  }
+      })
+    }
+  })
 }
 
 // ----------------------------------------------------------------------------
@@ -216,8 +217,6 @@ function getCorrectApproved (input) {
   }
   return approved
 }
-
-
 
 // ----------------------------------------------------------------------------
 //  Methods for /projects/add
@@ -420,9 +419,8 @@ router.route('/log/:id')
 router.route('/search/:id')
   .get((req, res) => {
     // precondition: parameter is wellformed
-      handleSearchGetRequest(req, res, SIGNED)
+    handleSearchGetRequest(req, res, SIGNED)
   })
-
 
 router.route('/pending/search/:id')
   .get((req, res) => {

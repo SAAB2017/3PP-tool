@@ -26,26 +26,27 @@ function handleSearchGetRequest (req, res, isPending) {
       current: `?offset=${links.current}&amount=${amount}`,
       next: `?offset=${links.next}&amount=${amount}`
     }
-  })
-  if (!response.errorflag) {
+
+    if (!response.errorflag) {
     // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
-    const query = `SELECT * FROM products where productName LIKE '%${req.params.id}%' AND approved='${approved}' order by ${sorting} ${ordering} LIMIT ${offset}, ${amount}`
-    req.db.all(query, (err, rows) => {
-      if (err) {
-        let errormessage = 'ERROR! error message:' + err.message + ', query: ' + query
-        response.errors.message = [errormessage]
-        response.errors.status = 'ERROR'
-        response.errors.errorflag = true
-        res.status(404)
-        res.json(response)
-      } else {
-        response.items = rows
-        res.status(200)
-        response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
-        res.json(response)
-      }
-    })
-  }
+      const query = `SELECT * FROM products where productName LIKE '%${req.params.id}%' AND approved='${approved}' order by ${sorting} ${ordering} LIMIT ${offset}, ${amount}`
+      req.db.all(query, (err, rows) => {
+        if (err) {
+          let errormessage = 'ERROR! error message:' + err.message + ', query: ' + query
+          response.errors.message = [errormessage]
+          response.errors.status = 'ERROR'
+          response.errors.errorflag = true
+          res.status(404)
+          res.json(response)
+        } else {
+          response.items = rows
+          res.status(200)
+          response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
+          res.json(response)
+        }
+      })
+    }
+  })
 }
 
 // ===========================
@@ -59,7 +60,6 @@ router.route('/search/:id')
 router.route('/pending/search/:id').get((req, res) => {
   handleSearchGetRequest(req, res, NOTSIGNED)
 })
-
 
 router.route('/pending/:id').get((req, res) => {
   handleSearchGetRequest(req, res, NOTSIGNED)
@@ -132,24 +132,25 @@ function handleGetRequest (req, res, isSigned) {
       current: `?offset=${links.current}&amount=${amount}`,
       next: `?offset=${links.next}&amount=${amount}`
     }
-  })
-  if (!response.errorflag) {
+
+    if (!response.errorflag) {
     // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
-    const query = `SELECT * FROM products where approved=${approved} order by ${sorting} ${ordering} LIMIT ${offset}, ${amount} `
-    req.db.all(query, (err, rows) => {
-      if (err) {
-        response.errors.message = [err]
-        response.errors.status = 'ERROR'
-        response.errors.errorflag = true
-        res.json(response)
-      } else {
-        response.items = rows
-        response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
-        res.json(response)
-      }
+      const query = `SELECT * FROM products where approved=${approved} order by ${sorting} ${ordering} LIMIT ${offset}, ${amount} `
+      req.db.all(query, (err, rows) => {
+        if (err) {
+          response.errors.message = [err]
+          response.errors.status = 'ERROR'
+          response.errors.errorflag = true
+          res.json(response)
+        } else {
+          response.items = rows
+          response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
+          res.json(response)
+        }
       // = rows
-    })
-  }
+      })
+    }
+  })
 }
 
 router.route('/all')
@@ -280,7 +281,6 @@ function getCorrectApproved (input) {
 //  Methods for /products/pending
 // ----------------------------------------------------------------------------
 
-
 // ----------------------------------------------------------------------------
 //  Methods for /products/productsWithComponent/:id
 // ----------------------------------------------------------------------------
@@ -312,7 +312,7 @@ router.route('/add')
               res.status(500)
               req.db.run('rollback')
               res.send('ERROR! error message:' + err.message + ', query: ' + query)
-              res.error_id = "E03"
+              res.error_id = 'E03'
             } else {
               getProduct(req, res, input.productName, input.productVersion, null, function (product) {
                 insertProductLog(req, res, product.id, 'Product created.',
@@ -684,7 +684,7 @@ function insertComponentIntoProduct (req, res, componentID, productID, callback)
     if (error) {
       res.status(500)
       res.send(error.message)
-      res.error_id = "E07"
+      res.error_id = 'E07'
     } else {
       let t = true
       callback(t)
