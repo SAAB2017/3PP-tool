@@ -16,6 +16,8 @@ Formatet är baserat på [Håll en ändringslogg] och detta projekt följer [Sem
 
 ## [Ej utgiven]
 
+## [1.0rc2] - 2017-12-14
+
 ### Tillagt
 - Möjlighet att se log/historik
 
@@ -137,7 +139,8 @@ Formatet är baserat på [Håll en ändringslogg] och detta projekt följer [Sem
 - Licensöversikt som ger en överblick över licenser i databasen
 - Möjliggörande att lägga till nya licenser, komponenter samt projekt i databasen
 
-[Ej utgiven]: https://github.com/SAAB2017/3PP-tool/compare/v1.0rc1...HEAD
+[Ej utgiven]: https://github.com/SAAB2017/3PP-tool/compare/v1.0rc2...HEAD
+[1.0rc2]: https://github.com/SAAB2017/3PP-tool/compare/v1.0rc1...v1.0rc2
 [1.0rc1]: https://github.com/SAAB2017/3PP-tool/compare/v0.5.0...v1.0rc1
 [0.5.0]: https://github.com/SAAB2017/3PP-tool/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/SAAB2017/3PP-tool/compare/v0.3.0...v0.4.0
