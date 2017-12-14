@@ -1,3 +1,9 @@
+---
+Title: API documentation
+Version: 0.1.0
+---
+# API documentation
+
 # Table of Contents
 
 ## [Licenses](#licenses)
@@ -119,11 +125,6 @@
 
 - [Search for a specific unsigned project](#getUnsignedProjectByName)
 
----
-Title: API documentation
-Version: 0.1.0
----
-# API documentation
 
 ### Alla API-förfrågningar påbörjas med
 
