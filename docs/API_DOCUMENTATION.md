@@ -1,4 +1,4 @@
-##### Table of Contents
+# Table of Contents
 [Licenses](#licenses)
 
 - [Show all licenses in a component](#showAllLicenses)
