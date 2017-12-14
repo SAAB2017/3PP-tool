@@ -113,6 +113,8 @@ function handleGetRequest (req, res) {
   const amount = parseInt(+req.query.amount) || 5
   let sorting = (req.query.sort === 'undefined') ? `licenseName` : `${req.query.sort}`
   let ordering = (req.query.order === 'undefined') ? `asc` : `${req.query.order}`
+  let sort = {column: `&sort=${sorting}`, order: `&order=${ordering}`}
+  response.sort = sort
 
   getLinkData(req.db, offset, amount, response, `select count(*) as count from licenses`, (links) => {
     response.links = {
