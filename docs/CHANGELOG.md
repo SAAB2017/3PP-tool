@@ -16,6 +16,23 @@ Formatet är baserat på [Håll en ändringslogg] och detta projekt följer [Sem
 
 ## [Ej utgiven]
 
+### Ändrat
+- Stora förändringar för API-anropen
+- API-dokumentationen har uppdaterats beträffande API-förändringarna
+- Vid datainläsning har knappen för "hämta mer" ersätts med textlänk
+- Sidhämtning sker via route samt queries
+
+### Korrigerat
+- Åtgärdat problem med att attesteringen i vissa fall inte syntes
+- Åtgärdat felaktig statusrespons från API
+- Åtgärdat varning i webbläsarkonsolen beträffande `promise`
+- Åtgärdat problem med felaktiga dubbletter i listor som i sällsynta fall dök upp på långsama enheter
+- Åtgärdat problem med moduler beträffande sökningar, transitions och pagination
+- Åtgärdat felaktig sökdatarespons vid sökning
+- Åtgärdat felaktig stigande- och fallande-filtrering
+- Fixade bugg som gjorde att payload inte initialiserades
+
+
 ## [0.5.0] - 2017-12-06
 
 ### Tillagt
