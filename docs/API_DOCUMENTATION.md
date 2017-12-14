@@ -1,11 +1,11 @@
 ##### Table of Contents
 [Licenses](#licenses)
 
- [Show all licenses in a component](#showAllLicenses)
+- [Show all licenses in a component](#showAllLicenses)
 
- [Search for a specific license](#searchForALicense)
+- [Search for a specific license](#searchForALicense)
 
- [Get all licenses](#getAllLicenses)
+ - [Get all licenses](#getAllLicenses)
 
  [Show all licenses in a component](#getTheLicensesOfProduct)
 
