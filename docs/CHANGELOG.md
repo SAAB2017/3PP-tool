@@ -16,6 +16,9 @@ Formatet är baserat på [Håll en ändringslogg] och detta projekt följer [Sem
 
 ## [Ej utgiven]
 
+### Tillagt
+- Möjlighet att se log/historik
+
 ## [1.0rc1] - 2017-12-14
 
 ### Ändrat
