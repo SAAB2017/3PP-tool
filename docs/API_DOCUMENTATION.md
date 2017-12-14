@@ -5,54 +5,54 @@
 
 - [Search for a specific license](#searchForALicense)
 
- - [Get all licenses](#getAllLicenses)
+- [Get all licenses](#getAllLicenses)
 
- [Show all licenses in a component](#getTheLicensesOfProduct)
+- [Show all licenses in a component](#getTheLicensesOfProduct)
 
- [Get the license's log](#showALicenseLog)
+- [Get the license's log](#showALicenseLog)
 
- [Get the licenses associated with a project](#getTheLicensesOfProject)
+- [Get the licenses associated with a project](#getTheLicensesOfProject)
 
- [Gets a specific license from its id](#getLicenseById)
+- [Gets a specific license from its id](#getLicenseById)
 
- [Add a new license](#addLicense)
+- [Add a new license](#addLicense)
 
- [Change a license's comment](#changeLicenseComment)
+- [Change a license's comment](#changeLicenseComment)
 
- [Change a license's URL](#changeLicenseURL)
+- [Change a license's URL](#changeLicenseURL)
 
- [Search for a license based on its name](#getLicenseByName)
+- [Search for a license based on its name](#getLicenseByName)
 
- [Get licenses in component](#getLicensesInComponent)
+- [Get licenses in component](#getLicensesInComponent)
 
 
 [Components](#components)
 
-[Search for a specific signed component](#getSignedComponent)
+- [Search for a specific signed component](#getSignedComponent)
 
-[Search for a specific unsigned product](#getUnsignedComponent)
+- [Search for a specific unsigned product](#getUnsignedComponent)
 
-[Show all approved components](#getApprovedComponents)
+- [Show all approved components](#getApprovedComponents)
 
-[Approve a component](#approveComponent)
+- [Approve a component](#approveComponent)
 
-[Add a component](#addComponent)
+- [Add a component](#addComponent)
 
-[Show all pending components](#showAllPendingComponent)
+- [Show all pending components](#showAllPendingComponent)
 
-[Show all components in product](#showAllComponentInProduct)
+- [Show all components in product](#showAllComponentInProduct)
 
-[Connect a license with a component](#connectLicenesWithComponent)
+- [Connect a license with a component](#connectLicenesWithComponent)
 
-[Show all components connected to a certain project](#showAllComponentsInProject)
+- [Show all components connected to a certain project](#showAllComponentsInProject)
 
-[Show all components containing a certain license](#showComponentsWithLicense)
+- [Show all components containing a certain license](#showComponentsWithLicense)
 
-[Show the log for a certain component](#showLogByComponent)
+- [Show the log for a certain component](#showLogByComponent)
 
-[Change the comment of a certain component](#changeCommentForComponent)
+- [Change the comment of a certain component](#changeCommentForComponent)
 
-[Get the component with a certain ID](#getComponentByID)
+- [Get the component with a certain ID](#getComponentByID)
 
 
 [Products](#products)
