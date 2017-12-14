@@ -6,7 +6,7 @@ Version: 1.0.0
 
 ## Table of Contents
 
-### [Licenses](#licenses)
+### Licenses
 
 - [Show all licenses in a component](#showAllLicenses)
 
@@ -33,7 +33,7 @@ Version: 1.0.0
 - [Get licenses in component](#getLicensesInComponent)
 
 
-### [Components](#components)
+### Components
 
 - [Search for a specific signed component](#getSignedComponent)
 
@@ -62,7 +62,7 @@ Version: 1.0.0
 - [Get the component with a certain ID](#getComponentByID)
 
 
-### [Products](#products)
+### Products
 
 - [Show all products](#showAllProducts)
 
@@ -95,7 +95,7 @@ Version: 1.0.0
 - [Get the product with a certain name](#getProductByName)
 
 
-### [Projects](#projects)
+### Projects
 
 - [Show all signed projects](#signedProjects)
  
@@ -134,8 +134,6 @@ Version: 1.0.0
 - **401** Unauthorized.
 - **409** Failed POST, PUT or DELETE.
 - **500** Internal server error.
-
-<a name="licenses"/>
 
 # Licenses
 
@@ -784,8 +782,6 @@ axios.get('/licenses/licensesInComponent/1')
   response.data
 }
 ```
-
-<a name="components"/>
 
 # Components
 
@@ -1494,8 +1490,6 @@ axios.get('/components/component/1')
   response.data
 }
 ```
-
-<a name="products"/>
 
 # Products
 
@@ -2323,8 +2317,6 @@ axios.get('/products/search/Third-Party License Management REST API')
   response.data
 }
 ```
-
-<a name="projects"/>
 
 # Projects
 
