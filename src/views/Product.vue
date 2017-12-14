@@ -7,6 +7,17 @@
           </div>
           <p id="p-message" class="help subtitle is-6" style="text-align: center; padding-bottom: 15px">{{ message }}</p>
 
+          <div v-if="product.approved === 0" class="columns is-mobile is-centered">
+            <div class="field is-horizontal">
+              <div class="control">
+                <input v-model="product.approvedBy" class="input" type="text" placeholder="Signature">
+              </div>
+              <div class="control">
+                <button @click="signProduct()" class="button is-primary">Sign</button>
+              </div>
+            </div>
+          </div>
+
           <!-- Columns that is centered and multiline for support on lower resolution -->
           <div class="columns is-mobile is-centered is-multiline">
 
@@ -285,14 +296,24 @@
      * then fetch licenses, components and projects
      */
     mounted () {
-      axios.get(this.$baseAPI + 'products/' + this.$route.params.id)
+      let _this = this
+      axios.get(this.$baseAPI + 'products/product/' + this.$route.params.id)
         .then(response => {
-          this.product = response.data
-          this.origComment = this.product.comment
-          this.fetchLicenses()
-          this.fetchComponents()
-          this.fetchProjects()
+          _this.product = response.data
+          _this.origComment = this.product.comment
+          _this.fetchLicenses()
+          _this.fetchComponents()
+          _this.fetchProjects()
+          return null
+        }).catch(err => {
+          console.log(err)
         })
+
+      document.addEventListener('keyup', function (event) {
+        if (event.key === 'Escape') {
+          _this.closeModal()
+        }
+      })
     },
 
     methods: {
@@ -300,8 +321,11 @@
        * Fetch all licenses that is in this product
        */
       fetchLicenses () {
+        let _this = this
         axios.get(this.$baseAPI + 'licenses/licensesInProduct/' + this.$route.params.id).then(response => {
-          this.licenses = response.data
+          _this.licenses = response.data
+        }).catch(err => {
+          console.log(err)
         })
       },
 
@@ -433,6 +457,36 @@
       goTo (part) {
         let routeName = this.modalComp + 's_id'
         this.$router.push({name: routeName, params: {id: part.id}})
+      },
+      /**
+       * Approves the product and adds the approvers signature to the product
+       */
+      signProduct () {
+        if (this.product.approvedBy !== '' || this.product.approvedBy) {
+          let data = {
+            id: this.product.id,
+            approvedBy: this.product.approvedBy,
+            comment: this.product.comment,
+            lastEdited: new Date().toLocaleDateString()
+          }
+          axios.put(this.$baseAPI + 'products/approve', data)
+            .then(response => {
+              if (response.status === 204) {
+                this.$router.push({name: 'products', params: {type: 'signed', sName: this.product.productName, sVersion: this.product.productVersion}})
+              } else {
+                this.message = response.data
+              }
+            })
+            .catch(error => {
+              if (error.response) {
+                if (error.response.status === 500) {
+                  this.message = 'Already signed by ' + error.response.data.byUser
+                }
+              }
+            })
+        } else {
+          this.message = 'Invalid signature!'
+        }
       }
     }
   }

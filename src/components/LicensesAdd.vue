@@ -1,8 +1,11 @@
 d<!-- View for adding Licenses -->
 <template>
   <div class="component-list">
+    <div id="message-text">
+      <p v-for="error in errorList" class="help is-danger subtitle is-6" style="text-align: center; padding-bottom: 2px">{{ error }}</p>
+    </div>
     <!-- Fields for adding name, version, license type, URL and comment for a license-->
-    <div class="field">
+    <div class="field" style="padding-top: 15px">
       <p class="control">
         <input v-model="license" class="input" type="text" placeholder="Name">
       </p>
@@ -50,7 +53,9 @@ d<!-- View for adding Licenses -->
         licenseVersion: null,
         licenseType: null,
         licenseURL: null,
-        licenseComment: null
+        licenseComment: null,
+        errorList: [],
+        success: true
       }
     },
 
@@ -66,18 +71,40 @@ d<!-- View for adding Licenses -->
           URL: this.licenseURL,
           comment: this.licenseComment
         }
-
-        axios.post(this.$baseAPI + 'licenses/add', data)
-          .then(response => {
-            if (response.data === 'success') {
-              this.license = null
-              this.licenseVersion = null
-              this.licenseType = null
-              this.licenseURL = null
-              this.licenseComment = null
-            }
-          })
-        this.$router.push({name: 'licenses'})
+        this.errorList = []
+        this.success = true
+        if (this.license === null || this.license.length === 0 || this.license === '') {
+          let i = 0
+          if (!this.success) {
+            i = 1
+          }
+          this.errorList[i] = 'A name must be provided'
+          this.success = false
+        }
+        if (this.licenseVersion === null || this.licenseVersion.length === 0 || this.licenseVersion === '') {
+          let i = 0
+          if (!this.success) {
+            i = 1
+          }
+          this.errorList[i] = 'A version must be provided'
+          this.success = false
+        }
+        if (this.success) {
+          axios.post(this.$baseAPI + 'licenses/add', data)
+            .then(response => {
+              if (response.data === 'success') {
+                this.license = null
+                this.licenseVersion = null
+                this.licenseType = null
+                this.licenseURL = null
+                this.licenseComment = null
+                this.$router.go()
+              } else if (response.data === 'error') {
+                this.errorList = []
+                this.errorList[0] = 'A license with the name "' + this.license + '" and version "' + this.licenseVersion + '" already exists.'
+              }
+            })
+        }
       }
     }
   }

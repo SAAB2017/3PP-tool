@@ -86,11 +86,14 @@
     },
 
     mounted () {
-      const pendingURI = 'products/' + this.$route.params.id
+      const pendingURI = 'products/product/' + this.$route.params.id
+      let _this = this
       axios.get(this.$baseAPI + pendingURI)
         .then(response => {
-          this.product = response.data
-          this.fetchLicenses()
+          _this.product = response.data
+          _this.fetchLicenses()
+        }).catch(err => {
+          console.log(err)
         })
     },
 
@@ -106,7 +109,6 @@
        */
       signProduct () {
         if (this.product.approvedBy !== '' || this.product.approvedBy) {
-          console.log(this.product.productName)
           let data = {
             id: this.product.id,
             approvedBy: this.product.approvedBy,
@@ -116,15 +118,12 @@
           axios.put(this.$baseAPI + 'products/approve', data)
             .then(response => {
               if (response.status === 204) {
-                console.log(response.data)
                 this.$router.push({name: 'products', params: {type: 'signed', sName: this.product.productName, sVersion: this.product.productVersion}})
               } else {
-                console.log('Error: Could not sign product')
                 this.message = response.data
               }
             })
             .catch(error => {
-              console.log(error.response)
               if (error.response) {
                 if (error.response.status === 500) {
                   this.message = 'Already signed by ' + error.response.data.byUser

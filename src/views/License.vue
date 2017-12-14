@@ -3,7 +3,7 @@
   <div class="section">
         <div v-if="license" class="component">
           <div class="columns is-mobile is-centered">
-            <h1 class="has-text-left">{{ license.componentName }}</h1>
+            <h1 class="has-text-left">{{ license.licenseName }}</h1>
           </div>
           <p id="p-message" class="help subtitle is-6" style="text-align: center; padding-bottom: 15px">{{ message }}</p>
 
@@ -267,27 +267,37 @@
     /* Fetch the license with id from database and add to license,
      * then fetch components, products and projects */
     mounted () {
-      axios.get(this.$baseAPI + 'licenses/' + this.$route.params.id)
+      let _this = this
+      axios.get(this.$baseAPI + 'licenses/license/' + this.$route.params.id)
         .then(response => {
-          this.license = response.data
-          this.origComment = this.license.comment
-          this.origURL = this.license.URL
-          this.fetchComponents()
-          this.fetchProducts()
-          this.fetchProjects()
+          _this.license = response.data
+          _this.origComment = _this.license.comment
+          _this.origURL = _this.license.URL
+          _this.fetchComponents()
+          _this.fetchProducts()
+          _this.fetchProjects()
+          return null
+        }).catch(err => {
+          console.log(err)
         })
+
+      document.addEventListener('keyup', function (event) {
+        if (event.key === 'Escape') {
+          _this.closeModal()
+        }
+      })
     },
 
     methods: {
       /**
        * Fetch all components that contains this license
-       */
+       */ // TODO: WORKS
       fetchComponents () {
         axios.get(this.$baseAPI + 'components/componentsWithLicense/' + this.$route.params.id).then(response => {
           this.components = response.data
         })
       },
-
+      // TODO:
       /**
        * Fetch all products that contains this license
        */
@@ -330,6 +340,7 @@
         this.modalVersion = component.componentVersion
         this.modalCreated = component.dateCreated
         this.modalComment = component.comment
+        this.modalApprover = component.approvedBy
         this.showModal()
       },
 
@@ -402,7 +413,7 @@
       },
 
       /**
-       * Shows this.message for some time then fades it away and removes it.
+D       * Shows this.message for some time then fades it away and removes it.
        */
       fade_out () {
         let msg = document.getElementById('p-message')

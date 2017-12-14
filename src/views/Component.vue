@@ -7,6 +7,17 @@
       </div>
       <p id="p-message" class="help subtitle is-6" style="text-align: center; padding-bottom: 15px">{{ message }}</p>
 
+      <div v-if="component.approved === 0" class="columns is-mobile is-centered">
+        <div class="field is-horizontal">
+          <div class="control">
+            <input v-model="component.approvedBy" class="input" type="text" placeholder="Signature">
+          </div>
+          <div class="control">
+            <button @click="signComponent()" class="button is-primary">Sign</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Columns that is centered and multiline for support on lower resolution -->
       <div class="columns is-mobile is-centered is-multiline">
 
@@ -285,14 +296,21 @@
      * then fetch licenses, products and projects
      */
     mounted () {
-      axios.get(this.$baseAPI + 'components/' + this.$route.params.id)
+      axios.get(this.$baseAPI + 'components/component/' + this.$route.params.id)
         .then(response => {
           this.component = response.data
           this.origComment = this.component.comment
           this.fetchLicenses()
           this.fetchProducts()
           this.fetchProjects()
+          return null
         })
+      let _this = this
+      document.addEventListener('keyup', function (event) {
+        if (event.key === 'Escape') {
+          _this.closeModal()
+        }
+      })
     },
 
     methods: {
@@ -433,6 +451,37 @@
       goTo (part) {
         let routeName = this.modalComp + 's_id'
         this.$router.push({name: routeName, params: {id: part.id}})
+      },
+
+      /**
+       * Approves the component and adds the approvers signature to the component
+       */
+      signComponent () {
+        if (this.component.approvedBy !== '' || this.component.approvedBy) {
+          let data = {
+            id: this.component.id,
+            approvedBy: this.component.approvedBy,
+            comment: this.component.comment,
+            lastEdited: new Date().toLocaleDateString()
+          }
+          axios.put(this.$baseAPI + 'components/approve', data)
+            .then(response => {
+              if (response.status === 204) {
+                this.$router.push({name: 'components', params: {type: 'signed', sName: this.component.componentName, sVersion: this.component.componentVersion}})
+              } else {
+                this.message = response.data
+              }
+            })
+            .catch(error => {
+              if (error.response) {
+                if (error.response.status === 500) {
+                  this.message = 'Already signed by ' + error.response.data.byUser
+                }
+              }
+            })
+        } else {
+          this.message = 'Invalid signature!'
+        }
       }
     }
   }

@@ -1,18 +1,147 @@
+let payloadcfg = require('./config')
+let initPayload = payloadcfg.payloadInit.bind(null, 'project')
+let NOTSIGNED = payloadcfg.NOTSIGNED
+let SIGNED = payloadcfg.SIGNED
 let express = require('express')
 let router = express.Router()
 
 // ----------------------------------------------------------------------------
-//  Methods for /projects
+//  Methods for /products
+// ----------------------------------------------------------------------------
+function handleSearchGetRequest (req, res, isPending) {
+  // precondition: parameter is wellformed
+  let response = initPayload()
+  const offset = parseInt(+req.query.offset) || 0
+  const amount = parseInt(+req.query.amount) || 5
+  const approved = isPending ? 1 : 0
+  let sorting = (req.query.sort === 'undefined') ? `projectName` : `${req.query.sort}`
+  let ordering = (req.query.order === 'undefined') ? `asc` : `${req.query.order}`
+  let sort = {column: `&sort=${sorting}`, order: `&order=${ordering}`}
+  response.sort = sort
+  getLinkData(req.db, offset, amount, response, `select count(*) as count from projects where projectName LIKE '%${req.params.id}%' AND approved=${approved}`, (links) => {
+    response.links = {
+      prev: `?offset=${links.prev}&amount=${amount}`,
+      current: `?offset=${links.current}&amount=${amount}`,
+      next: `?offset=${links.next}&amount=${amount}`
+    }
+
+    if (!response.errorflag) {
+    // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
+      const query = `SELECT * FROM projects where projectName LIKE '%${req.params.id}%' AND approved='${approved}' order by ${sorting} ${ordering} LIMIT ${offset}, ${amount}`
+      req.db.all(query, (err, rows) => {
+        if (err) {
+          let errormessage = 'ERROR! error message:' + err.message + ', query: ' + query
+          response.errors.message = [errormessage]
+          response.errors.status = 'ERROR'
+          response.errors.errorflag = true
+          res.status(404)
+          res.json(response)
+        } else {
+          response.items = rows
+          res.status(200)
+          response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
+          res.json(response)
+        }
+      })
+    }
+  })
+}
+
+/**
+ * setLinksCB is a call back
+ * @param db - the sqlite3 database to connect to
+ * @param offset - offset into the database table
+ * @param amount - amount of objects to retrieve
+ * @param response - response object, given to you from the initPayload() function
+ * @param setLinksCB - callback used to set the context-data of the response object. (the links-part, of the payload-object)
+ */
+function getLinkData (db, offset, amount, response, pageQuery, setLinksCB) {
+  // FIXME: getTotal(req, response) doesn't work because of the async nature of calls to sqlite3
+  // const pageCountQuery = (signed) ? `select count(*) as count from components where approved=1` : `select count(*) as count from components where approved=0`
+  db.get(pageQuery, (err, row) => {
+    if (err) {
+      response = initPayload() // effectively empty payload, reset cursor to beginning, default parameters
+      response.errors.message.push('Could not get element count from database.')
+      response.errorflag = true
+      response.meta.count = 0
+    } else {
+      // response.meta.count = Number.isSafeInteger(row.count) ? row.count : 0
+      // Object.assign(response.meta, meta)
+      response.meta.count = row.count
+      // if these parameters are malformed, the response defaults to the first 30 items (0, 30)
+      if (!isNaN(response.meta.count) && Number.isSafeInteger(response.meta.count)) {
+        if (isNaN(offset) || isNaN(amount)) {
+          let links = {
+            prev: 0,
+            current: 0,
+            next: (0 + amount) < response.meta.count ? amount : 0
+          }
+          response.errorflag = true
+          response.errors.message.push('Illegal query parameters passed')
+          setLinksCB(links)
+        } else if (Number.isSafeInteger(offset) && Number.isSafeInteger(amount)) {
+          let links = {
+            prev: (offset - amount) > 0 ? (offset - amount) : 0,
+            current: offset,
+            next: (offset + amount) <= response.meta.count ? (offset + amount) : (response.meta.count)
+          }
+          setLinksCB(links)
+        }
+      } else {
+        response.errorflag = true
+        response.errors.message.push('Illegal query parameters')
+      }
+    }
+  })
+}
+
+// Example request: components/search/o/?offset=0&amount=3&sort=componentName&order=desc
+function handleGetRequest (req, res, isSigned) {
+  // if these parameters are malformed, the response defaults to the first 30 items (0, 30)
+  let response = initPayload()
+  const offset = parseInt(+req.query.offset) || 0
+  const amount = parseInt(+req.query.amount) || 5
+  const approved = (isSigned) ? 1 : 0
+  let sorting = (req.query.sort === 'undefined' || req.query.sort === undefined) ? `projectName` : `${req.query.sort}`
+  let ordering = (req.query.order === 'undefined' || req.query.order === undefined) ? `asc` : `${req.query.order}`
+  let sort = {column: `&sort=${sorting}`, order: `&order=${ordering}`}
+  response.sort = sort
+  getLinkData(req.db, offset, amount, response, `select count(*) as count from projects where approved='${approved}'`, (links) => {
+    response.links = {
+      prev: `?offset=${links.prev}&amount=${amount}`,
+      current: `?offset=${links.current}&amount=${amount}`,
+      next: `?offset=${links.next}&amount=${amount}`
+    }
+    if (!response.errorflag) {
+    // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
+      const query = `SELECT * FROM projects where approved=${approved} order by ${sorting} ${ordering} LIMIT ${offset}, ${amount} `
+      req.db.all(query, (err, rows) => {
+        if (err) {
+          response.errors.message = [err]
+          response.errors.status = 'ERROR'
+          response.errors.errorflag = true
+          res.json(response)
+        } else {
+          response.items = rows
+          res.json(response)
+        }
+      // = rows
+      })
+    }
+  })
+}
+
+// ----------------------------------------------------------------------------
+//  Methods for getting projects, pending or otherwise
 // ----------------------------------------------------------------------------
 router.route('/')
-
   .get((req, res) => {
-    req.db.all('SELECT * FROM projects WHERE approved=1', (error, rows) => {
-      if (error) {
-        console.log(error)
-      }
-      res.json(rows)
-    })
+    handleGetRequest(req, res, SIGNED)
+  })
+
+router.route('/pending')
+  .get((req, res) => {
+    handleGetRequest(req, res, NOTSIGNED)
   })
 
 // ----------------------------------------------------------------------------
@@ -23,12 +152,12 @@ router.route('/approve')
     // precondition: check that id !== OK, signature !== OK and that the project hasn't yet been signed
     const input = req.body
     let approved = getCorrectApproved(input)
-
     // Get project to make sure that it is not approved already
     getProject(req, res, null, null, input.id, function (project) {
       // Make sure that row is not null and that an approved project can't be approved again by a diffrent person
       if (project !== null && input.id !== null && validateRequest(project, approved)) {
         // update the project
+        //            req, res, name, version, id, parametersText, parameters, callback
         updateProject(req, res, null, null, input.id, ['approved', 'approvedBy'], approved, function () {
           insertUpdateIntoLog(req, res, project.id, approved, null)
         })
@@ -40,7 +169,6 @@ router.route('/approve')
           'byUser': '' + project.approvedBy
           // "onTime": "1510062744"
         }
-        console.log(message)
         res.status(500).send(message)
       }
     })
@@ -66,7 +194,7 @@ function getCorrectApproved (input) {
   let approved = [null, null]
 
   if (input.hasOwnProperty('approved')) {
-    if (input.approved !== 0 && approved[1] !== null) {
+    if (input.approved === 0 && approved[1] === null) {
       approved[1] = ''
     }
     approved[0] = input.approved
@@ -81,29 +209,14 @@ function getCorrectApproved (input) {
 
   // logic for correct approve/approvedBy
   if (approved[0] !== null) {
-    if (approved !== 0 && approved[1] !== null) {
+    if (approved === 0 && approved[1] === null) {
       approved[1] = ''
-    } else if (approved !== 1 && approved[1] !== null) {
+    } else if (approved === 1 && approved[1] === null) {
       approved[0] = null
     }
   }
   return approved
 }
-
-// ----------------------------------------------------------------------------
-//  Methods for /projects/pending
-// ----------------------------------------------------------------------------
-router.route('/pending')
-  .get((req, res) => {
-    req.db.all('SELECT * FROM projects where approved=0', (err, rows) => {
-      if (err) {
-        console.log(err)
-      } else {
-        console.log(rows)
-        res.json(rows)
-      }
-    })
-  })
 
 // ----------------------------------------------------------------------------
 //  Methods for /projects/add
@@ -120,13 +233,12 @@ router.route('/add')
         console.log(error)
       } else {
         addProject(input, (query) => {
-          console.log(query)
           req.db.run(query, (error) => {
             if (error) {
-              console.log(error.message)
-              res.status(500)
+              // res.status(500)
               req.db.run('rollback')
-              res.send('ERROR! error message:' + error.message + ', query: ' + query)
+              res.send('error')
+              // res.send('ERROR! error message:' + error.message + ', query: ' + query)
             } else {
               getProject(req, res, input.projectName, input.projectVersion, null, function (product) {
                 insertProjectLog(req, res, product.id, 'Product created.',
@@ -143,7 +255,7 @@ router.route('/add')
                         })
                       })
                       req.db.run('commit')
-                      res.status(201).send('Success!')
+                      res.status(201).send('success')
                     })
               })
             }
@@ -151,7 +263,6 @@ router.route('/add')
         })
       }
     })
-
     // postcondition: project created and logged.
   })
 
@@ -183,7 +294,6 @@ router.route('/connectProductWithProject')
             let message = {
               'errorType': 'productDoesNotExist'
             }
-            console.log(message)
             res.status(500).send(message)
           } else {
             // Create a log of the product added to the project
@@ -310,18 +420,13 @@ router.route('/log/:id')
 router.route('/search/:id')
   .get((req, res) => {
     // precondition: parameter is wellformed
-    const query = `select * from projects where projectName LIKE "%${req.params.id}%"`
-    console.log(query)
-    req.db.all(query, (error, rows) => {
-      if (error) {
-        console.log(error)
-        res.status(404)
-        res.send('ERROR! error message:' + error.message + ', query: ' + query)
-      } else {
-        res.status(200)
-        res.json(rows)
-      }
-    })
+    handleSearchGetRequest(req, res, SIGNED)
+  })
+
+router.route('/pending/search/:id')
+  .get((req, res) => {
+    // precondition: parameter is wellformed
+    handleSearchGetRequest(req, res, NOTSIGNED)
   })
 
 module.exports = router
@@ -348,7 +453,6 @@ function getProduct (req, res, name, version, id, callback) {
 
   req.db.get(query, parameters, (error, row) => {
     if (error) {
-      console.log(error.message)
       res.status(500).send(error.message)
     } else {
       callback(row)
@@ -378,7 +482,6 @@ function getProject (req, res, name, version, id, callback) {
 
   req.db.get(query, parameters, (error, row) => {
     if (error) {
-      console.log(error.message)
       res.status(500).send(error.message)
     } else {
       callback(row)
@@ -400,6 +503,8 @@ function getProject (req, res, name, version, id, callback) {
 function updateProject (req, res, name, version, id, parametersText, parameters, callback) {
   let query = 'UPDATE projects SET '
 
+  // update components set approvedBy = '' where id > 6
+
   // Construct the remaining SQL query
   let first = false
   for (let i = 0; i < parametersText.length; i++) {
@@ -420,10 +525,8 @@ function updateProject (req, res, name, version, id, parametersText, parameters,
     query += 'id = ?;'
     parameters.push(id)
   }
-
   req.db.get(query, parameters, (error, row) => {
     if (error) {
-      console.log(query + ', ' + error.message)
       res.status(500).send(error.message)
     } else {
       callback(row)
@@ -443,7 +546,6 @@ function insertProjectLog (req, res, id, text, callback) {
   let query = 'INSERT INTO projectLog (projectID, dateLogged, note) VALUES (?, ?, ?);'
   req.db.run(query, [id, new Date().toLocaleDateString(), text], (error) => {
     if (error) {
-      console.log(error.message)
       res.status(500)
       res.send(error.message)
     } else {
@@ -503,7 +605,6 @@ function insertProductIntoProject (req, res, productID, projectID, callback) {
   let parameters = [productID, projectID]
   req.db.run(query, parameters, (error) => {
     if (error) {
-      console.log(error)
       res.status(500)
       res.send(error.message)
     } else {
@@ -520,7 +621,7 @@ function insertProductIntoProject (req, res, productID, projectID, callback) {
  * @param {Integer} id
  */
 function getProjectsWithLicense (req, res, id) {
-  let query = 'SELECT DISTINCT projectID AS id, projectName, projectVersion, dateCreated, lastEdited, comment FROM projects LEFT OUTER JOIN productsInProjects ON projects.id=productsInProjects.projectID' +
+  let query = 'SELECT DISTINCT projectID AS id, projectName, projectVersion, dateCreated, lastEdited, comment, approvedBy FROM projects LEFT OUTER JOIN productsInProjects ON projects.id=productsInProjects.projectID' +
               ' LEFT OUTER JOIN componentsInProducts ON componentsInProducts.productID=productsInProjects.productID' +
               ' LEFT OUTER JOIN licensesInComponents ON licensesInComponents.componentID=componentsInProducts.componentID'
 
@@ -528,7 +629,6 @@ function getProjectsWithLicense (req, res, id) {
 
   req.db.all(query, [id], (error, rows) => {
     if (error) {
-      console.log(error)
       res.status(500).send(error.message)
     } else { res.send(rows) }
   })
@@ -541,14 +641,13 @@ function getProjectsWithLicense (req, res, id) {
  * @param {Integer} id
  */
 function getProjectsWithComponent (req, res, id) {
-  let query = 'SELECT DISTINCT projectID AS id, projectName, projectVersion, dateCreated, lastEdited, comment FROM projects LEFT OUTER JOIN productsInProjects ON projects.id=productsInProjects.projectID' +
+  let query = 'SELECT DISTINCT projectID AS id, projectName, projectVersion, dateCreated, lastEdited, comment, approvedBy FROM projects LEFT OUTER JOIN productsInProjects ON projects.id=productsInProjects.projectID' +
               ' LEFT OUTER JOIN componentsInProducts ON componentsInProducts.productID=productsInProjects.productID'
 
   query += ' WHERE componentID = ?;'
 
   req.db.all(query, [id], (error, rows) => {
     if (error) {
-      console.log(error.message)
       res.status(500).send(error.message)
     } else {
       res.send(rows)
@@ -563,13 +662,12 @@ function getProjectsWithComponent (req, res, id) {
  * @param {Integer} id
  */
 function getProjectsWithProduct (req, res, id) {
-  let query = 'SELECT DISTINCT projectID AS id, projectName, projectVersion, dateCreated, lastEdited, comment FROM projects LEFT OUTER JOIN productsInProjects ON projects.id=productsInProjects.projectID'
+  let query = 'SELECT DISTINCT projectID AS id, projectName, projectVersion, dateCreated, lastEdited, comment, approvedBy FROM projects LEFT OUTER JOIN productsInProjects ON projects.id=productsInProjects.projectID'
 
   query += ' WHERE productID = ?;'
 
   req.db.all(query, [id], (error, rows) => {
     if (error) {
-      console.log(error.message)
       res.status(500).send(error.message)
     } else { res.send(rows) }
   })
@@ -586,7 +684,6 @@ function getProjectLog (req, res, id) {
 
   req.db.all(query, [id], (error, rows) => {
     if (error) {
-      console.log(error.message)
       res.status(500).send(error.message)
     } else {
       res.send(rows)
@@ -600,7 +697,6 @@ router.route('/:id')
   const query = `SELECT * FROM projects WHERE id=${input}`
   req.db.get(query, (error, row) => {
     if (error) {
-      console.log(error)
       res.status(404)
       res.send('ERROR! error message:' + error.message + ', query: ' + query)
     } else {

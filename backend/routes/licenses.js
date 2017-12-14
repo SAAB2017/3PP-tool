@@ -1,39 +1,149 @@
-let express = require('express')
-let router = express.Router()
+let payloadcfg = require('./config')
 
-// ----------------------------------------------------------------------------
-//  Methods for /licenses
-// ----------------------------------------------------------------------------
-router.route('/')
+let initPayload = payloadcfg.payloadInit.bind(null, 'license')
+let NOTSIGNED = payloadcfg.NOTSIGNED
+let SIGNED = payloadcfg.SIGNED
 
-  .get((req, res) => {
-    req.db.all('SELECT * FROM licenses', (err, rows) => {
-      if (err) {
-        // This will be an Internal Server Error (status 500) and should not be sent as a response
-        console.log(err)
-      }
-      res.json(rows)
-    })
+var express = require('express')
+var router = express.Router()
+
+function handleSearchGetRequest (req, res) {
+  // precondition: parameter is wellformed
+  let response = initPayload()
+  const offset = parseInt(+req.query.offset) || 0
+  const amount = parseInt(+req.query.amount) || 5
+  let sorting = (req.query.sort === 'undefined') ? `licenseName` : `${req.query.sort}`
+  let ordering = (req.query.order === 'undefined') ? `asc` : `${req.query.order}`
+  let sort = {column: `&sort=${sorting}`, order: `&order=${ordering}`}
+  response.sort = sort
+
+  getLinkData(req.db, offset, amount, response, `select count(*) as count from licenses where licenseName LIKE '%${req.params.id}%'`, (links) => {
+    response.links = {
+      prev: `?offset=${links.prev}&amount=${amount}`,
+      current: `?offset=${links.current}&amount=${amount}`,
+      next: `?offset=${links.next}&amount=${amount}`
+    }
+
+    if (!response.errorflag) {
+    // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
+      const query = `SELECT * FROM licenses where licenseName LIKE '%${req.params.id}%' order by ${sorting} ${ordering} LIMIT ${offset}, ${amount}`
+      req.db.all(query, (err, rows) => {
+        if (err) {
+          let errormessage = 'ERROR! error message:' + err.message + ', query: ' + query
+          response.errors.message = [errormessage]
+          response.errors.status = 'ERROR'
+          response.errors.errorflag = true
+          res.status(404)
+          res.json(response)
+        } else {
+          response.items = rows
+          res.status(200)
+          response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
+          res.json(response)
+        }
+      })
+    }
   })
+}
 
 // ----------------------------------------------------------------------------
 //  Methods for /search/:id
 // ----------------------------------------------------------------------------
+
 router.route('/search/:id')
   .get((req, res) => {
-    // precondition: parameter is wellformed
-    // TODO: write a function that performs checks on input, so that it is wellformed, i.e. it's only english characters
-    const query = `select * from licenses where licenseName LIKE "%${req.params.id}%"`
-    req.db.all(query, (err, rows) => {
-      if (err) {
-        console.log(err)
-        res.status(404)
-        res.send('ERROR! error message:' + err.message + ', query: ' + query)
+    handleSearchGetRequest(req, res)
+  })
+
+// ----------------------------------------------------------------------------
+//  Methods for /components
+// ----------------------------------------------------------------------------
+/**
+ * setLinksCB is a call back
+ * @param db - the sqlite3 database to connect to
+ * @param offset - offset into the database table
+ * @param amount - amount of objects to retrieve
+ * @param response - response object, given to you from the initPayload() function
+ * @param setLinksCB - callback used to set the context-data of the response object. (the links-part, of the payload-object)
+ */
+function getLinkData (db, offset, amount, response, pageQuery, setLinksCB) {
+  // FIXME: getTotal(req, response) doesn't work because of the async nature of calls to sqlite3
+  db.get(pageQuery, (err, row) => {
+    if (err) {
+      response = initPayload() // effectively empty payload, reset cursor to beginning, default parameters
+      response.errors.message.push('Could not get element count from database.')
+      response.errorflag = true
+      response.meta.count = 0
+    } else {
+      // response.meta.count = Number.isSafeInteger(row.count) ? row.count : 0
+      // Object.assign(response.meta, meta)
+      response.meta.count = row.count
+      // if these parameters are malformed, the response defaults to the first 30 items (0, 30)
+      if (!isNaN(response.meta.count) && Number.isSafeInteger(response.meta.count)) {
+        if (isNaN(offset) || isNaN(amount)) {
+          let links = {
+            prev: 0,
+            current: 0,
+            next: (0 + amount) < response.meta.count ? amount : 0
+          }
+          response.errorflag = true
+          response.errors.message.push('Illegal query parameters passed')
+          setLinksCB(links)
+        } else if (Number.isSafeInteger(offset) && Number.isSafeInteger(amount)) {
+          let links = {
+            prev: (offset - amount) > 0 ? (offset - amount) : 0,
+            current: offset,
+            next: (offset + amount) <= response.meta.count ? (offset + amount) : (response.meta.count)
+          }
+          setLinksCB(links)
+        }
       } else {
-        res.status(200)
-        res.json(rows)
+        response.errorflag = true
+        response.errors.message.push('Illegal query parameters')
       }
-    })
+    }
+  })
+}
+
+// Example request: components/search/o/?offset=0&amount=3&sort=componentName&order=desc
+function handleGetRequest (req, res) {
+  // if these parameters are malformed, the response defaults to the first 30 items (0, 30)
+  let response = initPayload()
+  const offset = parseInt(+req.query.offset) || 0
+  const amount = parseInt(+req.query.amount) || 5
+  let sorting = (req.query.sort === 'undefined') ? `licenseName` : `${req.query.sort}`
+  let ordering = (req.query.order === 'undefined') ? `asc` : `${req.query.order}`
+
+  getLinkData(req.db, offset, amount, response, `select count(*) as count from licenses`, (links) => {
+    response.links = {
+      prev: `?offset=${links.prev}&amount=${amount}`,
+      current: `?offset=${links.current}&amount=${amount}`,
+      next: `?offset=${links.next}&amount=${amount}`
+    }
+
+    if (!response.errorflag) {
+    // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
+      const query = `SELECT * FROM licenses order by ${sorting} ${ordering} LIMIT ${offset}, ${amount} `
+      req.db.all(query, (err, rows) => {
+        if (err) {
+          response.errors.message = [err]
+          response.errors.status = 'ERROR'
+          response.errors.errorflag = true
+          res.json(response)
+        } else {
+          response.items = rows
+          response.errors.status = 'OK' // FIXME: Perhaps not a necessary attribute ?
+          res.json(response)
+        }
+      // = rows
+      })
+    }
+  })
+}
+
+router.route('/')
+  .get((req, res) => {
+    handleGetRequest(req, res)
   })
 
 // ----------------------------------------------------------------------------
@@ -48,40 +158,43 @@ router.route('/add')
     // Construct SQL query based on input parameters.
     const query = `INSERT INTO licenses (licenseName, licenseVersion, dateCreated, lastEdited, URL, comment, licenseType) VALUES ('${lic.licenseName}', '${lic.licenseVersion}', '${date}', '${date}', '${lic.URL}', '${lic.comment}', '${lic.licenseType}')`
     // Send the license to the database.
-    req.db.run('begin', () => {
-      req.db.run(query, (error) => {
-        if (error) {
-          console.log(error.message)
-          res.status(500)
-          res.send(error.message)
-          res.error_id = 'E04'
-        } else {
-          let licenseID = 1
-          const queryGetID = "SELECT MAX(id) AS 'id' FROM licenses"
-          req.db.get(queryGetID, (error, row) => {
-            if (error) {
-              // If there's an error then provide the error message and the different attributes that could have caused it.
-              res.send('ERROR! error message:' + error.message + ' query: ' + queryGetID)
-            } else {
-              licenseID += row.id
-            }
-          })
-          // Log the creation of the license.
-          const logquery = `INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES (${licenseID}, '${date}', 'License created.')`
-          req.db.run(logquery, (error) => {
-            if (error) {
-              console.log(error.message)
-              res.status(500)
-              res.send(error.message)
-            } else {
-              console.log('Success!')
-              req.db.run('commit')
-              res.status(201)
-              res.send('success')
-            }
-          })
-        }
-      })
+    req.db.run('begin', (error) => {
+      if (error) {
+        req.db.run('rollback')
+      } else {
+        req.db.run(query, (error) => {
+          if (error) {
+            // res.status(500)
+            res.send('error')
+            res.error_id = 'E04'
+            req.db.run('rollback')
+          } else {
+            let licenseID = 1
+            const queryGetID = "SELECT MAX(id) AS 'id' FROM licenses"
+            req.db.get(queryGetID, (error, row) => {
+              if (error) {
+                // If there's an error then provide the error message and the different attributes that could have caused it.
+                res.send('ERROR! error message:' + error.message + ' query: ' + queryGetID)
+              } else {
+                licenseID += row.id
+              }
+            })
+            // Log the creation of the license.
+            const logquery = `INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES (${licenseID}, '${date}', 'License created.')`
+            req.db.run(logquery, (error) => {
+              if (error) {
+                res.status(500)
+                res.send('error')
+              } else {
+                req.db.run('commit')
+                res.status(201)
+                res.send('success')
+              }
+            })
+          }
+        })
+      }
+
     })
     // postcondition: component created and logged.
   })
@@ -92,12 +205,10 @@ router.route('/add')
 router.route('/licensesInComponent/:id')
   .get((req, res) => {
     let componentID = req.params.id
-    console.log(componentID)
-    let query = `SELECT licenseID as id, licenseName, licenseVersion, dateCreated, lastEdited, comment, URL FROM  licenses INNER JOIN licensesInComponents ON licenses.id=licensesInComponents.licenseID WHERE 
+    let query = `SELECT licenseID as id, licenseName, licenseVersion, dateCreated, lastEdited, comment, URL, licenseType FROM  licenses INNER JOIN licensesInComponents ON licenses.id=licensesInComponents.licenseID WHERE 
     componentID=${componentID}`
     req.db.all(query, (err, rows) => {
       if (err) {
-        console.log(err)
       }
       res.json(rows)
     })
@@ -146,9 +257,9 @@ router.route('/licensesInProject/:id').get((req, res) => {
 })
 
 // ----------------------------------------------------------------------------
-//  Methods for /licenses/:id
+//  Methods for /licenses/license/:id
 // ----------------------------------------------------------------------------
-router.route('/:id')
+router.route('/license/:id')
 
   // Search for a license, or license attribute.
   // In order to search; send in a JSON object with the applicable parameters.
@@ -157,7 +268,6 @@ router.route('/:id')
     const query = `SELECT * FROM licenses WHERE id=${input}`
     req.db.get(query, (err, row) => {
       if (err) {
-        console.log(err)
         res.status(404)
         res.send('ERROR! error message:' + err.message + ', query: ' + query)
       } else {
@@ -267,7 +377,6 @@ function getLicenseLog (req, res, id) {
 
   req.db.all(query, [id], (error, rows) => {
     if (error) {
-      console.log(error.message)
       res.status(500)
       res.send(error.message)
     } else {
@@ -283,7 +392,7 @@ function getLicenseLog (req, res, id) {
  * @param {Integer} id
  */
 function getLicensesFromProduct (req, res, id) {
-  let query = 'SELECT DISTINCT licenseID AS id , licenseName, licenseVersion, dateCreated, lastEdited, comment FROM licenses LEFT OUTER JOIN' +
+  let query = 'SELECT DISTINCT licenseID AS id , licenseName, licenseVersion, dateCreated, lastEdited, comment, URL, licenseType FROM licenses LEFT OUTER JOIN' +
     ' licensesInComponents ON licenses.id=licensesInComponents.licenseID LEFT OUTER JOIN componentsInProducts ON componentsInProducts.componentID=licensesInComponents.componentID' +
     ' WHERE productID = ?;'
 
@@ -302,7 +411,7 @@ function getLicensesFromProduct (req, res, id) {
  * @param {Integer} id
  */
 function getLicensesFromProject (req, res, id) {
-  let query = 'SELECT DISTINCT licenseID AS id , licenseName, licenseVersion, dateCreated, lastEdited, comment FROM licenses LEFT OUTER JOIN licensesInComponents ON licenses.id=licensesInComponents.licenseID' +
+  let query = 'SELECT DISTINCT licenseID AS id , licenseName, licenseVersion, dateCreated, lastEdited, comment, URL, licenseType FROM licenses LEFT OUTER JOIN licensesInComponents ON licenses.id=licensesInComponents.licenseID' +
               ' LEFT OUTER JOIN componentsInProducts ON componentsInProducts.componentID=licensesInComponents.componentID' +
               ' LEFT OUTER JOIN productsInProjects ON productsInProjects.productID=componentsInProducts.productID' +
     ' WHERE projectID = ?;'

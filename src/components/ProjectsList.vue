@@ -1,3 +1,18 @@
+<style>
+  .project-fade-enter-active, .project-fade-leave-active {
+    transition: opacity .127s ease;
+  }
+  .project-fade-enter, .project-fade-leave-to
+    /* .component-fade-leave-active below version 2.1.8 */ {
+    opacity: 0;
+  }
+  .list-enter-active, .list-leave-active {
+    transition: all 0.327s;
+  }
+  .list-enter, .list-leave-to /* .list-leave-active below version 2.1.8 */ {
+    opacity: 0;
+  }
+</style>
 <!-- View for showing all signed projects -->
 <template>
   <div class="projects-list">
@@ -11,7 +26,7 @@
     <div id="top-div-child" class="columns is-mobile is-centered">
       <div id="top-search" class="field has-addons">
         <div class="control">
-          <input v-on:keyup="searchProject()" v-model="searchProjects" class="input" type="text" placeholder="Find a project">
+          <input v-model="searchProjects" class="input" type="text" placeholder="Find a project">
         </div>
         <div class="control">
           <button @click="searchProject()" class="button is-primary">Search</button>
@@ -30,11 +45,16 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="project in projects" @click="displayComponent(project)">
+        <transition-group  name="list" appear>
+        <tr v-for="project in projects" @click="displayComponent(project)" v-bind:key="project">
           <td scope="row" data-label="Project">{{ project.projectName }}</td>
           <td scope="row" data-label="Version">{{ project.projectVersion }}</td>
           <td scope="row" data-label="Created">{{ project.dateCreated }}</td>
           <td scope="row" data-label="Last edited">{{ project.lastEdited }}</td>
+        </tr>
+        </transition-group>
+        <tr v-if="showPaginatorClick">
+          <div id="paginator" style="text-align: center;" @click="getMore(false)"><a class="button is-primary">Get more</a></div>
         </tr>
         </tbody>
       </table>
@@ -45,53 +65,79 @@
 
 <script>
   import axios from 'axios'
-
+  import payloadcfg from '../../backend/routes/config'
   export default {
     data () {
       return {
         projects: [],
-        searchProjects: null,
         project: null,
         projectVersion: null,
+        searchProjects: null,
+        searching: false,
         message: '',
         sorted: '',
-        reverse: 1
+        showPaginatorClick: true,
+        payload: this.payloadFactory()
       }
     },
 
     /* Fetches signed projects from the database and puts them in projects */
     mounted () {
-      console.log(this.$route.params)
       if (this.$route.params.type === 'signed') {
         this.message = 'Project "' + this.$route.params.sName + '" (version: ' + this.$route.params.sVersion + ') signed'
         this.$route.params.type = ''
-        console.log(this.message)
       }
-      this.getAllProjects()
+      this.getNext = this.getNext.bind(this, 'projects/')
+      this.getMore = this.getMore.bind(this, 'projects/')
+      this.getNextSearchQuery = this.getNextSearchQuery.bind(this, 'projects/')
+      this.getNext(true)
       this.fade_out()
     },
-
+    watch: {
+      searchProjects: function (a) {
+        if (a.length === 0) {
+          this.searching = false
+          this.showPaginatorClick = true
+          this.projects = []
+          this.payload = this.payloadFactory()
+          this.getNext(true)
+        } else if (a.length > 0) {
+          this.searching = true
+          let sort = this.payload.sort
+          this.payload = this.payloadFactory()
+          this.payload.sort = sort
+          this.searchProject(a)
+        }
+      },
+      projects: function (a) {
+        if (a.length === this.payload.meta.count) {
+          this.showPaginatorClick = false
+        } else if (a.length < this.payload.meta.count) {
+          this.showPaginatorClick = true
+        }
+      }
+    },
     methods: {
+      payloadFactory: payloadcfg.payloadInit.bind(null, 'project'),
       /**
        * Searches for signed projects from the database matching the search-criteria
        */
-      searchProject () {
-        if (this.searchProjects.length === 0) {
-          this.getAllProjects()
-          return
-        }
-        if (this.searchProjects !== 0 || this.searchProjects !== null || this.searchProjects !== '') {
-          axios.get(this.$baseAPI + 'projects/search/' + this.searchProjects).then(response => {
-            console.log(response.data)
-            if (response.data != null) {
-              this.projects = response.data
-            } else {
-              this.message = 'No project found!'
+      searchProject (search) {
+        const path = `projects/search/${search}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
+        let _this = this
+        axios.get(this.$baseAPI + path).then(response => {
+          if (response.data != null) {
+            _this.payload = response.data
+            _this.projects = [..._this.payload.items]
+            if (_this.projects.length === _this.payload.meta.count) {
+              _this.showPaginatorClick = false
             }
-          })
-        } else {
-          this.getAllProjects()
-        }
+          } else {
+            _this.message = 'No component found!'
+          }
+        }).catch(err => {
+          console.log(err)
+        })
       },
 
       /**
@@ -99,12 +145,46 @@
        * @param project The project to be viewed
        */
       displayComponent (project) {
-        this.$router.push({ name: 'projects_id', params: { id: project.id } })
+        this.$router.push({name: 'projects_id', params: {id: project.id}})
       },
 
       /**
        * Fetches all projects from database
        */
+      getMore (uri, replaceItemsList) {
+        let _this = this
+        if (this.searching === false) {
+          this.getNext(replaceItemsList)
+        } else {
+          _this.getNextSearchQuery(replaceItemsList)
+        }
+      },
+      getNext (uri, replaceItemsList) {
+        let _this = this
+        axios.get(this.$baseAPI + uri + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+          .then(response => {
+            _this.payload = response.data
+            replaceItemsList ? _this.projects = [..._this.payload.items] : _this.projects = [..._this.projects, ..._this.payload.items]
+            _this.projects.length === _this.payload.meta.count ? _this.showPaginatorClick = null : _this.showPaginatorClick = true
+          }).catch(err => console.log(err))
+      },
+      getNextSearchQuery (uri, replaceItemsList) {
+        let _this = this
+        if (this.projects.length < this.payload.meta.count) {
+          axios.get(this.$baseAPI + `${uri}/search/` + this.searchProjects + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+            .then(response => {
+              _this.payload = response.data
+              replaceItemsList ? _this.projects = [..._this.payload.items] : _this.projects = [..._this.projects, ..._this.payload.items]
+              if (_this.projects.length === _this.payload.meta.count) {
+                _this.showPaginatorClick = null
+              } else {
+                _this.showPaginatorClick = true
+              }
+            }).catch(err => console.log(err))
+        } else {
+          this.showPaginatorClick = null
+        }
+      },
       getAllProjects () {
         axios.get(this.$baseAPI + 'projects/')
           .then(response => {
@@ -136,83 +216,60 @@
       },
 
       sortName () {
-        if (this.sorted !== 'name') {
-          this.sorted = 'name'
-          this.reverse = 1
+        let newpayload = this.payloadFactory('project')
+        newpayload.sort.column = '&sort=projectName'
+        if (this.ordering === 'asc') {
+          this.ordering = 'desc'
+          newpayload.sort.order = '&order=desc'
+        } else {
+          this.ordering = 'asc'
+          newpayload.sort.order = '&order=asc'
         }
-        let t = this
-        this.projects.sort(function (a, b) {
-          let lFirst = a.projectName.toLowerCase()
-          let lSecond = b.projectName.toLowerCase()
-          if (lFirst < lSecond) {
-            return -1 * t.reverse
-          }
-          if (lFirst > lSecond) {
-            return 1 * t.reverse
-          }
-          return 0
-        })
-        this.reverse *= -1
+        this.payload.sort = newpayload.sort
+        this.payload.links = newpayload.links
+        this.getMore(true)
       },
-
       sortVersion () {
-        if (this.sorted !== 'version') {
-          this.sorted = 'version'
-          this.reverse = 1
+        let newpayload = this.payloadFactory('project')
+        newpayload.sort.column = '&sort=projectVersion'
+        if (this.ordering === 'asc') {
+          this.ordering = 'desc'
+          newpayload.sort.order = '&order=desc'
+        } else {
+          this.ordering = 'asc'
+          newpayload.sort.order = '&order=asc'
         }
-        let t = this
-        this.projects.sort(function (a, b) {
-          let lFirst = a.projectVersion.toLowerCase()
-          let lSecond = b.projectVersion.toLowerCase()
-          if (lFirst < lSecond) {
-            return -1 * t.reverse
-          }
-          if (lFirst > lSecond) {
-            return 1 * t.reverse
-          }
-          return 0
-        })
-        this.reverse *= -1
+        this.payload.sort = newpayload.sort
+        this.payload.links = newpayload.links
+        this.getMore(true)
       },
-
       sortCreated () {
-        if (this.sorted !== 'created') {
-          this.sorted = 'created'
-          this.reverse = 1
+        let newpayload = this.payloadFactory('project')
+        newpayload.sort.column = '&sort=dateCreated'
+        if (this.ordering === 'asc') {
+          this.ordering = 'desc'
+          newpayload.sort.order = '&order=desc'
+        } else {
+          this.ordering = 'asc'
+          newpayload.sort.order = '&order=asc'
         }
-        let t = this
-        this.projects.sort(function (a, b) {
-          let lFirst = a.dateCreated.toLowerCase()
-          let lSecond = b.dateCreated.toLowerCase()
-          if (lFirst < lSecond) {
-            return -1 * t.reverse
-          }
-          if (lFirst > lSecond) {
-            return 1 * t.reverse
-          }
-          return 0
-        })
-        this.reverse *= -1
+        this.payload.sort = newpayload.sort
+        this.payload.links = newpayload.links
+        this.getMore(true)
       },
-
       sortEdited () {
-        if (this.sorted !== 'created') {
-          this.sorted = 'created'
-          this.reverse = 1
+        let newpayload = this.payloadFactory('project')
+        newpayload.sort.column = '&sort=lastEdited'
+        if (this.ordering === 'asc') {
+          this.ordering = 'desc'
+          newpayload.sort.order = '&order=desc'
+        } else {
+          this.ordering = 'asc'
+          newpayload.sort.order = '&order=asc'
         }
-        let t = this
-        this.projects.sort(function (a, b) {
-          let lFirst = a.lastEdited.toLowerCase()
-          let lSecond = b.lastEdited.toLowerCase()
-          if (lFirst < lSecond) {
-            return -1 * t.reverse
-          }
-          if (lFirst > lSecond) {
-            return 1 * t.reverse
-          }
-          return 0
-        })
-        this.reverse *= -1
+        this.payload.sort = newpayload.sort
+        this.payload.links = newpayload.links
+        this.getMore(true)
       }
     }
   }

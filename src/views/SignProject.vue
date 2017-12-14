@@ -105,8 +105,7 @@
        * Approves the project and adds the approvers signature to the project
        */
       signProject () {
-        if (this.project.approvedBy !== '' || this.project.approvedBy) {
-          console.log(this.project.projectName)
+        if (this.project.approvedBy !== '' || this.project.approvedBy.length !== 0) {
           let data = {
             id: this.project.id,
             approvedBy: this.project.approvedBy,
@@ -116,15 +115,12 @@
           axios.put(this.$baseAPI + 'projects/approve', data)
             .then(response => {
               if (response.status === 204) {
-                console.log(response.data)
                 this.$router.push({name: 'projects', params: {type: 'signed', sName: this.project.projectName, sVersion: this.project.projectVersion}})
               } else {
-                console.log('Error: Could not sign project')
                 this.message = response.data
               }
             })
             .catch(error => {
-              console.log(error.response)
               if (error.response) {
                 if (error.response.status === 500) {
                   this.message = 'Already signed by ' + error.response.data.byUser

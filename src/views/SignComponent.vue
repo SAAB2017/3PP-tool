@@ -86,7 +86,7 @@
     },
 
     mounted () {
-      const pendingURI = 'components/' + this.$route.params.id
+      const pendingURI = 'components/component/' + this.$route.params.id
       axios.get(this.$baseAPI + pendingURI)
         .then(response => {
           this.component = response.data
@@ -106,7 +106,6 @@
        */
       signComponent () {
         if (this.component.approvedBy !== '' || this.component.approvedBy) {
-          console.log(this.component.componentName)
           let data = {
             id: this.component.id,
             approvedBy: this.component.approvedBy,
@@ -116,15 +115,12 @@
           axios.put(this.$baseAPI + 'components/approve', data)
             .then(response => {
               if (response.status === 204) {
-                console.log(response.data)
                 this.$router.push({name: 'components', params: {type: 'signed', sName: this.component.componentName, sVersion: this.component.componentVersion}})
               } else {
-                console.log('Error: Could not sign component')
                 this.message = response.data
               }
             })
             .catch(error => {
-              console.log(error.response)
               if (error.response) {
                 if (error.response.status === 500) {
                   this.message = 'Already signed by ' + error.response.data.byUser
