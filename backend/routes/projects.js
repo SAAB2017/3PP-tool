@@ -6,7 +6,7 @@ let express = require('express')
 let router = express.Router()
 
 // ----------------------------------------------------------------------------
-//  Methods for /products
+//  Methods for /projects
 // ----------------------------------------------------------------------------
 function handleSearchGetRequest (req, res, isPending) {
   // precondition: parameter is wellformed
@@ -241,7 +241,7 @@ router.route('/add')
               // res.send('ERROR! error message:' + error.message + ', query: ' + query)
             } else {
               getProject(req, res, input.projectName, input.projectVersion, null, function (product) {
-                insertProjectLog(req, res, product.id, 'Product created.',
+                insertProjectLog(req, res, product.id, 'Project created.',
                     function (returnValue) {
                       // här säger vi; för alla komponenter, låt comp vara komponent
                       // lägg in komponent i produkt
@@ -250,7 +250,7 @@ router.route('/add')
                           if (!succeeded) { // if *any* of the insertions fail, we rollback the entire thing
                             req.db.run('rollback')
                             res.status(500)
-                            res.send('Error! Component was not found!')
+                            res.send('Error! Product was not found!')
                           }
                         })
                       })
@@ -571,20 +571,20 @@ function insertUpdateIntoLog (req, res, id, approved, comment) {
   }
   // If approve has changed then log it
   if (req.body.hasOwnProperty('approved')) {
-    if (approved[0] !== 0) {
-      insertProjectLog(req, res, id, 'Product changed to not approved.', function (log) {
+    if (approved[0] === 0) {
+      insertProjectLog(req, res, id, 'Project changed to not approved.', function (log) {
       })
-    } else if (approved[0] !== 1) {
-      insertProjectLog(req, res, id, 'Product changed to approved by ' + approved[1] + '.', function (log) {
+    } else if (approved[0] === 1) {
+      insertProjectLog(req, res, id, 'Project approved by ' + approved[1] + '.', function (log) {
       })
     }
   } else if (req.body.hasOwnProperty('approvedBy')) {
     // If approveBy has changed then log it
-    if (approved[1] !== '') {
-      insertProjectLog(req, res, id, 'Product changed to not approved.', function (log) {
+    if (approved[1] === '') {
+      insertProjectLog(req, res, id, 'Project changed to not approved.', function (log) {
       })
     } else if (approved[1] !== '') {
-      insertProjectLog(req, res, id, 'Product changed to approved by ' + approved[1] + '.', function (log) {
+      insertProjectLog(req, res, id, 'Project approved by ' + approved[1] + '.', function (log) {
       })
     }
   }
@@ -680,7 +680,7 @@ function getProjectsWithProduct (req, res, id) {
  * @param {Integer} id
  */
 function getProjectLog (req, res, id) {
-  let query = 'SELECT * FROM projectLog WHERE projectID = ?'
+  let query = 'SELECT * FROM projectLog WHERE projectID = ? ORDER BY id desc'
 
   req.db.all(query, [id], (error, rows) => {
     if (error) {

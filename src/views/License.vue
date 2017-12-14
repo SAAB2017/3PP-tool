@@ -50,6 +50,12 @@
                   <label>{{ license.licenseType }}</label>
                 </div>
               </div>
+
+              <div class="field is-grouped is-grouped-left">
+                <div class="control">
+                  <button @click="showLog()" class="button is-primary">Show history</button>
+                </div>
+              </div>
             </div>
 
             <!-- Column that contains the comment for the license -->
@@ -237,6 +243,43 @@
 
       </div>
     </div>
+
+
+    <div class="modal" id="logWindow">
+      <div class="modal-background" @click="closeLog()"></div>
+      <div class="modal-card" style="text-align: center">
+
+        <header class="modal-card-head">
+          <p class="modal-card-title"> History for {{license.licenseName}} </p>
+          <button class="delete" aria-label="close" @click="closeLog()"></button>
+        </header>
+
+        <section class="modal-card-body vertical-menu">
+          <table>
+            <thead>
+            <tr>
+              <th scope="col" style="width: 120px">Date</th>
+              <th scope="col">Event</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="logItem in logItems">
+              <td scope="row" style="width: 120px" data-label="Date">{{ logItem.dateLogged }}</td>
+              <td scope="row" data-label="Event">{{ logItem.note }}</td>
+            </tr>
+            </tbody>
+          </table>
+
+        </section>
+
+        <footer class="modal-card-foot" style="justify-content: center">
+        </footer>
+
+
+      </div>
+    </div>
+
+
   </div>
 </template>
 
@@ -260,7 +303,8 @@
         modalVersion: '',
         modalCreated: '',
         modalApprover: '',
-        modalComment: ''
+        modalComment: '',
+        logItems: []
       }
     },
 
@@ -284,11 +328,19 @@
       document.addEventListener('keyup', function (event) {
         if (event.key === 'Escape') {
           _this.closeModal()
+          _this.closeLog()
         }
       })
     },
 
     methods: {
+
+      getLog () {
+        axios.get(this.$baseAPI + 'licenses/log/' + this.$route.params.id)
+          .then(response => {
+            this.logItems = response.data
+          })
+      },
       /**
        * Fetch all components that contains this license
        */ // TODO: WORKS
@@ -314,6 +366,17 @@
         axios.get(this.$baseAPI + 'projects/projectsWithLicense/' + this.$route.params.id).then(response => {
           this.projects = response.data
         })
+      },
+
+      showLog () {
+        this.getLog()
+        let d = document.getElementById('logWindow')
+        d.classList.add('is-active')
+      },
+
+      closeLog () {
+        let d = document.getElementById('logWindow')
+        d.classList.remove('is-active')
       },
 
       showModal () {
@@ -383,12 +446,12 @@
           msg.classList.remove('is-danger')
           msg.classList.add('is-success')
           if (this.origComment !== this.license.comment) {
-            let data = {
+            let comment_data = {
               id: this.license.id,
               comment: this.license.comment
             }
 
-            axios.post(this.$baseAPI + 'licenses/comment', data)
+            axios.post(this.$baseAPI + 'licenses/comment', comment_data)
               .then(response => {
                 this.origComment = this.license.comment
                 if (this.message) this.message += ', '
@@ -396,12 +459,12 @@
               })
           }
           if (this.origURL !== this.license.URL) {
-            let data = {
+            let id_data = {
               id: this.license.id,
               URL: this.license.URL
             }
 
-            axios.post(this.$baseAPI + 'licenses/URL', data)
+            axios.post(this.$baseAPI + 'licenses/URL', id_data)
               .then(response => {
                 this.origURL = this.license.URL
                 if (this.message) this.message += ', '
@@ -438,3 +501,11 @@ D       * Shows this.message for some time then fades it away and removes it.
     }
   }
 </script>
+
+<style scoped>
+ .vertical-menu {
+   width: 100%;
+   overflow-y: auto;
+   max-height: 800px;
+ }
+</style>

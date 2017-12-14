@@ -587,7 +587,7 @@ function insertComponentLog (req, res, id, text, callback) {
 // Insert the update into the ComponentLog
 function insertUpdateIntoLog (req, res, correctInputId, approved, comment) {
   // If the comment was changed then log it
-  if (comment !== null) {
+  if (comment !== null && comment !== undefined) {
     insertComponentLog(req, res, correctInputId, 'Comment was changed to: ' + comment + '.', function (log) {
     })
   }
@@ -597,7 +597,7 @@ function insertUpdateIntoLog (req, res, correctInputId, approved, comment) {
       insertComponentLog(req, res, correctInputId, 'Component changed to not approved.', function (log) {
       })
     } else if (approved[0] === 1) {
-      insertComponentLog(req, res, correctInputId, 'Component changed to approved by ' + approved[1] + '.', function (log) {
+      insertComponentLog(req, res, correctInputId, 'Component approved by ' + approved[1] + '.', function (log) {
       })
     }
   } else if (req.body.hasOwnProperty('approvedBy')) {
@@ -606,7 +606,7 @@ function insertUpdateIntoLog (req, res, correctInputId, approved, comment) {
       insertProductLog(req, res, correctInputId, 'Component changed to not approved.', function (log) {
       })
     } else if (approved[1] !== '') {
-      insertComponentLog(req, res, correctInputId, 'Component changed to approved by ' + approved[1] + '.', function (log) {
+      insertComponentLog(req, res, correctInputId, 'Component approved by ' + approved[1] + '.', function (log) {
       })
     }
   }
@@ -615,7 +615,7 @@ function insertUpdateIntoLog (req, res, correctInputId, approved, comment) {
 
 // Get component log
 function getComponentLog (req, res, id) {
-  let query = 'SELECT * FROM componentLog WHERE componentID = ?'
+  let query = 'SELECT * FROM componentLog WHERE componentID = ? ORDER BY id desc'
 
   req.db.all(query, [id], (error, rows) => {
     if (error) {
