@@ -1,15 +1,118 @@
 ##### Table of Contents
 [Licenses](#licenses)
 
+[Show all licenses](#showAllLicenses)
+
+[Show the log of a license](#showALicenseLog)
+
+[Get the licenses belonging to a product](#getTheLicensesOfProduct)
+
+[Get the licenses belonging to a project](#getTheLicensesOfProject)
+
+[Get a license by its ID number](#getLicenseById)
+
+[Add a license](#addLicense)
+
+[Change the comment of a license](#changeLicenseComment)
+
+[Change the URL of a license](#changeLicenseURL)
+
+[Get a name of a license](#getLicenseByName)
+
+[Get the licenses belonging to a component](#getLicensesInComponent)
+
+
 [Components](#components)
 
+[Get all signed components](#getSignedComponent)
+
+[Get all unsigned components](#getUnsignedComponent)
+
+[Get all approved components](#getApprovedComponents)
+
+[Approve a component](#approveComponent)
+
+[Add a component](#addComponent)
+
+[Show all pending components](#showAllPendingComponent)
+
+[Show all components belonging to a product](#showAllComponentInProduct)
+
+[Connect a license with a component](#connectLicenesWithComponent)
+
+[Show all components belonging to a project](#showAllComponentsInProject)
+
+[Show all components containing a certain license](#showComponentsWithLicense)
+
+[Show the log of a component](#showLogByComponent)
+
+[Change the comment of a component](#changeCommentForComponent)
+
+[Get a component by its ID number](#getComponentByID)
+
+
 [Products](#products)
+
+[Show all products](#showAllProducts)
+
+[Get a signed product by its ID number](#getSignedProductById)
+
+[Get a unsigned product by its ID number](#getUnsignedProductById)
+
+[Get all approved products](#getApprovedProducts)
+
+[Approve a product](#approveProduct)
+
+[Add a product](#addProduct)
+
+[Get all pending products](#getPendingProducts)
+
+[Get products by component ID number](#getProductsByComponentId)
+
+[Connect a component with a product](#connectComponentWithProduct)
+
+[Get all products connected with a project](#getProductsConnectedWithProject)
+
+[Get products by license ID number](#getProductsByLicenseId)
+
+[Show the log of a product by product ID number](#showProductLogById)
+
+[Change the comment of a product](#changeCommentOfProduct)
+
+[Get a product by product ID number](#getProductById)
+
+[Get a product by its name](#getProductByName)
+
 
 [Projects](#projects)
 
 [Show all signed projects](#signedProjects)
  
 [Show all unsigned projects](#unsignedProjects)
+
+[Approve a project](#approveProject)
+
+[Add a project](#addProject)
+
+[Show all pending projects](#showPendingProjects)
+
+[Show projects connected with a component](#showProjectsConnectedWithComponent)
+
+[Connect a product with a project](#connectProductWithProject)
+
+[Show all projects containing a specific license](#showProjectsWithLicense)
+
+[Show all projects containing a specific product](#showProjectsWithProduct)
+
+[Show the log of a project by project ID number](#showLogByProjectId)
+
+[Change the log of a project](#changeCommentOfProject)
+
+[Get a project by project ID number](#getProjectById)
+
+[Search for a specific signed project by name](#getSignedProjectByName)
+
+[Search for a specific unsigned project by name](#getUnsignedProjectByName)
 
 ---
 Title: API documentation
@@ -154,6 +257,7 @@ axios.get('/licenses/?offset=0&amount=30&sort=licenseName&order=asc')
   response.data
 }
 ```
+<a name="showAllLicenses"/>
 
 ## Show all licenses in a component.
 
@@ -202,6 +306,7 @@ axios.get('/licenses/licensesInComponent/1')
   response.data
 }
 ```
+<a name="showALicenseLog"/>
 
 ## Get the license's log.
 
@@ -246,6 +351,8 @@ axios.get('/licenses/log/1')
   response.data
 }
 ```
+
+<a name="getTheLicensesOfProduct"/>
 
 ## Get the licenses associated with a product.
 
@@ -293,6 +400,8 @@ axios.get('/licenses/licensesInProduct/1')
 }
 ```
 
+<a name="getTheLicensesOfProject"/>
+
 ## Get the licenses associated with a project.
 
 ### URL
@@ -338,6 +447,8 @@ axios.get('/licenses/licensesInProject/1')
   response.data
 }
 ```
+
+<a name="getLicenseById"/>
 
 ## Gets a specific license from its id.
 
@@ -386,6 +497,8 @@ axios.get('/licenses/license/1')
   response.data
 }
 ```
+
+<a name="addLicense"/>
 
 ## Add a new license.
 
@@ -453,6 +566,8 @@ axios.post('/licenses/add', data)
 })
 ```
 
+<a name="changeLicenseComment"/>
+
 ## Change a license's comment.
 
 ### URL
@@ -508,6 +623,8 @@ axios.post('/licenses/comment', data)
   response
 })
 ```
+
+<a name="changeLicenseURL"/>
 
 ## Change a license's URL.
 
@@ -565,6 +682,8 @@ axios.post('/licenses/URL', data)
 })
 ```
 
+<a name="getLicenseByName"/>
+
 ## Search for a license based on its name.
 
 ### URL
@@ -612,6 +731,8 @@ axios.get('/licenses/search/GNU AGPL')
   response.data
 }
 ```
+
+<a name="getLicensesInComponent"/>
 
 ## Get licenses in component.
 
@@ -666,118 +787,11 @@ axios.get('/licenses/licensesInComponent/1')
 }
 ```
 
-## Get licenses in product.
-
-### URL
-
-/licenses/licensesInProduct/:id
-
-### Method
-
-GET
-
-### URL Params
-
-Required:
-```
-id = Integer
-```
-
-### Success Response
-
-Code: 200
-
-Content:
-```
-{
-  "items":[{  "id":5,
-              "licenseName":"Apache License",
-              "licenseVersion":"2.0",
-              "dateCreated":"2017-10-20",
-              "lastEdited":"2017-10-15",
-              "URL":"https://www.mozilla.org/en-US/MPL/2.0/",
-              "comment":null,
-              "licenseType":"Open source license"}],
-   "links":{  "prev":"?offset=0&amount=5",
-              "current":"?offset=0&amount=5",
-              "next":"?offset=0&amount=5"},
-   "sort":{   "column":"&sort=licenseName",
-              "order":"&order=asc"},
-   "meta":{   "current":0,
-              "count":0},
-   "errors":{ "message":[],
-              "status":"OK"},
-   "errorflag":false
-}
-```
-
-### Sample Call
-```javascript
-axios.get('/licenses/licensesInProduct/1')
-  .then(response => {
-  response.data
-}
-```
-
-## Get licenses in project.
-
-### URL
-
-/licenses/licensesInProject/:id
-
-### Method
-
-GET
-
-### URL Params
-
-Required:
-```
-id = Integer
-```
-
-### Success Response
-
-Code: 200
-
-Content:
-```
-{
-  "items":[{  "id":5,
-              "licenseName":"Apache License",
-              "licenseVersion":"2.0",
-              "dateCreated":"2017-10-20",
-              "lastEdited":"2017-10-15",
-              "URL":"https://www.mozilla.org/en-US/MPL/2.0/",
-              "comment":null,
-              "licenseType":"Open source license"}],
-   "links":{  "prev":"?offset=0&amount=5",
-              "current":"?offset=0&amount=5",
-              "next":"?offset=0&amount=5"},
-   "sort":{   "column":"&sort=licenseName",
-              "order":"&order=asc"},
-   "meta":{   "current":0,
-              "count":0},
-   "errors":{ "message":[],
-              "status":"OK"},
-   "errorflag":false
-}
-```
-
-### Sample Call
-```javascript
-axios.get('/licenses/licensesInProject/1')
-  .then(response => {
-  response.data
-}
-```
-
-
-
-
 <a name="components"/>
 
 # Components
+
+<a name="getSignedComponent"/>
 
 ## Search for a specific signed component.
 
@@ -836,6 +850,8 @@ axios.get('/components/search/axios?offset=0&amount=30&sort=componentName&order=
 }
 ```
 
+<a name="getUnsignedComponent"/>
+
 ## Search for a specific unsigned product.
 
 ### URL
@@ -893,6 +909,8 @@ axios.get('/components/pending/search/sqlite3?offset=0&amount=30&sort=componentN
 }
 ```
 
+<a name="getApprovedComponents"/>
+
 ## Show all approved components
 
 ### URL
@@ -949,6 +967,8 @@ axios.get('/components/?offset=0&amount=30&sort=componentName&order=asc')
 }
 ```
 
+<a name="approveComponent"/>
+
 ## Approve a component.
 
 ### URL
@@ -1002,6 +1022,8 @@ axios.post('/components/approve', data)
   response
 })
 ```
+
+<a name="addComponent"/>
 
 ## Add a component.
 
@@ -1058,6 +1080,8 @@ axios.post('/components/add', data)
   response
 })
 ```
+
+<a name="showAllPendingComponent"/>
 
 ## Show all pending components.
 
@@ -1119,6 +1143,8 @@ axios.get('/components/pending?offset=0&amount=30&sort=componentName&order=desc'
 }
 ```
 
+<a name="showAllComponentInProduct"/>
+
 ## Show all components in product.
 
 ### URL
@@ -1166,6 +1192,8 @@ axios.get('/components/componentsInProduct/1')
   response.data
 }
 ```
+
+<a name="connectLicenesWithComponent"/>
 
 ## Connect a license with a component.
 
@@ -1219,6 +1247,8 @@ axios.post('/components/connectLicenseWithComponent', data)
 })
 ```
 
+<a name="showAllComponentsInProject"/>
+
 ## Show all components connected to a certain project.
 
 ### URL
@@ -1266,6 +1296,8 @@ axios.get('/components/componentsInProject/1')
   response.data
 }
 ```
+
+<a name="showComponentsWithLicense"/>
 
 ## Show all components containing a certain license.
 
@@ -1315,6 +1347,8 @@ axios.get('/components/componentsWithLicense/1')
 }
 ```
 
+<a name="showLogByComponent"/>
+
 ## Show the log for a certain component.
 
 ### URL
@@ -1358,6 +1392,8 @@ axios.get('/components/log/1')
   response.data
 }
 ```
+
+<a name="changeCommentForComponent"/>
 
 ## Change the comment of a certain component.
 
@@ -1411,6 +1447,8 @@ axios.post('/components/comment', data)
 })
 ```
 
+<a name="getComponentByID"/>
+
 ## Get the component with a certain ID.
 
 ### URL
@@ -1462,6 +1500,8 @@ axios.get('/components/component/1')
 <a name="products"/>
 
 # Products
+
+<a name="showAllProducts"/>
 
 ## Show all products
 
@@ -1527,6 +1567,8 @@ axios.get('/products/all/?offset=0&amount=30&sort=productName&order=asc')
 }
 ```
 
+<a name="getSignedProductById"/>
+
 ## Search for a specific signed product.
 
 ### URL
@@ -1583,6 +1625,8 @@ axios.get('/products/search/Third-Party License Management REST API/?offset=0&am
   response.data
 }
 ```
+
+<a name="getUnsignedProductById"/>
 
 ## Search for a specific unsigned product.
 
@@ -1641,6 +1685,8 @@ axios.get('/products/pending/search/Third-Party License Management WUI/?offset=0
 }
 ```
 
+<a name="getApprovedProducts"/>
+
 ## Show all approved products
 
 ### URL
@@ -1697,6 +1743,8 @@ axios.get('/products/?offset=0&amount=30&sort=productName&order=asc')
 }
 ```
 
+<a name="approveProduct"/>
+
 ## Approve a product.
 
 ### URL
@@ -1750,6 +1798,8 @@ axios.post('/products/approve', data)
   response
 })
 ```
+
+<a name="addProduct"/>
 
 ## Add a product.
 
@@ -1811,6 +1861,8 @@ axios.post('/products/add', data)
 })
 ```
 
+<a name="getPendingProducts"/>
+
 ## Show all pending products.
 
 ### URL
@@ -1871,6 +1923,8 @@ axios.get('/products/pending/?offset=0&amount=30&sort=productName&order=desc')
 }
 ```
 
+<a name="getProductsByComponentId"/>
+
 ## Show all products containing a certain component.
 
 ### URL
@@ -1918,6 +1972,8 @@ axios.get('/products/productsWithComponent/1')
   response.data
 }
 ```
+
+<a name="connectComponentWithProduct"/>
 
 ## Connect a component with a product.
 
@@ -1971,6 +2027,8 @@ axios.post('/products/connectComponentWithProduct', data)
 })
 ```
 
+<a name="getProductsConnectedWithProject"/>
+
 ## Show all products connected to a certain project.
 
 ### URL
@@ -2019,6 +2077,8 @@ axios.get('/products/productsWithComponent/1')
 }
 ```
 
+<a name="getProductsByLicenseId"/>
+
 ## Show all products containing a certain license.
 
 ### URL
@@ -2066,6 +2126,8 @@ axios.get('/products/productsWithLicense/1')
 }
 ```
 
+<a name="showProductLogById"/>
+
 ## Show the log for a certain product.
 
 ### URL
@@ -2109,6 +2171,8 @@ axios.get('/products/log/1')
   response.data
 }
 ```
+
+<a name="changeCommentOfProduct"/>
 
 ## Change the comment of a certain product.
 
@@ -2162,6 +2226,8 @@ axios.post('/products/comment', data)
 })
 ```
 
+<a name="getProductById"/>
+
 ## Get the product with a certain ID.
 
 ### URL
@@ -2209,6 +2275,8 @@ axios.get('/products/1')
   response.data
 }
 ```
+
+<a name="getProductByName"/>
 
 ## Get the product with a certain name.
 
@@ -2378,6 +2446,8 @@ axios.get('/projects/?offset=0&amount=30&sort=projectName&order=asc')
 }
 ```
 
+<a name="approveProject"/>
+
 ## Approve a project.
 
 ### URL
@@ -2431,6 +2501,8 @@ axios.post('/projects/approve', data)
   response
 })
 ```
+
+<a name="addProject"/>
 
 ## Add a project.
 
@@ -2488,6 +2560,8 @@ axios.post('/project/add', data)
 })
 ```
 
+<a name="showPendingProjects"/>
+
 ## Show all pending projects.
 
 ### URL
@@ -2532,6 +2606,8 @@ axios.get('/project/pending')
   response.data
 }
 ```
+
+<a name="showProjectsConnectedWithComponent"/>
 
 ## Show all projects containing a certain component.
 
@@ -2580,6 +2656,8 @@ axios.get('/projects/projectsWithComponent/1')
   response.data
 }
 ```
+
+<a name="connectProductWithProject"/>
 
 ## Connect a product with a project.
 
@@ -2633,6 +2711,8 @@ axios.post('/projects/connectProductWithProject', data)
 })
 ```
 
+<a name="showProjectsWithLicense"/>
+
 ## Show all projects containing a certain license.
 
 ### URL
@@ -2680,6 +2760,8 @@ axios.get('/projects/projectsWithLicense/1')
   response.data
 }
 ```
+
+<a name="showProjectsWithProduct"/>
 
 ## Show all projects containing a certain product.
 
@@ -2729,6 +2811,8 @@ axios.get('/products/productsWithLicense/1')
 }
 ```
 
+<a name="showLogByProjectId"/>
+
 ## Show the log for a certain project.
 
 ### URL
@@ -2772,6 +2856,8 @@ axios.get('/projects/log/1')
   response.data
 }
 ```
+
+<a name="changeCommentOfProject"/>
 
 ## Change the comment of a certain project.
 
@@ -2825,6 +2911,9 @@ axios.post('/projects/comment', data)
 })
 ```
 
+<a name="getProjectById"/>
+
+
 ## Get the project with a certain ID.
 
 ### URL
@@ -2872,6 +2961,9 @@ axios.get('/projects/1')
   response.data
 }
 ```
+
+<a name="getSignedProjectByName"/>
+
 
 ## Search for a specific signed project.
 
@@ -2933,6 +3025,9 @@ axios.get('/projects/search/:id?offset=0&amount=30&sort=comment&order=asc')
   response.data
 }
 ```
+
+<a name="getUnsignedProjectByName"/>
+
 
 ## Search for a specific unsigned project.
 
