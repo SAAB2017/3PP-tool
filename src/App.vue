@@ -61,6 +61,7 @@
   table td {
     padding: .625em;
     text-align: center;
+    overflow-wrap: break-word;
   }
   table th {
     font-size: .85em;

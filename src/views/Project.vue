@@ -61,6 +61,12 @@
                   <label>{{ project.approvedBy }}</label>
                 </div>
               </div>
+
+              <div class="field is-grouped is-grouped-left">
+                <div class="control">
+                  <button @click="showLog()" class="button is-primary">Show history</button>
+                </div>
+              </div>
             </div>
 
             <!-- Column that contains the comment for the product -->
@@ -263,6 +269,40 @@
 
       </div>
     </div>
+
+    <div class="modal" id="logWindow">
+      <div class="modal-background" @click="closeLog()"></div>
+      <div class="modal-card" style="text-align: center">
+
+        <header class="modal-card-head">
+          <p class="modal-card-title"> History for {{project.projectName}} </p>
+          <button class="delete" aria-label="close" @click="closeLog()"></button>
+        </header>
+
+        <section class="modal-card-body vertical-menu">
+          <table>
+            <thead>
+            <tr>
+              <th scope="col" style="width: 120px">Date</th>
+              <th scope="col">Event</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="logItem in logItems">
+              <td scope="row" style="width: 120px" data-label="Date">{{ logItem.dateLogged }}</td>
+              <td scope="row" data-label="Event">{{ logItem.note }}</td>
+            </tr>
+            </tbody>
+          </table>
+
+        </section>
+
+        <footer class="modal-card-foot" style="justify-content: center">
+        </footer>
+
+
+      </div>
+    </div>
   </div>
 </template>
 
@@ -287,7 +327,8 @@
         modalApprover: '',
         modalComment: '',
         modalType: '',
-        modalURL: ''
+        modalURL: '',
+        logItems: []
       }
     },
 
@@ -308,11 +349,20 @@
       document.addEventListener('keyup', function (event) {
         if (event.key === 'Escape') {
           _this.closeModal()
+          _this.closeLog()
         }
       })
     },
 
     methods: {
+
+      getLog () {
+        axios.get(this.$baseAPI + 'projects/log/' + this.$route.params.id)
+          .then(response => {
+            this.logItems = response.data
+          })
+      },
+
       /**
        * Fetch all licenses that is in this project
        */
@@ -392,6 +442,17 @@
             }
           }
         }, 100)
+      },
+
+      showLog () {
+        this.getLog()
+        let d = document.getElementById('logWindow')
+        d.classList.add('is-active')
+      },
+
+      closeLog () {
+        let d = document.getElementById('logWindow')
+        d.classList.remove('is-active')
       },
 
       showModal () {
@@ -482,3 +543,11 @@
     }
   }
 </script>
+
+<style scoped>
+  .vertical-menu {
+    width: 100%;
+    overflow-y: auto;
+    max-height: 800px;
+  }
+</style>

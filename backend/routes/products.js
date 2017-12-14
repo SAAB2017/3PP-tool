@@ -172,8 +172,6 @@ router.route('/all')
       const link = `${response.links[uri]}&sort=${sorting}&order=${ordering}`
       response.links[uri] = link
     }
-    for (let a in response.links) {
-    }
     if (!response.errorflag) {
       // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
       const query = `SELECT * FROM products order by ${sorting} ${ordering} LIMIT ${offset}, ${amount} `
@@ -423,6 +421,15 @@ router.route('/log/:id')
   if (input !== null) {
     // Get the component log
     // getComponentLog(req, res, input)
+    let query = `SELECT * FROM productLog WHERE productID = ? ORDER BY id desc`
+    req.db.all(query, [input], (err, rows) => {
+      if (err) {
+        res.status(500)
+        res.send(err.message)
+      } else {
+        res.send(rows)
+      }
+    })
   }
   // postcondition: the log entries of the component
 })
@@ -707,7 +714,7 @@ function insertUpdateIntoLog (req, res, correctInputId, approved) {
       insertProductLog(req, res, correctInputId, 'Product changed to not approved.', function (log) {
       })
     } else if (approved[0] === 1) {
-      insertProductLog(req, res, correctInputId, 'Product changed to approved by ' + approved[1] + '.', function (log) {
+      insertProductLog(req, res, correctInputId, 'Product approved by ' + approved[1] + '.', function (log) {
       })
     }
   } else if (req.body.hasOwnProperty('approvedBy')) {
@@ -716,7 +723,7 @@ function insertUpdateIntoLog (req, res, correctInputId, approved) {
       insertProductLog(req, res, correctInputId, 'Product changed to not approved.', function (log) {
       })
     } else if (approved[1] !== '') {
-      insertProductLog(req, res, correctInputId, 'Product changed to approved by ' + approved[1] + '.', function (log) {
+      insertProductLog(req, res, correctInputId, 'Product approved by ' + approved[1] + '.', function (log) {
       })
     }
   }
