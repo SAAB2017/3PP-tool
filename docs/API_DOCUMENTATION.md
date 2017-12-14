@@ -1,4 +1,10 @@
 ##### Table of Contents
+[Licenses](#licenses)
+
+[Components](#components)
+
+[Products](#products)
+
 [Projects](#projects)
 
 [Show all signed projects](#signedProjects)
@@ -31,6 +37,8 @@ Alla anrop returneras som **JSON**.
 - **204** Lyckad DELETE.
 - **401** Oautentiserad.
 - **409** Misslyckad POST, PUT eller DELETE (Kommer returnera ett error-objekt)
+
+<a name="licenses"/>
 
 # Licenses
 
@@ -767,7 +775,7 @@ axios.get('/licenses/licensesInProject/1')
 
 
 
-
+<a name="components"/>
 
 # Components
 
@@ -1450,6 +1458,8 @@ axios.get('/components/component/1')
   response.data
 }
 ```
+
+<a name="products"/>
 
 # Products
 
