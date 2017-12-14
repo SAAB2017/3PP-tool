@@ -171,32 +171,31 @@ router.route('/add')
             res.error_id = 'E04'
             req.db.run('rollback')
           } else {
-            let licenseID = 1
+            // let licenseID = 1
             const queryGetID = "SELECT MAX(id) AS 'id' FROM licenses"
             req.db.get(queryGetID, (error, row) => {
               if (error) {
                 // If there's an error then provide the error message and the different attributes that could have caused it.
                 res.send('ERROR! error message:' + error.message + ' query: ' + queryGetID)
               } else {
-                licenseID += row.id
-              }
-            })
-            // Log the creation of the license.
-            const logquery = `INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES (${licenseID}, '${date}', 'License created.')`
-            req.db.run(logquery, (error) => {
-              if (error) {
-                res.status(500)
-                res.send('error')
-              } else {
-                req.db.run('commit')
-                res.status(201)
-                res.send('success')
+                // licenseID += row.id
+                // Log the creation of the license.
+                const logquery = `INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES (${row.id}, '${date}', 'License created.')`
+                req.db.run(logquery, (error) => {
+                  if (error) {
+                    res.status(500)
+                    res.send('error')
+                  } else {
+                    req.db.run('commit')
+                    res.status(201)
+                    res.send('success')
+                  }
+                })
               }
             })
           }
         })
       }
-
     })
     // postcondition: component created and logged.
   })
@@ -375,7 +374,7 @@ function setLicenseURL (req, res, input) {
  * @param {Integer} id
  */
 function getLicenseLog (req, res, id) {
-  let query = 'SELECT * FROM licenseLog WHERE licenseID = ?'
+  let query = 'SELECT * FROM licenseLog WHERE licenseID = ? ORDER BY id desc'
 
   req.db.all(query, [id], (error, rows) => {
     if (error) {
@@ -455,9 +454,9 @@ function getLicense (req, res, id, callback) {
 function setLicenseLog (req, res, input, old, callback) {
   let query = 'INSERT INTO licenseLog (licenseID, dateLogged, note) VALUES (?, ?, ?);'
   let note = ''
-  if (input.comment !== null) {
+  if (input.comment !== null && input.comment !== '' && input.comment !== undefined) {
     note = 'Comment changed from: ' + old + ' to: ' + input.comment + '.'
-  } else if (input.URL !== null) {
+  } else if (input.URL !== null && input.URL !== '' && input.URL !== undefined) {
     note = 'URL changed from: ' + old + ' to: ' + input.URL + '.'
   }
   req.db.run(query, [input.id, new Date().toLocaleDateString(), note], (error) => {

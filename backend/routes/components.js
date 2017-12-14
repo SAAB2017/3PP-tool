@@ -587,7 +587,7 @@ function insertComponentLog (req, res, id, text, callback) {
 // Insert the update into the ComponentLog
 function insertUpdateIntoLog (req, res, correctInputId, approved, comment) {
   // If the comment was changed then log it
-  if (comment !== null) {
+  if (comment !== null && comment !== undefined) {
     insertComponentLog(req, res, correctInputId, 'Comment was changed to: ' + comment + '.', function (log) {
     })
   }
@@ -597,7 +597,7 @@ function insertUpdateIntoLog (req, res, correctInputId, approved, comment) {
       insertComponentLog(req, res, correctInputId, 'Component changed to not approved.', function (log) {
       })
     } else if (approved[0] === 1) {
-      insertComponentLog(req, res, correctInputId, 'Component changed to approved by ' + approved[1] + '.', function (log) {
+      insertComponentLog(req, res, correctInputId, 'Component approved by ' + approved[1] + '.', function (log) {
       })
     }
   } else if (req.body.hasOwnProperty('approvedBy')) {
@@ -606,7 +606,7 @@ function insertUpdateIntoLog (req, res, correctInputId, approved, comment) {
       insertProductLog(req, res, correctInputId, 'Component changed to not approved.', function (log) {
       })
     } else if (approved[1] !== '') {
-      insertComponentLog(req, res, correctInputId, 'Component changed to approved by ' + approved[1] + '.', function (log) {
+      insertComponentLog(req, res, correctInputId, 'Component approved by ' + approved[1] + '.', function (log) {
       })
     }
   }
@@ -615,7 +615,7 @@ function insertUpdateIntoLog (req, res, correctInputId, approved, comment) {
 
 // Get component log
 function getComponentLog (req, res, id) {
-  let query = 'SELECT * FROM componentLog WHERE componentID = ?'
+  let query = 'SELECT * FROM componentLog WHERE componentID = ? ORDER BY id desc'
 
   req.db.all(query, [id], (error, rows) => {
     if (error) {
@@ -668,27 +668,7 @@ router.route('/component/:id')
         res.status(200)
         res.json(row)
       }
-    })/**
- * Insert a new row into productLog
- * @param {Object} req
- * @param {Object} res
- * @param {Integer} id
- * @param {String} text
- * @param {Boolean} callback
- */
-function insertProductLog (req, res, id, text, callback) {
-  let parametersLog = [id, new Date().toLocaleDateString(), text]
-  let queryLog = 'INSERT INTO productLog (productID, dateLogged, note) VALUES (?, ?, ?);'
-  req.db.run((queryLog), parametersLog, (error) => {
-    if (error) {
-      res.status(500)
-      res.send(error.message)
-    } else {
-      let t = true
-      callback(t)
-    }
-  })
-}
+    })
   })
 
 /**
