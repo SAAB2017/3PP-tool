@@ -16,7 +16,7 @@ Formatet är baserat på [Håll en ändringslogg] och detta projekt följer [Sem
 
 ## [Ej utgiven]
 
-## [1.0rc1]
+## [1.0rc1] - 2017-12-14
 
 ### Ändrat
 - Stora förändringar för API-anropen
