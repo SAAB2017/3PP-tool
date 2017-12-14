@@ -446,12 +446,12 @@
           msg.classList.remove('is-danger')
           msg.classList.add('is-success')
           if (this.origComment !== this.license.comment) {
-            let comment_data = {
+            let commentData = {
               id: this.license.id,
               comment: this.license.comment
             }
 
-            axios.post(this.$baseAPI + 'licenses/comment', comment_data)
+            axios.post(this.$baseAPI + 'licenses/comment', commentData)
               .then(response => {
                 this.origComment = this.license.comment
                 if (this.message) this.message += ', '
@@ -459,12 +459,12 @@
               })
           }
           if (this.origURL !== this.license.URL) {
-            let id_data = {
+            let idData = {
               id: this.license.id,
               URL: this.license.URL
             }
 
-            axios.post(this.$baseAPI + 'licenses/URL', id_data)
+            axios.post(this.$baseAPI + 'licenses/URL', idData)
               .then(response => {
                 this.origURL = this.license.URL
                 if (this.message) this.message += ', '

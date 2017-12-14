@@ -196,7 +196,6 @@ router.route('/add')
           }
         })
       }
-
     })
     // postcondition: component created and logged.
   })

@@ -172,8 +172,6 @@ router.route('/all')
       const link = `${response.links[uri]}&sort=${sorting}&order=${ordering}`
       response.links[uri] = link
     }
-    for (let a in response.links) {
-    }
     if (!response.errorflag) {
       // since req.query.offset and amount has been passed through parseInt, isNan and isSafeNumber, errorFlag is not set
       const query = `SELECT * FROM products order by ${sorting} ${ordering} LIMIT ${offset}, ${amount} `

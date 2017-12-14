@@ -668,27 +668,7 @@ router.route('/component/:id')
         res.status(200)
         res.json(row)
       }
-    })/**
- * Insert a new row into productLog
- * @param {Object} req
- * @param {Object} res
- * @param {Integer} id
- * @param {String} text
- * @param {Boolean} callback
- */
-function insertProductLog (req, res, id, text, callback) {
-  let parametersLog = [id, new Date().toLocaleDateString(), text]
-  let queryLog = 'INSERT INTO productLog (productID, dateLogged, note) VALUES (?, ?, ?);'
-  req.db.run((queryLog), parametersLog, (error) => {
-    if (error) {
-      res.status(500)
-      res.send(error.message)
-    } else {
-      let t = true
-      callback(t)
-    }
-  })
-}
+    })
   })
 
 /**
