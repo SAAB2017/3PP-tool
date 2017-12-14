@@ -3,7 +3,7 @@
 
 [](#showAllLicenses)
 
-[Search for a specific license](#searchLicense)
+[Search for a specific license](#searchForALicense)
 
 [Get all licenses](#getAllLicenses)
 
