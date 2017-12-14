@@ -1,29 +1,29 @@
 ##### Table of Contents
 [Licenses](#licenses)
 
-[](#showAllLicenses)
+ [Show all licenses in a component](#showAllLicenses)
 
-[Search for a specific license](#searchForALicense)
+ [Search for a specific license](#searchForALicense)
 
-[Get all licenses](#getAllLicenses)
+ [Get all licenses](#getAllLicenses)
 
-[Show all licenses in a component](#getTheLicensesOfProduct)
+ [Show all licenses in a component](#getTheLicensesOfProduct)
 
-[Get the license's log](#showALicenseLog)
+ [Get the license's log](#showALicenseLog)
 
-[Get the licenses associated with a project](#getTheLicensesOfProject)
+ [Get the licenses associated with a project](#getTheLicensesOfProject)
 
-[Gets a specific license from its id](#getLicenseById)
+ [Gets a specific license from its id](#getLicenseById)
 
-[Add a new license](#addLicense)
+ [Add a new license](#addLicense)
 
-[Change a license's comment](#changeLicenseComment)
+ [Change a license's comment](#changeLicenseComment)
 
-[Change a license's URL](#changeLicenseURL)
+ [Change a license's URL](#changeLicenseURL)
 
-[Search for a license based on its name](#getLicenseByName)
+ [Search for a license based on its name](#getLicenseByName)
 
-[Get licenses in component](#getLicensesInComponent)
+ [Get licenses in component](#getLicensesInComponent)
 
 
 [Components](#components)
