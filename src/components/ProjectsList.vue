@@ -54,7 +54,7 @@
         </tr>
         </transition-group>
         <tr v-if="showPaginatorClick">
-          <div id="paginator" style="text-align: center;" @click="getMore(false)"><a class="button is-primary">Hämta in fler</a></div>
+          <div id="paginator" style="text-align: center;" @click="getMore(false)"><a class="button is-primary">Get more</a></div>
         </tr>
         </tbody>
       </table>
