@@ -19,6 +19,10 @@ Formatet är baserat på [Håll en ändringslogg] och detta projekt följer [Sem
 ### Tillagt
 - Möjlighet att se log/historik
 
+### Korrigerat
+- Åtgärdat felaktig visning av listdata där de fem första elementen dubblicerades i slutet av datalistan.
+- API-dokumentet uppdaterad
+
 ## [1.0rc1] - 2017-12-14
 
 ### Ändrat
