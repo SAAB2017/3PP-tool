@@ -1,34 +1,38 @@
 ##### Table of Contents
 [Licenses](#licenses)
 
-[Show all licenses](#showAllLicenses)
+[](#showAllLicenses)
 
-[Show the log of a license](#showALicenseLog)
+[Search for a specific license](#searchLicense)
 
-[Get the licenses belonging to a product](#getTheLicensesOfProduct)
+[Get all licenses](#getAllLicenses)
 
-[Get the licenses belonging to a project](#getTheLicensesOfProject)
+[Show all licenses in a component](#getTheLicensesOfProduct)
 
-[Get a license by its ID number](#getLicenseById)
+[Get the license's log](#showALicenseLog)
 
-[Add a license](#addLicense)
+[Get the licenses associated with a project](#getTheLicensesOfProject)
 
-[Change the comment of a license](#changeLicenseComment)
+[Gets a specific license from its id](#getLicenseById)
 
-[Change the URL of a license](#changeLicenseURL)
+[Add a new license](#addLicense)
 
-[Get a name of a license](#getLicenseByName)
+[Change a license's comment](#changeLicenseComment)
 
-[Get the licenses belonging to a component](#getLicensesInComponent)
+[Change a license's URL](#changeLicenseURL)
+
+[Search for a license based on its name](#getLicenseByName)
+
+[Get licenses in component](#getLicensesInComponent)
 
 
 [Components](#components)
 
-[Get all signed components](#getSignedComponent)
+[Search for a specific signed component](#getSignedComponent)
 
-[Get all unsigned components](#getUnsignedComponent)
+[Search for a specific unsigned product](#getUnsignedComponent)
 
-[Get all approved components](#getApprovedComponents)
+[Show all approved components](#getApprovedComponents)
 
 [Approve a component](#approveComponent)
 
@@ -36,52 +40,52 @@
 
 [Show all pending components](#showAllPendingComponent)
 
-[Show all components belonging to a product](#showAllComponentInProduct)
+[Show all components in product](#showAllComponentInProduct)
 
 [Connect a license with a component](#connectLicenesWithComponent)
 
-[Show all components belonging to a project](#showAllComponentsInProject)
+[Show all components connected to a certain project](#showAllComponentsInProject)
 
 [Show all components containing a certain license](#showComponentsWithLicense)
 
-[Show the log of a component](#showLogByComponent)
+[Show the log for a certain component](#showLogByComponent)
 
-[Change the comment of a component](#changeCommentForComponent)
+[Change the comment of a certain component](#changeCommentForComponent)
 
-[Get a component by its ID number](#getComponentByID)
+[Get the component with a certain ID](#getComponentByID)
 
 
 [Products](#products)
 
 [Show all products](#showAllProducts)
 
-[Get a signed product by its ID number](#getSignedProductById)
+[Search for a specific signed product](#getSignedProductById)
 
-[Get a unsigned product by its ID number](#getUnsignedProductById)
+[Search for a specific unsigned product](#getUnsignedProductById)
 
-[Get all approved products](#getApprovedProducts)
+[Show all approved products](#getApprovedProducts)
 
 [Approve a product](#approveProduct)
 
 [Add a product](#addProduct)
 
-[Get all pending products](#getPendingProducts)
+[Show all pending products](#getPendingProducts)
 
-[Get products by component ID number](#getProductsByComponentId)
+[Show all products containing a certain component](#getProductsByComponentId)
 
 [Connect a component with a product](#connectComponentWithProduct)
 
-[Get all products connected with a project](#getProductsConnectedWithProject)
+[Show all products connected to a certain project](#getProductsConnectedWithProject)
 
-[Get products by license ID number](#getProductsByLicenseId)
+[Show all products containing a certain license](#getProductsByLicenseId)
 
-[Show the log of a product by product ID number](#showProductLogById)
+[Show the log for a certain product](#showProductLogById)
 
-[Change the comment of a product](#changeCommentOfProduct)
+[Change the comment of a certain product](#changeCommentOfProduct)
 
-[Get a product by product ID number](#getProductById)
+[Get the product with a certain ID](#getProductById)
 
-[Get a product by its name](#getProductByName)
+[Get the product with a certain name](#getProductByName)
 
 
 [Projects](#projects)
@@ -96,23 +100,23 @@
 
 [Show all pending projects](#showPendingProjects)
 
-[Show projects connected with a component](#showProjectsConnectedWithComponent)
+[Show all projects containing a certain component](#showProjectsConnectedWithComponent)
 
 [Connect a product with a project](#connectProductWithProject)
 
-[Show all projects containing a specific license](#showProjectsWithLicense)
+[Show all projects containing a certain license](#showProjectsWithLicense)
 
-[Show all projects containing a specific product](#showProjectsWithProduct)
+[Show all projects containing a certain product](#showProjectsWithProduct)
 
-[Show the log of a project by project ID number](#showLogByProjectId)
+[Show the log for a certain project](#showLogByProjectId)
 
-[Change the log of a project](#changeCommentOfProject)
+[Change the comment of a certain project](#changeCommentOfProject)
 
-[Get a project by project ID number](#getProjectById)
+[Get the project with a certain ID](#getProjectById)
 
-[Search for a specific signed project by name](#getSignedProjectByName)
+[Search for a specific signed project](#getSignedProjectByName)
 
-[Search for a specific unsigned project by name](#getUnsignedProjectByName)
+[Search for a specific unsigned project](#getUnsignedProjectByName)
 
 ---
 Title: API documentation
@@ -144,6 +148,8 @@ Alla anrop returneras som **JSON**.
 <a name="licenses"/>
 
 # Licenses
+
+<a name="searchForALicense"/>
 
 ## Search for a specific license.
 
@@ -201,6 +207,8 @@ axios.get('/licenses/search/Apache?offset=0&amount=30&sort=licenseName&order=asc
   response.data
 }
 ```
+
+<a name="getAllLicenses"/>
 
 ## Get all licenses.
 
