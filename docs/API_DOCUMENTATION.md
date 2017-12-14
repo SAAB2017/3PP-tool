@@ -27,7 +27,7 @@
 - [Get licenses in component](#getLicensesInComponent)
 
 
-[Components](#components)
+## [Components](#components)
 
 - [Search for a specific signed component](#getSignedComponent)
 
@@ -56,68 +56,68 @@
 - [Get the component with a certain ID](#getComponentByID)
 
 
-[Products](#products)
+## [Products](#products)
 
-[Show all products](#showAllProducts)
+- [Show all products](#showAllProducts)
 
-[Search for a specific signed product](#getSignedProductById)
+- [Search for a specific signed product](#getSignedProductById)
 
-[Search for a specific unsigned product](#getUnsignedProductById)
+- [Search for a specific unsigned product](#getUnsignedProductById)
 
-[Show all approved products](#getApprovedProducts)
+- [Show all approved products](#getApprovedProducts)
 
-[Approve a product](#approveProduct)
+- [Approve a product](#approveProduct)
 
-[Add a product](#addProduct)
+- [Add a product](#addProduct)
 
-[Show all pending products](#getPendingProducts)
+- [Show all pending products](#getPendingProducts)
 
-[Show all products containing a certain component](#getProductsByComponentId)
+- [Show all products containing a certain component](#getProductsByComponentId)
 
-[Connect a component with a product](#connectComponentWithProduct)
+- [Connect a component with a product](#connectComponentWithProduct)
 
-[Show all products connected to a certain project](#getProductsConnectedWithProject)
+- [Show all products connected to a certain project](#getProductsConnectedWithProject)
 
-[Show all products containing a certain license](#getProductsByLicenseId)
+- [Show all products containing a certain license](#getProductsByLicenseId)
 
-[Show the log for a certain product](#showProductLogById)
+- [Show the log for a certain product](#showProductLogById)
 
-[Change the comment of a certain product](#changeCommentOfProduct)
+- [Change the comment of a certain product](#changeCommentOfProduct)
 
-[Get the product with a certain ID](#getProductById)
+- [Get the product with a certain ID](#getProductById)
 
-[Get the product with a certain name](#getProductByName)
+- [Get the product with a certain name](#getProductByName)
 
 
-[Projects](#projects)
+## [Projects](#projects)
 
-[Show all signed projects](#signedProjects)
+- [Show all signed projects](#signedProjects)
  
-[Show all unsigned projects](#unsignedProjects)
+- [Show all unsigned projects](#unsignedProjects)
 
-[Approve a project](#approveProject)
+- [Approve a project](#approveProject)
 
-[Add a project](#addProject)
+- [Add a project](#addProject)
 
-[Show all pending projects](#showPendingProjects)
+- [Show all pending projects](#showPendingProjects)
 
-[Show all projects containing a certain component](#showProjectsConnectedWithComponent)
+- [Show all projects containing a certain component](#showProjectsConnectedWithComponent)
 
-[Connect a product with a project](#connectProductWithProject)
+- [Connect a product with a project](#connectProductWithProject)
 
-[Show all projects containing a certain license](#showProjectsWithLicense)
+- [Show all projects containing a certain license](#showProjectsWithLicense)
 
-[Show all projects containing a certain product](#showProjectsWithProduct)
+- [Show all projects containing a certain product](#showProjectsWithProduct)
 
-[Show the log for a certain project](#showLogByProjectId)
+- [Show the log for a certain project](#showLogByProjectId)
 
-[Change the comment of a certain project](#changeCommentOfProject)
+- [Change the comment of a certain project](#changeCommentOfProject)
 
-[Get the project with a certain ID](#getProjectById)
+- [Get the project with a certain ID](#getProjectById)
 
-[Search for a specific signed project](#getSignedProjectByName)
+- [Search for a specific signed project](#getSignedProjectByName)
 
-[Search for a specific unsigned project](#getUnsignedProjectByName)
+- [Search for a specific unsigned project](#getUnsignedProjectByName)
 
 ---
 Title: API documentation
