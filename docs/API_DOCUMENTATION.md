@@ -4,9 +4,9 @@ Version: 0.1.0
 ---
 # API documentation
 
-# Table of Contents
+## Table of Contents
 
-## [Licenses](#licenses)
+### [Licenses](#licenses)
 
 - [Show all licenses in a component](#showAllLicenses)
 
@@ -33,7 +33,7 @@ Version: 0.1.0
 - [Get licenses in component](#getLicensesInComponent)
 
 
-## [Components](#components)
+### [Components](#components)
 
 - [Search for a specific signed component](#getSignedComponent)
 
@@ -62,7 +62,7 @@ Version: 0.1.0
 - [Get the component with a certain ID](#getComponentByID)
 
 
-## [Products](#products)
+### [Products](#products)
 
 - [Show all products](#showAllProducts)
 
@@ -95,7 +95,7 @@ Version: 0.1.0
 - [Get the product with a certain name](#getProductByName)
 
 
-## [Projects](#projects)
+### [Projects](#projects)
 
 - [Show all signed projects](#signedProjects)
  
