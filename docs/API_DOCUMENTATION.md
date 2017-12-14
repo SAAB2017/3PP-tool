@@ -1,6 +1,6 @@
 ---
 Title: API documentation
-Version: 0.1.0
+Version: 1.0.0
 ---
 # API documentation
 
@@ -125,27 +125,15 @@ Version: 0.1.0
 
 - [Search for a specific unsigned project](#getUnsignedProjectByName)
 
-
-### Alla API-förfrågningar påbörjas med
-
-<pre class="base">
-http://localhost:3000
-</pre>
-
-### Länk
-I det här dokumentet förutsätter vi att varje anrop påbörjas med ovannämnda länk.
-
-### Format
-Alla anrop returneras som **JSON**.
-
 ### Statuskod
 
-- **200** Lyckad GET och PUT.
-- **201** Lyckad POST.
-- **202** Lyckad Provision queued.
-- **204** Lyckad DELETE.
-- **401** Oautentiserad.
-- **409** Misslyckad POST, PUT eller DELETE (Kommer returnera ett error-objekt)
+- **200** Successful GET and PUT.
+- **201** Successful POST.
+- **202** Successful Provision Queued.
+- **204** Successful DELETE.
+- **401** Unauthorized.
+- **409** Failed POST, PUT or DELETE.
+- **500** Internal server error.
 
 <a name="licenses"/>
 
