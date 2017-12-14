@@ -16,6 +16,8 @@ Formatet är baserat på [Håll en ändringslogg] och detta projekt följer [Sem
 
 ## [Ej utgiven]
 
+## [1.0rc1]
+
 ### Ändrat
 - Stora förändringar för API-anropen
 - API-dokumentationen har uppdaterats beträffande API-förändringarna
@@ -128,7 +130,8 @@ Formatet är baserat på [Håll en ändringslogg] och detta projekt följer [Sem
 - Licensöversikt som ger en överblick över licenser i databasen
 - Möjliggörande att lägga till nya licenser, komponenter samt projekt i databasen
 
-[Ej utgiven]: https://github.com/SAAB2017/3PP-tool/compare/v0.5.0...HEAD
+[Ej utgiven]: https://github.com/SAAB2017/3PP-tool/compare/v1.0rc1...HEAD
+[1.0rc1]: https://github.com/SAAB2017/3PP-tool/compare/v0.5.0...v1.0rc1
 [0.5.0]: https://github.com/SAAB2017/3PP-tool/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/SAAB2017/3PP-tool/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/SAAB2017/3PP-tool/compare/v0.2.1...v0.3.0
