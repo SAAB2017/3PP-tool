@@ -70,7 +70,8 @@
 
 <script>
   import axios from 'axios'
-  import payloadcfg from '../../backend/routes/config.js'
+  // import payloadcfg from '../../backend/routes/config.js'
+  let payloadcfg = require('../../backend/routes/config')
   export default {
     data () {
       return {

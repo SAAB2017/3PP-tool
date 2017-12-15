@@ -52,7 +52,8 @@ s<!-- Viezx w for showing all unsigned components -->
 
 <script>
   import axios from 'axios'
-  import payloadcfg from '../../backend/routes/config'
+  let payloadcfg = require('../../backend/routes/config')
+  // import payloadcfg from '../../backend/routes/config'
   export default {
     data () {
       return {
