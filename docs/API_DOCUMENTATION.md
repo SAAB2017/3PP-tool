@@ -8,19 +8,13 @@ Version: 1.0.0
 
 ### Licenses
 
-- [Show all licenses in a component](#showAllLicenses)
-
-- [Search for a specific license](#searchForALicense)
-
 - [Get all licenses](#getAllLicenses)
 
-- [Show all licenses in a component](#getTheLicensesOfProduct)
+- [Search for a license](#searchForALicense)
 
-- [Get the license's log](#showALicenseLog)
+- [Get a license from its id](#getLicenseById)
 
-- [Get the licenses associated with a project](#getTheLicensesOfProject)
-
-- [Gets a specific license from its id](#getLicenseById)
+- [Get a license from its name](#getLicenseByName)
 
 - [Add a new license](#addLicense)
 
@@ -28,9 +22,15 @@ Version: 1.0.0
 
 - [Change a license's URL](#changeLicenseURL)
 
-- [Search for a license based on its name](#getLicenseByName)
-
 - [Get licenses in component](#getLicensesInComponent)
+
+- [Show all licenses in a component](#getTheLicensesOfProduct)
+
+- [Show all licenses in a component](#showAllLicenses)
+
+- [Get the licenses associated with a project](#getTheLicensesOfProject)
+
+- [Get the license's log](#showALicenseLog)
 
 
 ### Components
