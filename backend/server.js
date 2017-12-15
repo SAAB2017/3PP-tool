@@ -13,11 +13,14 @@ var licenses = require('./routes/licenses')
 
 var api = express()
 
+
+
 api.use(cors());
 api.use(bodyParser.json())
 api.use(bodyParser.urlencoded({ extended: true }))
 api.use((req, res, next) => {
   req.db = db;
+  res.header('Cache-Control', 'no-cache')
   next()
 })
 
