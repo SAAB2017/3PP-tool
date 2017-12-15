@@ -12,23 +12,23 @@ Version: 1.0.0
 
 - [Search for a license](#searchForALicense)
 
-- [Get a license from its id](#getLicenseById)
+- [Get a license from its ID](#getLicenseById)
 
 - [Get a license from its name](#getLicenseByName)
 
 - [Add a new license](#addLicense)
 
-- [Change a license's comment](#changeLicenseComment)
+- [Change the comment of a license](#changeLicenseComment)
 
-- [Change a license's URL](#changeLicenseURL)
+- [Change the URL of a license](#changeLicenseURL)
 
 - [Get licenses in component](#getLicensesInComponent)
 
-- [Show all licenses in a component](#getTheLicensesOfProduct)
+- [Get all licenses connected to certain component](#getTheLicensesOfProduct)
 
-- [Show all licenses in a component](#showAllLicenses)
+- [Get all licenses connected to a certain product](#showAllLicenses)
 
-- [Get the licenses associated with a project](#getTheLicensesOfProject)
+- [Get all licenses connected to a certain project](#getTheLicensesOfProject)
 
 - [Get the license's log](#showALicenseLog)
 
