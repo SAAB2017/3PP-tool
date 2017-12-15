@@ -26,36 +26,36 @@ Version: 1.0.0
 
 - [Get all licenses connected to a certain project](#getLicensesInProject)
 
-- [Get the license's log](#getLicenseLog)
+- [Get the log for a certain license](#getLicenseLog)
 
 
 ### Components
 
-- [Search for a specific signed component](#getSignedComponent)
+- [Get all approved components](#getApprovedComponents)
 
-- [Search for a specific unsigned product](#getUnsignedComponent)
+- [Get all pending components](#getAllPendingComponents)
 
-- [Show all approved components](#getApprovedComponents)
+- [Search for a signed component](#searchForSignedComponent)
+
+- [Search for a specific pending component](#searchForPendingComponent)
+
+- [Get a component from its ID](#getComponentByID)
+
+- [Add a new component](#addComponent)
+
+- [Connect a license to a component](#connectLicenesWithComponent)
 
 - [Approve a component](#approveComponent)
 
-- [Add a component](#addComponent)
+- [Change the comment of a component](#changeComponentComment)
 
-- [Show all pending components](#showAllPendingComponent)
+- [Get all components containing a certain license](#getComponentsWithLicense)
 
-- [Show all components in product](#showAllComponentInProduct)
+- [Get all components connected to a certain product](#getComponentsInProduct)
 
-- [Connect a license with a component](#connectLicenesWithComponent)
+- [Get all components connected to a certain project](#getComponentsInProject)
 
-- [Show all components connected to a certain project](#showAllComponentsInProject)
-
-- [Show all components containing a certain license](#showComponentsWithLicense)
-
-- [Show the log for a certain component](#showLogByComponent)
-
-- [Change the comment of a certain component](#changeCommentForComponent)
-
-- [Get the component with a certain ID](#getComponentByID)
+- [Get the log for a certain component](#getComponentLog)
 
 
 ### Products
@@ -632,7 +632,7 @@ axios.get('/licenses/licensesInProject/1')
 
 <a name="getLicenseLog"/>
 
-## Get the license's log.
+## Get the log for a certain license.
 
 ### URL
 
@@ -679,127 +679,9 @@ axios.get('/licenses/log/1')
 
 # Components
 
-<a name="getSignedComponent"/>
-
-## Search for a specific signed component.
-
-### URL
-
-/components/search/:id?offset=0&amount=30&sort=componentName&order=asc
-
-### Method
-
-GET
-
-### URL Params
-
-Required:
-```
-id = componentName
-offset = Integer
-amount = Integer
-sort = String
-order = asc OR desc
-```
-
-### Success Response
-
-Code: 200
-
-Content:
-```
-{
-  "items":[{  "id":3,
-              "componentName":"axios",
-              "componentVersion":"0.17.0",
-              "dateCreated":"2017-11-04",
-              "lastEdited":"2017-11-04",
-              "comment":"Promise based HTTP client for the browser and node.js.",
-              "approved":1,
-              "approvedBy":"Nils Nilsson"}],
-  "links":{   "prev":"?offset=0&amount=5",
-              "current":"?offset=0&amount=5",
-              "next":"?offset=0&amount=5"},
-  "sort":{    "column":"&sort=componentName",
-              "order":"&order=asc"},
-  "meta":{    "current":0,
-              "count":0},
-  "errors":{  "message":[],
-              "status":"OK"},
-  "errorflag":false
-}
-```
-
-### Sample Call
-```javascript
-axios.get('/components/search/axios?offset=0&amount=30&sort=componentName&order=asc')
-  .then(response => {
-  response.data
-}
-```
-
-<a name="getUnsignedComponent"/>
-
-## Search for a specific unsigned product.
-
-### URL
-
-/components/pending/search/:id?offset=0&amount=30&sort=componentName&order=asc
-
-### Method
-
-GET
-
-### URL Params
-
-Required:
-```
-id = productName
-offset = Integer
-amount = Integer
-sort = String
-order = asc OR desc
-```
-
-### Success Response
-
-Code: 200
-
-Content:
-```
-{
-  "items":[{  "id":10,
-              "componentName":"sqlite3",
-              "componentVersion":"3.1.13",
-              "dateCreated":"2017-11-11",
-              "lastEdited":"2017-11-11",
-              "comment":"Asynchronous, non-blocking SQLite3 bindings for Node.js.",
-              "approved":0,
-              "approvedBy":"Nils Nilsson"}],
-  "links":{   "prev":"?offset=0&amount=5",
-              "current":"?offset=0&amount=5",
-              "next":"?offset=0&amount=5"},
-  "sort":{    "column":"&sort=componentName",
-              "order":"&order=asc"},
-  "meta":{    "current":0,
-              "count":0},
-  "errors":{  "message":[],
-              "status":"OK"},
-  "errorflag":false
-}
-```
-
-### Sample Call
-```javascript
-axios.get('/components/pending/search/sqlite3?offset=0&amount=30&sort=componentName&order=asc')
-  .then(response => {
-  response.data
-}
-```
-
 <a name="getApprovedComponents"/>
 
-## Show all approved components
+## Get all approved components
 
 ### URL
 
@@ -855,123 +737,9 @@ axios.get('/components/?offset=0&amount=30&sort=componentName&order=asc')
 }
 ```
 
-<a name="approveComponent"/>
+<a name="getAllPendingComponents"/>
 
-## Approve a component.
-
-### URL
-
-/components/approve
-
-### Method
-
-PUT
-
-### Data Params
-
-Example:
-```
-{
-  id : Integer,
-  approved : Integer,
-  approvedBy : String,
-}
-```
-
-### Success Response
-
-Code: 201
-
-Content:
-```
-{
-  send : "success"
-}
-```
-
-### Error Response
-
-Code: 500
-
-Content:
-TODO
-
-### Sample Call
-```
-let data = '{
-              id : 1,
-              approved : 1,
-              approvedBy : "Nils Nilsson",
-            }'
-```
-```javascript
-axios.post('/components/approve', data)
-  .then(response => {
-  response
-})
-```
-
-<a name="addComponent"/>
-
-## Add a component.
-
-### URL
-
-/components/add
-
-### Method
-
-POST
-
-### Data Params
-
-Example:
-```
-{
-    "componentName" : String,
-    "componentVersion" : String,
-    "comment" : String,
-    "license" : Integer
-}
-```
-
-### Success Response
-
-Code: 201
-
-Content:
-```
-{
-  send : "success"
-}
-```
-
-### Error Response
-
-Code: 500
-
-Content:
-TODO
-
-### Sample Call
-```
-let data = '{
-    "componentName":"Random component name",
-    "componentVersion":"1.0",
-    "comment":"Third party handler Rest API for handling licenses.",
-    "license":1
-}'
-```
-```javascript
-axios.post('/components/add', data)
-  .then(response => {
-  response
-})
-```
-
-<a name="showAllPendingComponent"/>
-
-## Show all pending components.
+## Get all pending components.
 
 ### URL
 
@@ -1031,13 +799,130 @@ axios.get('/components/pending?offset=0&amount=30&sort=componentName&order=desc'
 }
 ```
 
-<a name="showAllComponentInProduct"/>
+<a name="searchForSignedComponent"/>
 
-## Show all components in product.
+## Search for a signed component.
 
 ### URL
 
-/components/componentsInProduct/:id
+/components/search/:id?offset=0&amount=30&sort=componentName&order=asc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = componentName
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+  "items":[{  "id":3,
+              "componentName":"axios",
+              "componentVersion":"0.17.0",
+              "dateCreated":"2017-11-04",
+              "lastEdited":"2017-11-04",
+              "comment":"Promise based HTTP client for the browser and node.js.",
+              "approved":1,
+              "approvedBy":"Nils Nilsson"}],
+  "links":{   "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+  "sort":{    "column":"&sort=componentName",
+              "order":"&order=asc"},
+  "meta":{    "current":0,
+              "count":0},
+  "errors":{  "message":[],
+              "status":"OK"},
+  "errorflag":false
+}
+```
+
+### Sample Call
+```javascript
+axios.get('/components/search/axios?offset=0&amount=30&sort=componentName&order=asc')
+  .then(response => {
+  response.data
+}
+```
+
+<a name="searchForPendingComponent"/>
+
+## Search for a pending component.
+
+### URL
+
+/components/pending/search/:id?offset=0&amount=30&sort=componentName&order=asc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = componentName
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+  "items":[{  "id":10,
+              "componentName":"sqlite3",
+              "componentVersion":"3.1.13",
+              "dateCreated":"2017-11-11",
+              "lastEdited":"2017-11-11",
+              "comment":"Asynchronous, non-blocking SQLite3 bindings for Node.js.",
+              "approved":0,
+              "approvedBy":"Nils Nilsson"}],
+  "links":{   "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+  "sort":{    "column":"&sort=componentName",
+              "order":"&order=asc"},
+  "meta":{    "current":0,
+              "count":0},
+  "errors":{  "message":[],
+              "status":"OK"},
+  "errorflag":false
+}
+```
+### Sample Call
+```javascript
+axios.get('/components/pending/search/sqlite3?offset=0&amount=30&sort=componentName&order=asc')
+  .then(response => {
+  response.data
+}
+```
+
+<a name="getComponentByID"/>
+
+## Get a component from its ID.
+
+### URL
+
+/components/component/:id
 
 ### Method
 
@@ -1057,16 +942,16 @@ Code: 200
 
 Content:
 ```
-[{
-"id" : 1,
-"componentName" : "A component",
-"componentVersion" : "1.0",
-"dateCreated" : "2017-11-20",
-"lastEdited" : "2017-11-20",
-"comment" : "This is a component.",
-"approved" : 1,
-"approvedBy" : "Nils Nilsson"
-}]
+{
+  "id":1,
+  "componentName":"vue",
+  "componentVersion":"2.5.2",
+  "dateCreated":"2017-11-01",
+  "lastEdited":"2017-11-01",
+  "comment":"The Progressive JavaScript Framework.",
+  "approved":1,
+  "approvedBy":"Nils Nilsson"
+}
 ```
 
 ### Error Response
@@ -1075,15 +960,73 @@ TODO
 
 ### Sample Call
 ```javascript
-axios.get('/components/componentsInProduct/1')
+axios.get('/components/component/1')
   .then(response => {
   response.data
 }
 ```
 
+<a name="addComponent"/>
+
+## Add a new component.
+
+### URL
+
+/components/add
+
+### Method
+
+POST
+
+### Data Params
+
+Example:
+```
+{
+    "componentName" : String,
+    "componentVersion" : String,
+    "comment" : String,
+    "license" : Integer
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+TODO
+
+### Sample Call
+```
+let data = '{
+    "componentName":"Random component name",
+    "componentVersion":"1.0",
+    "comment":"Third party handler Rest API for handling licenses.",
+    "license":1
+}'
+```
+```javascript
+axios.post('/components/add', data)
+  .then(response => {
+  response
+})
+```
+
 <a name="connectLicenesWithComponent"/>
 
-## Connect a license with a component.
+## Connect a license to a component.
 
 ### URL
 
@@ -1131,159 +1074,69 @@ let data = '{
 ```javascript
 axios.post('/components/connectLicenseWithComponent', data)
   .then(response => {
+  responseShow
+})
+```
+
+<a name="approveComponent"/>
+
+## Approve a component.
+
+### URL
+
+/components/approve
+
+### Method
+
+PUT
+
+### Data Params
+
+Example:
+```
+{
+  id : Integer,
+  approved : Integer,
+  approvedBy : String,
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+TODO
+
+### Sample Call
+```
+let data = '{
+              id : 1,
+              approved : 1,
+              approvedBy : "Nils Nilsson",
+            }'
+```
+```javascript
+axios.post('/components/approve', data)
+  .then(response => {
   response
 })
 ```
 
-<a name="showAllComponentsInProject"/>
+<a name="changeComponentComment"/>
 
-## Show all components connected to a certain project.
-
-### URL
-
-/components/componentsInProject/:id
-
-### Method
-
-GET
-
-### URL Params
-
-Required:
-```
-id = Integer
-```
-Example: id = 1
-
-### Success Response
-
-Code: 200
-
-Content:
-```
-[{
-"id" : 1,
-"componentName" : "A component",
-"componentVersion" : "1.0",
-"dateCreated" : "2017-11-20",
-"lastEdited" : "2017-11-20",
-"comment" : "This is a component.",
-"approved" : 1,
-"approvedBy" : "Nils Nilsson"
-}]
-```
-
-### Error Response
-
-TODO
-
-### Sample Call
-```javascript
-axios.get('/components/componentsInProject/1')
-  .then(response => {
-  response.data
-}
-```
-
-<a name="showComponentsWithLicense"/>
-
-## Show all components containing a certain license.
-
-### URL
-
-/components/componentsWithLicense/:id
-
-### Method
-
-GET
-
-### URL Params
-
-Required:
-```
-id = Integer
-```
-Example: id = 1
-
-### Success Response
-
-Code: 200
-
-Content:
-```
-[{
-"id" : 1,
-"componentName" : "A component",
-"componentVersion" : "1.0",
-"dateCreated" : "2017-11-20",
-"lastEdited" : "2017-11-20",
-"comment" : "This is a component.",
-"approved" : 1,
-"approvedBy" : "Nils Nilsson"
-}]
-```
-
-### Error Response
-
-TODO
-
-### Sample Call
-```javascript
-axios.get('/components/componentsWithLicense/1')
-  .then(response => {
-  response.data
-}
-```
-
-<a name="showLogByComponent"/>
-
-## Show the log for a certain component.
-
-### URL
-
-/components/log/:id
-
-### Method
-
-GET
-
-### URL Params
-
-Required:
-```
-id = Integer
-```
-Example: id = 1
-
-### Success Response
-
-Code: 200
-
-Content:
-```
-[{
-"id" : 1,
-"componentID" : 1,
-"dateLogged" : "2017-11-05",
-"note" : "Component created."
-}]
-```
-
-### Error Response
-
-TODO
-
-### Sample Call
-```javascript
-axios.get('/components/log/1')
-  .then(response => {
-  response.data
-}
-```
-
-<a name="changeCommentForComponent"/>
-
-## Change the comment of a certain component.
+## Change the comment of a component.
 
 ### URL
 
@@ -1335,13 +1188,13 @@ axios.post('/components/comment', data)
 })
 ```
 
-<a name="getComponentByID"/>
+<a name="getComponentsWithLicense"/>
 
-## Get the component with a certain ID.
+## Get all components containing a certain license.
 
 ### URL
 
-/components/component/:id
+/components/componentsWithLicense/:id
 
 ### Method
 
@@ -1361,16 +1214,16 @@ Code: 200
 
 Content:
 ```
-{
-  "id":1,
-  "componentName":"vue",
-  "componentVersion":"2.5.2",
-  "dateCreated":"2017-11-01",
-  "lastEdited":"2017-11-01",
-  "comment":"The Progressive JavaScript Framework.",
-  "approved":1,
-  "approvedBy":"Nils Nilsson"
-}
+[{
+"id" : 1,
+"componentName" : "A component",
+"componentVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "This is a component.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}]
 ```
 
 ### Error Response
@@ -1379,11 +1232,158 @@ TODO
 
 ### Sample Call
 ```javascript
-axios.get('/components/component/1')
+axios.get('/components/componentsWithLicense/1')
   .then(response => {
   response.data
 }
 ```
+
+<a name="getComponentsInProduct"/>
+
+## Get all components connected to a certain product.
+
+### URL
+
+/components/componentsInProduct/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"componentName" : "A component",
+"componentVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "This is a component.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/components/componentsInProduct/1')
+  .then(response => {
+  response.data
+}
+```
+
+<a name="getComponentsInProject"/>
+
+## Get all components connected to a certain project.
+
+### URL
+
+/components/componentsInProject/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"componentName" : "A component",
+"componentVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "This is a component.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/components/componentsInProject/1')
+  .then(response => {
+  response.data
+}
+```
+
+<a name="getComponentLog"/>
+
+## Get the log for a certain component.
+
+### URL
+
+/components/log/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"componentID" : 1,
+"dateLogged" : "2017-11-05",
+"note" : "Component created."
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/components/log/1')
+  .then(response => {
+  response.data
+}
+```
+
 
 # Products
 
