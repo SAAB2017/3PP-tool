@@ -91,7 +91,7 @@
 
             <!-- Table that shows which licenses is in this product -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
-              <h4>Licenses in product</h4>
+              <h4 style="padding-top: 50px">Licenses in product</h4>
               <table>
                 <thead>
                 <tr>
@@ -110,6 +110,11 @@
 
             <!-- Table that shows which components is in this product -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
+              <div class="field is-grouped is-grouped-left">
+                <div class="control">
+                  <button @click="showBind()" class="button is-primary">Bind components</button>
+                </div>
+              </div>
               <h4>Components in product</h4>
               <table>
                 <thead>
@@ -129,7 +134,7 @@
 
             <!-- Table that shows which projects this product is in -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
-              <h4>Projects with product</h4>
+              <h4 style="padding-top: 50px">Projects with product</h4>
               <table>
                 <thead>
                 <tr>
@@ -304,6 +309,60 @@
 
       </div>
     </div>
+
+    <div class="modal" id="bindWindow">
+      <div class="modal-background" @click="closeBind()"></div>
+      <div class="modal-card" style="text-align: center">
+
+        <header class="modal-card-head">
+          <p class="modal-card-title"> Bind components to {{product.productName}} </p>
+          <button class="delete" aria-label="close" @click="closeBind()"></button>
+        </header>
+
+        <section class="modal-card-body vertical-menu">
+          <table>
+            <thead>
+            <tr>
+              <td style="width: 25px"></td>
+              <th scope="col">Component</th>
+              <th scope="col">Version</th>
+            </tr>
+            </thead>
+            <tbody class="tbodyadd">
+            <transition-group name="list" appear>
+              <tr v-for="component in unbindedComponents" v-bind:key="component" class="plist-item">
+                <td style="width: 25px"><input class="checkbox" type="checkbox" v-bind:value=component.id v-model.number="checkedComponents"></td>
+                <td scope="row" data-label="Component">{{ component.componentName }}</td>
+                <td scope="row" data-label="Version">{{ component.componentVersion }}</td>
+              </tr>
+            </transition-group>
+            <tr v-if="showPaginatorClick">
+              <div id="paginator" style="text-align: center;" @click="getMore(false)"><a class="button is-primary">Get more</a></div>
+            </tr>
+            </tbody>
+          </table>
+          <!-- Field for searching for components. Uses "searchComponent"-method for searching -->
+          <div class="field has-addons" style="padding-right: 15px">
+            <div class="control">
+              <input v-on:keyup="searchComponent()" v-model="searchComponents" class="input" type="text" placeholder="Find a component">
+            </div>
+            <div class="control">
+              <a @click="searchComponent()" class="button is-primary">Search</a>
+            </div>
+          </div>
+        </section>
+
+        <footer class="modal-card-foot" style="justify-content: center">
+          <div class="field has-addons">
+            <div class="control">
+              <a class="button is-primary" @click="bindComponents()">Bind component(s)</a>
+            </div>
+          </div>
+        </footer>
+
+
+      </div>
+    </div>
   </div>
 </template>
 
@@ -329,7 +388,14 @@
         modalComment: '',
         modalType: '',
         modalURL: '',
-        logItems: []
+        logItems: [],
+        unbindedComponents: [],
+        checkedComponents: [],
+        searchComponents: '',
+        showPaginatorClick: true,
+        searching: false,
+        payload: this.payloadInit('component'),
+        componentIds: []
       }
     },
 
@@ -354,11 +420,138 @@
         if (event.key === 'Escape') {
           _this.closeModal()
           _this.closeLog()
+          _this.closeBind()
         }
       })
     },
 
     methods: {
+
+      payloadInit(type) {
+        return { // a default payload, can/should be extended
+          items: [],
+          links: {
+            prev: '?offset=0&amount=' + 25,
+            current: '?offset=0&amount=' + 25,
+            next: '?offset=0&amount=' + 25
+          },
+          sort: {
+            column: '&sort=' + type + 'Name',
+            order: '&order=asc'
+          },
+          meta: {
+            current: 0,
+            count: 0
+          },
+          errors: {
+            message: [],
+            status: 'OK'
+          },
+          errorflag: false
+        }
+      },
+      // GET METHODS
+      getMore (replaceItemsList) {
+        if (this.searching === false) {
+          this.getNext(replaceItemsList)
+        } else {
+          this.getNextSearchQuery(replaceItemsList)
+        }
+      },
+      getNext (replaceItemsList) {
+        axios.get(this.$baseAPI + 'components/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+          .then(response => {
+            this.payload = response.data
+            replaceItemsList ? this.unbindedComponents = this.payload.items : this.unbindedComponents = this.unbindedComponents.concat(this.payload.items)
+            this.unbindedComponents.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
+            let temp = []
+            this.unbindedComponents.forEach((comp, i) => {
+              if (this.componentIds.indexOf(comp.id) === -1) {
+                temp.push(comp)
+              }
+            })
+            this.unbindedComponents = temp
+          }).catch(err => console.log(err))
+      },
+      getNextSearchQuery (replaceItemsList) {
+        if (this.unbindedComponents.length < this.payload.meta.count) {
+          axios.get(this.$baseAPI + 'components/search/' + this.searchComponents + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+            .then(response => {
+              this.payload = response.data
+              replaceItemsList ? this.unbindedComponents = [...this.payload.items] : this.unbindedComponents = [...this.unbindedComponents, ...this.payload.items]
+              if (this.unbindedComponents.length === this.payload.meta.count) {
+                this.showPaginatorClick = null
+              } else {
+                this.showPaginatorClick = true
+              }
+              let temp = []
+              this.unbindedComponents.forEach((comp, i) => {
+                if (this.componentIds.indexOf(comp.id) === -1) {
+                  temp.push(comp)
+                }
+              })
+              this.unbindedComponents = temp
+            }).catch(err => console.log(err))
+        } else {
+          this.showPaginatorClick = null
+        }
+      },
+
+      searchComponent () {
+        this.searching = true
+        let sort = this.payload.sort
+        this.payload = this.payloadInit('component')
+        this.payload.sort = sort
+        this.showPaginatorClick = true
+        if (this.searchComponents.length === 0) {
+          this.searching = false
+          this.showPaginatorClick = true
+          this.unbindedComponents = []
+          this.getNext(true)
+          return
+        }
+        if ((this.searchComponents.length !== 0) && (this.searchComponents !== null) && (this.searchComponents !== '')) {
+          const path = 'components/search/' + this.searchComponents + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order
+          axios.get(this.$baseAPI + path).then(response => {
+            if (response.data != null) {
+              this.payload = response.data
+              this.unbindedComponents = this.payload.items
+            } else {
+              this.message = 'No component found!'
+            }
+          })
+        }
+      },
+
+      bindComponents () {
+        let _this = this
+        let done = 0
+        this.checkedComponents.forEach(function (comp, i) {
+          let data = {
+            productID: _this.product.id,
+            componentID: comp
+          }
+          let query = _this.$baseAPI + `products/connectComponentWithProduct/`
+          axios.post(query, data).then(() => {
+            _this.closeBind()
+          })
+        })
+      },
+
+      showBind () {
+        this.getNext(true)
+        let d = document.getElementById('bindWindow')
+        d.classList.add('is-active')
+      },
+
+      closeBind () {
+        let d = document.getElementById('bindWindow')
+        d.classList.remove('is-active')
+        this.payload = this.payloadInit('component')
+        this.fetchComponents()
+        this.searchComponents = ''
+        this.checkedComponents = []
+      },
 
       getLog () {
         axios.get(this.$baseAPI + 'products/log/' + this.$route.params.id)
@@ -385,6 +578,11 @@
       fetchComponents () {
         axios.get(this.$baseAPI + 'components/componentsInProduct/' + this.$route.params.id).then(response => {
           this.components = response.data
+          this.components.forEach((comp) => {
+            if (this.componentIds.indexOf(comp.id) === -1) {
+              this.componentIds.push(comp.id)
+            }
+          })
         })
       },
 
@@ -417,7 +615,6 @@
             .then(response => {
               msg.classList.remove('is-danger')
               msg.classList.add('is-success')
-              // msg.style.opacity = 1
               if (response.status === 200) {
                 this.origComment = this.product.comment
                 this.message = 'Comment updated'

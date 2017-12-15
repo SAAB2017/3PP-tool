@@ -1,8 +1,8 @@
 /* TEAM */
     Benjamin H. ............. github:
     Carl M. ................. github:
-    Drazen M. ............... github:
-    Emil K. ................. github:
+    Drazen M. ............... github:dat15dmi
+    Emil K. ................. github:icastieg
     Javier P. ............... github:Poremski
     Johannes S. ............. github:sunnanv
     Markus S. ............... github:MarkusSkarhammar
@@ -16,7 +16,7 @@
     Stakeholder: ............ Pierre
 
 /* SITE */
-    Last update: ............ 2017-11-08
+    Last update: ............ 2017-12-15
     Doctype: ................ HTML5
     Environment: ............ Node.js
     Framework: .............. Vue.js

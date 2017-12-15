@@ -285,10 +285,6 @@ Content:
 }
 ```
 
-### Error Response
-
-TODO
-
 ### Sample Call
 ```javascript
 axios.get('/licenses/license/1')
@@ -312,7 +308,7 @@ POST
 ### Data Params
 
 Example:
-```
+```javascript
 {
   "licenseName" : String,
   "licenseVersion" : String,
@@ -516,12 +512,8 @@ Content:
 "URL" : "https://www.gnu.org/licenses/agpl-3.0.en.html",
 "comment" : "GNU Affero General Public License",
 "licenseType" : "Open source license"
-}]
+}, ...]
 ```
-
-### Error Response
-
-TODO
 
 ### Sample Call
 ```javascript
@@ -567,10 +559,6 @@ Content:
 }]
 ```
 
-### Error Response
-
-TODO
-
 ### Sample Call
 ```javascript
 axios.get('/licenses/licensesInProduct/1')
@@ -615,10 +603,6 @@ Content:
 }]
 ```
 
-### Error Response
-
-TODO
-
 ### Sample Call
 ```javascript
 axios.get('/licenses/licensesInProject/1')
@@ -660,10 +644,6 @@ Content:
 "note" : "License created."
 }]
 ```
-
-### Error Response
-
-TODO
 
 ### Sample Call
 ```javascript
@@ -783,10 +763,6 @@ Content:
   "errorflag":false
 }
 ```
-
-### Error Response
-
-TODO
 
 ### Sample Call
 ```javascript
@@ -951,10 +927,6 @@ Content:
 }
 ```
 
-### Error Response
-
-TODO
-
 ### Sample Call
 ```javascript
 axios.get('/components/component/1')
@@ -997,13 +969,6 @@ Content:
   send : "success"
 }
 ```
-
-### Error Response
-
-Code: 500
-
-Content:
-TODO
 
 ### Sample Call
 ```
@@ -1054,13 +1019,6 @@ Content:
 }
 ```
 
-### Error Response
-
-Code: 500
-
-Content:
-TODO
-
 ### Sample Call
 ```
 let data = '{
@@ -1109,13 +1067,6 @@ Content:
 }
 ```
 
-### Error Response
-
-Code: 500
-
-Content:
-TODO
-
 ### Sample Call
 ```
 let data = '{
@@ -1163,13 +1114,6 @@ Content:
   send : "success"
 }
 ```
-
-### Error Response
-
-Code: 500
-
-Content:
-TODO
 
 ### Sample Call
 ```
@@ -1223,10 +1167,6 @@ Content:
 }]
 ```
 
-### Error Response
-
-TODO
-
 ### Sample Call
 ```javascript
 axios.get('/components/componentsWithLicense/1')
@@ -1272,10 +1212,6 @@ Content:
 "approvedBy" : "Nils Nilsson"
 }]
 ```
-
-### Error Response
-
-TODO
 
 ### Sample Call
 ```javascript
@@ -1323,10 +1259,6 @@ Content:
 }]
 ```
 
-### Error Response
-
-TODO
-
 ### Sample Call
 ```javascript
 axios.get('/components/componentsInProject/1')
@@ -1368,10 +1300,6 @@ Content:
 "note" : "Component created."
 }]
 ```
-
-### Error Response
-
-TODO
 
 ### Sample Call
 ```javascript
@@ -1558,10 +1486,6 @@ Content:
 }
 ```
 
-### Error Response
-
-TODO
-
 ### Sample Call
 ```javascript
 axios.get('/products/pending/?offset=0&amount=30&sort=productName&order=desc')
@@ -1726,10 +1650,6 @@ Content:
 }
 ```
 
-### Error Response
-
-TODO
-
 ### Sample Call
 ```javascript
 axios.get('/products/1')
@@ -1774,13 +1694,6 @@ Content:
   send : "success"
 }
 ```
-
-### Error Response
-
-Code: 500
-
-Content:
-TODO
 
 ### Sample Call
 ```
@@ -1833,13 +1746,6 @@ Content:
 }
 ```
 
-### Error Response
-
-Code: 500
-
-Content:
-TODO
-
 ### Sample Call
 ```
 let data = '{
@@ -1888,13 +1794,6 @@ Content:
 }
 ```
 
-### Error Response
-
-Code: 500
-
-Content:
-TODO
-
 ### Sample Call
 ```
 let data = '{
@@ -1942,13 +1841,6 @@ Content:
   send : "success"
 }
 ```
-
-### Error Response
-
-Code: 500
-
-Content:
-TODO
 
 ### Sample Call
 ```
@@ -2001,10 +1893,6 @@ Content:
 }]
 ```
 
-### Error Response
-
-TODO
-
 ### Sample Call
 ```javascript
 axios.get('/products/productsWithLicense/1')
@@ -2050,10 +1938,6 @@ Content:
 "approvedBy" : "Nils Nilsson"
 }]
 ```
-
-### Error Response
-
-TODO
 
 ### Sample Call
 ```javascript
@@ -2101,10 +1985,6 @@ Content:
 }]
 ```
 
-### Error Response
-
-TODO
-
 ### Sample Call
 ```javascript
 axios.get('/products/productsWithComponent/1')
@@ -2146,10 +2026,6 @@ Content:
 "note" : "Product created."
 }]
 ```
-
-### Error Response
-
-TODO
 
 ### Sample Call
 ```javascript
@@ -2330,10 +2206,6 @@ Content:
 }
 ```
 
-### Error Response
-
-TODO
-
 ### Sample Call
 ```javascript
 axios.get('/projects/search/:id?offset=0&amount=30&sort=comment&order=asc')
@@ -2394,10 +2266,6 @@ Content:
 }
 ```
 
-### Error Response
-
-TODO
-
 ### Sample Call
 ```javascript
 axios.get('/projects/pending/search/A project?offset=0&amount=30&sort=comment&order=asc')
@@ -2445,10 +2313,6 @@ Content:
 }
 ```
 
-### Error Response
-
-TODO
-
 ### Sample Call
 ```javascript
 axios.get('/projects/1')
@@ -2491,13 +2355,6 @@ Content:
   send : "success"
 }
 ```
-
-### Error Response
-
-Code: 500
-
-Content:
-TODO
 
 ### Sample Call
 ```
@@ -2548,13 +2405,6 @@ Content:
 }
 ```
 
-### Error Response
-
-Code: 500
-
-Content:
-TODO
-
 ### Sample Call
 ```
 let data = '{
@@ -2603,13 +2453,6 @@ Content:
 }
 ```
 
-### Error Response
-
-Code: 500
-
-Content:
-TODO
-
 ### Sample Call
 ```
 let data = '{
@@ -2657,13 +2500,6 @@ Content:
   send : "success"
 }
 ```
-
-### Error Response
-
-Code: 500
-
-Content:
-TODO
 
 ### Sample Call
 ```
@@ -2717,10 +2553,6 @@ Content:
 }]
 ```
 
-### Error Response
-
-TODO
-
 ### Sample Call
 ```javascript
 axios.get('/projects/projectsWithLicense/1')
@@ -2766,10 +2598,6 @@ Content:
 "approvedBy" : "Nils Nilsson"
 }]
 ```
-
-### Error Response
-
-TODO
 
 ### Sample Call
 ```javascript
@@ -2817,10 +2645,6 @@ Content:
 }]
 ```
 
-### Error Response
-
-TODO
-
 ### Sample Call
 ```javascript
 axios.get('/products/productsWithLicense/1')
@@ -2862,10 +2686,6 @@ Content:
 "note" : "Project created."
 }]
 ```
-
-### Error Response
-
-TODO
 
 ### Sample Call
 ```javascript

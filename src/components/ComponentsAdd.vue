@@ -29,7 +29,7 @@
       <tbody class="tbodyadd">
       <transition-group name="list" appear>
       <tr v-for="license in licenses" v-bind:key="license" class="list-item">
-        <td style="width: 25px"><input class="checkbox" type="checkbox" v-bind:value=license.id v-model.number="checkedLicenses"></td>
+        <td style="width: 25px"><input class="radio" type="radio" v-bind:value=license.id v-model.number="checkedLicense"></td>
         <td scope="row" data-label="License">{{ license.licenseName }}</td>
         <td scope="row" data-label="Version">{{ license.licenseVersion }}</td>
       </tr>
@@ -72,7 +72,7 @@
     data () {
       return {
         licenses: [],
-        checkedLicenses: [],
+        checkedLicense: null,
         componentName: '',
         componentVersion: '',
         componentComment: '',
@@ -122,9 +122,9 @@
           componentName: this.componentName,
           componentVersion: this.componentVersion,
           comment: this.componentComment,
-          licenses: this.checkedLicenses
+          license: this.checkedLicense
         }
-        this.errorList = this.checkInput(this.componentName, this.componentVersion, this.checkedLicenses)
+        this.errorList = this.checkInput(this.componentName, this.componentVersion, this.checkedLicense)
         if (this.errorList.length === 0) {
           axios.post(this.$baseAPI + 'components/add', data)
             .then(response => {
