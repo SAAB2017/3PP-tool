@@ -522,16 +522,17 @@
 
       bindProducts () {
         let _this = this
-        this.productIds = []
-        this.checkedProducts.forEach(function (prod) {
+        let done = 0
+        this.checkedProducts.forEach(function (prod, i) {
           let data = {
-            productID: prod,
-            projectID: _this.project.id
+            projectID: _this.project.id,
+            productID: prod
           }
           let query = _this.$baseAPI + 'projects/connectProductWithProject/'
-          axios.post(query, data)
+          axios.post(query, data).then(() => {
+            _this.closeBind()
+          })
         })
-        this.$router.go()
       },
 
       showBind () {
@@ -546,6 +547,7 @@
         this.payload = this.payloadInit('product')
         this.fetchProducts()
         this.searchProducts = ''
+        this.checkedProducts = []
       },
 
       getLog () {
@@ -577,12 +579,12 @@
        * Fetch all products that is in this project
        */
       fetchProducts () {
-        this.productIds = []
         axios.get(this.$baseAPI + 'products/productsInProject/' + this.$route.params.id).then(response => {
           this.products = response.data
-          this.products = response.data
           this.products.forEach((prod) => {
-            this.productIds.push(prod.id)
+            if (!this.productIds.includes(prod.id)) {
+              this.productIds.push(prod.id)
+            }
           })
         })
       },

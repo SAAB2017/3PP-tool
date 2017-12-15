@@ -525,15 +525,17 @@
 
       bindComponents () {
         let _this = this
-        this.checkedComponents.forEach(function (comp) {
+        let done = 0
+        this.checkedComponents.forEach(function (comp, i) {
           let data = {
             productID: _this.product.id,
             componentID: comp
           }
           let query = _this.$baseAPI + `products/connectComponentWithProduct/`
-          axios.post(query, data)
+          axios.post(query, data).then(() => {
+            _this.closeBind()
+          })
         })
-        this.$router.go()
       },
 
       showBind () {
@@ -548,6 +550,7 @@
         this.payload = this.payloadInit('component')
         this.fetchComponents()
         this.searchComponents = ''
+        this.checkedComponents = []
       },
 
       getLog () {
@@ -576,7 +579,9 @@
         axios.get(this.$baseAPI + 'components/componentsInProduct/' + this.$route.params.id).then(response => {
           this.components = response.data
           this.components.forEach((comp) => {
-            this.componentIds.push(comp.id)
+            if (!this.componentIds.includes(comp.id)) {
+              this.componentIds.push(comp.id)
+            }
           })
         })
       },
