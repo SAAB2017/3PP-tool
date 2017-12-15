@@ -16,6 +16,12 @@ Formatet är baserat på [Håll en ändringslogg] och detta projekt följer [Sem
 
 ## [Ej utgiven]
 
+## [1.0] - 2017-12-15
+
+## Korrigerat
+- Åtgärdat problem med att inehåll inte uppdaterades korrekt i IE11.
+- Åtgärdat så att endast en licens i antal kan kopplas till en komponent.
+
 ## [1.0rc3] - 2017-12-15
 
 ### Korrigerat
@@ -48,7 +54,6 @@ Formatet är baserat på [Håll en ändringslogg] och detta projekt följer [Sem
 - Åtgärdat felaktig sökdatarespons vid sökning
 - Åtgärdat felaktig stigande- och fallande-filtrering
 - Fixade bugg som gjorde att payload inte initialiserades
-
 
 ## [0.5.0] - 2017-12-06
 
@@ -145,8 +150,9 @@ Formatet är baserat på [Håll en ändringslogg] och detta projekt följer [Sem
 - Licensöversikt som ger en överblick över licenser i databasen
 - Möjliggörande att lägga till nya licenser, komponenter samt projekt i databasen
 
-[Ej utgiven]: https://github.com/SAAB2017/3PP-tool/compare/v1.0rc3...HEAD
-[1.0rc3]: https://github.com/SAAB2017/3PP-tool/compare/v1.0rc3...HEAD
+[Ej utgiven]: https://github.com/SAAB2017/3PP-tool/compare/v1.0...HEAD
+[1.0]: https://github.com/SAAB2017/3PP-tool/compare/v1.0rc3...HEAD
+[1.0rc3]: https://github.com/SAAB2017/3PP-tool/compare/v1.0rc3...v1.0
 [1.0rc2]: https://github.com/SAAB2017/3PP-tool/compare/v1.0rc1...v1.0rc2
 [1.0rc1]: https://github.com/SAAB2017/3PP-tool/compare/v0.5.0...v1.0rc1
 [0.5.0]: https://github.com/SAAB2017/3PP-tool/compare/v0.4.0...v0.5.0
