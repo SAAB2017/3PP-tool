@@ -463,7 +463,7 @@
             this.unbindedProducts.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
             let temp = []
             this.unbindedProducts.forEach((comp, i) => {
-              if (!this.productIds.includes(comp.id)) {
+              if (this.productIds.indexOf(comp.id) === -1) {
                 temp.push(comp)
               }
             })
@@ -483,7 +483,7 @@
               }
               let temp = []
               this.unbindedProducts.forEach((comp, i) => {
-                if (!this.productIds.includes(comp.id)) {
+                if (this.productIds.indexOf(comp.id) === -1) {
                   temp.push(comp)
                 }
               })
@@ -582,7 +582,7 @@
         axios.get(this.$baseAPI + 'products/productsInProject/' + this.$route.params.id).then(response => {
           this.products = response.data
           this.products.forEach((prod) => {
-            if (!this.productIds.includes(prod.id)) {
+            if (this.productIds.indexOf(prod.id) === -1) {
               this.productIds.push(prod.id)
             }
           })

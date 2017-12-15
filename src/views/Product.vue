@@ -466,7 +466,7 @@
             this.unbindedComponents.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
             let temp = []
             this.unbindedComponents.forEach((comp, i) => {
-              if (!this.componentIds.includes(comp.id)) {
+              if (this.componentIds.indexOf(comp.id) === -1) {
                 temp.push(comp)
               }
             })
@@ -486,7 +486,7 @@
               }
               let temp = []
               this.unbindedComponents.forEach((comp, i) => {
-                if (!this.componentIds.includes(comp.id)) {
+                if (this.componentIds.indexOf(comp.id) === -1) {
                   temp.push(comp)
                 }
               })
@@ -579,7 +579,7 @@
         axios.get(this.$baseAPI + 'components/componentsInProduct/' + this.$route.params.id).then(response => {
           this.components = response.data
           this.components.forEach((comp) => {
-            if (!this.componentIds.includes(comp.id)) {
+            if (this.componentIds.indexOf(comp.id) === -1) {
               this.componentIds.push(comp.id)
             }
           })
