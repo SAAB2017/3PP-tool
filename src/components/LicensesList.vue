@@ -62,7 +62,7 @@
 
 <script>
   import axios from 'axios'
-  import * as payloadcfg from '../../backend/routes/config'
+
 
   export default {
     data () {
@@ -76,7 +76,7 @@
         message: '',
         showPaginatorClick: true,
         searching: false,
-        payload: this.payloadFactory()
+        payload: this.payloadInit('license')
       }
     },
 
@@ -91,12 +91,12 @@
           this.searching = false
           this.showPaginatorClick = true
           this.licenses = []
-          this.payload = this.payloadFactory()
+          this.payload = this.payloadInit('license')
           this.getNext(true)
         } else if (a.length > 0) {
           this.searching = true
           let sort = this.payload.sort
-          this.payload = this.payloadFactory()
+          this.payload = this.payloadInit('license')
           this.payload.sort = sort
           this.searchLicense(a)
         }
@@ -118,7 +118,30 @@
       /**
        * Function that creates a default payload
        */
-      payloadFactory: payloadcfg.payloadInit.bind(null, 'license'),
+      payloadInit (type) {
+        return { // a default payload, can/should be extended
+          items: [],
+          links: {
+            prev: '?offset=0&amount=' + 25,
+            current: '?offset=0&amount=' + 25,
+            next: '?offset=0&amount=' + 25
+          },
+          sort: {
+            column: '&sort=' + type + 'Name',
+            order: '&order=asc'
+          },
+          meta: {
+            current: 0,
+            count: 0
+          },
+          errors: {
+            message: [],
+            status: 'OK'
+          },
+          errorflag: false
+        }
+      },
+
       /**
        * Searches for licenses from the database matching the search-criteria
        */
@@ -149,7 +172,7 @@
         axios.get(this.$baseAPI + 'licenses/search/' + this.searchLicenses + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
-            replaceItemsList ? this.licenses = [...this.payload.items] : this.licenses = [...this.licenses, ...this.payload.items]
+            replaceItemsList ? this.licenses = this.payload.items : this.licenses = this.licenses.concat(this.payload.items)
             if (this.licenses.length === this.payload.meta.count) {
               this.showPaginatorClick = null
             } else {
@@ -161,7 +184,7 @@
         this.searching = true
         // create a new payload frame, with the old context data (so that we know "where" to get the next 25, 50 etc
         let sort = this.payload.sort
-        this.payload = this.payloadFactory()
+        this.payload = this.payloadInit('license')
         this.payload.sort = sort
         this.showPaginatorClick = true
         if (this.searchLicenses.length === 0) {
@@ -194,7 +217,7 @@
 
       sortName () {
         this.licenses = []
-        let newpayload = this.payloadFactory()
+        let newpayload = this.payloadInit('license')
         newpayload.sort.column = '&sort=licenseName'
         if (this.ordering === 'asc') {
           this.ordering = 'desc'
@@ -208,7 +231,7 @@
         this.getMore(true)
       },
       sortVersion () {
-        let newpayload = this.payloadFactory()
+        let newpayload = this.payloadInit('license')
         newpayload.sort.column = '&sort=licenseVersion'
         if (this.ordering === 'asc') {
           this.ordering = 'desc'
@@ -222,7 +245,7 @@
         this.getMore(true)
       },
       sortCreated () {
-        let newpayload = this.payloadFactory()
+        let newpayload = this.payloadInit('license')
         newpayload.sort.column = '&sort=dateCreated'
         if (this.ordering === 'asc') {
           this.ordering = 'desc'
@@ -236,7 +259,7 @@
         this.getMore(true)
       },
       sortEdited () {
-        let newpayload = this.payloadFactory()
+        let newpayload = this.payloadInit('license')
         newpayload.sort.column = '&sort=lastEdited'
         if (this.ordering === 'asc') {
           this.ordering = 'desc'

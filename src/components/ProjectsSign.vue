@@ -66,7 +66,7 @@
 
 <script>
   import axios from 'axios'
-  import payloadcfg from '../../backend/routes/config'
+
   const URI = 'projects/pending/'
   export default {
     data () {
@@ -79,7 +79,7 @@
         message: '',
         sorted: '',
         showPaginatorClick: true,
-        payload: this.payloadFactory()
+        payload: this.payloadInit('project')
       }
     },
     /* Fetches unsigned projects from the database and puts them in projects */
@@ -96,12 +96,12 @@
           this.searching = false
           this.showPaginatorClick = true
           this.projects = []
-          this.payload = this.payloadFactory()
+          this.payload = this.payloadInit('project')
           this.getNext(true)
         } else if (a.length > 0) {
           this.searching = true
           let sort = this.payload.sort
-          this.payload = this.payloadFactory()
+          this.payload = this.payloadInit('project')
           this.payload.sort = sort
           this.searchProject(a)
         }
@@ -116,7 +116,29 @@
     },
 
     methods: {
-      payloadFactory: payloadcfg.payloadInit.bind(this, 'project'),
+      payloadInit(type) {
+        return { // a default payload, can/should be extended
+          items: [],
+          links: {
+            prev: '?offset=0&amount=' + 25,
+            current: '?offset=0&amount=' + 25,
+            next: '?offset=0&amount=' + 25
+          },
+          sort: {
+            column: '&sort=' + type + 'Name',
+            order: '&order=asc'
+          },
+          meta: {
+            current: 0,
+            count: 0
+          },
+          errors: {
+            message: [],
+            status: 'OK'
+          },
+          errorflag: false
+        }
+      },
       /**
        * Fetches all projects from database
        */
@@ -130,20 +152,20 @@
       },
       getNext (uri, replaceItemsList) {
         let _this = this
-        axios.get(this.$baseAPI + uri + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+        axios.get(this.$baseAPI + 'projects/pending/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             _this.payload = response.data
-            replaceItemsList ? _this.projects = [..._this.payload.items] : _this.projects = [..._this.projects, ..._this.payload.items]
+            replaceItemsList ? _this.projects = _this.payload.items : _this.projects = _this.projects.concat(_this.payload.items)
             _this.projects.length === _this.payload.meta.count ? _this.showPaginatorClick = null : _this.showPaginatorClick = true
           }).catch(err => console.log(err))
       },
       getNextSearchQuery (uri, replaceItemsList) {
         let _this = this
         if (this.projects.length < this.payload.meta.count) {
-          axios.get(this.$baseAPI + `${uri}/search/` + this.searchProjects + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+          axios.get(this.$baseAPI + 'projects/pending' + '/search/' + this.searchProjects + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
             .then(response => {
               _this.payload = response.data
-              replaceItemsList ? _this.projects = [..._this.payload.items] : _this.projects = [..._this.projects, ..._this.payload.items]
+              replaceItemsList ? _this.projects = _this.payload.items : _this.projects = _this.projects.concat(_this.payload.items)
               if (_this.projects.length === _this.payload.meta.count) {
                 _this.showPaginatorClick = null
               } else {
@@ -158,7 +180,7 @@
        * Searches for unsigned projects from the database matching the search-criteria
        */
       searchProject (search) {
-        const path = `projects/pending/search/${search}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
+        const path = 'projects/pending/search/' + search + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order
         let _this = this
         axios.get(this.$baseAPI + path).then(response => {
           if (response.data != null) {

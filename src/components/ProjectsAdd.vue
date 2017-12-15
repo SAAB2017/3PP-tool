@@ -82,7 +82,7 @@
 
 <script>
   import axios from 'axios'
-  import payloadcfg from '../../backend/routes/config'
+
   export default {
 
     data () {
@@ -94,7 +94,7 @@
         projectComment: '',
         searchProducts: '',
         searching: false, // nothing entered in the search bar
-        payload: this.payloadFactory(),
+        payload: this.payloadInit('product'),
         errorList: []
       }
     },
@@ -109,12 +109,12 @@
           this.searching = false
           this.showPaginatorClick = true
           this.products = []
-          this.payload = this.payloadFactory()
+          this.payload = this.payloadInit('product')
           this.getNext(true)
         } else if (a.length > 0) {
           this.searching = true
           let sort = this.payload.sort
-          this.payload = this.payloadFactory()
+          this.payload = this.payloadInit('product')
           this.payload.sort = sort
           this.searchProduct(a)
         }
@@ -128,8 +128,30 @@
       }
     },
     methods: {
+      payloadInit(type) {
+        return { // a default payload, can/should be extended
+          items: [],
+          links: {
+            prev: '?offset=0&amount=' + 25,
+            current: '?offset=0&amount=' + 25,
+            next: '?offset=0&amount=' + 25
+          },
+          sort: {
+            column: '&sort=' + type + 'Name',
+            order: '&order=asc'
+          },
+          meta: {
+            current: 0,
+            count: 0
+          },
+          errors: {
+            message: [],
+            status: 'OK'
+          },
+          errorflag: false
+        }
+      },
       // used for the "product" list, used for adding to project, since we're not wanting payloads of project
-      payloadFactory: payloadcfg.payloadInit.bind(null, 'product'),
 
       getMore (replaceItemsList) {
         let _this = this
