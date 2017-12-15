@@ -14,23 +14,19 @@ Version: 1.0.0
 
 - [Get a license from its ID](#getLicenseById)
 
-- [Get a license from its name](#getLicenseByName)
-
 - [Add a new license](#addLicense)
 
 - [Change the comment of a license](#changeLicenseComment)
 
 - [Change the URL of a license](#changeLicenseURL)
 
-- [Get licenses in component](#getLicensesInComponent)
+- [Get all licenses connected to certain component](#getLicensesInComponent)
 
-- [Get all licenses connected to certain component](#getTheLicensesOfProduct)
+- [Get all licenses connected to a certain product](#getLicensesInProduct)
 
-- [Get all licenses connected to a certain product](#showAllLicenses)
+- [Get all licenses connected to a certain project](#getLicensesInProject)
 
-- [Get all licenses connected to a certain project](#getTheLicensesOfProject)
-
-- [Get the license's log](#showALicenseLog)
+- [Get the license's log](#getLicenseLog)
 
 
 ### Components
@@ -137,65 +133,6 @@ Version: 1.0.0
 
 # Licenses
 
-<a name="searchForALicense"/>
-
-## Search for a specific license.
-
-### URL
-
-/licenses/search/:id?offset=0&amount=30&sort=licenseName&order=asc
-
-### Method
-
-GET
-
-### URL Params
-
-Required:
-```
-id = licenseName
-offset = Integer
-amount = Integer
-sort = String
-order = asc OR desc
-```
-
-### Success Response
-
-Code: 200
-
-Content:
-```
-{
-  "items":[{  "id":5,
-              "licenseName":"Apache License",
-              "licenseVersion":"2.0",
-              "dateCreated":"2017-10-20",
-              "lastEdited":"2017-10-15",
-              "URL":"https://www.mozilla.org/en-US/MPL/2.0/",
-              "comment":null,
-              "licenseType":"Open source license"}],
-   "links":{  "prev":"?offset=0&amount=5",
-              "current":"?offset=0&amount=5",
-              "next":"?offset=0&amount=5"},
-   "sort":{   "column":"&sort=licenseName",
-              "order":"&order=asc"},
-   "meta":{   "current":0,
-              "count":0},
-   "errors":{ "message":[],
-              "status":"OK"},
-   "errorflag":false
-}
-```
-
-### Sample Call
-```javascript
-axios.get('/licenses/search/Apache?offset=0&amount=30&sort=licenseName&order=asc')
-  .then(response => {
-  response.data
-}
-```
-
 <a name="getAllLicenses"/>
 
 ## Get all licenses.
@@ -253,13 +190,14 @@ axios.get('/licenses/?offset=0&amount=30&sort=licenseName&order=asc')
   response.data
 }
 ```
-<a name="showAllLicenses"/>
 
-## Show all licenses in a component.
+<a name="searchForALicense"/>
+
+## Search for a license.
 
 ### URL
 
-/licenses/licensesInComponent/:id
+/licenses/search/:id?offset=0&amount=30&sort=licenseName&order=asc
 
 ### Method
 
@@ -269,9 +207,12 @@ GET
 
 Required:
 ```
-id = Integer
+id = licenseName
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
 ```
-Example: id = 1
 
 ### Success Response
 
@@ -279,166 +220,31 @@ Code: 200
 
 Content:
 ```
-[{
-"id" : 1,
-"licenseName" : "GNU AGPL",
-"licenseVersion" : "3.0",
-"dateCreated" : "2017-10-01",
-"lastEdited" : "2017-10-01",
-"URL" : "https://www.gnu.org/licenses/agpl-3.0.en.html",
-"comment" : "GNU Affero General Public License",
-"licenseType" : "Open source license"
-}]
-```
-
-### Error Response
-
-TODO
-
-### Sample Call
-```javascript
-axios.get('/licenses/licensesInComponent/1')
-  .then(response => {
-  response.data
-}
-```
-<a name="showALicenseLog"/>
-
-## Get the license's log.
-
-### URL
-
-/licenses/log/:id
-
-### Method
-
-GET
-
-### URL Params
-
-Required:
-```
-id = Integer
-```
-Example: id = 1
-
-### Success Response
-
-Code: 200
-
-Content:
-```
-[{
-"id" : 1,
-"licenseID" : 1,
-"dateLogged" : 0,
-"note" : "License created."
-}]
-```
-
-### Error Response
-
-TODO
-
-### Sample Call
-```javascript
-axios.get('/licenses/log/1')
-  .then(response => {
-  response.data
+{
+  "items":[{  "id":5,
+              "licenseName":"Apache License",
+              "licenseVersion":"2.0",
+              "dateCreated":"2017-10-20",
+              "lastEdited":"2017-10-15",
+              "URL":"https://www.mozilla.org/en-US/MPL/2.0/",
+              "comment":null,
+              "licenseType":"Open source license"}],
+   "links":{  "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+   "sort":{   "column":"&sort=licenseName",
+              "order":"&order=asc"},
+   "meta":{   "current":0,
+              "count":0},
+   "errors":{ "message":[],
+              "status":"OK"},
+   "errorflag":false
 }
 ```
 
-<a name="getTheLicensesOfProduct"/>
-
-## Get the licenses associated with a product.
-
-### URL
-
-/licenses/licensesInProduct/:id
-
-### Method
-
-GET
-
-### URL Params
-
-Required:
-```
-id = Integer
-```
-Example: id = 1
-
-### Success Response
-
-Code: 200
-
-Content:
-```
-[{
-"id" : 9,
-"licenseName" : "BSD 3-clause",
-"licenseVersion" : "1.0",
-"dateCreated" : "2017-11-01",
-"lastEdited" : "2017-11-01",
-"comment" : null
-}]
-```
-
-### Error Response
-
-TODO
-
 ### Sample Call
 ```javascript
-axios.get('/licenses/licensesInProduct/1')
-  .then(response => {
-  response.data
-}
-```
-
-<a name="getTheLicensesOfProject"/>
-
-## Get the licenses associated with a project.
-
-### URL
-
-/licenses/licensesInProject/:id
-
-### Method
-
-GET
-
-### URL Params
-
-Required:
-```
-id = Integer
-```
-Example: id = 1
-
-### Success Response
-
-Code: 200
-
-Content:
-```
-[{
-"id" : 9,
-"licenseName" : "BSD 3-clause",
-"licenseVersion" : "1.0",
-"dateCreated" : "2017-11-01",
-"lastEdited" : "2017-11-01",
-"comment" : null
-}]
-```
-
-### Error Response
-
-TODO
-
-### Sample Call
-```javascript
-axios.get('/licenses/licensesInProject/1')
+axios.get('/licenses/search/Apache?offset=0&amount=30&sort=licenseName&order=asc')
   .then(response => {
   response.data
 }
@@ -446,7 +252,7 @@ axios.get('/licenses/licensesInProject/1')
 
 <a name="getLicenseById"/>
 
-## Gets a specific license from its id.
+## Get a license from its ID.
 
 ### URL
 
@@ -564,7 +370,7 @@ axios.post('/licenses/add', data)
 
 <a name="changeLicenseComment"/>
 
-## Change a license's comment.
+## Change the comment of a license.
 
 ### URL
 
@@ -622,7 +428,7 @@ axios.post('/licenses/comment', data)
 
 <a name="changeLicenseURL"/>
 
-## Change a license's URL.
+## Change the URL of a license.
 
 ### URL
 
@@ -678,59 +484,9 @@ axios.post('/licenses/URL', data)
 })
 ```
 
-<a name="getLicenseByName"/>
-
-## Search for a license based on its name.
-
-### URL
-
-/licenses/search/:params
-
-### Method
-
-GET
-
-### URL Params
-
-Required:
-```
-params = String
-```
-Example: params = GNU AGPL
-
-### Success Response
-
-Code: 200
-
-Content:
-```
-{
-"id" : 1,
-"licenseName" : "GNU AGPL",
-"licenseVersion" : "3.0",
-"dateCreated" : "2017-10-01",
-"lastEdited" : "2017-10-01",
-"URL" : "https://www.gnu.org/licenses/agpl-3.0.en.html",
-"comment" : "GNU Affero General Public License",
-"licenseType" : "Open source license"
-}
-```
-
-### Error Response
-
-TODO
-
-### Sample Call
-```javascript
-axios.get('/licenses/search/GNU AGPL')
-  .then(response => {
-  response.data
-}
-```
-
 <a name="getLicensesInComponent"/>
 
-## Get licenses in component.
+## Get all licenses connected to a certain component.
 
 ### URL
 
@@ -744,8 +500,9 @@ GET
 
 Required:
 ```
-id = Integer
+id = Integer (id of component)
 ```
+Example: id = 1
 
 ### Success Response
 
@@ -753,31 +510,167 @@ Code: 200
 
 Content:
 ```
-{
-  "items":[{  "id":5,
-              "licenseName":"Apache License",
-              "licenseVersion":"2.0",
-              "dateCreated":"2017-10-20",
-              "lastEdited":"2017-10-15",
-              "URL":"https://www.mozilla.org/en-US/MPL/2.0/",
-              "comment":null,
-              "licenseType":"Open source license"}],
-   "links":{  "prev":"?offset=0&amount=5",
-              "current":"?offset=0&amount=5",
-              "next":"?offset=0&amount=5"},
-   "sort":{   "column":"&sort=licenseName",
-              "order":"&order=asc"},
-   "meta":{   "current":0,
-              "count":0},
-   "errors":{ "message":[],
-              "status":"OK"},
-   "errorflag":false
-}
+[{
+"id" : 1,
+"licenseName" : "GNU AGPL",
+"licenseVersion" : "3.0",
+"dateCreated" : "2017-10-01",
+"lastEdited" : "2017-10-01",
+"URL" : "https://www.gnu.org/licenses/agpl-3.0.en.html",
+"comment" : "GNU Affero General Public License",
+"licenseType" : "Open source license"
+}]
 ```
+
+### Error Response
+
+TODO
 
 ### Sample Call
 ```javascript
 axios.get('/licenses/licensesInComponent/1')
+  .then(response => {
+  response.data
+}
+```
+
+<a name="getLicensesInProduct"/>
+
+## Get the licenses connected to a certain product.
+
+### URL
+
+/licenses/licensesInProduct/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 9,
+"licenseName" : "BSD 3-clause",
+"licenseVersion" : "1.0",
+"dateCreated" : "2017-11-01",
+"lastEdited" : "2017-11-01",
+"comment" : null
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/licenses/licensesInProduct/1')
+  .then(response => {
+  response.data
+}
+```
+
+<a name="getLicensesInProject"/>
+
+## Get the licenses connected to a certain project.
+
+### URL
+
+/licenses/licensesInProject/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 9,
+"licenseName" : "BSD 3-clause",
+"licenseVersion" : "1.0",
+"dateCreated" : "2017-11-01",
+"lastEdited" : "2017-11-01",
+"comment" : null
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/licenses/licensesInProject/1')
+  .then(response => {
+  response.data
+}
+```
+
+<a name="getLicenseLog"/>
+
+## Get the license's log.
+
+### URL
+
+/licenses/log/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"licenseID" : 1,
+"dateLogged" : 0,
+"note" : "License created."
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/licenses/log/1')
   .then(response => {
   response.data
 }
