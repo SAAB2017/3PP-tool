@@ -70,8 +70,7 @@
 
 <script>
   import axios from 'axios'
-  // import payloadcfg from '../../backend/routes/config.js'
-  let payloadcfg = require('../../backend/routes/config')
+
   export default {
     data () {
       return {
@@ -81,21 +80,39 @@
         searchQuery: null,
         showPaginatorClick: true,
         searching: false,
-        payload: this.projectPayloadFactory()
+        payload: this.payloadInit('project')
       }
     },
 
-    /* mounted () {
-      this.payload = this.projectPayloadFactory()
+   /* mounted () {
+      this.payload = this.payloadInit('project')
       this.getNext(false)
-    }, */
+    },*/
 
     methods: {
-
-      projectPayloadFactory: payloadcfg.payloadInit.bind(null, 'project'),
-      productPayloadFactory: payloadcfg.payloadInit.bind(null, 'product'),
-      componentPayloadFactory: payloadcfg.payloadInit.bind(null, 'component'),
-      licensePayloadFactory: payloadcfg.payloadInit.bind(null, 'license'),
+      payloadInit (type) {
+        return { // a default payload, can/should be extended
+          items: [],
+          links: {
+            prev: '?offset=0&amount=' + 25,
+            current: '?offset=0&amount=' + 25,
+            next: '?offset=0&amount=' + 25
+          },
+          sort: {
+            column: '&sort=' + type + 'Name',
+            order: '&order=asc'
+          },
+          meta: {
+            current: 0,
+            count: 0
+          },
+          errors: {
+            message: [],
+            status: 'OK'
+          },
+          errorflag: false
+        }
+      },
 
       selectChanged () {
         let e = document.getElementById('selected')
@@ -104,13 +121,13 @@
         this.dispThing = []
         this.searchQuery = ''
         if (this.selected === 'projects') {
-          this.payload = this.projectPayloadFactory()
+          this.payload = this.payloadInit('project')
         } else if (this.selected === 'products') {
-          this.payload = this.productPayloadFactory()
+          this.payload = this.payloadInit('product')
         } else if (this.selected === 'components') {
-          this.payload = this.componentPayloadFactory()
+          this.payload = this.payloadInit('component')
         } else {
-          this.payload = this.licensePayloadFactory()
+          this.payload = this.payloadInit('license')
         }
         this.searching = false
 
@@ -123,13 +140,13 @@
         this.searching = true
         let sort = this.payload.sort
         if (this.selected === 'projects') {
-          this.payload = this.projectPayloadFactory()
+          this.payload = this.payloadInit('project')
         } else if (this.selected === 'products') {
-          this.payload = this.productPayloadFactory()
+          this.payload = this.payloadInit('product')
         } else if (this.selected === 'components') {
-          this.payload = this.componentPayloadFactory()
+          this.payload = this.payloadInit('component')
         } else {
-          this.payload = this.licensePayloadFactory()
+          this.payload = this.payloadInit('license')
         }
         this.payload.sort = sort
         this.showPaginatorClick = true
@@ -199,16 +216,16 @@
         let newpayload
         let type
         if (this.selected === 'projects') {
-          newpayload = this.projectPayloadFactory()
+          newpayload = this.payloadInit('project')
           type = 'project'
         } else if (this.selected === 'products') {
-          newpayload = this.productPayloadFactory()
+          newpayload = this.payloadInit('product')
           type = 'product'
         } else if (this.selected === 'components') {
-          newpayload = this.componentPayloadFactory()
+          newpayload = this.payloadInit('component')
           type = 'component'
         } else {
-          newpayload = this.licensePayloadFactory()
+          newpayload = this.payloadInit('license')
           type = 'license'
         }
         newpayload.sort.column = '&sort=' + type + 'Name'
@@ -227,16 +244,16 @@
         let newpayload
         let type
         if (this.selected === 'projects') {
-          newpayload = this.projectPayloadFactory()
+          this.payload = this.payloadInit('project')
           type = 'project'
         } else if (this.selected === 'products') {
-          newpayload = this.productPayloadFactory()
+          this.payload = this.payloadInit('product')
           type = 'product'
         } else if (this.selected === 'components') {
-          newpayload = this.componentPayloadFactory()
+          this.payload = this.payloadInit('component')
           type = 'component'
         } else {
-          newpayload = this.licensePayloadFactory()
+          this.payload = this.payloadInit('license')
           type = 'license'
         }
         newpayload.sort.column = '&sort=' + type + 'Version'
@@ -254,13 +271,13 @@
       sortCreated () {
         let newpayload
         if (this.selected === 'projects') {
-          newpayload = this.projectPayloadFactory()
+          this.payload = this.payloadInit('project')
         } else if (this.selected === 'products') {
-          newpayload = this.productPayloadFactory()
+          this.payload = this.payloadInit('product')
         } else if (this.selected === 'components') {
-          newpayload = this.componentPayloadFactory()
+          this.payload = this.payloadInit('component')
         } else {
-          newpayload = this.licensePayloadFactory()
+          this.payload = this.payloadInit('license')
         }
         newpayload.sort.column = '&sort=dateCreated'
         if (this.ordering === 'asc') {
@@ -277,13 +294,13 @@
       sortEdited () {
         let newpayload
         if (this.selected === 'projects') {
-          newpayload = this.projectPayloadFactory()
+          this.payload = this.payloadInit('project')
         } else if (this.selected === 'products') {
-          newpayload = this.productPayloadFactory()
+          this.payload = this.payloadInit('product')
         } else if (this.selected === 'components') {
-          newpayload = this.componentPayloadFactory()
+          this.payload = this.payloadInit('component')
         } else {
-          newpayload = this.licensePayloadFactory()
+          this.payload = this.payloadInit('license')
         }
         newpayload.sort.column = '&sort=lastEdited'
         if (this.ordering === 'asc') {

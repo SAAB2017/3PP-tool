@@ -50,8 +50,7 @@
 
 <script>
   import axios from 'axios'
-  // import payloadcfg from '../../backend/routes/config'
-  let payloadcfg = require('../../backend/routes/config')
+
   export default {
     data () {
       return {
@@ -64,12 +63,12 @@
         searching: false,
         message: '',
         showPaginatorClick: true,
-        payload: this.payloadFactory()
+        payload: this.payloadInit('product')
       }
     },
     /* Fetches unsigned products from the database and puts them in products */
     mounted () {
-      this.payload = this.payloadFactory()
+      this.payload = this.payloadInit('product')
       this.getMore(true)
       // this.getAllPending()
     },
@@ -79,12 +78,12 @@
           this.searching = false
           this.showPaginatorClick = true
           this.products = []
-          this.payload = this.payloadFactory()
+          this.payload = this.payloadInit('product')
           this.getNext(true)
         } else if (a.length > 0) {
           this.searching = true
           let sort = this.payload.sort
-          this.payload = this.payloadFactory()
+          this.payload = this.payloadInit('product')
           this.payload.sort = sort
           this.searchComponent(a)
         }
@@ -98,7 +97,29 @@
       }
     },
     methods: {
-      payloadFactory: payloadcfg.payloadInit.bind(null, 'product'),
+      payloadInit(type) {
+        return { // a default payload, can/should be extended
+          items: [],
+          links: {
+            prev: '?offset=0&amount=' + 25,
+            current: '?offset=0&amount=' + 25,
+            next: '?offset=0&amount=' + 25
+          },
+          sort: {
+            column: '&sort=' + type + 'Name',
+            order: '&order=asc'
+          },
+          meta: {
+            current: 0,
+            count: 0
+          },
+          errors: {
+            message: [],
+            status: 'OK'
+          },
+          errorflag: false
+        }
+      },
       getMore (replaceItemsList) {
         if (this.searching === false) {
           this.getNext(replaceItemsList)

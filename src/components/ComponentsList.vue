@@ -70,8 +70,7 @@
 
 <script>
   import axios from 'axios'
-  // import payloadcfg from '../../backend/routes/config.js'
-  let payloadcfg = require('../../backend/routes/config')
+
   export default {
     data () {
       return {
@@ -83,7 +82,7 @@
         message: '',
         showPaginatorClick: true,
         searching: false,
-        payload: this.payloadFactory()
+        payload: this.payloadInit('component')
       }
     },
     watch: {
@@ -98,17 +97,39 @@
         this.message = 'Component "' + this.$route.params.sName + '" (version: ' + this.$route.params.sVersion + ') signed'
         this.$route.params.type = ''
       }
-      this.payload = this.payloadFactory()
+      this.payload = this.payloadInit('component')
       this.getNext(false)
       this.fade_out()
     },
 
     methods: {
+      payloadInit(type) {
+        return { // a default payload, can/should be extended
+          items: [],
+          links: {
+            prev: '?offset=0&amount=' + 25,
+            current: '?offset=0&amount=' + 25,
+            next: '?offset=0&amount=' + 25
+          },
+          sort: {
+            column: '&sort=' + type + 'Name',
+            order: '&order=asc'
+          },
+          meta: {
+            current: 0,
+            count: 0
+          },
+          errors: {
+            message: [],
+            status: 'OK'
+          },
+          errorflag: false
+        }
+      },
       /**
        * Searches for signed components from the database matching the search-criteria
        */
       // TODO: if all else fails, så funkar inte detta på IE11
-      payloadFactory: payloadcfg.payloadInit.bind(null, 'component'),
       /**
        * Opens the view for a specific component with id id.
        * @param component The component to be viewed
@@ -123,7 +144,7 @@
       searchComponent () {
         this.searching = true
         let sort = this.payload.sort
-        this.payload = this.payloadFactory()
+        this.payload = this.payloadInit('component')
         this.payload.sort = sort
         this.showPaginatorClick = true
         if (this.searchComponents.length === 0) {
@@ -208,7 +229,7 @@
       },
 
       sortName () {
-        let newpayload = this.payloadFactory()
+        let newpayload = this.payloadInit('component')
         newpayload.sort.column = '&sort=componentName'
         if (this.ordering === 'asc') {
           this.ordering = 'desc'
@@ -222,7 +243,7 @@
         this.getMore(true)
       },
       sortVersion () {
-        let newpayload = this.payloadFactory()
+        let newpayload = this.payloadInit('component')
         newpayload.sort.column = '&sort=componentVersion'
         if (this.ordering === 'asc') {
           this.ordering = 'desc'
@@ -236,7 +257,7 @@
         this.getMore(true)
       },
       sortCreated () {
-        let newpayload = this.payloadFactory()
+        let newpayload = this.payloadInit('component')
         newpayload.sort.column = '&sort=dateCreated'
         if (this.ordering === 'asc') {
           this.ordering = 'desc'
@@ -250,7 +271,7 @@
         this.getMore(true)
       },
       sortEdited () {
-        let newpayload = this.payloadFactory()
+        let newpayload = this.payloadInit('component')
         newpayload.sort.column = '&sort=lastEdited'
         if (this.ordering === 'asc') {
           this.ordering = 'desc'

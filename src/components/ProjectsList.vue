@@ -65,8 +65,7 @@
 
 <script>
   import axios from 'axios'
-  // import payloadcfg from '../../backend/routes/config'
-  let payloadcfg = require('../../backend/routes/config')
+
   export default {
     data () {
       return {
@@ -78,7 +77,7 @@
         message: '',
         sorted: '',
         showPaginatorClick: true,
-        payload: this.payloadFactory()
+        payload: this.payloadInit('project')
       }
     },
 
@@ -88,10 +87,7 @@
         this.message = 'Project "' + this.$route.params.sName + '" (version: ' + this.$route.params.sVersion + ') signed'
         this.$route.params.type = ''
       }
-      this.getNext = this.getNext.bind(this, 'projects/')
-      this.getMore = this.getMore.bind(this, 'projects/')
-      this.getNextSearchQuery = this.getNextSearchQuery.bind(this, 'projects/')
-      this.getNext(true)
+      this.getNext('projects/', true)
       this.fade_out()
     },
     watch: {
@@ -100,12 +96,12 @@
           this.searching = false
           this.showPaginatorClick = true
           this.projects = []
-          this.payload = this.payloadFactory()
-          this.getNext(true)
+          this.payload = this.payloadInit('project')
+          this.getNext('projects/', true)
         } else if (a.length > 0) {
           this.searching = true
           let sort = this.payload.sort
-          this.payload = this.payloadFactory()
+          this.payload = this.payloadInit('project')
           this.payload.sort = sort
           this.searchProject(a)
         }
@@ -119,7 +115,29 @@
       }
     },
     methods: {
-      payloadFactory: payloadcfg.payloadInit.bind(null, 'project'),
+      payloadInit(type) {
+        return { // a default payload, can/should be extended
+          items: [],
+          links: {
+            prev: '?offset=0&amount=' + 25,
+            current: '?offset=0&amount=' + 25,
+            next: '?offset=0&amount=' + 25
+          },
+          sort: {
+            column: '&sort=' + type + 'Name',
+            order: '&order=asc'
+          },
+          meta: {
+            current: 0,
+            count: 0
+          },
+          errors: {
+            message: [],
+            status: 'OK'
+          },
+          errorflag: false
+        }
+      },
       /**
        * Searches for signed projects from the database matching the search-criteria
        */
@@ -155,9 +173,9 @@
       getMore (uri, replaceItemsList) {
         let _this = this
         if (this.searching === false) {
-          this.getNext(replaceItemsList)
+          this.getNext(uri, replaceItemsList)
         } else {
-          _this.getNextSearchQuery(replaceItemsList)
+          _this.getNextSearchQuery(uri, replaceItemsList)
         }
       },
       getNext (uri, replaceItemsList) {

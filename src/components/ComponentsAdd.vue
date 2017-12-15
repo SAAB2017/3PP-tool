@@ -66,8 +66,7 @@
 
 <script>
   import axios from 'axios'
-  // import payloadcfg from '../../backend/routes/config'
-  let payloadcfg = require('../../backend/routes/config')
+
   export default {
 
     data () {
@@ -80,19 +79,41 @@
         searchLicense: '',
         searching: false,
         showPaginatorClick: true,
-        payload: this.payloadFactory(),
+        payload: this.payloadInit('component'),
         errorList: [],
         success: true
       }
     },
     /* Fetches liceses from the database and puts them in licenses */
     mounted () {
-      this.payload = this.payloadFactory()
+      this.payload = this.payloadInit('component')
       this.getNextLicenses(true)
     },
 
     methods: {
-      payloadFactory: payloadcfg.payloadInit.bind(null, 'license'),
+      payloadInit(type) {
+        return { // a default payload, can/should be extended
+          items: [],
+          links: {
+            prev: '?offset=0&amount=' + 25,
+            current: '?offset=0&amount=' + 25,
+            next: '?offset=0&amount=' + 25
+          },
+          sort: {
+            column: '&sort=' + type + 'Name',
+            order: '&order=asc'
+          },
+          meta: {
+            current: 0,
+            count: 0
+          },
+          errors: {
+            message: [],
+            status: 'OK'
+          },
+          errorflag: false
+        }
+      },
       /**
        * Add a component to the database according to the fields in the view
        */
@@ -190,7 +211,7 @@
         this.searching = true
         // create a new payload frame, with the old context data (so that we know "where" to get the next 25, 50 etc
         let sort = this.payload.sort
-        this.payload = this.payloadFactory()
+        this.payload = this.payloadInit('component')
         this.payload.sort = sort
         this.showPaginatorClick = true
         if (this.searchLicense.length === 0) {

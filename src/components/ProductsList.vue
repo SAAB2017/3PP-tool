@@ -68,8 +68,7 @@
 
 <script>
   import axios from 'axios'
-  // import payloadcfg from '../../backend/routes/config'
-  let payloadcfg = require('../../backend/routes/config')
+
 
   export default {
     data () {
@@ -82,7 +81,7 @@
         message: '',
         sorted: '',
         showPaginatorClick: true,
-        payload: this.payloadFactory()
+        payload: this.payloadInit('product')
       }
     },
     watch: {
@@ -91,12 +90,12 @@
           this.searching = false
           this.showPaginatorClick = true
           this.products = []
-          this.payload = this.payloadFactory()
+          this.payload = this.payloadInit('product')
           this.getNext(true)
         } else if (a.length > 0) {
           this.searching = true
           let sort = this.payload.sort
-          this.payload = this.payloadFactory()
+          this.payload = this.payloadInit('product')
           this.payload.sort = sort
           this.searchProduct(a)
         }
@@ -115,13 +114,35 @@
         this.message = 'Product "' + this.$route.params.sName + '" (version: ' + this.$route.params.sVersion + ') signed'
         this.$route.params.type = ''
       }
-      this.payload = this.payloadFactory()
+      this.payload = this.payloadInit('product')
       this.getNext(true)
       this.fade_out()
     },
 
     methods: {
-      payloadFactory: payloadcfg.payloadInit.bind(null, 'product'),
+      payloadInit(type) {
+        return { // a default payload, can/should be extended
+          items: [],
+          links: {
+            prev: '?offset=0&amount=' + 25,
+            current: '?offset=0&amount=' + 25,
+            next: '?offset=0&amount=' + 25
+          },
+          sort: {
+            column: '&sort=' + type + 'Name',
+            order: '&order=asc'
+          },
+          meta: {
+            current: 0,
+            count: 0
+          },
+          errors: {
+            message: [],
+            status: 'OK'
+          },
+          errorflag: false
+        }
+      },
       /**
        * Searches for signed products from the database matching the search-criteria
        */
@@ -209,7 +230,7 @@
       },
 
       sortName () {
-        let newpayload = this.payloadFactory()
+        let newpayload = this.payloadInit('product')
         newpayload.sort.column = '&sort=productName'
         if (this.ordering === 'asc') {
           this.ordering = 'desc'
@@ -224,7 +245,7 @@
       },
 
       sortVersion () {
-        let newpayload = this.payloadFactory()
+        let newpayload = this.payloadInit('product')
         newpayload.sort.column = '&sort=productVersion'
         if (this.ordering === 'asc') {
           this.ordering = 'desc'
@@ -239,7 +260,7 @@
       },
 
       sortCreated () {
-        let newpayload = this.payloadFactory()
+        let newpayload = this.payloadInit('product')
         newpayload.sort.column = '&sort=dateCreated'
         if (this.ordering === 'asc') {
           this.ordering = 'desc'
@@ -254,7 +275,7 @@
       },
 
       sortEdited () {
-        let newpayload = this.payloadFactory()
+        let newpayload = this.payloadInit('product')
         newpayload.sort.column = '&sort=lastEdited'
         if (this.ordering === 'asc') {
           this.ordering = 'desc'
