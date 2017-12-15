@@ -676,6 +676,7 @@ axios.get('/licenses/log/1')
 }
 ```
 
+
 # Components
 
 <a name="getSignedComponent"/>
