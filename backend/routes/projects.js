@@ -290,7 +290,7 @@ router.route('/connectProductWithProject')
       insertProductIntoProject(req, res, input.productID, input.projectID, function (returnValue) {
         // Get the product that was inserted
         getProduct(req, res, null, null, input.productID, function (product) {
-          if (product !== null) {
+          if (product === null) {
             let message = {
               'errorType': 'productDoesNotExist'
             }
@@ -441,21 +441,25 @@ module.exports = router
  * @param {JSON} callback
  */
 function getProduct (req, res, name, version, id, callback) {
-  let parameters
-  let query = 'SELECT * FROM products WHERE '
+  let query = 'SELECT * FROM products'
+  let parameters = []
   if (name !== null && version !== null) {
-    query += 'productName = ? AND productVersion = ?;'
-    parameters = [name, version]
+    query += ' WHERE productName = ? AND productVersion = ?;'
+    parameters.push(name)
+    parameters.push(version)
   } else if (id !== null) {
-    query += 'id = ?;'
-    parameters = [id]
+    query += ' WHERE id = ?;'
+    parameters.push(id)
   }
 
   req.db.get(query, parameters, (error, row) => {
     if (error) {
-      res.status(500).send(error.message)
+      res.status(500)
+      res.send('ERROR! error message:' + error.message + ', query: ' + query + ', parameters: ' + parameters)
     } else {
-      callback(row)
+      if (row !== null) {
+        callback(row)
+      } else callback(null)
     }
   })
 }
@@ -503,8 +507,6 @@ function getProject (req, res, name, version, id, callback) {
 function updateProject (req, res, name, version, id, parametersText, parameters, callback) {
   let query = 'UPDATE projects SET '
 
-  // update components set approvedBy = '' where id > 6
-
   // Construct the remaining SQL query
   let first = false
   for (let i = 0; i < parametersText.length; i++) {
@@ -516,20 +518,23 @@ function updateProject (req, res, name, version, id, parametersText, parameters,
     }
   }
 
-  query += ' WHERE '
+  // Check if either productName/productVersion or id was provided and use them one find the row to alter
   if (name !== null && version !== null) {
-    query += 'projectName = ? AND projectVersion = ?;'
+    query += ' WHERE projectName = ? AND projectVersion = ?;'
     parameters.push(name)
     parameters.push(version)
   } else if (id !== null) {
-    query += 'id = ?;'
+    query += ' WHERE id = ?;'
     parameters.push(id)
   }
-  req.db.get(query, parameters, (error, row) => {
+
+  req.db.run(query, parameters, (error) => {
     if (error) {
       res.status(500).send(error.message)
+      res.send('ERROR! error message:' + error.message + ', query: ' + query + ', parameters: ' + parameters)
     } else {
-      callback(row)
+      let t = true
+      callback(t)
     }
   })
 }
@@ -543,8 +548,9 @@ function updateProject (req, res, name, version, id, parametersText, parameters,
  * @param {Boolean} callback
  */
 function insertProjectLog (req, res, id, text, callback) {
-  let query = 'INSERT INTO projectLog (projectID, dateLogged, note) VALUES (?, ?, ?);'
-  req.db.run(query, [id, new Date().toLocaleDateString(), text], (error) => {
+  let parametersLog = [id, new Date().toLocaleDateString(), text]
+  let queryLog = 'INSERT INTO projectLog (projectID, dateLogged, note) VALUES (?, ?, ?);'
+  req.db.run((queryLog), parametersLog, (error) => {
     if (error) {
       res.status(500)
       res.send(error.message)
@@ -607,6 +613,7 @@ function insertProductIntoProject (req, res, productID, projectID, callback) {
     if (error) {
       res.status(500)
       res.send(error.message)
+      res.error_id = 'E07'
     } else {
       let t = true
       callback(t)

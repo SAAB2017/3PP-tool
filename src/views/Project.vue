@@ -91,7 +91,7 @@
 
             <!-- Table that shows which licenses is in this project -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
-              <h4>Licenses in project</h4>
+              <h4 style="padding-top: 50px">Licenses in project</h4>
               <table>
                 <thead>
                 <tr>
@@ -110,7 +110,7 @@
 
             <!-- Table that shows which components is in this project -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
-              <h4>Components in project</h4>
+              <h4 style="padding-top: 50px">Components in project</h4>
               <table>
                 <thead>
                 <tr>
@@ -129,6 +129,11 @@
 
             <!-- Table that shows which products is in this project -->
             <div class="column is-one-third-desktop is-two-thirds-tablet is-10-mobile">
+              <div class="field is-grouped is-grouped-left">
+                <div class="control">
+                  <button @click="showBind()" class="button is-primary">Bind products</button>
+                </div>
+              </div>
               <h4>Products in project</h4>
               <table>
                 <thead>
@@ -148,6 +153,7 @@
           </div>
 
         </div>
+
         <!-- If no product with id id is found -->
         <div v-else>
           <div class="columns">
@@ -280,24 +286,78 @@
         </header>
 
         <section class="modal-card-body vertical-menu">
-          <table>
-            <thead>
+        <table>
+          <thead>
             <tr>
               <th scope="col" style="width: 120px">Date</th>
               <th scope="col">Event</th>
             </tr>
-            </thead>
-            <tbody>
+          </thead>
+          <tbody>
             <tr v-for="logItem in logItems">
               <td scope="row" style="width: 120px" data-label="Date">{{ logItem.dateLogged }}</td>
               <td scope="row" data-label="Event">{{ logItem.note }}</td>
             </tr>
-            </tbody>
-          </table>
+          </tbody>
+        </table>
 
         </section>
 
         <footer class="modal-card-foot" style="justify-content: center">
+        </footer>
+
+
+      </div>
+    </div>
+
+    <div class="modal" id="bindWindow">
+      <div class="modal-background" @click="closeBind()"></div>
+      <div class="modal-card" style="text-align: center">
+
+        <header class="modal-card-head">
+          <p class="modal-card-title"> Bind products to {{project.projectName}} </p>
+          <button class="delete" aria-label="close" @click="closeBind()"></button>
+        </header>
+
+        <section class="modal-card-body vertical-menu">
+          <table>
+            <thead>
+            <tr>
+              <td style="width: 25px"></td>
+              <th scope="col">Product</th>
+              <th scope="col">Version</th>
+            </tr>
+            </thead>
+            <tbody class="tbodyadd">
+            <transition-group name="list" appear>
+              <tr v-for="product in unbindedProducts" v-bind:key="product" class="plist-item">
+                <td style="width: 25px"><input class="checkbox" type="checkbox" v-bind:value=product.id v-model.number="checkedProducts"></td>
+                <td scope="row" data-label="Product">{{ product.productName }}</td>
+                <td scope="row" data-label="Version">{{ product.productVersion }}</td>
+              </tr>
+            </transition-group>
+            <tr v-if="showPaginatorClick">
+              <div id="paginator" style="text-align: center;" @click="getMore(false)"><a class="button is-primary">Get more</a></div>
+            </tr>
+            </tbody>
+          </table>
+          <!-- Field for searching for products. Uses "searchProduct"-method for searching -->
+          <div class="field has-addons" style="padding-right: 15px">
+            <div class="control">
+              <input v-on:keyup="searchProduct()" v-model="searchProducts" class="input" type="text" placeholder="Find a product">
+            </div>
+            <div class="control">
+              <a @click="searchProduct()" class="button is-primary">Search</a>
+            </div>
+          </div>
+        </section>
+
+        <footer class="modal-card-foot" style="justify-content: center">
+          <div class="field has-addons">
+            <div class="control">
+              <a class="button is-primary" @click="bindProducts()">Bind product(s)</a>
+            </div>
+          </div>
         </footer>
 
 
@@ -328,7 +388,14 @@
         modalComment: '',
         modalType: '',
         modalURL: '',
-        logItems: []
+        logItems: [],
+        unbindedProducts: [],
+        checkedProducts: [],
+        searchProducts: '',
+        showPaginatorClick: true,
+        searching: false,
+        payload: this.payloadInit('product'),
+        productIds: []
       }
     },
 
@@ -350,11 +417,136 @@
         if (event.key === 'Escape') {
           _this.closeModal()
           _this.closeLog()
+          _this.closeBind()
         }
       })
     },
 
     methods: {
+
+      payloadInit(type) {
+        return { // a default payload, can/should be extended
+          items: [],
+          links: {
+            prev: '?offset=0&amount=' + 25,
+            current: '?offset=0&amount=' + 25,
+            next: '?offset=0&amount=' + 25
+          },
+          sort: {
+            column: '&sort=' + type + 'Name',
+            order: '&order=asc'
+          },
+          meta: {
+            current: 0,
+            count: 0
+          },
+          errors: {
+            message: [],
+            status: 'OK'
+          },
+          errorflag: false
+        }
+      },
+      // GET METHODS
+      getMore (replaceItemsList) {
+        if (this.searching === false) {
+          this.getNext(replaceItemsList)
+        } else {
+          this.getNextSearchQuery(replaceItemsList)
+        }
+      },
+      getNext (replaceItemsList) {
+        axios.get(this.$baseAPI + 'products/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+          .then(response => {
+            this.payload = response.data
+            replaceItemsList ? this.unbindedProducts = this.payload.items : this.unbindedProducts = this.unbindedProducts.concat(this.payload.items)
+            this.unbindedProducts.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
+            let temp = []
+            this.unbindedProducts.forEach((comp, i) => {
+              if (!this.productIds.includes(comp.id)) {
+                temp.push(comp)
+              }
+            })
+            this.unbindedProducts = temp
+          }).catch(err => console.log(err))
+      },
+      getNextSearchQuery (replaceItemsList) {
+        if (this.unbindedProducts.length < this.payload.meta.count) {
+          axios.get(this.$baseAPI + 'products/search/' + this.searchProducts + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+            .then(response => {
+              this.payload = response.data
+              replaceItemsList ? this.unbindedProducts = [...this.payload.items] : this.unbindedProducts = [...this.unbindedProducts, ...this.payload.items]
+              if (this.unbindedProducts.length === this.payload.meta.count) {
+                this.showPaginatorClick = null
+              } else {
+                this.showPaginatorClick = true
+              }
+              let temp = []
+              this.unbindedProducts.forEach((comp, i) => {
+                if (!this.productIds.includes(comp.id)) {
+                  temp.push(comp)
+                }
+              })
+              this.unbindedProducts = temp
+            }).catch(err => console.log(err))
+        } else {
+          this.showPaginatorClick = null
+        }
+      },
+
+      searchProduct () {
+        this.searching = true
+        let sort = this.payload.sort
+        this.payload = this.payloadInit('product')
+        this.payload.sort = sort
+        this.showPaginatorClick = true
+        if (this.searchProducts.length === 0) {
+          this.searching = false
+          this.showPaginatorClick = true
+          this.unbindedProducts = []
+          this.getNext(true)
+          return
+        }
+        if ((this.searchProducts.length !== 0) && (this.searchProducts !== null) && (this.searchProducts !== '')) {
+          const path = 'products/search/' + this.searchProducts + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order
+          axios.get(this.$baseAPI + path).then(response => {
+            if (response.data != null) {
+              this.payload = response.data
+              this.unbindedProducts = this.payload.items
+            } else {
+              this.message = 'No product found!'
+            }
+          })
+        }
+      },
+
+      bindProducts () {
+        let _this = this
+        this.productIds = []
+        this.checkedProducts.forEach(function (prod) {
+          let data = {
+            productID: prod,
+            projectID: _this.project.id
+          }
+          let query = _this.$baseAPI + 'projects/connectProductWithProject/'
+          axios.post(query, data)
+        })
+        this.$router.go()
+      },
+
+      showBind () {
+        this.getNext(true)
+        let d = document.getElementById('bindWindow')
+        d.classList.add('is-active')
+      },
+
+      closeBind () {
+        let d = document.getElementById('bindWindow')
+        d.classList.remove('is-active')
+        this.payload = this.payloadInit('product')
+        this.fetchProducts()
+        this.searchProducts = ''
+      },
 
       getLog () {
         axios.get(this.$baseAPI + 'projects/log/' + this.$route.params.id)
@@ -385,8 +577,13 @@
        * Fetch all products that is in this project
        */
       fetchProducts () {
+        this.productIds = []
         axios.get(this.$baseAPI + 'products/productsInProject/' + this.$route.params.id).then(response => {
           this.products = response.data
+          this.products = response.data
+          this.products.forEach((prod) => {
+            this.productIds.push(prod.id)
+          })
         })
       },
       /**
