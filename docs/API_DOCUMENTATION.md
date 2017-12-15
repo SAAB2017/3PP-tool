@@ -33,9 +33,9 @@ Version: 1.0.0
 
 - [Get all approved components](#getApprovedComponents)
 
-- [Get all pending components](#getAllPendingComponents)
+- [Get all pending components](#getPendingComponents)
 
-- [Search for a signed component](#searchForSignedComponent)
+- [Search for an approved component](#searchForApprovedComponent)
 
 - [Search for a pending component](#searchForPendingComponent)
 
@@ -60,66 +60,63 @@ Version: 1.0.0
 
 ### Products
 
-- [Show all products](#showAllProducts)
+- [Get all products](#getAllProducts)
 
-- [Search for a specific signed product](#getSignedProductById)
+- [Get all approved products](#getApprovedProducts)
 
-- [Search for a specific unsigned product](#getUnsignedProductById)
+- [Get all pending products](#getPendingProducts)
 
-- [Show all approved products](#getApprovedProducts)
+- [Search for an approved product](#searchForApprovedProduct)
+
+- [Search for a pending product](#searchForPendingProduct)
+
+- [Get a product from its ID](#getProductById)
+
+- [Add a new product](#addProduct)
+
+- [Connect a component to a product](#connectComponentWithProduct)
 
 - [Approve a product](#approveProduct)
 
-- [Add a product](#addProduct)
+- [Change the comment of a product](#changeProductComment)
 
-- [Show all pending products](#getPendingProducts)
+- [Get all products containing a certain license](#getProductsWithLicense)
 
-- [Show all products containing a certain component](#getProductsByComponentId)
+- [Get all products containing a certain component](#getProductsWithComponent)
 
-- [Connect a component with a product](#connectComponentWithProduct)
+- [Get all products connected to a certain project](#getProductsInProject)
 
-- [Show all products connected to a certain project](#getProductsConnectedWithProject)
-
-- [Show all products containing a certain license](#getProductsByLicenseId)
-
-- [Show the log for a certain product](#showProductLogById)
-
-- [Change the comment of a certain product](#changeCommentOfProduct)
-
-- [Get the product with a certain ID](#getProductById)
-
-- [Get the product with a certain name](#getProductByName)
+- [Show the log for a certain product](#getProductLog)
 
 
 ### Projects
 
-- [Show all signed projects](#signedProjects)
+- [Get all approved projects](#getApprovedProjects)
  
-- [Show all unsigned projects](#unsignedProjects)
+- [Get all unsigned projects](#getPendingProjects)
+
+- [Search for an approved project](#searchForApprovedProject)
+
+- [Search for a pending project](#searchForPendingProject)
+
+- [Get a project from its ID](#getProjectById)
+
+- [Add a new project](#addProject)
+
+- [Connect a product to a project](#connectProductWithProject)
 
 - [Approve a project](#approveProject)
 
-- [Add a project](#addProject)
+- [Change the comment of a project](#changeProjectComment)
 
-- [Show all pending projects](#showPendingProjects)
+- [Get all projects containing a certain license](#getProjectsWithLicense)
 
-- [Show all projects containing a certain component](#showProjectsConnectedWithComponent)
+- [Get all projects containing a certain component](#getProjectsWithComponent)
 
-- [Connect a product with a project](#connectProductWithProject)
+- [Get all projects containing a certain product](#getProjectsWithProduct)
 
-- [Show all projects containing a certain license](#showProjectsWithLicense)
+- [Get the log for a certain project](#getProjectLog)
 
-- [Show all projects containing a certain product](#showProjectsWithProduct)
-
-- [Show the log for a certain project](#showLogByProjectId)
-
-- [Change the comment of a certain project](#changeCommentOfProject)
-
-- [Get the project with a certain ID](#getProjectById)
-
-- [Search for a specific signed project](#getSignedProjectByName)
-
-- [Search for a specific unsigned project](#getUnsignedProjectByName)
 
 ### Statuskod
 
@@ -737,7 +734,7 @@ axios.get('/components/?offset=0&amount=30&sort=componentName&order=asc')
 }
 ```
 
-<a name="getAllPendingComponents"/>
+<a name="getPendingComponents"/>
 
 ## Get all pending components.
 
@@ -799,9 +796,9 @@ axios.get('/components/pending?offset=0&amount=30&sort=componentName&order=desc'
 }
 ```
 
-<a name="searchForSignedComponent"/>
+<a name="searchForApprovedComponent"/>
 
-## Search for a signed component.
+## Search for an approved component.
 
 ### URL
 
@@ -1387,9 +1384,9 @@ axios.get('/components/log/1')
 
 # Products
 
-<a name="showAllProducts"/>
+<a name="getAllProducts"/>
 
-## Show all products
+## Get all products
 
 ### URL
 
@@ -1453,127 +1450,9 @@ axios.get('/products/all/?offset=0&amount=30&sort=productName&order=asc')
 }
 ```
 
-<a name="getSignedProductById"/>
-
-## Search for a specific signed product.
-
-### URL
-
-/products/search/:id/?offset=0&amount=30&sort=productName&order=asc
-
-### Method
-
-GET
-
-### URL Params
-
-Required:
-```
-id = productName
-offset = Integer
-amount = Integer
-sort = String
-order = asc OR desc
-```
-
-### Success Response
-
-Code: 200
-
-Content:
-```
-{
-"items": [{  "id":1,
-              "productName":"Third-Party License Management REST API",
-              "productVersion":"1.0",
-              "dateCreated":"2017-11-20",
-              "lastEdited":"2017-11-20",
-              "comment":"Third party handler Rest API for handling licenses.",
-              "approved":1,
-              "approvedBy":"Nils Nilsson"}],
-"links": {    "prev":"?offset=0&amount=5",
-              "current":"?offset=0&amount=5",
-              "next":"?offset=0&amount=5"},
-"sort": {     "column":"&sort=productName",
-              "order":"&order=asc"},
-"meta": {     "current":0,
-              "count":0},
-"errors": {   "message":[],
-              "status":"OK"},
-"errorflag": false
-}
-```
-
-### Sample Call
-```javascript
-axios.get('/products/search/Third-Party License Management REST API/?offset=0&amount=30&sort=productName&order=asc')
-  .then(response => {
-  response.data
-}
-```
-
-<a name="getUnsignedProductById"/>
-
-## Search for a specific unsigned product.
-
-### URL
-
-/products/pending/search/:id/?offset=0&amount=30&sort=productName&order=asc
-
-### Method
-
-GET
-
-### URL Params
-
-Required:
-```
-id = productName
-offset = Integer
-amount = Integer
-sort = String
-order = asc OR desc
-```
-
-### Success Response
-
-Code: 200
-
-Content:
-```
-{
-"items": [{  "id":2,
-              "productName":"Third-Party License Management WUI",
-              "productVersion":"1.0",
-              "dateCreated":"2017-11-20",
-              "lastEdited":"2017-11-20",
-              "comment":"Third party handler Rest API for handling licenses.",
-              "approved":0,
-              "approvedBy":"Nils Nilsson"}],
-"links": {    "prev":"?offset=0&amount=5",
-              "current":"?offset=0&amount=5",
-              "next":"?offset=0&amount=5"},
-"sort": {     "column":"&sort=productName",
-              "order":"&order=asc"},
-"meta": {     "current":0,
-              "count":0},
-"errors": {   "message":[],
-              "status":"OK"},
-"errorflag": false
-}
-```
-
-### Sample Call
-```javascript
-axios.get('/products/pending/search/Third-Party License Management WUI/?offset=0&amount=30&sort=productName&order=asc')
-  .then(response => {
-  response.data
-}
-```
-
 <a name="getApprovedProducts"/>
 
-## Show all approved products
+## Get all approved products
 
 ### URL
 
@@ -1629,127 +1508,9 @@ axios.get('/products/?offset=0&amount=30&sort=productName&order=asc')
 }
 ```
 
-<a name="approveProduct"/>
-
-## Approve a product.
-
-### URL
-
-/products/approve
-
-### Method
-
-PUT
-
-### Data Params
-
-Example:
-```
-{
-  id : Integer,
-  approved : Integer,
-  approvedBy : String,
-}
-```
-
-### Success Response
-
-Code: 201
-
-Content:
-```
-{
-  send : "success"
-}
-```
-
-### Error Response
-
-Code: 500
-
-Content:
-TODO
-
-### Sample Call
-```
-let data = '{
-              id : 1,
-              approved : 1,
-              approvedBy : "Nils Nilsson",
-            }'
-```
-```javascript
-axios.post('/products/approve', data)
-  .then(response => {
-  response
-})
-```
-
-<a name="addProduct"/>
-
-## Add a product.
-
-### URL
-
-/products/add
-
-### Method
-
-POST
-
-### Data Params
-
-Example:
-```
-{
-    "productName" : String,
-    "productVersion" : String,
-    "dateCreated" : Date,
-    "lastEdited" : Date,
-    "comment" : String,
-    "components" : [Integer,Integer]
-}
-```
-
-### Success Response
-
-Code: 201
-
-Content:
-```
-{
-  send : "success"
-}
-```
-
-### Error Response
-
-Code: 500
-
-Content:
-TODO
-
-### Sample Call
-```
-let data = '{
-    "productName":"Random product name",
-    "productVersion":"1.0",
-    "dateCreated":"2017-11-20",
-    "lastEdited":"2017-11-20",
-    "comment":"Third party handler Rest API for handling licenses.",
-    "components":[1,2]
-}'
-```
-```javascript
-axios.post('/products/add', data)
-  .then(response => {
-  response
-})
-```
-
 <a name="getPendingProducts"/>
 
-## Show all pending products.
+## Get all pending products.
 
 ### URL
 
@@ -1809,13 +1570,131 @@ axios.get('/products/pending/?offset=0&amount=30&sort=productName&order=desc')
 }
 ```
 
-<a name="getProductsByComponentId"/>
+<a name="searchForApprovedProduct"/>
 
-## Show all products containing a certain component.
+## Search for an approved product.
 
 ### URL
 
-/products/productsWithComponent/:id
+/products/search/:id/?offset=0&amount=30&sort=productName&order=asc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = productName
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+"items": [{  "id":1,
+              "productName":"Third-Party License Management REST API",
+              "productVersion":"1.0",
+              "dateCreated":"2017-11-20",
+              "lastEdited":"2017-11-20",
+              "comment":"Third party handler Rest API for handling licenses.",
+              "approved":1,
+              "approvedBy":"Nils Nilsson"}],
+"links": {    "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+"sort": {     "column":"&sort=productName",
+              "order":"&order=asc"},
+"meta": {     "current":0,
+              "count":0},
+"errors": {   "message":[],
+              "status":"OK"},
+"errorflag": false
+}
+```
+
+### Sample Call
+```javascript
+axios.get('/products/search/Third-Party License Management REST API/?offset=0&amount=30&sort=productName&order=asc')
+  .then(response => {
+  response.data
+}
+```
+
+<a name="searchForPendingProduct"/>
+
+## Search for a pending product.
+
+### URL
+
+/products/pending/search/:id/?offset=0&amount=30&sort=productName&order=asc
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = productName
+offset = Integer
+amount = Integer
+sort = String
+order = asc OR desc
+```
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+"items": [{  "id":2,
+              "productName":"Third-Party License Management WUI",
+              "productVersion":"1.0",
+              "dateCreated":"2017-11-20",
+              "lastEdited":"2017-11-20",
+              "comment":"Third party handler Rest API for handling licenses.",
+              "approved":0,
+              "approvedBy":"Nils Nilsson"}],
+"links": {    "prev":"?offset=0&amount=5",
+              "current":"?offset=0&amount=5",
+              "next":"?offset=0&amount=5"},
+"sort": {     "column":"&sort=productName",
+              "order":"&order=asc"},
+"meta": {     "current":0,
+              "count":0},
+"errors": {   "message":[],
+              "status":"OK"},
+"errorflag": false
+}
+```
+
+### Sample Call
+```javascript
+axios.get('/products/pending/search/Third-Party License Management WUI/?offset=0&amount=30&sort=productName&order=asc')
+  .then(response => {
+  response.data
+}
+```
+
+<a name="getProductById"/>
+
+## Get the product from its ID.
+
+### URL
+
+/products/:id
 
 ### Method
 
@@ -1835,16 +1714,16 @@ Code: 200
 
 Content:
 ```
-[{
+{
 "id" : 1,
-"componentName" : "A component",
-"componentVersion" : "1.0",
+"productName" : "Third-Party License Management REST API",
+"productVersion" : "1.0",
 "dateCreated" : "2017-11-20",
 "lastEdited" : "2017-11-20",
-"comment" : "This is a component.",
+"comment" : "Third party handler Rest API for handling licenses.",
 "approved" : 1,
 "approvedBy" : "Nils Nilsson"
-}]
+}
 ```
 
 ### Error Response
@@ -1853,15 +1732,77 @@ TODO
 
 ### Sample Call
 ```javascript
-axios.get('/products/productsWithComponent/1')
+axios.get('/products/1')
   .then(response => {
   response.data
 }
 ```
 
+<a name="addProduct"/>
+
+## Add a new product.
+
+### URL
+
+/products/add
+
+### Method
+
+POST
+
+### Data Params
+
+Example:
+```
+{
+    "productName" : String,
+    "productVersion" : String,
+    "dateCreated" : Date,
+    "lastEdited" : Date,
+    "comment" : String,
+    "components" : [Integer,Integer]
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+TODO
+
+### Sample Call
+```
+let data = '{
+    "productName":"Random product name",
+    "productVersion":"1.0",
+    "dateCreated":"2017-11-20",
+    "lastEdited":"2017-11-20",
+    "comment":"Third party handler Rest API for handling licenses.",
+    "components":[1,2]
+}'
+```
+```javascript
+axios.post('/products/add', data)
+  .then(response => {
+  response
+})
+```
+
 <a name="connectComponentWithProduct"/>
 
-## Connect a component with a product.
+## Connect a component to a product.
 
 ### URL
 
@@ -1913,154 +1854,65 @@ axios.post('/products/connectComponentWithProduct', data)
 })
 ```
 
-<a name="getProductsConnectedWithProject"/>
+<a name="approveProduct"/>
 
-## Show all products connected to a certain project.
+## Approve a product.
 
 ### URL
 
-/products/productsInProject/:id
+/products/approve
 
 ### Method
 
-GET
+PUT
 
-### URL Params
+### Data Params
 
-Required:
+Example:
 ```
-id = Integer
+{
+  id : Integer,
+  approved : Integer,
+  approvedBy : String,
+}
 ```
-Example: id = 1
 
 ### Success Response
 
-Code: 200
+Code: 201
 
 Content:
 ```
-[{
-"id" : 1,
-"projectName" : "A Project",
-"projectVersion" : "1.0",
-"dateCreated" : "2017-11-20",
-"lastEdited" : "2017-11-20",
-"comment" : "This is a project.",
-"approved" : 1,
-"approvedBy" : "Nils Nilsson"
-}]
+{
+  send : "success"
+}
 ```
 
 ### Error Response
 
-TODO
-
-### Sample Call
-```javascript
-axios.get('/products/productsWithComponent/1')
-  .then(response => {
-  response.data
-}
-```
-
-<a name="getProductsByLicenseId"/>
-
-## Show all products containing a certain license.
-
-### URL
-
-/products/productsWithLicense/:id
-
-### Method
-
-GET
-
-### URL Params
-
-Required:
-```
-id = Integer
-```
-Example: id = 1
-
-### Success Response
-
-Code: 200
+Code: 500
 
 Content:
-```
-[{
-"id" : 1,
-"licenseName" : "A license",
-"licenseVersion" : "1.0",
-"dateCreated" : "2017-11-20",
-"lastEdited" : "2017-11-20",
-"comment" : "This is a License.",
-"URL" : "www.hej.se"
-}]
-```
-
-### Error Response
-
 TODO
 
 ### Sample Call
+```
+let data = '{
+              id : 1,
+              approved : 1,
+              approvedBy : "Nils Nilsson",
+            }'
+```
 ```javascript
-axios.get('/products/productsWithLicense/1')
+axios.post('/products/approve', data)
   .then(response => {
-  response.data
-}
+  response
+})
 ```
 
-<a name="showProductLogById"/>
+<a name="changeProductComment"/>
 
-## Show the log for a certain product.
-
-### URL
-
-/products/log/:id
-
-### Method
-
-GET
-
-### URL Params
-
-Required:
-```
-id = Integer
-```
-Example: id = 1
-
-### Success Response
-
-Code: 200
-
-Content:
-```
-[{
-"id" : 1,
-"productID" : 1,
-"dateLogged" : "2017-11-05",
-"note" : "Product created."
-}]
-```
-
-### Error Response
-
-TODO
-
-### Sample Call
-```javascript
-axios.get('/products/log/1')
-  .then(response => {
-  response.data
-}
-```
-
-<a name="changeCommentOfProduct"/>
-
-## Change the comment of a certain product.
+## Change the comment of a product.
 
 ### URL
 
@@ -2112,13 +1964,13 @@ axios.post('/products/comment', data)
 })
 ```
 
-<a name="getProductById"/>
+<a name="getProductsWithLicense"/>
 
-## Get the product with a certain ID.
+## Get all products containing a certain license.
 
 ### URL
 
-/products/:id
+/products/productsWithLicense/:id
 
 ### Method
 
@@ -2138,16 +1990,15 @@ Code: 200
 
 Content:
 ```
-{
+[{
 "id" : 1,
-"productName" : "Third-Party License Management REST API",
-"productVersion" : "1.0",
+"licenseName" : "A license",
+"licenseVersion" : "1.0",
 "dateCreated" : "2017-11-20",
 "lastEdited" : "2017-11-20",
-"comment" : "Third party handler Rest API for handling licenses.",
-"approved" : 1,
-"approvedBy" : "Nils Nilsson"
-}
+"comment" : "This is a License.",
+"URL" : "www.hej.se"
+}]
 ```
 
 ### Error Response
@@ -2156,19 +2007,19 @@ TODO
 
 ### Sample Call
 ```javascript
-axios.get('/products/1')
+axios.get('/products/productsWithLicense/1')
   .then(response => {
   response.data
 }
 ```
 
-<a name="getProductByName"/>
+<a name="getProductsWithComponent"/>
 
-## Get the product with a certain name.
+## Get all products containing a certain component.
 
 ### URL
 
-/products/search/:id
+/products/productsWithComponent/:id
 
 ### Method
 
@@ -2180,7 +2031,7 @@ Required:
 ```
 id = Integer
 ```
-Example: id = product name
+Example: id = 1
 
 ### Success Response
 
@@ -2188,16 +2039,16 @@ Code: 200
 
 Content:
 ```
-{
+[{
 "id" : 1,
-"productName" : "Third-Party License Management REST API",
-"productVersion" : "1.0",
+"componentName" : "A component",
+"componentVersion" : "1.0",
 "dateCreated" : "2017-11-20",
 "lastEdited" : "2017-11-20",
-"comment" : "Third party handler Rest API for handling licenses.",
+"comment" : "This is a component.",
 "approved" : 1,
 "approvedBy" : "Nils Nilsson"
-}
+}]
 ```
 
 ### Error Response
@@ -2206,17 +2057,114 @@ TODO
 
 ### Sample Call
 ```javascript
-axios.get('/products/search/Third-Party License Management REST API')
+axios.get('/products/productsWithComponent/1')
   .then(response => {
   response.data
 }
 ```
 
+<a name="getProductsInProject"/>
+
+## Get all products connected to a certain project.
+
+### URL
+
+/products/productsInProject/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"projectName" : "A Project",
+"projectVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "This is a project.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/products/productsWithComponent/1')
+  .then(response => {
+  response.data
+}
+```
+
+<a name="getProductLog"/>
+
+## Get the log for a certain product.
+
+### URL
+
+/products/log/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"productID" : 1,
+"dateLogged" : "2017-11-05",
+"note" : "Product created."
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/products/log/1')
+  .then(response => {
+  response.data
+}
+```
+
+
 # Projects
 
-<a name="signedProjects"/>
+<a name="getApprovedProjects"/>
 
-## Show all signed projects
+## Get all approved projects
 
 ### URL
 
@@ -2272,9 +2220,9 @@ axios.get('/projects/?offset=0&amount=30&sort=projectName&order=asc')
 }
 ```
 
-<a name="unsignedProjects"/>
+<a name="getPendingProjects"/>
 
-## Show all unsigned projects
+## Get all pending projects
 
 ### URL
 
@@ -2330,526 +2278,10 @@ axios.get('/projects/?offset=0&amount=30&sort=projectName&order=asc')
 }
 ```
 
-<a name="approveProject"/>
+<a name="searchForApprovedProject"/>
 
-## Approve a project.
 
-### URL
-
-/projects/approve
-
-### Method
-
-PUT
-
-### Data Params
-
-Example:
-```
-{
-  id : Integer,
-  approved : Integer,
-  approvedBy : String,
-}
-```
-
-### Success Response
-
-Code: 201
-
-Content:
-```
-{
-  send : "success"
-}
-```
-
-### Error Response
-
-Code: 500
-
-Content:
-TODO
-
-### Sample Call
-```
-let data = '{
-              id : 1,
-              approved : 1,
-              approvedBy : "Nils Nilsson",
-            }'
-```
-```javascript
-axios.post('/projects/approve', data)
-  .then(response => {
-  response
-})
-```
-
-<a name="addProject"/>
-
-## Add a project.
-
-### URL
-
-/projects/add
-
-### Method
-
-POST
-
-### Data Params
-
-Example:
-```
-{
-    "projectName" : String,
-    "projectVersion" : String,
-    "comment" : String,
-    "products" : [Integer,Integer]
-}
-```
-
-### Success Response
-
-Code: 201
-
-Content:
-```
-{
-  send : "success"
-}
-```
-
-### Error Response
-
-Code: 500
-
-Content:
-TODO
-
-### Sample Call
-```
-let data = '{
-    "projectName" : "A project",
-    "projectVersion" : "1.0",
-    "comment" : "Third party handler Rest API for handling licenses.",
-    "products" : [1,2]
-    }'
-```
-```javascript
-axios.post('/project/add', data)
-  .then(response => {
-  response
-})
-```
-
-<a name="showPendingProjects"/>
-
-## Show all pending projects.
-
-### URL
-
-/projects/pending/
-
-### Method
-
-GET
-
-### URL Params
-
-Required:
-none
-
-### Success Response
-
-Code: 200
-
-Content:
-```
-[{
-"id" : 1,
-"projectName" : "A project",
-"projectVersion" : "1.0",
-"dateCreated" : "2017-11-20",
-"lastEdited" : "2017-11-20",
-"comment" : "Third party handler Rest API for handling licenses.",
-"approved" : 1,
-"approvedBy" : "Nils Nilsson"
-}]
-```
-
-### Error Response
-
-TODO
-
-### Sample Call
-```javascript
-axios.get('/project/pending')
-  .then(response => {
-  response.data
-}
-```
-
-<a name="showProjectsConnectedWithComponent"/>
-
-## Show all projects containing a certain component.
-
-### URL
-
-/projects/projectsWithComponent/:id
-
-### Method
-
-GET
-
-### URL Params
-
-Required:
-```
-id = Integer
-```
-Example: id = 1
-
-### Success Response
-
-Code: 200
-
-Content:
-```
-[{
-"id" : 1,
-"projectName" : "A Project",
-"projectVersion" : "1.0",
-"dateCreated" : "2017-11-20",
-"lastEdited" : "2017-11-20",
-"comment" : "This is a project.",
-"approved" : 1,
-"approvedBy" : "Nils Nilsson"
-}]
-```
-
-### Error Response
-
-TODO
-
-### Sample Call
-```javascript
-axios.get('/projects/projectsWithComponent/1')
-  .then(response => {
-  response.data
-}
-```
-
-<a name="connectProductWithProject"/>
-
-## Connect a product with a project.
-
-### URL
-
-/projects/connectProductWithProject
-
-### Method
-
-POST
-
-### Data Params
-
-Example:
-```
-{
-    projectID : Integer,
-    productID : Integer,
-}
-```
-
-### Success Response
-
-Code: 201
-
-Content:
-```
-{
-  send : "success"
-}
-```
-
-### Error Response
-
-Code: 500
-
-Content:
-TODO
-
-### Sample Call
-```
-let data = '{
-              projectID : 1,
-              productID : 2,
-            '
-```
-```javascript
-axios.post('/projects/connectProductWithProject', data)
-  .then(response => {
-  response
-})
-```
-
-<a name="showProjectsWithLicense"/>
-
-## Show all projects containing a certain license.
-
-### URL
-
-/projects/projectsWithLicense/:id
-
-### Method
-
-GET
-
-### URL Params
-
-Required:
-```
-id = Integer
-```
-Example: id = 1
-
-### Success Response
-
-Code: 200
-
-Content:
-```
-[{
-"id" : 1,
-"projectName" : "A Project",
-"projectVersion" : "1.0",
-"dateCreated" : "2017-11-20",
-"lastEdited" : "2017-11-20",
-"comment" : "This is a project.",
-"approved" : 1,
-"approvedBy" : "Nils Nilsson"
-}]
-```
-
-### Error Response
-
-TODO
-
-### Sample Call
-```javascript
-axios.get('/projects/projectsWithLicense/1')
-  .then(response => {
-  response.data
-}
-```
-
-<a name="showProjectsWithProduct"/>
-
-## Show all projects containing a certain product.
-
-### URL
-
-/projects/projectsWithProduct/:id
-
-### Method
-
-GET
-
-### URL Params
-
-Required:
-```
-id = Integer
-```
-Example: id = 1
-
-### Success Response
-
-Code: 200
-
-Content:
-```
-[{
-"id" : 1,
-"projectName" : "A Project",
-"projectVersion" : "1.0",
-"dateCreated" : "2017-11-20",
-"lastEdited" : "2017-11-20",
-"comment" : "This is a project.",
-"approved" : 1,
-"approvedBy" : "Nils Nilsson"
-}]
-```
-
-### Error Response
-
-TODO
-
-### Sample Call
-```javascript
-axios.get('/products/productsWithLicense/1')
-  .then(response => {
-  response.data
-}
-```
-
-<a name="showLogByProjectId"/>
-
-## Show the log for a certain project.
-
-### URL
-
-/projects/log/:id
-
-### Method
-
-GET
-
-### URL Params
-
-Required:
-```
-id = Integer
-```
-Example: id = 1
-
-### Success Response
-
-Code: 200
-
-Content:
-```
-[{
-"id" : 1,
-"projectID" : 1,
-"dateLogged" : "2017-11-05",
-"note" : "Project created."
-}]
-```
-
-### Error Response
-
-TODO
-
-### Sample Call
-```javascript
-axios.get('/projects/log/1')
-  .then(response => {
-  response.data
-}
-```
-
-<a name="changeCommentOfProject"/>
-
-## Change the comment of a certain project.
-
-### URL
-
-/projects/comment
-
-### Method
-
-POST
-
-### Data Params
-
-Example:
-```
-{
-    projectID : Integer,
-    comment : String,
-}
-```
-
-### Success Response
-
-Code: 201
-
-Content:
-```
-{
-  send : "success"
-}
-```
-
-### Error Response
-
-Code: 500
-
-Content:
-TODO
-
-### Sample Call
-```
-let data = '{
-              projectID : 1,
-              comment : "Detta är en ny kommentar",
-            '
-```
-```javascript
-axios.post('/projects/comment', data)
-  .then(response => {
-  response
-})
-```
-
-<a name="getProjectById"/>
-
-
-## Get the project with a certain ID.
-
-### URL
-
-/projects/:id
-
-### Method
-
-GET
-
-### URL Params
-
-Required:
-```
-id = Integer
-```
-Example: id = 1
-
-### Success Response
-
-Code: 200
-
-Content:
-```
-{
-"id" : 1,
-"projectName" : "A Project",
-"projectVersion" : "1.0",
-"dateCreated" : "2017-11-20",
-"lastEdited" : "2017-11-20",
-"comment" : "This is a project.",
-"approved" : 1,
-"approvedBy" : "Nils Nilsson"
-}
-```
-
-### Error Response
-
-TODO
-
-### Sample Call
-```javascript
-axios.get('/projects/1')
-  .then(response => {
-  response.data
-}
-```
-
-<a name="getSignedProjectByName"/>
-
-
-## Search for a specific signed project.
+## Search for an approved project.
 
 ### URL
 
@@ -2910,10 +2342,10 @@ axios.get('/projects/search/:id?offset=0&amount=30&sort=comment&order=asc')
 }
 ```
 
-<a name="getUnsignedProjectByName"/>
+<a name="searchForPendingProject"/>
 
 
-## Search for a specific unsigned project.
+## Search for a pending project.
 
 ### URL
 
@@ -2969,6 +2401,475 @@ TODO
 ### Sample Call
 ```javascript
 axios.get('/projects/pending/search/A project?offset=0&amount=30&sort=comment&order=asc')
+  .then(response => {
+  response.data
+}
+```
+
+<a name="getProjectById"/>
+
+
+## Get a project from its ID.
+
+### URL
+
+/projects/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+{
+"id" : 1,
+"projectName" : "A Project",
+"projectVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "This is a project.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/projects/1')
+  .then(response => {
+  response.data
+}
+```
+
+<a name="addProject"/>
+
+## Add a new project.
+
+### URL
+
+/projects/add
+
+### Method
+
+POST
+
+### Data Params
+
+Example:
+```
+{
+    "projectName" : String,
+    "projectVersion" : String,
+    "comment" : String,
+    "products" : [Integer,Integer]
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+TODO
+
+### Sample Call
+```
+let data = '{
+    "projectName" : "A project",
+    "projectVersion" : "1.0",
+    "comment" : "Third party handler Rest API for handling licenses.",
+    "products" : [1,2]
+    }'
+```
+```javascript
+axios.post('/project/add', data)
+  .then(response => {
+  response
+})
+```
+
+<a name="connectProductWithProject"/>
+
+## Connect a product to a project.
+
+### URL
+
+/projects/connectProductWithProject
+
+### Method
+
+POST
+
+### Data Params
+
+Example:
+```
+{
+    projectID : Integer,
+    productID : Integer,
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+TODO
+
+### Sample Call
+```
+let data = '{
+              projectID : 1,
+              productID : 2,
+            '
+```
+```javascript
+axios.post('/projects/connectProductWithProject', data)
+  .then(response => {
+  response
+})
+```
+
+<a name="approveProject"/>
+
+## Approve a project.
+
+### URL
+
+/projects/approve
+
+### Method
+
+PUT
+
+### Data Params
+
+Example:
+```
+{
+  id : Integer,
+  approved : Integer,
+  approvedBy : String,
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+TODO
+
+### Sample Call
+```
+let data = '{
+              id : 1,
+              approved : 1,
+              approvedBy : "Nils Nilsson",
+            }'
+```
+```javascript
+axios.post('/projects/approve', data)
+  .then(response => {
+  response
+})
+```
+
+<a name="changeProjectComment"/>
+
+## Change the comment of a project.
+
+### URL
+
+/projects/comment
+
+### Method
+
+POST
+
+### Data Params
+
+Example:
+```
+{
+    projectID : Integer,
+    comment : String,
+}
+```
+
+### Success Response
+
+Code: 201
+
+Content:
+```
+{
+  send : "success"
+}
+```
+
+### Error Response
+
+Code: 500
+
+Content:
+TODO
+
+### Sample Call
+```
+let data = '{
+              projectID : 1,
+              comment : "Detta är en ny kommentar",
+            '
+```
+```javascript
+axios.post('/projects/comment', data)
+  .then(response => {
+  response
+})
+```
+
+<a name="getProjectsWithLicense"/>
+
+## Get all projects containing a certain license.
+
+### URL
+
+/projects/projectsWithLicense/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"projectName" : "A Project",
+"projectVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "This is a project.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/projects/projectsWithLicense/1')
+  .then(response => {
+  response.data
+}
+```
+
+<a name="getProjectsWithComponent"/>
+
+## Get all projects containing a certain component.
+
+### URL
+
+/projects/projectsWithComponent/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"projectName" : "A Project",
+"projectVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "This is a project.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/projects/projectsWithComponent/1')
+  .then(response => {
+  response.data
+}
+```
+
+<a name="getProjectsWithProduct"/>
+
+## Get all projects containing a certain product.
+
+### URL
+
+/projects/projectsWithProduct/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"projectName" : "A Project",
+"projectVersion" : "1.0",
+"dateCreated" : "2017-11-20",
+"lastEdited" : "2017-11-20",
+"comment" : "This is a project.",
+"approved" : 1,
+"approvedBy" : "Nils Nilsson"
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/products/productsWithLicense/1')
+  .then(response => {
+  response.data
+}
+```
+
+<a name="getProjectLog"/>
+
+## Get the log for a certain project.
+
+### URL
+
+/projects/log/:id
+
+### Method
+
+GET
+
+### URL Params
+
+Required:
+```
+id = Integer
+```
+Example: id = 1
+
+### Success Response
+
+Code: 200
+
+Content:
+```
+[{
+"id" : 1,
+"projectID" : 1,
+"dateLogged" : "2017-11-05",
+"note" : "Project created."
+}]
+```
+
+### Error Response
+
+TODO
+
+### Sample Call
+```javascript
+axios.get('/projects/log/1')
   .then(response => {
   response.data
 }
