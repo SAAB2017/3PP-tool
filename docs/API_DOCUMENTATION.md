@@ -37,7 +37,7 @@ Version: 1.0.0
 
 - [Search for a signed component](#searchForSignedComponent)
 
-- [Search for a specific pending component](#searchForPendingComponent)
+- [Search for a pending component](#searchForPendingComponent)
 
 - [Get a component from its ID](#getComponentByID)
 
