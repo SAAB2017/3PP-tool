@@ -3,7 +3,7 @@ const ORD = ['asc', 'desc']
 const DEFAULTPAYLOADSIZE = 5
 
 module.exports = {
-  payloadInit: function(type) {
+  payloadInit: (type) => {
     return { // a default payload, can/should be extended
       items: [],
       links: {

@@ -76,8 +76,7 @@
         message: '',
         showPaginatorClick: true,
         searching: false,
-        payload: this.payloadInit('license'),
-        payloadFactory: this.payloadInit('license'),
+        payload: this.payloadInit('license')
       }
     },
 
@@ -92,12 +91,12 @@
           this.searching = false
           this.showPaginatorClick = true
           this.licenses = []
-          this.payload = this.payloadFactory
+          this.payload = this.payloadInit('license')
           this.getNext(true)
         } else if (a.length > 0) {
           this.searching = true
           let sort = this.payload.sort
-          this.payload = this.payloadFactory
+          this.payload = this.payloadInit('license')
           this.payload.sort = sort
           this.searchLicense(a)
         }
@@ -185,7 +184,7 @@
         this.searching = true
         // create a new payload frame, with the old context data (so that we know "where" to get the next 25, 50 etc
         let sort = this.payload.sort
-        this.payload = this.payloadFactory
+        this.payload = this.payloadInit('license')
         this.payload.sort = sort
         this.showPaginatorClick = true
         if (this.searchLicenses.length === 0) {
@@ -218,7 +217,7 @@
 
       sortName () {
         this.licenses = []
-        let newpayload = this.payloadFactory
+        let newpayload = this.payloadInit('license')
         newpayload.sort.column = '&sort=licenseName'
         if (this.ordering === 'asc') {
           this.ordering = 'desc'
@@ -232,7 +231,7 @@
         this.getMore(true)
       },
       sortVersion () {
-        let newpayload = this.payloadFactory
+        let newpayload = this.payloadInit('license')
         newpayload.sort.column = '&sort=licenseVersion'
         if (this.ordering === 'asc') {
           this.ordering = 'desc'
@@ -246,7 +245,7 @@
         this.getMore(true)
       },
       sortCreated () {
-        let newpayload = this.payloadFactory
+        let newpayload = this.payloadInit('license')
         newpayload.sort.column = '&sort=dateCreated'
         if (this.ordering === 'asc') {
           this.ordering = 'desc'
@@ -260,7 +259,7 @@
         this.getMore(true)
       },
       sortEdited () {
-        let newpayload = this.payloadFactory
+        let newpayload = this.payloadInit('license')
         newpayload.sort.column = '&sort=lastEdited'
         if (this.ordering === 'asc') {
           this.ordering = 'desc'

@@ -79,14 +79,14 @@
         searchLicense: '',
         searching: false,
         showPaginatorClick: true,
-        payload: this.payloadInit('component'),
+        payload: this.payloadInit('license'),
         errorList: [],
         success: true
       }
     },
     /* Fetches liceses from the database and puts them in licenses */
     mounted () {
-      this.payload = this.payloadInit('component')
+      this.payload = this.payloadInit('license')
       this.getNextLicenses(true)
     },
 
@@ -211,7 +211,7 @@
         this.searching = true
         // create a new payload frame, with the old context data (so that we know "where" to get the next 25, 50 etc
         let sort = this.payload.sort
-        this.payload = this.payloadInit('component')
+        this.payload = this.payloadInit('license')
         this.payload.sort = sort
         this.showPaginatorClick = true
         if (this.searchLicense.length === 0) {

@@ -94,7 +94,7 @@
         searchComponents: '',
         showPaginatorClick: true,
         searching: false,
-        payload: this.payloadInit('component')(),
+        payload: this.payloadInit('component'),
         errorList: []
       }
     },
