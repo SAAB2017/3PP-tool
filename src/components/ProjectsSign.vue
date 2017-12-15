@@ -133,17 +133,17 @@
         axios.get(this.$baseAPI + uri + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             _this.payload = response.data
-            replaceItemsList ? _this.projects = [..._this.payload.items] : _this.projects = [..._this.projects, ..._this.payload.items]
+            replaceItemsList ? _this.projects = _this.payload.items : _this.projects = _this.projects.concat(_this.payload.items)
             _this.projects.length === _this.payload.meta.count ? _this.showPaginatorClick = null : _this.showPaginatorClick = true
           }).catch(err => console.log(err))
       },
       getNextSearchQuery (uri, replaceItemsList) {
         let _this = this
         if (this.projects.length < this.payload.meta.count) {
-          axios.get(this.$baseAPI + `${uri}/search/` + this.searchProjects + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+          axios.get(this.$baseAPI + uri + '/search/' + this.searchProjects + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
             .then(response => {
               _this.payload = response.data
-              replaceItemsList ? _this.projects = [..._this.payload.items] : _this.projects = [..._this.projects, ..._this.payload.items]
+              replaceItemsList ? _this.projects = _this.payload.items : _this.projects = _this.projects.concat(_this.payload.items)
               if (_this.projects.length === _this.payload.meta.count) {
                 _this.showPaginatorClick = null
               } else {

@@ -185,7 +185,7 @@
         axios.get(this.$baseAPI + 'components/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
-            replaceItemsList ? this.components = [...this.payload.items] : this.components = [...this.components, ...this.payload.items]
+            replaceItemsList ? this.components = this.payload.items : this.components = this.components.concat(this.payload.items)
             this.components.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
           }).catch(err => console.log(err))
       },

@@ -6,6 +6,7 @@ import 'font-awesome/css/font-awesome.css'
 import payloadcfg from '../backend/routes/config'
 Vue.config.productionTip = false
 
+// TODO: CHANGE TO LOCALHOST
 Vue.prototype.$baseAPI = 'http://localhost:3000/'
 Vue.prototype.$initPayload = payloadcfg.payloadInit
 

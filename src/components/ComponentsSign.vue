@@ -69,7 +69,6 @@ s<!-- Viezx w for showing all unsigned components -->
     },
     /* Fetches unsigned components from the database and puts them in components */
     mounted () {
-      // TODO: getNext()
       this.payload = this.payloadFactory()
       this.getNext(true)
     },
@@ -138,7 +137,11 @@ s<!-- Viezx w for showing all unsigned components -->
         axios.get(this.$baseAPI + 'components/pending/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
-            replaceItemsList ? this.components = [...this.payload.items] : this.components = [...this.components, ...this.payload.items]
+            if (replaceItemsList) {
+              this.components = this.payload.items
+            } else {
+              this.components = this.components.concat(this.payload.items)
+            }
             this.components.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
           })
       },
@@ -147,7 +150,11 @@ s<!-- Viezx w for showing all unsigned components -->
         axios.get(p)
           .then(response => {
             this.payload = response.data
-            replaceItemsList ? this.components = [...this.payload.items] : this.components = [...this.components, ...this.payload.items]
+            if (replaceItemsList) {
+              this.components = this.payload.items
+            } else {
+              this.components = this.components.concat(this.payload.items)
+            }
             if (this.components.length === this.payload.meta.count) {
               this.showPaginatorClick = null
             } else {

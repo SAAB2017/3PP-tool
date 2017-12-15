@@ -106,7 +106,7 @@
       /**
        * Searches for signed components from the database matching the search-criteria
        */
-
+      // TODO: if all else fails, så funkar inte detta på IE11
       payloadFactory: payloadcfg.payloadInit.bind(null, 'component'),
       /**
        * Opens the view for a specific component with id id.
@@ -133,11 +133,11 @@
           return
         }
         if ((this.searchComponents.length !== 0) && (this.searchComponents !== null) && (this.searchComponents !== '')) {
-          const path = `components/search/${this.searchComponents}/${this.payload.links.next}${this.payload.sort.column}${this.payload.sort.order}`
+          const path = 'components/search/' + this.searchComponents + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order
           axios.get(this.$baseAPI + path).then(response => {
             if (response.data != null) {
               this.payload = response.data
-              this.components = [...this.payload.items]
+              this.components = this.payload.items
             } else {
               this.message = 'No component found!'
             }
@@ -157,7 +157,11 @@
         axios.get(this.$baseAPI + 'components/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
-            replaceItemsList ? this.components = [...this.payload.items] : this.components = [...this.components, ...this.payload.items]
+            if (replaceItemsList) {
+              this.components = this.payload.items
+            } else {
+              this.components = this.components.concat(this.payload.items)
+            }
             this.components.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
           }
           )
@@ -166,7 +170,11 @@
         axios.get(this.$baseAPI + 'components/search/' + this.searchComponents + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
-            replaceItemsList ? this.components = [...this.payload.items] : this.components = [...this.components, ...this.payload.items]
+            if (replaceItemsList) {
+              this.components = this.payload.items
+            } else {
+              this.components = this.components.concat(this.payload.items)
+            }
             if (this.components.length === this.payload.meta.count) {
               this.showPaginatorClick = null
             } else {

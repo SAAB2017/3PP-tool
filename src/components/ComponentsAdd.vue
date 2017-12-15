@@ -157,7 +157,11 @@
         axios.get(this.$baseAPI + 'licenses/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
-            replaceItemList ? this.licenses = [...this.payload.items] : this.licenses = [...this.licenses, ...this.payload.items]
+            if (replaceItemList)  {
+              this.licenses = this.payload.items
+            } else {
+              this.licenses = this.licenses.concat(this.payload.items)
+            }
             this.licenses.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
           })
       },
@@ -166,7 +170,11 @@
         axios.get(this.$baseAPI + 'licenses/search/' + this.searchLicense + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
-            replaceItemsList ? this.licenses = [...this.payload.items] : this.licenses = [...this.licenses, ...this.payload.items]
+            if (replaceItemsList)  {
+              this.licenses = this.payload.items
+            } else {
+              this.licenses = this.licenses.concat(this.payload.items)
+            }
             if (this.licenses.length === this.payload.meta.count) {
               this.showPaginatorClick = null
             } else {
@@ -193,11 +201,11 @@
           return
         }
         if ((this.searchLicense.length !== 0) && (this.searchLicense !== null) && (this.searchLicense !== '')) {
-          const path = `licenses/search/${this.searchLicense}/${this.payload.links.next}${this.payload.sort.column}${this.payload.sort.order}`
+          const path = 'licenses/search/' + this.searchLicense + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order
           axios.get(this.$baseAPI + path).then(response => {
             if (response.data != null) {
               this.payload = response.data
-              this.licenses = [...this.payload.items]
+              this.licenses = this.payload.items
             } else {
               this.message = 'No component found!'
             }

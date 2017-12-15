@@ -140,11 +140,11 @@
           return
         }
         if ((this.searchQuery.length !== 0) && (this.searchQuery !== null) && (this.searchQuery !== '')) {
-          const path = this.selected + `/search/${this.searchQuery}/${this.payload.links.next}${this.payload.sort.column}${this.payload.sort.order}`
+          const path = this.selected + '/search/' + this.searchQuery + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order
           axios.get(this.$baseAPI + path).then(response => {
             if (response.data !== null) {
               this.payload = response.data
-              this.dispThing = [...this.payload.items]
+              this.dispThing = this.payload.items
               if (this.dispThing.length < 5) {
                 this.showPaginatorClick = false
               }
@@ -167,7 +167,7 @@
         axios.get(this.$baseAPI + this.selected + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
-            replaceItemsList ? this.dispThing = [...this.payload.items] : this.dispThing = [...this.dispThing, ...this.payload.items]
+            replaceItemsList ? this.dispThing = this.payload.items : this.dispThing = this.dispThing.concat(this.payload.items)
             this.dispThing.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
           })
       },
@@ -175,7 +175,7 @@
         axios.get(this.$baseAPI + this.selected + '/search/' + this.searchQuery + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
-            replaceItemsList ? this.dispThing = [...this.payload.items] : this.dispThing = [...this.dispThing, ...this.payload.items]
+            replaceItemsList ? this.dispThing = this.payload.items : this.dispThing = this.dispThing.concat(this.payload.items)
             if (this.dispThing.length === this.payload.meta.count) {
               this.showPaginatorClick = null
             } else {
@@ -192,6 +192,7 @@
         let push = this.selected + '_id'
         this.$router.push({ name: push, params: { id: comp.id } })
       },
+
 
       sortName () {
         let newpayload

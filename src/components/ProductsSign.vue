@@ -110,7 +110,7 @@
         axios.get(this.$baseAPI + 'products/pending/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             _this.payload = response.data
-            replaceItemsList ? _this.products = [..._this.payload.items] : _this.products = [..._this.products, ..._this.payload.items]
+            replaceItemsList ? _this.products = _this.payload.items : _this.products = _this.products.concat(_this.payload.items)
             _this.products.length === _this.payload.meta.count ? _this.showPaginatorClick = null : _this.showPaginatorClick = true
           }).catch(err => {
             console.log(err)
@@ -121,7 +121,7 @@
         axios.get(this.$baseAPI + 'products/pending/search/' + this.searchProducts + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             _this.payload = response.data
-            replaceItemsList ? _this.products = [..._this.payload.items] : _this.products = [..._this.products, ..._this.payload.items]
+            replaceItemsList ? _this.products = _this.payload.items : _this.products = _this.products.concat(_this.payload.items)
             if (_this.products.length === _this.payload.meta.count) {
               _this.showPaginatorClick = null
             } else {

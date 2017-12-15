@@ -149,7 +149,7 @@
         axios.get(this.$baseAPI + 'licenses/search/' + this.searchLicenses + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
-            replaceItemsList ? this.licenses = [...this.payload.items] : this.licenses = [...this.licenses, ...this.payload.items]
+            replaceItemsList ? this.licenses = this.payload.items : this.licenses = this.licenses.concat(this.payload.items)
             if (this.licenses.length === this.payload.meta.count) {
               this.showPaginatorClick = null
             } else {

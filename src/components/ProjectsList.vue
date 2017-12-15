@@ -123,12 +123,12 @@
        * Searches for signed projects from the database matching the search-criteria
        */
       searchProject (search) {
-        const path = `projects/search/${search}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
+        const path = 'projects/search/' + search + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order
         let _this = this
         axios.get(this.$baseAPI + path).then(response => {
           if (response.data != null) {
             _this.payload = response.data
-            _this.projects = [..._this.payload.items]
+            _this.projects = _this.payload.items
             if (_this.projects.length === _this.payload.meta.count) {
               _this.showPaginatorClick = false
             }
@@ -164,17 +164,17 @@
         axios.get(this.$baseAPI + uri + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             _this.payload = response.data
-            replaceItemsList ? _this.projects = [..._this.payload.items] : _this.projects = [..._this.projects, ..._this.payload.items]
+            replaceItemsList ? _this.projects = _this.payload.items : _this.projects = _this.projects.concat(_this.payload.items)
             _this.projects.length === _this.payload.meta.count ? _this.showPaginatorClick = null : _this.showPaginatorClick = true
           }).catch(err => console.log(err))
       },
-      getNextSearchQuery (uri, replaceItemsList) {
+      getNextSearchQuery (replaceItemsList) {
         let _this = this
         if (this.projects.length < this.payload.meta.count) {
-          axios.get(this.$baseAPI + `${uri}/search/` + this.searchProjects + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+          axios.get(this.$baseAPI + 'projects/search/' + this.searchProjects + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
             .then(response => {
               _this.payload = response.data
-              replaceItemsList ? _this.projects = [..._this.payload.items] : _this.projects = [..._this.projects, ..._this.payload.items]
+              replaceItemsList ? _this.projects = _this.payload.items : _this.projects = _this.projects.concat(_this.payload.items)
               if (_this.projects.length === _this.payload.meta.count) {
                 _this.showPaginatorClick = null
               } else {

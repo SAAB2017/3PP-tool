@@ -125,12 +125,12 @@
        * Searches for signed products from the database matching the search-criteria
        */
       searchProduct (search) {
-        const path = `products/search/${search}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
+        const path = 'products/search/' + search + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order
         let _this = this
         axios.get(this.$baseAPI + path).then(response => {
           if (response.data != null) {
             _this.payload = response.data
-            _this.products = [..._this.payload.items]
+            _this.products = _this.payload.items
             if (_this.products.length === _this.payload.meta.count) {
               _this.showPaginatorClick = false
             }
@@ -166,7 +166,7 @@
         axios.get(this.$baseAPI + 'products/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
-            replaceItemsList ? this.products = [...this.payload.items] : this.products = [...this.products, ...this.payload.items]
+            replaceItemsList ? this.products = this.payload.items : this.products = this.products.concat(this.payload.items)
             this.products.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
           })
       },
@@ -175,7 +175,7 @@
         axios.get(this.$baseAPI + 'products/search/' + this.searchProducts + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
-            replaceItemsList ? this.products = [...this.payload.items] : this.products = [...this.products, ...this.payload.items]
+            replaceItemsList ? this.products = this.payload.items : this.products = this.products.concat(this.payload.items)
             if (this.products.length === this.payload.meta.count) {
               this.showPaginatorClick = null
             } else {
