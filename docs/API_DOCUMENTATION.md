@@ -93,7 +93,7 @@ Version: 1.0.0
 
 - [Get all approved projects](#getApprovedProjects)
  
-- [Get all unsigned projects](#getPendingProjects)
+- [Get all pending projects](#getPendingProjects)
 
 - [Search for an approved project](#searchForApprovedProject)
 
