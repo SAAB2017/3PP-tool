@@ -52,7 +52,7 @@ s<!-- Viezx w for showing all unsigned components -->
 
 <script>
   import axios from 'axios'
-  import payloadcfg from '../../backend/routes/config'
+
   export default {
     data () {
       return {
@@ -64,13 +64,12 @@ s<!-- Viezx w for showing all unsigned components -->
         showPaginatorClick: true,
         searching: false,
         payload: null,
-        initPayload: this.payloadFactory()
+        initPayload: this.payloadInit('component')
       }
     },
     /* Fetches unsigned components from the database and puts them in components */
     mounted () {
-      // TODO: getNext()
-      this.payload = this.payloadFactory()
+      this.payload = this.payloadInit('component')
       this.getNext(true)
     },
 
@@ -80,12 +79,12 @@ s<!-- Viezx w for showing all unsigned components -->
           this.searching = false
           this.showPaginatorClick = true
           this.components = []
-          this.payload = this.payloadFactory()
+          this.payload = this.payloadInit('component')
           this.getNext(true)
         } else if (a.length > 0) {
           this.searching = true
           let sort = this.payload.sort
-          this.payload = this.payloadFactory()
+          this.payload = this.payloadInit('component')
           this.payload.sort = sort
           this.searchComponent(a)
         }
@@ -104,7 +103,29 @@ s<!-- Viezx w for showing all unsigned components -->
     },
 
     methods: {
-      payloadFactory: payloadcfg.payloadInit.bind(null, 'component'),
+      payloadInit(type) {
+        return { // a default payload, can/should be extended
+          items: [],
+          links: {
+            prev: '?offset=0&amount=' + 25,
+            current: '?offset=0&amount=' + 25,
+            next: '?offset=0&amount=' + 25
+          },
+          sort: {
+            column: '&sort=' + type + 'Name',
+            order: '&order=asc'
+          },
+          meta: {
+            current: 0,
+            count: 0
+          },
+          errors: {
+            message: [],
+            status: 'OK'
+          },
+          errorflag: false
+        }
+      },
       getMore (replaceItemsList) {
         if (this.searching === false) {
           this.getNext(replaceItemsList)
@@ -138,7 +159,11 @@ s<!-- Viezx w for showing all unsigned components -->
         axios.get(this.$baseAPI + 'components/pending/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
-            replaceItemsList ? this.components = [...this.payload.items] : this.components = [...this.components, ...this.payload.items]
+            if (replaceItemsList) {
+              this.components = this.payload.items
+            } else {
+              this.components = this.components.concat(this.payload.items)
+            }
             this.components.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
           })
       },
@@ -147,7 +172,11 @@ s<!-- Viezx w for showing all unsigned components -->
         axios.get(p)
           .then(response => {
             this.payload = response.data
-            replaceItemsList ? this.components = [...this.payload.items] : this.components = [...this.components, ...this.payload.items]
+            if (replaceItemsList) {
+              this.components = this.payload.items
+            } else {
+              this.components = this.components.concat(this.payload.items)
+            }
             if (this.components.length === this.payload.meta.count) {
               this.showPaginatorClick = null
             } else {
@@ -166,7 +195,7 @@ s<!-- Viezx w for showing all unsigned components -->
       },
 
       sortName () {
-        let newpayload = this.payloadFactory()
+        let newpayload = this.payloadInit('component')
         newpayload.sort.column = '&sort=componentName'
         if (this.ordering === 'asc') {
           this.ordering = 'desc'
@@ -181,7 +210,7 @@ s<!-- Viezx w for showing all unsigned components -->
       },
 
       sortVersion () {
-        let newpayload = this.payloadFactory()
+        let newpayload = this.payloadInit('component')
         newpayload.sort.column = '&sort=componentVersion'
         if (this.ordering === 'asc') {
           this.ordering = 'desc'
@@ -196,7 +225,7 @@ s<!-- Viezx w for showing all unsigned components -->
       },
 
       sortCreated () {
-        let newpayload = this.payloadFactory()
+        let newpayload = this.payloadInit('component')
         newpayload.sort.column = '&sort=dateCreated'
         if (this.ordering === 'asc') {
           this.ordering = 'desc'
@@ -211,7 +240,7 @@ s<!-- Viezx w for showing all unsigned components -->
       },
 
       sortEdited () {
-        let newpayload = this.payloadFactory()
+        let newpayload = this.payloadInit('component')
         newpayload.sort.column = '&sort=lastEdited'
         if (this.ordering === 'asc') {
           this.ordering = 'desc'

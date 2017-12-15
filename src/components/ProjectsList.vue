@@ -65,7 +65,7 @@
 
 <script>
   import axios from 'axios'
-  import payloadcfg from '../../backend/routes/config'
+
   export default {
     data () {
       return {
@@ -77,7 +77,7 @@
         message: '',
         sorted: '',
         showPaginatorClick: true,
-        payload: this.payloadFactory()
+        payload: this.payloadInit('project')
       }
     },
 
@@ -87,10 +87,7 @@
         this.message = 'Project "' + this.$route.params.sName + '" (version: ' + this.$route.params.sVersion + ') signed'
         this.$route.params.type = ''
       }
-      this.getNext = this.getNext.bind(this, 'projects/')
-      this.getMore = this.getMore.bind(this, 'projects/')
-      this.getNextSearchQuery = this.getNextSearchQuery.bind(this, 'projects/')
-      this.getNext(true)
+      this.getNext('projects/', true)
       this.fade_out()
     },
     watch: {
@@ -99,12 +96,12 @@
           this.searching = false
           this.showPaginatorClick = true
           this.projects = []
-          this.payload = this.payloadFactory()
-          this.getNext(true)
+          this.payload = this.payloadInit('project')
+          this.getNext('projects/', true)
         } else if (a.length > 0) {
           this.searching = true
           let sort = this.payload.sort
-          this.payload = this.payloadFactory()
+          this.payload = this.payloadInit('project')
           this.payload.sort = sort
           this.searchProject(a)
         }
@@ -118,17 +115,39 @@
       }
     },
     methods: {
-      payloadFactory: payloadcfg.payloadInit.bind(null, 'project'),
+      payloadInit(type) {
+        return { // a default payload, can/should be extended
+          items: [],
+          links: {
+            prev: '?offset=0&amount=' + 25,
+            current: '?offset=0&amount=' + 25,
+            next: '?offset=0&amount=' + 25
+          },
+          sort: {
+            column: '&sort=' + type + 'Name',
+            order: '&order=asc'
+          },
+          meta: {
+            current: 0,
+            count: 0
+          },
+          errors: {
+            message: [],
+            status: 'OK'
+          },
+          errorflag: false
+        }
+      },
       /**
        * Searches for signed projects from the database matching the search-criteria
        */
       searchProject (search) {
-        const path = `projects/search/${search}/${this.payload.links.next}` + this.payload.sort.column + this.payload.sort.order
+        const path = 'projects/search/' + search + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order
         let _this = this
         axios.get(this.$baseAPI + path).then(response => {
           if (response.data != null) {
             _this.payload = response.data
-            _this.projects = [..._this.payload.items]
+            _this.projects = _this.payload.items
             if (_this.projects.length === _this.payload.meta.count) {
               _this.showPaginatorClick = false
             }
@@ -154,9 +173,9 @@
       getMore (uri, replaceItemsList) {
         let _this = this
         if (this.searching === false) {
-          this.getNext(replaceItemsList)
+          this.getNext(uri, replaceItemsList)
         } else {
-          _this.getNextSearchQuery(replaceItemsList)
+          _this.getNextSearchQuery(uri, replaceItemsList)
         }
       },
       getNext (uri, replaceItemsList) {
@@ -164,17 +183,17 @@
         axios.get(this.$baseAPI + uri + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             _this.payload = response.data
-            replaceItemsList ? _this.projects = [..._this.payload.items] : _this.projects = [..._this.projects, ..._this.payload.items]
+            replaceItemsList ? _this.projects = _this.payload.items : _this.projects = _this.projects.concat(_this.payload.items)
             _this.projects.length === _this.payload.meta.count ? _this.showPaginatorClick = null : _this.showPaginatorClick = true
           }).catch(err => console.log(err))
       },
-      getNextSearchQuery (uri, replaceItemsList) {
+      getNextSearchQuery (replaceItemsList) {
         let _this = this
         if (this.projects.length < this.payload.meta.count) {
-          axios.get(this.$baseAPI + `${uri}/search/` + this.searchProjects + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
+          axios.get(this.$baseAPI + 'projects/search/' + this.searchProjects + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
             .then(response => {
               _this.payload = response.data
-              replaceItemsList ? _this.projects = [..._this.payload.items] : _this.projects = [..._this.projects, ..._this.payload.items]
+              replaceItemsList ? _this.projects = _this.payload.items : _this.projects = _this.projects.concat(_this.payload.items)
               if (_this.projects.length === _this.payload.meta.count) {
                 _this.showPaginatorClick = null
               } else {

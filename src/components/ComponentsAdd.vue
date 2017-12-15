@@ -66,7 +66,6 @@
 
 <script>
   import axios from 'axios'
-  import payloadcfg from '../../backend/routes/config'
 
   export default {
 
@@ -80,19 +79,41 @@
         searchLicense: '',
         searching: false,
         showPaginatorClick: true,
-        payload: this.payloadFactory(),
+        payload: this.payloadInit('license'),
         errorList: [],
         success: true
       }
     },
     /* Fetches liceses from the database and puts them in licenses */
     mounted () {
-      this.payload = this.payloadFactory()
+      this.payload = this.payloadInit('license')
       this.getNextLicenses(true)
     },
 
     methods: {
-      payloadFactory: payloadcfg.payloadInit.bind(null, 'license'),
+      payloadInit(type) {
+        return { // a default payload, can/should be extended
+          items: [],
+          links: {
+            prev: '?offset=0&amount=' + 25,
+            current: '?offset=0&amount=' + 25,
+            next: '?offset=0&amount=' + 25
+          },
+          sort: {
+            column: '&sort=' + type + 'Name',
+            order: '&order=asc'
+          },
+          meta: {
+            current: 0,
+            count: 0
+          },
+          errors: {
+            message: [],
+            status: 'OK'
+          },
+          errorflag: false
+        }
+      },
       /**
        * Add a component to the database according to the fields in the view
        */
@@ -157,7 +178,11 @@
         axios.get(this.$baseAPI + 'licenses/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
-            replaceItemList ? this.licenses = [...this.payload.items] : this.licenses = [...this.licenses, ...this.payload.items]
+            if (replaceItemList)  {
+              this.licenses = this.payload.items
+            } else {
+              this.licenses = this.licenses.concat(this.payload.items)
+            }
             this.licenses.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
           })
       },
@@ -166,7 +191,11 @@
         axios.get(this.$baseAPI + 'licenses/search/' + this.searchLicense + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
-            replaceItemsList ? this.licenses = [...this.payload.items] : this.licenses = [...this.licenses, ...this.payload.items]
+            if (replaceItemsList)  {
+              this.licenses = this.payload.items
+            } else {
+              this.licenses = this.licenses.concat(this.payload.items)
+            }
             if (this.licenses.length === this.payload.meta.count) {
               this.showPaginatorClick = null
             } else {
@@ -182,7 +211,7 @@
         this.searching = true
         // create a new payload frame, with the old context data (so that we know "where" to get the next 25, 50 etc
         let sort = this.payload.sort
-        this.payload = this.payloadFactory()
+        this.payload = this.payloadInit('license')
         this.payload.sort = sort
         this.showPaginatorClick = true
         if (this.searchLicense.length === 0) {
@@ -193,11 +222,11 @@
           return
         }
         if ((this.searchLicense.length !== 0) && (this.searchLicense !== null) && (this.searchLicense !== '')) {
-          const path = `licenses/search/${this.searchLicense}/${this.payload.links.next}${this.payload.sort.column}${this.payload.sort.order}`
+          const path = 'licenses/search/' + this.searchLicense + '/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order
           axios.get(this.$baseAPI + path).then(response => {
             if (response.data != null) {
               this.payload = response.data
-              this.licenses = [...this.payload.items]
+              this.licenses = this.payload.items
             } else {
               this.message = 'No component found!'
             }

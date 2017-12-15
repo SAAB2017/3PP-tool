@@ -81,7 +81,7 @@
 
 <script>
   import axios from 'axios'
-  import payloadcfg from '../../backend/routes/config'
+
   export default {
 
     data () {
@@ -94,7 +94,7 @@
         searchComponents: '',
         showPaginatorClick: true,
         searching: false,
-        payload: this.payloadFactory(),
+        payload: this.payloadInit('component'),
         errorList: []
       }
     },
@@ -108,12 +108,12 @@
           this.searching = false
           this.showPaginatorClick = true
           this.components = []
-          this.payload = this.payloadFactory()
+          this.payload = this.payloadInit('component')
           this.getNext(true)
         } else if (a.length > 0) {
           this.searching = true
           let sort = this.payload.sort
-          this.payload = this.payloadFactory()
+          this.payload = this.payloadInit('component')
           this.payload.sort = sort
           this.searchComponent(a)
         }
@@ -130,7 +130,29 @@
       /**
        * Add a product to the database according to the fields in the view
        */
-      payloadFactory: payloadcfg.payloadInit.bind(null, 'component'),
+      payloadInit(type) {
+        return { // a default payload, can/should be extended
+          items: [],
+          links: {
+            prev: '?offset=0&amount=' + 25,
+            current: '?offset=0&amount=' + 25,
+            next: '?offset=0&amount=' + 25
+          },
+          sort: {
+            column: '&sort=' + type + 'Name',
+            order: '&order=asc'
+          },
+          meta: {
+            current: 0,
+            count: 0
+          },
+          errors: {
+            message: [],
+            status: 'OK'
+          },
+          errorflag: false
+        }
+      },
       addProduct () {
         let data = {
           productName: this.productName,
@@ -185,7 +207,7 @@
         axios.get(this.$baseAPI + 'components/' + this.payload.links.next + this.payload.sort.column + this.payload.sort.order)
           .then(response => {
             this.payload = response.data
-            replaceItemsList ? this.components = [...this.payload.items] : this.components = [...this.components, ...this.payload.items]
+            replaceItemsList ? this.components = this.payload.items : this.components = this.components.concat(this.payload.items)
             this.components.length === this.payload.meta.count ? this.showPaginatorClick = null : this.showPaginatorClick = true
           }).catch(err => console.log(err))
       },
