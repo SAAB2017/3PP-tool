@@ -1,7 +1,7 @@
 /* TEAM */
     Benjamin H. ............. github:
     Carl M. ................. github:
-    Drazen M. ............... github:
+    Drazen M. ............... github:dat15dmi
     Emil K. ................. github:icastieg
     Javier P. ............... github:Poremski
     Johannes S. ............. github:sunnanv
