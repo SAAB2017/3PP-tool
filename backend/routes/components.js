@@ -274,33 +274,29 @@ router.route('/approve')
 router.route('/add')
   .post((req, res) => {
     // precondition: component doesn't already exist.
-    let licenses = req.body.licenses
-    req.db.run('begin', () => {
-      addComponent(req.body, (query) => {
-        req.db.run(query, (error) => {
-          if (error) {
+    let license = req.body.license
+    addComponent(req.body, (query) => {
+      req.db.run(query, (error) => {
+        if (error) {
             // res.status(500)
-            req.db.run('rollback')
             // res.send('ERROR! error message:' + error.message + ', query: ' + query)
-            res.send('error')
-          } else {
+          res.send('error')
+        } else {
             // Get the component so that the id can be extracted
-            getComponent(req, res, req.body.componentName, req.body.componentVersion, null, function (component) {
-              insertComponentLog(req, res, component.id, 'Component created.',
+          getComponent(req, res, req.body.componentName, req.body.componentVersion, null, function (component) {
+            insertComponentLog(req, res, component.id, 'Component created.',
                 function (returnValue) {
-                  licenses.forEach((license) => insertLicenseIntoComponent(req, res, license, component.id, (succeeded) => {
+                  insertLicenseIntoComponent(req, res, license, component.id, (succeeded) => {
                     if (!succeeded) {
-                      req.db.run('rollback')
                       res.status(500)
                       res.send('Error! Component was not found!')
+                    } else {
+                      res.status(201).send('success')
                     }
-                  }))
-                  req.db.run('commit')
-                  res.status(201).send('success')
+                  })
                 })
-            })
-          }
-        })
+          })
+        }
       })
     })
     // postcondition: component created and logged.
